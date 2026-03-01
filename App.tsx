@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, lazy, useState, useEffect } from 'react';
 import { httpsCallable } from 'firebase/functions';
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth, functions } from './firebase';
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Rocket, Settings, Upload, Download, Loader2, Minimize2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, Info
 } from 'lucide-react';
 import { TEMPLATES } from './components/templates';
-import LoginPage from './components/LoginPage';
-import DomainChecker from './components/DomainChecker';
+const LoginPage = lazy(() => import('./components/LoginPage'));
+const DomainChecker = lazy(() => import('./components/DomainChecker'));
 import { useIframeEditor } from './components/useIframeEditor'; 
 
 const LAYOUT_STYLES = [
@@ -99,7 +97,7 @@ const PROMO_HTML = `
 </html>
 `;
 
-const cleanHtmlForPublishing = (rawHtml: string | null) => {
+const cleanHtmlForPublishing = (rawHtml: string | null, preserveEditable = false) => {
   if (!rawHtml) return '';
   if (!rawHtml.includes('editor-toolbar')) return rawHtml;
 
@@ -116,26 +114,28 @@ const cleanHtmlForPublishing = (rawHtml: string | null) => {
     if (el.getAttribute('class') === '') el.removeAttribute('class');
   });
 
-  doc.querySelectorAll('.editable-image-wrapper').forEach(wrapper => {
-    const hasImg = wrapper.querySelector('img');
-    if (!hasImg) {
-      wrapper.remove();
-    } else {
-      wrapper.classList.remove('editable-image-wrapper');
-      const core = wrapper.querySelector('.editable-image');
-      if (core) {
-        core.classList.remove('editable-image', 'border-2', 'border-dashed', 'border-zinc-600', 'cursor-pointer', 'hover:border-emerald-500');
-        core.querySelectorAll('i, span').forEach(el => el.remove());
+  if (!preserveEditable) {
+    doc.querySelectorAll('.editable-image-wrapper').forEach(wrapper => {
+      const hasImg = wrapper.querySelector('img');
+      if (!hasImg) {
+        wrapper.remove();
+      } else {
+        wrapper.classList.remove('editable-image-wrapper');
+        const core = wrapper.querySelector('.editable-image');
+        if (core) {
+          core.classList.remove('editable-image', 'border-2', 'border-dashed', 'border-zinc-600', 'cursor-pointer', 'hover:border-emerald-500');
+          core.querySelectorAll('i, span').forEach(el => el.remove());
+        }
       }
-    }
-  });
+    });
+  }
   
   return doc.documentElement.outerHTML;
 };
 
 const getPreviewHtml = (baseHtml: string | null) => {
   if (!baseHtml) return '';
-  const clean = cleanHtmlForPublishing(baseHtml);
+  const clean = cleanHtmlForPublishing(baseHtml, true);
   
   const editorScript = `
     <style id="editor-style">
@@ -154,7 +154,7 @@ const getPreviewHtml = (baseHtml: string | null) => {
       .editable-element:focus { outline-color: #ffffff; }
 
       .editable-image { position: relative; transition: all 0.2s; overflow: hidden; }
-      .editable-image:hover { background: rgba(255,255,255,0.05); }
+      .editable-image:hover { background: transparent; }
     </style>
     <div id="editor-toolbar" class="custom-editor-toolbar">
       <div class="color-picker-group" title="Cor do Texto (Fonte)"><span class="color-picker-label">T</span><input type="color" id="fore-color-picker" /></div>
@@ -167,7 +167,7 @@ const getPreviewHtml = (baseHtml: string | null) => {
 
     <div id="image-toolbar" class="custom-editor-toolbar flex gap-2">
       <button id="btn-upload" style="background: #27272a; color: white; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">📤 Upload</button>
-      <button id="btn-ai" style="background: #059669; color: white; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">✨ Gerar IA</button>
+      <button id="btn-stock" style="background: #2563eb; color: white; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">🖼️ Banco Público</button>
       <button id="btn-img-delete" style="color: #ef4444; background: none; border: none; font-size: 12px; cursor: pointer; margin-left: 4px;">✖ Remover</button>
     </div>
 
@@ -246,27 +246,27 @@ const getPreviewHtml = (baseHtml: string | null) => {
           imgToolbar.style.display = 'none';
         });
 
-        document.getElementById('btn-ai').addEventListener('click', () => {
+        document.getElementById('btn-stock').addEventListener('click', () => {
           imgToolbar.style.display = 'none';
           if (!currentImgTarget) return;
 
-          currentImgTarget.innerHTML = '<div style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 350px; background: #18181b; padding: 16px; border-radius: 12px; border: 1px solid #3f3f46; box-shadow: 0 10px 25px rgba(0,0,0,0.8); z-index: 50;"><span style="color: #a1a1aa; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">✨ Comando para a IA</span><input type="text" id="ai-img-prompt" placeholder="Ex: Uma padaria moderna, luz natural..." style="width: 100%; background: #27272a; color: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #52525b; outline: none; font-size: 13px;" autocomplete="off"><div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px;"><button id="ai-img-cancel" style="background: transparent; color: #a1a1aa; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">Cancelar</button><button id="ai-img-confirm" style="background: #10b981; color: #064e3b; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">Gerar Imagem</button></div></div>';
+          currentImgTarget.innerHTML = '<div style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 460px; background: #18181b; padding: 16px; border-radius: 12px; border: 1px solid #3f3f46; box-shadow: 0 10px 25px rgba(0,0,0,0.8); z-index: 50;"><span style="color: #a1a1aa; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">🖼️ Buscar em banco público</span><input type="text" id="stock-img-prompt" placeholder="Ex: hamburguer artesanal" style="width: 100%; background: #27272a; color: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #52525b; outline: none; font-size: 13px;" autocomplete="off"><div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px;"><button id="stock-img-cancel" style="background: transparent; color: #a1a1aa; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">Cancelar</button><button id="stock-img-confirm" style="background: #2563eb; color: #dbeafe; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">Buscar 4 opções</button></div></div>';
 
-          setTimeout(() => { const inp = document.getElementById('ai-img-prompt'); if(inp) inp.focus(); }, 50);
+          setTimeout(() => { const inp = document.getElementById('stock-img-prompt'); if(inp) inp.focus(); }, 50);
 
-          document.getElementById('ai-img-cancel').addEventListener('click', (e) => {
+          document.getElementById('stock-img-cancel').addEventListener('click', (e) => {
             e.stopPropagation();
             currentImgTarget.innerHTML = '<i class="fas fa-camera text-4xl mb-3"></i><span class="text-xs font-bold uppercase tracking-widest">Adicionar Imagem</span>';
           });
 
-          document.getElementById('ai-img-confirm').addEventListener('click', (e) => {
+          document.getElementById('stock-img-confirm').addEventListener('click', (e) => {
             e.stopPropagation();
-            const inp = document.getElementById('ai-img-prompt');
+            const inp = document.getElementById('stock-img-prompt');
             const promptText = inp ? inp.value.trim() : '';
             if(!promptText) return;
 
-            currentImgTarget.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; color:#10b981;"><i class="fas fa-circle-notch fa-spin text-3xl mb-3"></i><span class="text-xs font-bold uppercase tracking-widest">Criando Obra de Arte...</span></div>';
-            window.parent.postMessage({ type: 'REQUEST_AI', targetId: currentImgTarget.dataset.id, prompt: promptText }, '*');
+            currentImgTarget.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; color:#60a5fa;"><i class="fas fa-circle-notch fa-spin text-3xl mb-3"></i><span class="text-xs font-bold uppercase tracking-widest">Buscando imagens...</span></div>';
+            window.parent.postMessage({ type: 'REQUEST_STOCK_IMAGES', targetId: currentImgTarget.dataset.id, prompt: promptText }, '*');
           });
         });
 
@@ -282,9 +282,36 @@ const getPreviewHtml = (baseHtml: string | null) => {
           if (e.data.type === 'INSERT_IMAGE') {
             const targetEl = document.querySelector(\`.editable-image[data-id="\${e.data.targetId}"]\`);
             if (targetEl) {
-              targetEl.innerHTML = \`<img src="\${e.data.url}" class="w-full h-auto rounded-2xl shadow-2xl object-cover" />\`;
+              targetEl.innerHTML = \`<img src="\${e.data.url}" class="w-full h-full block object-cover" style="border-radius: inherit; margin: 0; box-shadow: none;" />\`;
               sendCleanHtml();
             }
+          }
+
+          if (e.data.type === 'STOCK_IMAGE_OPTIONS') {
+            const targetEl = document.querySelector(\`.editable-image[data-id="\${e.data.targetId}"]\`);
+            if (!targetEl) return;
+
+            const options = Array.isArray(e.data.options) ? e.data.options : [];
+            if (!options.length) {
+              targetEl.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;color:#fca5a5;"><i class="fas fa-triangle-exclamation text-2xl mb-2"></i><span class="text-xs font-bold uppercase tracking-widest">Sem resultados</span></div>';
+              return;
+            }
+
+            targetEl.innerHTML = \`<div style="width:100%;display:flex;flex-direction:column;gap:8px;"><span style="font-size:10px;color:#a1a1aa;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Escolha 1 imagem</span><div id="stock-grid-\${e.data.targetId}" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;"></div></div>\`;
+
+            const grid = document.getElementById(\`stock-grid-\${e.data.targetId}\`);
+            options.slice(0, 4).forEach((url) => {
+              const btn = document.createElement('button');
+              btn.type = 'button';
+              btn.style.cssText = 'padding:0;border:none;background:#111827;border-radius:10px;overflow:hidden;cursor:pointer;';
+              btn.innerHTML = \`<img src="\${url}" style="display:block;width:100%;height:120px;object-fit:cover;" />\`;
+              btn.addEventListener('click', (evt) => {
+                evt.stopPropagation();
+                targetEl.innerHTML = \`<img src="\${url}" class="w-full h-full block object-cover" style="border-radius: inherit; margin: 0; box-shadow: none;" />\`;
+                sendCleanHtml();
+              });
+              grid?.appendChild(btn);
+            });
           }
         });
       });
@@ -316,7 +343,7 @@ const App: React.FC = () => {
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
-    businessName: '', description: '', whatsapp: '', instagram: '', facebook: '', tiktok: '',
+    businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '',
     ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', mapEmbed: '',
     showForm: true, layoutStyle: 'layout_modern_center', colorId: 'obsidian', logoBase64: ''
   });
@@ -327,7 +354,7 @@ const App: React.FC = () => {
     if (aiContent) {
       setGeneratedHtml(renderTemplate(aiContent, formData));
     }
-  }, [formData.layoutStyle, formData.colorId, formData.logoBase64, formData.whatsapp, formData.instagram, formData.facebook, formData.tiktok, formData.ifood, formData.noveNove, formData.keeta, formData.showForm, formData.address, formData.mapEmbed, formData.phone, formData.email]);
+  }, [formData.layoutStyle, formData.colorId, formData.logoBase64, formData.whatsapp, formData.instagram, formData.facebook, formData.linkedin, formData.tiktok, formData.ifood, formData.noveNove, formData.keeta, formData.showForm, formData.address, formData.mapEmbed, formData.phone, formData.email, formData.region]);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => setLoggedUserEmail(user?.email || null));
@@ -363,7 +390,7 @@ const App: React.FC = () => {
     replaceAll('{{COLOR_4}}', colors.c4); replaceAll('{{COLOR_5}}', colors.c5); replaceAll('{{COLOR_6}}', colors.c6);
     replaceAll('{{COLOR_7}}', colors.c7); replaceAll('{{COLOR_LIGHT}}', colors.light); replaceAll('{{COLOR_DARK}}', colors.dark);
     
-    replaceAll('{{ADDRESS}}', data.address || 'Endereço não informado');
+    replaceAll('{{ADDRESS}}', data.region ? `${data.address || 'Endereço não informado'} - ${data.region}` : (data.address || 'Endereço não informado'));
     replaceAll('{{PHONE}}', data.phone || data.whatsapp || 'Telefone não informado');
     replaceAll('{{EMAIL}}', data.email || 'Email não informado');
 
@@ -377,26 +404,29 @@ const App: React.FC = () => {
     }
 
     replaceAll('[[WHATSAPP_BTN]]', ''); replaceAll('[[INSTAGRAM_BTN]]', ''); replaceAll('[[FACEBOOK_BTN]]', '');
-    replaceAll('[[TIKTOK_BTN]]', ''); replaceAll('[[IFOOD_BTN]]', ''); replaceAll('[[NOVE_NOVE_BTN]]', ''); replaceAll('[[KEETA_BTN]]', '');
+    replaceAll('[[TIKTOK_BTN]]', ''); replaceAll('[[LINKEDIN_BTN]]', ''); replaceAll('[[IFOOD_BTN]]', ''); replaceAll('[[NOVE_NOVE_BTN]]', ''); replaceAll('[[KEETA_BTN]]', '');
 
     let floatingHtml = '';
-    const addFloatBtn = (icon: string, href: string, bg: string, color: string, label: string) => {
-      floatingHtml += `<a href="${href}" target="_blank" class="float-btn" style="background-color: ${bg}; color: ${color};" title="${label}"><i class="${icon}"></i></a>`;
+    const addFloatBtn = (href: string, bg: string, color: string, label: string, innerHtml: string) => {
+      floatingHtml += `<a href="${href}" target="_blank" class="float-btn" style="background-color: ${bg}; color: ${color};" title="${label}">${innerHtml}</a>`;
     };
 
-    if (data.whatsapp) addFloatBtn('fab fa-whatsapp', `https://wa.me/${data.whatsapp.replace(/\D/g, '')}`, '#25D366', '#fff', 'WhatsApp');
-    if (data.instagram) addFloatBtn('fab fa-instagram', `https://instagram.com/${data.instagram.replace('@', '')}`, '#E1306C', '#fff', 'Instagram');
-    if (data.facebook) addFloatBtn('fab fa-facebook-f', data.facebook.startsWith('http') ? data.facebook : `https://${data.facebook}`, '#1877F2', '#fff', 'Facebook');
-    if (data.tiktok) addFloatBtn('fab fa-tiktok', data.tiktok.startsWith('http') ? data.tiktok : `https://${data.tiktok}`, '#000000', '#fff', 'TikTok');
-    if (data.ifood) addFloatBtn('fas fa-motorcycle', data.ifood.startsWith('http') ? data.ifood : `https://${data.ifood}`, '#EA1D2C', '#fff', 'iFood');
-    if (data.noveNove) addFloatBtn('fas fa-car', data.noveNove.startsWith('http') ? data.noveNove : `https://${data.noveNove}`, '#FFC700', '#000', '99 Food');
-    if (data.keeta) addFloatBtn('fas fa-store', data.keeta.startsWith('http') ? data.keeta : `https://${data.keeta}`, '#FF4B2B', '#fff', 'Keeta');
+    if (data.whatsapp) addFloatBtn(`https://wa.me/${data.whatsapp.replace(/\D/g, '')}`, '#25D366', '#fff', 'WhatsApp', '<i class="fab fa-whatsapp"></i>');
+    if (data.instagram) addFloatBtn(`https://instagram.com/${data.instagram.replace('@', '')}`, '#E1306C', '#fff', 'Instagram', '<i class="fab fa-instagram"></i>');
+    if (data.facebook) addFloatBtn(data.facebook.startsWith('http') ? data.facebook : `https://${data.facebook}`, '#1877F2', '#fff', 'Facebook', '<i class="fab fa-facebook-f"></i>');
+    if (data.linkedin) addFloatBtn(data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`, '#0A66C2', '#fff', 'LinkedIn', '<i class="fab fa-linkedin-in"></i>');
+    if (data.tiktok) addFloatBtn(data.tiktok.startsWith('http') ? data.tiktok : `https://${data.tiktok}`, '#000000', '#fff', 'TikTok', '<i class="fab fa-tiktok"></i>');
+    if (data.ifood) addFloatBtn(data.ifood.startsWith('http') ? data.ifood : `https://${data.ifood}`, '#EA1D2C', '#fff', 'iFood', '<img src="https://cdn.simpleicons.org/ifood/ffffff" alt="iFood" class="float-logo"/>');
+    if (data.noveNove) addFloatBtn(data.noveNove.startsWith('http') ? data.noveNove : `https://${data.noveNove}`, '#FFC700', '#111', '99', '<span class="float-brand">99</span>');
+    if (data.keeta) addFloatBtn(data.keeta.startsWith('http') ? data.keeta : `https://${data.keeta}`, '#19B84A', '#fff', 'Keeta', '<span class="float-brand">Keeta</span>');
 
     if (floatingHtml) {
       const floatStyle = `
       <style>
         .floating-actions { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 12px; z-index: 99999; }
-        .float-btn { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: all 0.3s ease; text-decoration: none; outline: none; }
+        .float-btn { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: all 0.3s ease; text-decoration: none; outline: none; }
+        .float-logo { width: 24px; height: 24px; object-fit: contain; }
+        .float-brand { font-size: 13px; font-weight: 900; letter-spacing: .2px; }
         .float-btn:hover { transform: scale(1.1) translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
       </style>`;
       headInjection += floatStyle;
@@ -410,8 +440,8 @@ const App: React.FC = () => {
     replaceAll('[[CONTACT_FORM]]', formCode);
 
     const imgPlaceholder = (id: string, label: string) => `
-      <div class="editable-image-wrapper w-full flex justify-center py-6">
-        <div class="editable-image border-2 border-dashed border-zinc-600 rounded-2xl p-10 flex flex-col items-center justify-center text-zinc-500 hover:border-emerald-500 hover:text-emerald-500 transition-colors cursor-pointer w-full min-h-[300px] bg-black/20" data-id="${id}">
+      <div class="editable-image-wrapper w-full py-4">
+        <div class="editable-image rounded-2xl flex flex-col items-center justify-center text-zinc-500 hover:text-emerald-500 transition-colors cursor-pointer w-full min-h-[320px] bg-black/20" data-id="${id}">
           <i class="fas fa-camera text-4xl mb-3"></i><span class="text-xs font-bold uppercase tracking-widest">Adicionar Imagem - ${label}</span>
         </div>
       </div>`;
@@ -433,7 +463,7 @@ const App: React.FC = () => {
         return;
       }
       const generateFn = httpsCallable(functions, 'generateSite');
-      const result: any = await generateFn({ businessName: formData.businessName, description: formData.description });
+      const result: any = await generateFn({ businessName: formData.businessName, description: formData.description, region: formData.region });
       setAiContent(result.data);
       setGeneratedHtml(renderTemplate(result.data, formData));
       setHasUnsavedChanges(true);
@@ -507,30 +537,28 @@ const App: React.FC = () => {
       
       if (projectId === currentProjectSlug) {
         setGeneratedHtml(null); setCurrentProjectSlug(null); setHasUnsavedChanges(false); setActiveTab('geral');
-        setFormData({ businessName: '', description: '', whatsapp: '', instagram: '', facebook: '', tiktok: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', mapEmbed: '', showForm: true, layoutStyle: 'layout_modern_center', colorId: 'obsidian', logoBase64: '' });
+        setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', mapEmbed: '', showForm: true, layoutStyle: 'layout_modern_center', colorId: 'obsidian', logoBase64: '' });
       }
       fetchProjects();
     } catch (error) { alert("Erro ao excluir o site."); }
   };
 
-  const handleStripeCheckout = (projectId: string) => {
+  const handleStripeCheckout = async (projectId: string) => {
+    if (!projectId) return;
     setCheckoutLoading(projectId);
-    
-    const stripePaymentLink = "https://buy.stripe.com/test_00w7sMfzDdJ8diU04I4wM00";
-    const checkoutUrl = `${stripePaymentLink}?client_reference_id=${projectId}`;
-    
-    const width = 500;
-    const height = 700;
-    const left = window.screenX + (window.outerWidth - width) / 2;
-    const top = window.screenY + (window.outerHeight - height) / 2;
-    
-    window.open(
-      checkoutUrl, 
-      'StripeCheckout', 
-      `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no`
-    );
-    
-    setCheckoutLoading(null);
+    try {
+      const createCheckoutFn = httpsCallable(functions, 'createStripeCheckoutSession');
+      const res: any = await createCheckoutFn({ projectId, origin: window.location.origin });
+      if (res.data?.url) {
+        window.location.href = res.data.url;
+        return;
+      }
+      throw new Error('URL de checkout inválida.');
+    } catch (error: any) {
+      alert('Erro ao iniciar pagamento: ' + error.message);
+    } finally {
+      setCheckoutLoading(null);
+    }
   };
 
   const handleLoadProject = (project: any) => {
@@ -556,11 +584,17 @@ const App: React.FC = () => {
     setIsLoginOpen(false);
   };
 
-  const handleDownloadZip = () => {
+  const handleDownloadZip = async () => {
     if (!generatedHtml) return;
+    const [{ default: JSZip }, { saveAs }] = await Promise.all([
+      import('jszip'),
+      import('file-saver'),
+    ]);
+
     const zip = new JSZip();
     zip.file('index.html', cleanHtmlForPublishing(generatedHtml)); 
-    zip.generateAsync({ type: 'blob' }).then(c => saveAs(c, `${formData.businessName || 'site'}.zip`));
+    const content = await zip.generateAsync({ type: 'blob' });
+    saveAs(content, `${formData.businessName || 'site'}.zip`);
   };
 
   const getStatusBadge = (project: any) => {
@@ -611,7 +645,9 @@ const App: React.FC = () => {
           </AnimatePresence>
         </div>
 
-        <LoginPage isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onSubmit={handleLoginSubmit} />
+        <Suspense fallback={null}>
+          <LoginPage isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onSubmit={handleLoginSubmit} />
+        </Suspense>
 
         <AnimatePresence>
           {publishModalUrl && (
@@ -740,6 +776,10 @@ const App: React.FC = () => {
                           <input className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3.5 text-sm focus:border-emerald-500 outline-none transition-colors" placeholder="Ex: Eletricista Silva" value={formData.businessName} onChange={e => {setFormData({ ...formData, businessName: e.target.value }); setHasUnsavedChanges(true)}} />
                         </div>
                         <div>
+                          <label className="text-xs font-bold text-zinc-500 uppercase flex gap-2 mb-1.5"><MapPin size={12} /> Região de atuação</label>
+                          <input className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3.5 text-sm focus:border-emerald-500 outline-none transition-colors" placeholder="Ex: Zona Sul de São Paulo - SP" value={formData.region} onChange={e => {setFormData({ ...formData, region: e.target.value }); setHasUnsavedChanges(true)}} />
+                        </div>
+                        <div>
                           <label className="text-xs font-bold text-zinc-500 uppercase flex gap-2 mb-1.5"><FileText size={12} /> Ideia Principal</label>
                           <textarea className="w-full h-20 bg-zinc-900 border border-zinc-800 rounded-xl p-3.5 text-sm resize-none focus:border-emerald-500 outline-none transition-colors" placeholder="Descreva os serviços..." value={formData.description} onChange={e => {setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true)}} />
                         </div>
@@ -798,6 +838,7 @@ const App: React.FC = () => {
                               <input className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs focus:border-emerald-500 outline-none" placeholder="WhatsApp (só números)" value={formData.whatsapp} onChange={e => {setFormData({ ...formData, whatsapp: e.target.value }); setHasUnsavedChanges(true)}} />
                               <input className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs focus:border-emerald-500 outline-none" placeholder="Instagram (@usuario)" value={formData.instagram} onChange={e => {setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true)}} />
                               <input className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs focus:border-emerald-500 outline-none" placeholder="Facebook (Link)" value={formData.facebook} onChange={e => {setFormData({ ...formData, facebook: e.target.value }); setHasUnsavedChanges(true)}} />
+                              <input className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs focus:border-emerald-500 outline-none" placeholder="LinkedIn (Link)" value={formData.linkedin} onChange={e => {setFormData({ ...formData, linkedin: e.target.value }); setHasUnsavedChanges(true)}} />
                               <input className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs focus:border-emerald-500 outline-none" placeholder="TikTok (Link)" value={formData.tiktok} onChange={e => {setFormData({ ...formData, tiktok: e.target.value }); setHasUnsavedChanges(true)}} />
                             </div>
                           </div>
@@ -819,6 +860,10 @@ const App: React.FC = () => {
                             </div>
                             <input className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs focus:border-emerald-500 outline-none" placeholder="Endereço Físico" value={formData.address} onChange={e => {setFormData({ ...formData, address: e.target.value }); setHasUnsavedChanges(true)}} />
                             <input className="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs focus:border-emerald-500 outline-none" placeholder="Link do Google Maps" value={formData.mapEmbed} onChange={e => {setFormData({ ...formData, mapEmbed: e.target.value }); setHasUnsavedChanges(true)}} />
+                            <label className="flex items-center justify-between bg-zinc-900 border border-zinc-800 rounded-xl p-3 text-xs text-zinc-300">
+                              <span>Exibir formulário de contato no site</span>
+                              <input type="checkbox" checked={formData.showForm} onChange={e => {setFormData({ ...formData, showForm: e.target.checked }); setHasUnsavedChanges(true)}} className="accent-emerald-500" />
+                            </label>
                           </div>
                         </div>
                       )}
@@ -831,7 +876,9 @@ const App: React.FC = () => {
                         <div className="bg-indigo-500/10 p-5 rounded-2xl border border-indigo-500/30">
                           <h4 className="text-sm font-bold text-indigo-300 flex items-center gap-2 mb-2"><Globe size={16}/> Qual será o endereço?</h4>
                           <p className="text-xs text-indigo-200/80 mb-5 leading-relaxed">Antes de salvar, precisamos saber se você vai usar um domínio oficial (Ex: Registro.br).</p>
-                          <DomainChecker onDomainChange={(domain, isLater) => { setOfficialDomain(domain); setRegisterLater(isLater); }} />
+                          <Suspense fallback={null}>
+                            <DomainChecker onDomainChange={(domain, isLater) => { setOfficialDomain(domain); setRegisterLater(isLater); }} />
+                          </Suspense>
                         </div>
                       ) : (
                         <div className="space-y-4">

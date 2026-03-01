@@ -129,11 +129,11 @@ async function ensureHostingReady(siteId) {
 // ============================================================================
 exports.generateSite = onCall({ cors: true, timeoutSeconds: 60, memory: "256MiB", secrets: [geminiKey] }, async (request) => {
   const genAI = getGeminiClient();
-  const { businessName, description } = request.data;
+  const { businessName, description, region } = request.data;
   if (!businessName) throw new HttpsError("invalid-argument", "Nome obrigatório");
 
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash", generationConfig: { responseMimeType: "application/json" } });
-  const prompt = `Atue como um redator publicitário sênior. Empresa: "${businessName}". Descrição: "${description}". Gere JSON exato com as chaves: heroTitle, heroSubtitle, aboutTitle, aboutText, contactCall. Textos curtos e persuasivos.`;
+  const prompt = `Atue como um redator publicitário sênior. Empresa: "${businessName}". Descrição: "${description}". Região de atuação: "${region || "Brasil"}". Gere JSON exato com as chaves: heroTitle, heroSubtitle, aboutTitle, aboutText, contactCall. Textos curtos, persuasivos e com linguagem natural para o público brasileiro da região informada.`;
 
   try {
     const result = await model.generateContent(prompt);
@@ -297,18 +297,24 @@ exports.publishUserProject = onCall({ cors: true, timeoutSeconds: 180, memory: "
     const deployResult = await deployHtmlToFirebaseHosting(project.hostingSiteId, project.generatedHtml);
     const publicUrl = hostingProvision.defaultUrl || `https://${project.hostingSiteId}.web.app`;
 
-    let expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 5); // 5 Dias de Trial
+    const isPaidProject = project.paymentStatus === "paid";
+    let nextExpiresAt = project.expiresAt || null;
+
+    if (!isPaidProject) {
+      const trialExpiration = new Date();
+      trialExpiration.setDate(trialExpiration.getDate() + 5); // 5 dias de trial
+      nextExpiresAt = admin.firestore.Timestamp.fromDate(trialExpiration);
+    }
 
     await ref.set({
       published: true, publishUrl: publicUrl, publishedAt: admin.firestore.FieldValue.serverTimestamp(),
-      expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
-      status: "published", paymentStatus: "trial", needsDeploy: false, lastDeploy: deployResult,
+      ...(nextExpiresAt ? { expiresAt: nextExpiresAt } : {}),
+      status: "published", paymentStatus: isPaidProject ? "paid" : "trial", needsDeploy: false, lastDeploy: deployResult,
       hosting: { ...(project.hosting || {}), ...hostingProvision },
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     }, { merge: true });
 
-    return { success: true, publishUrl: publicUrl, expiresAt: expiresAt.toISOString() };
+    return { success: true, publishUrl: publicUrl, expiresAt: nextExpiresAt?.toDate?.()?.toISOString?.() || null };
   } catch (error) { throw new HttpsError("internal", error.message); }
 });
 
@@ -332,6 +338,37 @@ exports.deleteUserProject = onCall({ cors: true }, async (request) => {
     await ref.delete();
   }
   return { success: true };
+});
+
+
+exports.createStripeCheckoutSession = onCall({ cors: true }, async (request) => {
+  ensureAuthed(request);
+  const { projectId, origin } = request.data || {};
+  if (!projectId) throw new HttpsError("invalid-argument", "projectId é obrigatório.");
+
+  const safeOrigin = origin && /^https?:\/\//.test(origin) ? origin : "https://sitecraft-ai.web.app";
+
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    payment_method_types: ["card"],
+    line_items: [{
+      price_data: {
+        currency: "brl",
+        product_data: {
+          name: "Plano anual SiteCraft",
+          description: "Hospedagem e manutenção por 12 meses"
+        },
+        unit_amount: 49900
+      },
+      quantity: 1
+    }],
+    locale: "pt-BR",
+    client_reference_id: projectId,
+    success_url: `${safeOrigin}?payment=success&project=${projectId}`,
+    cancel_url: `${safeOrigin}?payment=cancelled&project=${projectId}`
+  });
+
+  return { url: session.url };
 });
 
 // ==============================================================================
