@@ -37,8 +37,16 @@ export const useIframeEditor = ({ setGeneratedHtml, setHasUnsavedChanges }: UseI
         if (!promptText) return;
 
         const iframe = document.querySelector('iframe');
-        const cleanPrompt = encodeURIComponent(String(promptText).trim());
-        const options = [1, 2, 3, 4].map(i => `https://source.unsplash.com/800x600/?${cleanPrompt}&sig=${Date.now()}${i}`);
+        const cleanPrompt = encodeURIComponent(String(promptText).trim().toLowerCase());
+        const seedBase = String(Date.now());
+
+        // Evita depender apenas do source.unsplash.com (instável/503 em alguns momentos).
+        // Cada opção já vem com fallback público para aumentar resiliência.
+        const options = [1, 2, 3, 4].map((i) => {
+          const primary = `https://loremflickr.com/800/600/${cleanPrompt}?lock=${seedBase}${i}`;
+          const fallback = `https://picsum.photos/seed/${cleanPrompt}-${seedBase}-${i}/800/600`;
+          return `${primary}|${fallback}`;
+        });
 
         iframe?.contentWindow?.postMessage({
           type: 'STOCK_IMAGE_OPTIONS',
