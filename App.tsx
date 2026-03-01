@@ -243,6 +243,30 @@ const getPreviewHtml = (baseHtml: string | null) => {
           imgToolbar.style.display = 'none';
         });
 
+        document.getElementById('btn-ai').addEventListener('click', () => {
+          imgToolbar.style.display = 'none';
+          if (!currentImgTarget) return;
+
+          currentImgTarget.innerHTML = '<div style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 350px; background: #18181b; padding: 16px; border-radius: 12px; border: 1px solid #3f3f46; box-shadow: 0 10px 25px rgba(0,0,0,0.8); z-index: 50;"><span style="color: #a1a1aa; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">✨ Comando para a IA</span><input type="text" id="ai-img-prompt" placeholder="Ex: Uma padaria moderna, luz natural..." style="width: 100%; background: #27272a; color: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #52525b; outline: none; font-size: 13px;" autocomplete="off"><div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px;"><button id="ai-img-cancel" style="background: transparent; color: #a1a1aa; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">Cancelar</button><button id="ai-img-confirm" style="background: #10b981; color: #064e3b; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">Gerar Imagem</button></div></div>';
+
+          setTimeout(() => { const inp = document.getElementById('ai-img-prompt'); if(inp) inp.focus(); }, 50);
+
+          document.getElementById('ai-img-cancel').addEventListener('click', (e) => {
+            e.stopPropagation();
+            currentImgTarget.innerHTML = '<i class="fas fa-camera text-4xl mb-3"></i><span class="text-xs font-bold uppercase tracking-widest">Adicionar Imagem</span>';
+          });
+
+          document.getElementById('ai-img-confirm').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const inp = document.getElementById('ai-img-prompt');
+            const promptText = inp ? inp.value.trim() : '';
+            if(!promptText) return;
+
+            currentImgTarget.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; color:#10b981;"><i class="fas fa-circle-notch fa-spin text-3xl mb-3"></i><span class="text-xs font-bold uppercase tracking-widest">Criando imagem realista...</span></div>';
+            window.parent.postMessage({ type: 'REQUEST_AI', targetId: currentImgTarget.dataset.id, prompt: promptText }, '*');
+          });
+        });
+
         document.getElementById('btn-img-delete').addEventListener('click', () => {
           if (currentImgTarget) { 
             currentImgTarget.innerHTML = '<i class="fas fa-camera text-4xl mb-3"></i><span class="text-xs font-bold uppercase tracking-widest">Adicionar Imagem (Opcional)</span>';

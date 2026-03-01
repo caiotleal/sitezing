@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../firebase';
 
 interface UseIframeEditorProps {
   setGeneratedHtml: (html: string | null) => void;
@@ -30,6 +32,38 @@ export const useIframeEditor = ({ setGeneratedHtml, setHasUnsavedChanges }: UseI
           reader.readAsDataURL(file);
         };
         input.click();
+      }
+
+      if (event.data?.type === 'REQUEST_AI') {
+        const promptText = event.data.prompt;
+        if (!promptText) return;
+
+        const iframe = document.querySelector('iframe');
+        iframe?.contentWindow?.postMessage({
+          type: 'INSERT_IMAGE',
+          targetId: event.data.targetId,
+          url: 'https://placehold.co/800x600/059669/ffffff?text=✨+Gerando+Imagem+Realista...'
+        }, '*');
+
+        try {
+          const generateImageFn = httpsCallable(functions, 'generateImage');
+          const result: any = await generateImageFn({ prompt: promptText });
+          if (result.data?.imageUrl) {
+            iframe?.contentWindow?.postMessage({
+              type: 'INSERT_IMAGE',
+              targetId: event.data.targetId,
+              url: result.data.imageUrl,
+            }, '*');
+            setHasUnsavedChanges(true);
+          }
+        } catch (error: any) {
+          alert('Erro ao gerar imagem: ' + error.message);
+          iframe?.contentWindow?.postMessage({
+            type: 'INSERT_IMAGE',
+            targetId: event.data.targetId,
+            url: 'https://placehold.co/800x600/ef4444/ffffff?text=Falha+ao+gerar+imagem'
+          }, '*');
+        }
       }
 
     };
