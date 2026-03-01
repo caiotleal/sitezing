@@ -167,7 +167,7 @@ const getPreviewHtml = (baseHtml: string | null) => {
 
     <div id="image-toolbar" class="custom-editor-toolbar flex gap-2">
       <button id="btn-upload" style="background: #27272a; color: white; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">📤 Upload</button>
-      <button id="btn-ai" style="background: #059669; color: white; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">✨ Gerar IA</button>
+      <button id="btn-stock" style="background: #2563eb; color: white; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">🖼️ Banco Público</button>
       <button id="btn-img-delete" style="color: #ef4444; background: none; border: none; font-size: 12px; cursor: pointer; margin-left: 4px;">✖ Remover</button>
     </div>
 
@@ -246,22 +246,22 @@ const getPreviewHtml = (baseHtml: string | null) => {
           imgToolbar.style.display = 'none';
         });
 
-        document.getElementById('btn-ai').addEventListener('click', () => {
+        document.getElementById('btn-stock').addEventListener('click', () => {
           imgToolbar.style.display = 'none';
           if (!currentImgTarget) return;
 
-          currentImgTarget.innerHTML = '<div style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 350px; background: #18181b; padding: 16px; border-radius: 12px; border: 1px solid #3f3f46; box-shadow: 0 10px 25px rgba(0,0,0,0.8); z-index: 50;"><span style="color: #a1a1aa; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">✨ Comando para a IA</span><input type="text" id="ai-img-prompt" placeholder="Ex: Uma padaria moderna, luz natural..." style="width: 100%; background: #27272a; color: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #52525b; outline: none; font-size: 13px;" autocomplete="off"><div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px;"><button id="ai-img-cancel" style="background: transparent; color: #a1a1aa; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">Cancelar</button><button id="ai-img-confirm" style="background: #10b981; color: #064e3b; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">Gerar Imagem</button></div></div>';
+          currentImgTarget.innerHTML = '<div style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 460px; background: #18181b; padding: 16px; border-radius: 12px; border: 1px solid #3f3f46; box-shadow: 0 10px 25px rgba(0,0,0,0.8); z-index: 50;"><span style="color: #a1a1aa; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">🖼️ Buscar em banco público</span><input type="text" id="stock-img-prompt" placeholder="Ex: hamburguer artesanal" style="width: 100%; background: #27272a; color: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #52525b; outline: none; font-size: 13px;" autocomplete="off"><div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px;"><button id="stock-img-cancel" style="background: transparent; color: #a1a1aa; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">Cancelar</button><button id="stock-img-confirm" style="background: #2563eb; color: #dbeafe; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">Buscar 4 opções</button></div></div>';
 
-          setTimeout(() => { const inp = document.getElementById('ai-img-prompt'); if(inp) inp.focus(); }, 50);
+          setTimeout(() => { const inp = document.getElementById('stock-img-prompt'); if(inp) inp.focus(); }, 50);
 
-          document.getElementById('ai-img-cancel').addEventListener('click', (e) => {
+          document.getElementById('stock-img-cancel').addEventListener('click', (e) => {
             e.stopPropagation();
             currentImgTarget.innerHTML = '<i class="fas fa-camera text-4xl mb-3"></i><span class="text-xs font-bold uppercase tracking-widest">Adicionar Imagem</span>';
           });
 
-          document.getElementById('ai-img-confirm').addEventListener('click', (e) => {
+          document.getElementById('stock-img-confirm').addEventListener('click', (e) => {
             e.stopPropagation();
-            const inp = document.getElementById('ai-img-prompt');
+            const inp = document.getElementById('stock-img-prompt');
             const promptText = inp ? inp.value.trim() : '';
             if(!promptText) return;
 
