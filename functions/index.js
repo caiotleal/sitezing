@@ -382,38 +382,45 @@ exports.stripeWebhook = onRequest({ cors: true }, async (req, res) => {
       PLANO: planType
     }, null, 2));
 
-    if (projectId) {
-      try {
-        const db = admin.firestore();
-        const usersSnap = await db.collection("users").get();
-        let encontrouProjeto = false;
-
-        for (const userDoc of usersSnap.docs) {
-          const projectRef = db.collection("users").doc(userDoc.id).collection("projects").doc(projectId);
-          const pDoc = await projectRef.get();
-
-          if (pDoc.exists) {
+if (pDoc.exists) {
             encontrouProjeto = true;
-            const newExpiration = new Date();
             
+            const projectData = pDoc.data();
+            const oldSubscriptionId = projectData.stripeSubscriptionId;
+            const newSubscriptionId = session.subscription;
+
+            // MÁGICA DO UPGRADE: Se existe uma assinatura antiga e ela é diferente da nova, cancela a antiga na hora.
+            if (oldSubscriptionId && newSubscriptionId && oldSubscriptionId !== newSubscriptionId) {
+              try {
+                await stripe.subscriptions.cancel(oldSubscriptionId);
+                console.log(`[UPGRADE] Assinatura anterior (${oldSubscriptionId}) cancelada com sucesso.`);
+              } catch (err) {
+                console.error("Erro ao cancelar assinatura antiga:", err.message);
+              }
+            }
+
+            // Define o novo vencimento
+            const newExpiration = new Date();
             if (planType === 'anual') {
               newExpiration.setFullYear(newExpiration.getFullYear() + 1);
             } else {
               newExpiration.setMonth(newExpiration.getMonth() + 1);
             }
 
+            // Atualiza o banco com a nova assinatura
             await projectRef.update({
               status: "published",
-              paymentStatus: "paid", // Aqui a mágica de sumir o botão acontece
+              paymentStatus: "paid", 
               planSelected: planType,
+              stripeSubscriptionId: newSubscriptionId || null, // Salva o ID para futuros upgrades
               expiresAt: admin.firestore.Timestamp.fromDate(newExpiration),
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
               needsDeploy: true
             });
 
             console.log(`✅ SUCESSO! Projeto ${projectId} atualizado. Plano: ${planType.toUpperCase()}`);
             break;
           }
-        }
 
         if (!encontrouProjeto) {
           console.error(`⚠️ ALERTA: A Stripe mandou o ID "${projectId}", mas ele não foi achado no banco.`);
