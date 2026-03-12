@@ -521,11 +521,16 @@ const App: React.FC = () => {
     replaceAll('[[MAP_AREA]]', mapCode);
     
 // Configuração inteligente do FormSubmit para envio de emails via AJAX (Sem sair da página)
-    // Usamos o endpoint /ajax/ para evitar o redirecionamento
     const formAction = data.email ? `action="https://formsubmit.co/ajax/${data.email}"` : '';
+    
+    // Configurações de Idioma e Remetente
     const hiddenInputs = data.email ? `
-      <input type="hidden" name="_subject" value="Novo contato pelo site - ${data.businessName}">
-      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_subject" value="[Contato do seu Site] Nova mensagem de um cliente">
+      
+      <input type="hidden" name="_language" value="pt-BR">
+      
+      <input type="hidden" name="_template" value="box">
+      
       <input type="hidden" name="_captcha" value="false">
     ` : '';
 
