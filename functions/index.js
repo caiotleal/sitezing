@@ -411,6 +411,44 @@ exports.stripeWebhook = onRequest({ cors: true }, async (req, res) => {
 });
 
 // ==============================================================================
+// CANCELAMENTO DE ASSINATURA (FIM DO CICLO)
+// ==============================================================================
+exports.cancelStripeSubscription = onCall({ cors: true }, async (request) => {
+  const uid = ensureAuthed(request);
+  const { projectId } = request.data;
+  if (!projectId) throw new HttpsError("invalid-argument", "projectId é obrigatório.");
+
+  const db = admin.firestore();
+  const projectRef = db.collection("users").doc(uid).collection("projects").doc(projectId);
+  const snap = await projectRef.get();
+
+  if (!snap.exists) throw new HttpsError("not-found", "Projeto não encontrado.");
+  const project = snap.data();
+
+  if (!project.stripeSubscriptionId) {
+    throw new HttpsError("failed-precondition", "Assinatura não vinculada ou já cancelada.");
+  }
+
+  try {
+    // Comunica ao Stripe: "Não renove mais, mas mantenha ativo até o dia final"
+    await stripe.subscriptions.update(project.stripeSubscriptionId, {
+      cancel_at_period_end: true
+    });
+
+    // Avisa o nosso banco de dados que o cancelamento foi programado
+    await projectRef.update({
+      cancelAtPeriodEnd: true,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Erro ao cancelar assinatura:", error.message);
+    throw new HttpsError("internal", "Erro ao comunicar com o provedor de pagamentos.");
+  }
+});
+
+// ==============================================================================
 // CRON JOB DIÁRIO
 // ==============================================================================
 exports.cleanupExpiredSites = onSchedule("every 24 hours", async (event) => {
