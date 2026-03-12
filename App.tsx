@@ -11,14 +11,8 @@ const LoginPage = lazy(() => import('./components/LoginPage'));
 const DomainChecker = lazy(() => import('./components/DomainChecker'));
 import { useIframeEditor } from './components/useIframeEditor'; 
 
-// ============================================================================
-// 🚀 SUA IDENTIDADE VISUAL MESTRE (COLE SEU BASE64 AQUI)
-// ============================================================================
-// Vá no site https://www.base64-image.de/, suba seu logo, copie o código gerado
-// e substitua a URL abaixo por "data:image/jpeg;base64,SEU_CODIGO_GIGANTE_AQUI..."
-export const BRAND_LOGO = "https://i.imgur.com/eBvQd6p.png"; 
-// ============================================================================
-
+// 👇 PUXANDO A IMAGEM DO ARQUIVO EXTERNO 👇
+import { BRAND_LOGO } from './components/brand';
 const LAYOUT_STYLES = [
   { id: 'layout_modern_center', label: 'Centro Imponente', desc: 'Hero centralizado, animações verticais' },
   { id: 'layout_modern_split', label: 'Split Dinâmico', desc: 'Metades divididas com entradas laterais' },
@@ -1317,3 +1311,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+
