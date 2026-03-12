@@ -536,7 +536,7 @@ const App: React.FC = () => {
       <textarea name="Mensagem" required class="w-full bg-[${colors.c1}] border border-[${colors.c3}] rounded-xl p-4 text-sm focus:outline-none focus:border-[${colors.c4}] transition-all text-[${colors.c4}] placeholder:text-[${colors.c6}]" rows="4" placeholder="Sua mensagem"></textarea>
       <button type="${data.email ? 'submit' : 'button'}" class="btn-primary w-full py-4 rounded-xl font-bold uppercase tracking-widest transition-all text-[${colors.c1}]" style="background-color: ${colors.c7}; border: none;">Enviar mensagem</button>
     </form>` : '';
-
+replaceAll('[[CONTACT_FORM]]', formCode);
     const imgPlaceholder = (id: string, label: string) => {
       if (customImages[id]) {
          return `
