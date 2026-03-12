@@ -449,6 +449,20 @@ exports.cancelStripeSubscription = onCall({ cors: true }, async (request) => {
 });
 
 // ==============================================================================
+// RETOMAR ASSINATURA (DESFAZER CANCELAMENTO)
+// ==============================================================================
+exports.resumeStripeSubscription = onCall({ cors: true }, async (request) => {
+  const uid = ensureAuthed(request);
+  const { projectId } = request.data;
+  if (!projectId) throw new HttpsError("invalid-argument", "projectId é obrigatório.");
+
+  const db = admin.firestore();
+  const projectRef = db.collection("users").doc(uid).collection("projects").doc(projectId);
+  const snap = await projectRef.get();
+
+  if (!snap.exists) throw new HttpsError("not-found", "Projeto não
+
+// ==============================================================================
 // CRON JOB DIÁRIO
 // ==============================================================================
 exports.cleanupExpiredSites = onSchedule("every 24 hours", async (event) => {
