@@ -16,7 +16,7 @@ const stripe = require("stripe")("sk_test_51T3iV5LK0sp6cEMAbpSV1cM4MGESQ9s3EOffF
 if (!admin.apps.length) admin.initializeApp();
 
 const geminiKey = defineSecret("GEMINI_KEY");
-const openAiKey = defineSecret("OPENAI_KEY"); // <-- NOVA CHAVE DA OPENAI ADICIONADA AQUI
+const openAiKey = defineSecret("OPENAI_KEY");
 
 const getProjectId = () => process.env.GCLOUD_PROJECT || JSON.parse(process.env.FIREBASE_CONFIG || '{}').projectId;
 
@@ -141,9 +141,6 @@ exports.generateSite = onCall({ cors: true, timeoutSeconds: 60, memory: "256MiB"
   } catch (error) { throw new HttpsError("internal", error.message); }
 });
 
-// ============================================================================
-// MOTOR DE IMAGEM POR IA (OPENAI DALL-E 3)
-// ============================================================================
 exports.generateImage = onCall({ cors: true, timeoutSeconds: 120, secrets: [geminiKey] }, async (request) => {
   const uid = ensureAuthed(request);
   const { prompt } = request.data;
@@ -155,37 +152,26 @@ exports.generateImage = onCall({ cors: true, timeoutSeconds: 120, secrets: [gemi
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${geminiKey.value()}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         instances: [{ prompt: refinedPrompt }],
-        parameters: {
-          sampleCount: 1,
-          aspectRatio: "1:1"
-        }
+        parameters: { sampleCount: 1, aspectRatio: "1:1" }
       })
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Erro Google Imagen 3:", errorText);
       throw new HttpsError("internal", "A IA não conseguiu gerar a imagem. Tente outra descrição.");
     }
 
     const data = await response.json();
-
     if (!data.predictions || data.predictions.length === 0) {
       throw new HttpsError("internal", "Nenhuma imagem foi retornada pela API.");
     }
 
     const base64Image = data.predictions[0].bytesBase64Encoded;
     const mimeType = data.predictions[0].mimeType || "image/jpeg";
-
     return { imageUrl: `data:${mimeType};base64,${base64Image}` };
-
   } catch (error) {
-    console.error("Falha no gerador de imagens:", error);
     throw new HttpsError("internal", error.message);
   }
 });
@@ -203,18 +189,13 @@ exports.saveSiteProject = onCall({ cors: true, memory: "512MiB" }, async (reques
   const { businessName, internalDomain, officialDomain, generatedHtml, formData, aiContent } = request.data;
   const projectSlug = internalDomain;
 
-  // 1. A CORREÇÃO: Garante que o documento do usuário seja real (não-fantasma)
-  await admin.firestore().collection("users").doc(uid).set({
-    activeUser: true,
-    uid: uid
-  }, { merge: true });
+  await admin.firestore().collection("users").doc(uid).set({ activeUser: true, uid: uid }, { merge: true });
 
   const hosting = await createHostingSiteIfPossible(projectSlug);
   await configureSiteRetention(projectSlug);
 
   const now = admin.firestore.FieldValue.serverTimestamp();
 
-  // 2. Salva o projeto normalmente na subcoleção
   await admin.firestore().collection("users").doc(uid).collection("projects").doc(projectSlug).set({
     uid, businessName, projectSlug, hostingSiteId: projectSlug, internalDomain,
     officialDomain: officialDomain || "Pendente", generatedHtml, formData: formData || {}, aiContent: aiContent || {},
@@ -237,7 +218,6 @@ exports.updateSiteProject = onCall({ cors: true }, async (request) => {
   return { success: true };
 });
 
-// Listagem blindada contra ocultação do banco de dados
 exports.listUserProjects = onCall({ cors: true }, async (request) => {
   const uid = ensureAuthed(request);
   const snap = await admin.firestore().collection("users").doc(uid).collection("projects").get();
@@ -274,7 +254,7 @@ exports.publishUserProject = onCall({ cors: true, timeoutSeconds: 180, memory: "
 
     if (!isPaidProject) {
       const trialExpiration = new Date();
-      trialExpiration.setDate(trialExpiration.getDate() + 5); // 5 dias de trial
+      trialExpiration.setDate(trialExpiration.getDate() + 5); 
       nextExpiresAt = admin.firestore.Timestamp.fromDate(trialExpiration);
     }
 
@@ -313,7 +293,7 @@ exports.deleteUserProject = onCall({ cors: true }, async (request) => {
 });
 
 // ==============================================================================
-// STRIPE CHECKOUT E MENSALIDADE (COM ATUALIZAÇÃO MENSAL/ANUAL)
+// STRIPE CHECKOUT E MENSALIDADE
 // ==============================================================================
 exports.createStripeCheckoutSession = onCall({ cors: true }, async (request) => {
   ensureAuthed(request);
@@ -323,7 +303,7 @@ exports.createStripeCheckoutSession = onCall({ cors: true }, async (request) => 
   const safeOrigin = origin && /^https?:\/\//.test(origin) ? origin : "https://sitecraft-ai.web.app";
 
   const isAnual = planType === 'anual';
-  const amount = isAnual ? 49900 : 4990; // R$ 499,00 ou R$ 49,90
+  const amount = isAnual ? 49900 : 4990;
   const interval = isAnual ? "year" : "month";
 
   const session = await stripe.checkout.sessions.create({
@@ -352,7 +332,7 @@ exports.createStripeCheckoutSession = onCall({ cors: true }, async (request) => 
 });
 
 // ==============================================================================
-// WEBHOOK DA STRIPE (COM RASTREIO, LOG DE PAYLOAD E PLANOS)
+// WEBHOOK DA STRIPE (LÓGICA BLINDADA DE UPGRADE)
 // ==============================================================================
 exports.stripeWebhook = onRequest({ cors: true }, async (req, res) => {
   const sig = req.headers["stripe-signature"];
@@ -366,40 +346,38 @@ exports.stripeWebhook = onRequest({ cors: true }, async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  console.log(`[WEBHOOK] Evento disparado: ${event.type}`);
-
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
     const projectId = session.client_reference_id;
     const planType = session.metadata?.planType || 'anual';
 
-    // O RASTREADOR DE PAYLOAD: Mostra exatamente o que a Stripe enviou
-    console.log(`[STRIPE PAYLOAD] Dados recebidos:`, JSON.stringify({
-      sessionId: session.id,
-      cliente_email: session.customer_details?.email,
-      status_pagamento: session.payment_status,
-      ID_DO_PROJETO_RECEBIDO: projectId,
-      PLANO: planType
-    }, null, 2));
+    if (projectId) {
+      try {
+        const db = admin.firestore();
+        const usersSnap = await db.collection("users").get();
+        let encontrouProjeto = false;
 
-if (pDoc.exists) {
+        for (const userDoc of usersSnap.docs) {
+          const projectRef = db.collection("users").doc(userDoc.id).collection("projects").doc(projectId);
+          const pDoc = await projectRef.get();
+
+          if (pDoc.exists) {
             encontrouProjeto = true;
             
             const projectData = pDoc.data();
             const oldSubscriptionId = projectData.stripeSubscriptionId;
             const newSubscriptionId = session.subscription;
 
-            // MÁGICA DO UPGRADE: Se existe uma assinatura antiga e ela é diferente da nova, cancela a antiga na hora.
+            // MÁGICA DO UPGRADE: Cancela assinatura antiga automaticamente
             if (oldSubscriptionId && newSubscriptionId && oldSubscriptionId !== newSubscriptionId) {
               try {
                 await stripe.subscriptions.cancel(oldSubscriptionId);
-                console.log(`[UPGRADE] Assinatura anterior (${oldSubscriptionId}) cancelada com sucesso.`);
+                console.log(`[UPGRADE] Assinatura anterior cancelada.`);
               } catch (err) {
                 console.error("Erro ao cancelar assinatura antiga:", err.message);
               }
             }
 
-            // Define o novo vencimento
             const newExpiration = new Date();
             if (planType === 'anual') {
               newExpiration.setFullYear(newExpiration.getFullYear() + 1);
@@ -407,29 +385,25 @@ if (pDoc.exists) {
               newExpiration.setMonth(newExpiration.getMonth() + 1);
             }
 
-            // Atualiza o banco com a nova assinatura
             await projectRef.update({
               status: "published",
-              paymentStatus: "paid", 
+              paymentStatus: "paid",
               planSelected: planType,
-              stripeSubscriptionId: newSubscriptionId || null, // Salva o ID para futuros upgrades
+              stripeSubscriptionId: newSubscriptionId || null,
               expiresAt: admin.firestore.Timestamp.fromDate(newExpiration),
               updatedAt: admin.firestore.FieldValue.serverTimestamp(),
               needsDeploy: true
             });
 
-            console.log(`✅ SUCESSO! Projeto ${projectId} atualizado. Plano: ${planType.toUpperCase()}`);
-            break;
+            console.log(`✅ SUCESSO! Projeto ${projectId} atualizado para: ${planType.toUpperCase()}`);
+            break; 
           }
-
-        if (!encontrouProjeto) {
-          console.error(`⚠️ ALERTA: A Stripe mandou o ID "${projectId}", mas ele não foi achado no banco.`);
         }
+
+        if (!encontrouProjeto) console.error(`⚠️ Projeto ${projectId} não encontrado.`);
       } catch (error) {
-        console.error(`❌ Erro ao escrever no banco de dados:`, error);
+        console.error(`❌ Erro no banco:`, error);
       }
-    } else {
-      console.error("⚠️ ALERTA: Pagamento concluído, mas a Stripe NÃO DEVOLVEU o client_reference_id.");
     }
   }
 
