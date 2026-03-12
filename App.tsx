@@ -615,7 +615,7 @@ const App: React.FC = () => {
     } catch (error) { alert("Erro ao excluir o site."); }
   };
 
-  const handleStripeCheckout = async (projectId: string, planType: 'monthly' | 'annual') => {
+  const handleStripeCheckout = async (projectId: string, planType: 'mensal' | 'anual') => {
     if (!projectId) return;
     setCheckoutLoading(projectId);
     try {
@@ -956,7 +956,7 @@ const App: React.FC = () => {
                     <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
                       {!currentProjectSlug ? (
                         <div className="bg-indigo-500/10 p-5 rounded-2xl border border-indigo-500/30">
-                          <h4 className="text-sm font-bold text-indigo-300 flex items-center gap-2 mb-2"><Globe size={16}/> Qual será o endereço?</h4>
+                          <h4 className="text-sm font-bold text-indigo-300 flex items-center gap-2"><Globe size={16}/> Qual será o endereço?</h4>
                           <p className="text-xs text-indigo-200/80 mb-5 leading-relaxed">Antes de salvar, precisamos saber se você vai usar um domínio oficial (Ex: Registro.br).</p>
                           <Suspense fallback={null}>
                             <DomainChecker onDomainChange={(domain, isLater) => { setOfficialDomain(domain); setRegisterLater(isLater); }} />
@@ -1024,7 +1024,7 @@ const App: React.FC = () => {
                                   <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-400 shrink-0 mt-0.5"/> Hospedagem rápida garantida</li>
                                 </ul>
                                 <button 
-                                  onClick={() => handleStripeCheckout(currentProjectSlug, 'monthly')}
+                                  onClick={() => handleStripeCheckout(currentProjectSlug, 'mensal')}
                                   disabled={checkoutLoading === currentProjectSlug}
                                   className="w-full bg-zinc-700 hover:bg-zinc-600 text-white py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors"
                                 >
@@ -1046,7 +1046,7 @@ const App: React.FC = () => {
                                   <li className="flex items-start gap-2"><CheckCircle size={14} className="text-amber-400 shrink-0 mt-0.5"/> Maior prioridade de suporte</li>
                                 </ul>
                                 <button 
-                                  onClick={() => handleStripeCheckout(currentProjectSlug, 'annual')}
+                                  onClick={() => handleStripeCheckout(currentProjectSlug, 'anual')}
                                   disabled={checkoutLoading === currentProjectSlug}
                                   className="w-full bg-amber-500 hover:bg-amber-400 text-zinc-900 py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-colors shadow-lg shadow-amber-500/20"
                                 >
