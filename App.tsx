@@ -88,7 +88,6 @@ const PROMO_HTML = `
     </div>
 
     <div class="grid md:grid-cols-3 gap-6 relative z-10 animate-up" style="animation-delay: 0.2s;">
-      
       <div class="glass-card p-8 rounded-[2rem] relative overflow-hidden group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'free' }, '*')">
         <img src="${BRAND_LOGO}" class="plan-bg-logo" />
         <div class="absolute top-0 right-0 bg-stone-200 text-stone-700 text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase">Sem pagamento antecipado</div>
@@ -423,6 +422,7 @@ const App: React.FC = () => {
   const [currentProjectSlug, setCurrentProjectSlug] = useState<string | null>(null);
   const [isSavingProject, setIsSavingProject] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isUpdatePublish, setIsUpdatePublish] = useState(false); // 👇 Controle de atualização de publicação
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [publishModalUrl, setPublishModalUrl] = useState<string | null>(null);
   const [officialDomain, setOfficialDomain] = useState('');
@@ -518,12 +518,14 @@ const App: React.FC = () => {
       html = html.replace(/\[\[LOGO_AREA\]\]/g, `<span style="font-weight: 900; font-size: 1.2rem; text-transform: uppercase;">${companyNameUpper}</span>`);
     }
 
+    replaceAll('[[WHATSAPP_BTN]]', ''); replaceAll('[[INSTAGRAM_BTN]]', ''); replaceAll('[[FACEBOOK_BTN]]', '');
+    replaceAll('[[TIKTOK_BTN]]', ''); replaceAll('[[LINKEDIN_BTN]]', ''); replaceAll('[[IFOOD_BTN]]', ''); replaceAll('[[NOVE_NOVE_BTN]]', ''); replaceAll('[[KEETA_BTN]]', '');
+
     let socialHtml = '';
     const addSocialBtn = (href: string, brandColor: string, label: string, innerHtml: string) => {
       socialHtml += `<a href="${href}" target="_blank" class="glass-social-link" style="color: ${brandColor};" title="${label}">${innerHtml}</a>`;
     };
 
-    // Ícones que vão aparecer no Header
     if (data.whatsapp) addSocialBtn(`https://wa.me/${data.whatsapp.replace(/\D/g, '')}`, '#25D366', 'WhatsApp', '<i class="fab fa-whatsapp"></i>');
     if (data.instagram) addSocialBtn(`https://instagram.com/${data.instagram.replace('@', '')}`, '#E1306C', 'Instagram', '<i class="fab fa-instagram"></i>');
     if (data.facebook) addSocialBtn(data.facebook.startsWith('http') ? data.facebook : `https://${data.facebook}`, '#1877F2', 'Facebook', '<i class="fab fa-facebook-f"></i>');
@@ -533,8 +535,13 @@ const App: React.FC = () => {
     if (data.noveNove) addSocialBtn(data.noveNove.startsWith('http') ? data.noveNove : `https://${data.noveNove}`, '#FFC700', '99', '<span style="font-size: 15px; font-weight: 900; line-height: 1;">99</span>');
     if (data.keeta) addSocialBtn(data.keeta.startsWith('http') ? data.keeta : `https://${data.keeta}`, '#19B84A', 'Keeta', '<span style="font-size: 15px; font-weight: 900; line-height: 1;">Keeta</span>');
 
-    // Substitui a tag criada no templates.ts pelos ícones reais
     replaceAll('[[SOCIAL_LINKS]]', socialHtml);
+
+    // 👇 CONTROLE DO BOTÃO "FALE CONOSCO" NO TOPO DA PÁGINA (Apenas se o Form estiver ativado)
+    const headerContactBtn = data.showForm 
+      ? `<a href="#contato" class="btn-contact-premium"><span class="desktop-text">Fale Conosco</span><i class="fas fa-comment-dots mobile-icon"></i></a>` 
+      : ``;
+    replaceAll('[[HEADER_CONTACT_BTN]]', headerContactBtn);
 
     const footerBrand = `<div style="text-align:center; padding: 24px; font-size: 12px; opacity: 0.5; width: 100%; font-family: sans-serif; display: flex; align-items: center; justify-content: center; gap: 6px;">Criado por <a href="https://sitezing.com.br" target="_blank" style="text-decoration: none; font-weight: 900; display: flex; align-items: center; gap: 4px; color: inherit; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'"><img src="${BRAND_LOGO}" style="height: 16px; width: auto;" alt="SiteZing"/> SiteZing.com.br</a></div>`;
     html = html.replace('</body>', `${footerBrand}</body>`);
@@ -643,11 +650,18 @@ const App: React.FC = () => {
     if (hasUnsavedChanges) return alert("Salve suas alterações antes de publicar.");
     setIsPublishing(true);
     try {
+      const project = savedProjects.find(p => p.id === currentProjectSlug);
+      // 👇 Verifica se o projeto já tinha URL publicada ou se estava ativo
+      const isAlreadyPublished = Boolean(project?.publishUrl || project?.status === 'active');
+      setIsUpdatePublish(isAlreadyPublished);
+
       const publishFn = httpsCallable(functions, 'publishUserProject');
       const res: any = await publishFn({ targetId: currentProjectSlug });
       let publicUrl = res.data?.publishUrl || `https://${currentProjectSlug}.web.app`;
       if (!publicUrl.startsWith('http')) publicUrl = `https://${publicUrl}`;
-      fetchProjects(); setPublishModalUrl(publicUrl);
+      
+      fetchProjects(); 
+      setPublishModalUrl(publicUrl);
     } catch (err: any) { alert('Erro ao publicar: ' + err.message); } 
     finally { setIsPublishing(false); }
   };
@@ -739,10 +753,8 @@ const App: React.FC = () => {
         * { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      {/* FUNDO QUENTE (FAFAF9) */}
       <div className="w-full h-screen bg-[#FAFAF9] overflow-hidden font-sans text-stone-900 flex flex-col md:flex-row">
         
-        {/* Área Principal (Iframe) */}
         <div className="flex-1 relative h-full overflow-hidden bg-[#FAFAF9]">
           <iframe 
             srcDoc={generatedHtml ? getPreviewHtml(generatedHtml) : PROMO_HTML} 
@@ -772,7 +784,6 @@ const App: React.FC = () => {
           </AnimatePresence>
         </div>
 
-        {/* Modal de Login */}
         <Suspense fallback={null}>
           <LoginPage isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onSubmit={handleLoginSubmit} brandLogo={BRAND_LOGO} />
         </Suspense>
@@ -898,16 +909,23 @@ const App: React.FC = () => {
                   <CheckCircle size={32} />
                 </div>
                 <div className="relative z-10">
-                  <h2 className="text-2xl font-bold text-stone-900 mb-2">Seu site está no ar!</h2>
-                  <p className="text-stone-500 text-sm leading-relaxed">A sua página já está online. Caso tenha configurado um domínio oficial, pode demorar algumas horas para propagar.</p>
+                  <h2 className="text-2xl font-bold text-stone-900 mb-2">
+                    {isUpdatePublish ? 'Publicação Atualizada!' : 'Seu site está no ar!'}
+                  </h2>
+                  <p className="text-stone-500 text-sm leading-relaxed">
+                    {isUpdatePublish ? 'As alterações já refletem no seu endereço online.' : 'A sua página já está online. Caso tenha configurado um domínio oficial, pode demorar algumas horas para propagar.'}
+                  </p>
                 </div>
 
-                <div className="bg-orange-50 border border-orange-100 p-4 rounded-xl text-left relative z-10 shadow-sm">
-                   <h4 className="text-orange-600 font-bold text-[11px] uppercase tracking-wider mb-2">Aproveite seus 7 dias gratuitos</h4>
-                   <p className="text-[10px] text-stone-600 leading-relaxed font-medium">
-                     Durante esse período, explore todos os recursos. Lembre-se: caso a assinatura não seja efetivada ao final do prazo, o site entrará em estado de congelamento e, posteriormente, será excluído definitivamente do sistema.
-                   </p>
-                </div>
+                {/* 👇 SÓ EXIBE AVISO DE TRIAL SE FOR PRIMEIRA PUBLICAÇÃO E AINDA NÃO FOR PAGO 👇 */}
+                {!isUpdatePublish && savedProjects.find(p => p.id === currentProjectSlug)?.paymentStatus !== 'paid' && (
+                  <div className="bg-orange-50 border border-orange-100 p-4 rounded-xl text-left relative z-10 shadow-sm">
+                     <h4 className="text-orange-600 font-bold text-[11px] uppercase tracking-wider mb-2">Aproveite seus 7 dias gratuitos</h4>
+                     <p className="text-[10px] text-stone-600 leading-relaxed font-medium">
+                       Durante esse período, explore todos os recursos. Lembre-se: caso a assinatura não seja efetivada ao final do prazo, o site entrará em estado de congelamento e, posteriormente, será excluído definitivamente do sistema.
+                     </p>
+                  </div>
+                )}
 
                 <div className="bg-stone-50 p-3 rounded-xl border border-stone-200 flex items-center justify-between gap-3 overflow-hidden relative z-10 mt-2">
                   <code className="text-teal-600 text-sm truncate flex-1 font-mono">{publishModalUrl}</code>
@@ -1253,10 +1271,10 @@ const App: React.FC = () => {
                   )}
                 </div>
 
-{/* Rodapé do Menu */}
+                {/* 👇 RODAPÉ COM LÓGICA DE ATUALIZAR PUBLICAÇÃO 👇 */}
                 {generatedHtml && (() => {
                   const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
-                  const isPaid = currentProject?.paymentStatus === 'paid';
+                  const isPublished = Boolean(currentProject?.publishUrl || currentProject?.status === 'active');
 
                   return (
                     <div className="p-4 border-t border-stone-200 bg-white flex flex-col sm:flex-row items-center gap-3 flex-shrink-0">
@@ -1272,10 +1290,10 @@ const App: React.FC = () => {
                       <button 
                         onClick={handlePublishSite} 
                         disabled={isPublishing || hasUnsavedChanges || !currentProjectSlug} 
-                        className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${!hasUnsavedChanges && currentProjectSlug ? (isPaid ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20' : 'bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-500/20') : 'bg-stone-100 text-stone-400 cursor-not-allowed'}`}
+                        className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${!hasUnsavedChanges && currentProjectSlug ? (isPublished ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20' : 'bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-500/20') : 'bg-stone-100 text-stone-400 cursor-not-allowed'}`}
                       >
-                        {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : (isPaid ? <RefreshCw size={14} /> : <Globe size={14} />)} 
-                        {isPaid ? 'Atualizar Publicação' : 'Publicar Site'}
+                        {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : (isPublished ? <RefreshCw size={14} /> : <Globe size={14} />)} 
+                        {isPublished ? 'Atualizar Publicação' : 'Publicar Site'}
                       </button>
                     </div>
                   );
