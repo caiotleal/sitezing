@@ -23,23 +23,39 @@ const LAYOUT_STYLES = [
 ];
 
 const COLORS = [
+  // ==========================================
+  // PALETAS ORIGINAIS (Mantidas para não quebrar sites antigos)
+  // ==========================================
   { id: 'obsidian', name: 'Obsidiana', c1: '#000000', c2: '#0a0a0a', c3: '#171717', c4: '#ffffff', c5: '#d4d4d8', c6: '#a1a1aa', c7: '#71717a', light: '#ffffff', dark: '#000000' },
   { id: 'slate', name: 'Ardósia', c1: '#020617', c2: '#0f172a', c3: '#1e293b', c4: '#3b82f6', c5: '#60a5fa', c6: '#93c5fd', c7: '#bfdbfe', light: '#f8fafc', dark: '#020617' },
-  { id: 'forest', name: 'Floresta', c1: '#022c22', c2: '#064e3b', c3: '#065f46', c4: '#10b981', c5: '#34d399', c6: '#6ee7b7', c7: '#a7f3d0', light: '#ecfdf5', dark: '#022c22' },
-  { id: 'wine', name: 'Vinho', c1: '#2a0510', c2: '#4c0519', c3: '#881337', c4: '#e11d48', c5: '#f43f5e', c6: '#fb7185', c7: '#fda4af', light: '#fff1f2', dark: '#2a0510' },
-  { id: 'amethyst', name: 'Ametista', c1: '#170326', c2: '#2e1045', c3: '#4a1d6e', c4: '#9333ea', c5: '#a855f7', c6: '#c084fc', c7: '#d8b4fe', light: '#faf5ff', dark: '#170326' },
-  { id: 'snow', name: 'Neve', c1: '#ffffff', c2: '#f4f4f5', c3: '#e4e4e7', c4: '#09090b', c5: '#27272a', c6: '#3f3f46', c7: '#52525b', light: '#09090b', dark: '#ffffff' },
-  { id: 'sky', name: 'Céu Pálido', c1: '#f8fafc', c2: '#f1f5f9', c3: '#e2e8f0', c4: '#1d4ed8', c5: '#2563eb', c6: '#3b82f6', c7: '#60a5fa', light: '#020617', dark: '#ffffff' },
-  { id: 'mint', name: 'Menta Suave', c1: '#f0fdf4', c2: '#dcfce7', c3: '#bbf7d0', c4: '#047857', c5: '#059669', c6: '#10b981', c7: '#34d399', light: '#022c22', dark: '#ffffff' },
-  { id: 'peach', name: 'Pêssego', c1: '#fff7ed', c2: '#ffedd5', c3: '#fed7aa', c4: '#c2410c', c5: '#ea580c', c6: '#f97316', c7: '#fb923c', light: '#431407', dark: '#ffffff' },
-  { id: 'lavender', name: 'Lavanda', c1: '#faf5ff', c2: '#f3e8ff', c3: '#e9d5ff', c4: '#6b21a8', c5: '#7e22ce', c6: '#9333ea', c7: '#a855f7', light: '#2e1045', dark: '#ffffff' },
-  { id: 'terracotta', name: 'Terracota', c1: '#1c0f0a', c2: '#2c1810', c3: '#452516', c4: '#d97743', c5: '#e89564', c6: '#f0b48b', c7: '#f5ceb3', light: '#ffffff', dark: '#1c0f0a' },
-  { id: 'sand', name: 'Areia', c1: '#fdfbf7', c2: '#f4eee4', c3: '#e6dac3', c4: '#a37b45', c5: '#b5905d', c6: '#c9a87a', c7: '#dbc19a', light: '#2c1810', dark: '#ffffff' },
-  { id: 'rust', name: 'Ferrugem', c1: '#1a0f0a', c2: '#2b1710', c3: '#422216', c4: '#b84a23', c5: '#d4633b', c6: '#e38866', c7: '#f0b097', light: '#ffffff', dark: '#1a0f0a' },
-  { id: 'moss', name: 'Musgo', c1: '#f9faf6', c2: '#edf1e6', c3: '#dce4ce', c4: '#5e6b4b', c5: '#76855f', c6: '#91a179', c7: '#adbc95', light: '#1f2617', dark: '#ffffff' },
-  { id: 'mocha', name: 'Café', c1: '#1a1614', c2: '#26201e', c3: '#38302c', c4: '#a67c52', c5: '#c0976e', c6: '#d5b38f', c7: '#e6ceb1', light: '#ffffff', dark: '#1a1614' },
-  { id: 'celeste', name: 'Celeste Premium', c1: '#F0F9FF', c2: '#E0F2FE', c3: '#BAE6FD', c4: '#0284C7', c5: '#0369A1', c6: '#075985', c7: '#EAB308', light: '#0F172A', dark: '#F0F9FF' },
-  { id: 'marinha', name: 'Marinha Premium', c1: '#0A192F', c2: '#112240', c3: '#233554', c4: '#2DD4BF', c5: '#14B8A6', c6: '#0D9488', c7: '#FDE047', light: '#F8FAFC', dark: '#0A192F' },
+  { id: 'snow', name: 'Neve Pura', c1: '#ffffff', c2: '#f4f4f5', c3: '#e4e4e7', c4: '#09090b', c5: '#27272a', c6: '#3f3f46', c7: '#52525b', light: '#09090b', dark: '#ffffff' },
+  
+  // ==========================================
+  // 1. TONS CELESTES (Ar puro, Céu, Leveza)
+  // ==========================================
+  { id: 'celeste_suave', name: 'Celeste Suave', c1: '#F0F9FF', c2: '#E0F2FE', c3: '#BAE6FD', c4: '#0369A1', c5: '#0284C7', c6: '#475569', c7: '#0EA5E9', light: '#FFFFFF', dark: '#0F172A' },
+  { id: 'celeste_aurora', name: 'Celeste Aurora', c1: '#FDFEFE', c2: '#F0F9FF', c3: '#E0F2FE', c4: '#075985', c5: '#0369A1', c6: '#64748B', c7: '#F59E0B', light: '#FFFFFF', dark: '#020617' },
+  { id: 'celeste_nuvens', name: 'Celeste Nuvens', c1: '#F8FAFC', c2: '#F1F5F9', c3: '#E2E8F0', c4: '#0F172A', c5: '#334155', c6: '#64748B', c7: '#0284C7', light: '#FFFFFF', dark: '#0F172A' },
+  { id: 'celeste_brisa', name: 'Celeste Brisa', c1: '#ECFEFF', c2: '#CFFAFE', c3: '#A5F3FC', c4: '#164E63', c5: '#0891B2', c6: '#3F6212', c7: '#06B6D4', light: '#FFFFFF', dark: '#083344' },
+  { id: 'celeste_cristal', name: 'Celeste Cristal', c1: '#FFFFFF', c2: '#F4F4F5', c3: '#E4E4E7', c4: '#0369A1', c5: '#0284C7', c6: '#94A3B8', c7: '#3B82F6', light: '#FFFFFF', dark: '#0F172A' },
+
+  // ==========================================
+  // 2. TONS MARINHOS (Profundidade, Corporativo, Elegância)
+  // ==========================================
+  { id: 'marinha_profundo', name: 'Marinha Profundo', c1: '#0A192F', c2: '#112240', c3: '#233554', c4: '#F8FAFC', c5: '#E2E8F0', c6: '#8892B0', c7: '#64FFDA', light: '#0A192F', dark: '#F8FAFC' },
+  { id: 'marinha_classico', name: 'Marinha Clássico', c1: '#0B1120', c2: '#151F32', c3: '#1E293B', c4: '#F1F5F9', c5: '#CBD5E1', c6: '#94A3B8', c7: '#3B82F6', light: '#0B1120', dark: '#F8FAFC' },
+  { id: 'marinha_oceano', name: 'Marinha Oceano', c1: '#0F172A', c2: '#1E293B', c3: '#334155', c4: '#F8FAFC', c5: '#E2E8F0', c6: '#94A3B8', c7: '#0EA5E9', light: '#0F172A', dark: '#FFFFFF' },
+  { id: 'marinha_noturno', name: 'Marinha Noturno', c1: '#020617', c2: '#0F172A', c3: '#1E293B', c4: '#F8FAFC', c5: '#E2E8F0', c6: '#64748B', c7: '#818CF8', light: '#020617', dark: '#FFFFFF' },
+  { id: 'marinha_atlantico', name: 'Marinha Atlântico', c1: '#082F49', c2: '#0C4A6E', c3: '#164E63', c4: '#ECFEFF', c5: '#CFFAFE', c6: '#A5F3FC', c7: '#22D3EE', light: '#082F49', dark: '#ECFEFF' },
+
+  // ==========================================
+  // 3. TONS MEDITERRÂNEOS (Quentes, Terrosos, Praia, Natureza)
+  // ==========================================
+  { id: 'med_santorini', name: 'Mediterrâneo Santorini', c1: '#FAFAFA', c2: '#F4F4F5', c3: '#E5E7EB', c4: '#0F172A', c5: '#1E293B', c6: '#64748B', c7: '#0284C7', light: '#FFFFFF', dark: '#0F172A' },
+  { id: 'med_terracota', name: 'Mediterrâneo Terracota', c1: '#FFF7ED', c2: '#FFEDD5', c3: '#FED7AA', c4: '#431407', c5: '#78350F', c6: '#9A3412', c7: '#EA580C', light: '#FFFFFF', dark: '#431407' },
+  { id: 'med_azeite', name: 'Mediterrâneo Azeite', c1: '#FAFAF9', c2: '#F5F5F4', c3: '#E7E5E4', c4: '#1C1917', c5: '#292524', c6: '#57534E', c7: '#65A30D', light: '#FFFFFF', dark: '#1C1917' },
+  { id: 'med_areia', name: 'Mediterrâneo Areia', c1: '#FEFCE8', c2: '#FEF9C3', c3: '#FEF08A', c4: '#451A03', c5: '#78350F', c6: '#A16207', c7: '#0284C7', light: '#FFFFFF', dark: '#451A03' },
+  { id: 'med_capri', name: 'Mediterrâneo Capri', c1: '#FFFFFF', c2: '#F0FDF4', c3: '#DCFCE7', c4: '#064E3B', c5: '#065F46', c6: '#475569', c7: '#10B981', light: '#FFFFFF', dark: '#064E3B' },
 ];
 
 const PROMO_HTML = `
@@ -66,7 +82,7 @@ const PROMO_HTML = `
   
   <header class="fixed top-0 left-0 w-full z-[80] bg-[#F1F5F9]/80 backdrop-blur-md border-b border-slate-200/60 h-24 flex items-center px-6 md:px-12 transition-all">
     <div class="max-w-7xl mx-auto w-full flex items-center">
-       <img src="${BRAND_LOGO}" alt="SiteZing Logo" class="h-10 md:h-12 w-auto drop-shadow-sm" />
+       <img src="${BRAND_LOGO}" alt="SiteZing Logo" class="h-20 md:h-24 w-auto drop-shadow-sm" />
     </div>
   </header>
 
@@ -1151,3 +1167,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+
