@@ -828,38 +828,42 @@ const App: React.FC = () => {
         {/* Modal de Detalhes do Plano */}
         <AnimatePresence>
           {selectedPlanModal && (
-            <div className="fixed inset-0 z-[200] bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4">
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="bg-white border border-stone-200 p-8 rounded-3xl shadow-2xl max-w-lg w-full relative overflow-hidden"
-              >
-                <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-3/4 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
-                
-                <button onClick={() => setSelectedPlanModal(null)} className="absolute top-6 right-6 text-stone-400 hover:text-stone-800 transition-colors bg-stone-100 p-2 rounded-full z-20">
-                  <X size={18} />
-                </button>
-
-                <div className={`inline-block px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 relative z-10 ${PLAN_DETAILS[selectedPlanModal].bgBadge}`}>
-                  {PLAN_DETAILS[selectedPlanModal].badge}
+            <div className="flex flex-col sm:flex-row gap-3 relative z-10">
+                  <button onClick={() => setSelectedPlanModal(null)} className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 py-4 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors">
+                    Voltar
+                  </button>
+                  <button 
+                    onClick={() => { 
+                      if (selectedPlanModal === 'free') {
+                        setSelectedPlanModal(null); 
+                        setIsMenuOpen(true); 
+                      } else {
+                        if (currentProjectSlug) {
+                          // Se já tem site gerado, aciona o checkout do Stripe!
+                          handleStripeCheckout(currentProjectSlug, selectedPlanModal === 'monthly' ? 'mensal' : 'anual');
+                        } else {
+                          // Se clicou na página promocional sem ter site, manda abrir o painel para criar primeiro
+                          alert("Para prosseguir com a assinatura, primeiro preencha os dados e gere o visual do seu site!");
+                          setSelectedPlanModal(null);
+                          setIsMenuOpen(true);
+                        }
+                      }
+                    }} 
+                    disabled={(selectedPlanModal !== 'free' && !checkoutTermsAccepted) || checkoutLoading === currentProjectSlug}
+                    className={`flex-1 py-4 rounded-xl font-black uppercase tracking-wider text-xs transition-colors shadow-lg flex items-center justify-center gap-2 ${selectedPlanModal === 'free' || checkoutTermsAccepted ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-orange-500/20' : 'bg-stone-300 text-stone-500 cursor-not-allowed'}`}
+                  >
+                    {checkoutLoading === currentProjectSlug ? <Loader2 size={16} className="animate-spin" /> : <Rocket size={16} />} 
+                    
+                    {/* Texto inteligente do botão */}
+                    {checkoutLoading === currentProjectSlug 
+                      ? 'Processando...' 
+                      : selectedPlanModal === 'free' 
+                        ? 'Criar Meu Site' 
+                        : currentProjectSlug 
+                          ? 'Ir para Pagamento' 
+                          : 'Criar Site Primeiro'}
+                  </button>
                 </div>
-                
-                <h2 className={`text-3xl font-black mb-1 italic uppercase relative z-10 ${PLAN_DETAILS[selectedPlanModal].color}`}>
-                  {PLAN_DETAILS[selectedPlanModal].title}
-                </h2>
-                
-                <div className="text-4xl font-black mb-1 text-stone-900 mt-2 relative z-10">
-                  {PLAN_DETAILS[selectedPlanModal].price} <span className="text-sm text-stone-500 font-normal">{PLAN_DETAILS[selectedPlanModal].period}</span>
-                </div>
-                <p className="text-xs text-stone-500 font-bold mb-6 pb-4 border-b border-stone-100 relative z-10">Todos os recursos disponíveis em qualquer plano.</p>
-
-                <ul className="space-y-4 text-stone-600 text-sm font-medium mb-6 relative z-10">
-                  {PLAN_DETAILS[selectedPlanModal].rules.map((rule, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <CheckCircle size={18} className={`${PLAN_DETAILS[selectedPlanModal].color} shrink-0 mt-0.5`} />
-                      <span className="leading-relaxed">{rule}</span>
-                    </li>
-                  ))}
-                </ul>
 
                 {selectedPlanModal !== 'free' && (
                   <div className="mb-6 bg-stone-50 p-4 rounded-xl border border-stone-200 relative z-10">
