@@ -40,7 +40,7 @@ const COLORS = [
   { id: 'celeste_cristal', name: 'Celeste Cristal', c1: '#FFFFFF', c2: '#F4F4F5', c3: '#E4E4E7', c4: '#0369A1', c5: '#0284C7', c6: '#94A3B8', c7: '#3B82F6', light: '#FFFFFF', dark: '#0F172A' },
 
   // ==========================================
-  // 2. TONS MARINHOS (Profundidade, Corporativo, Elegância)
+  // 2. TONS MARINHOS (Profundidade, Corporativo)
   // ==========================================
   { id: 'marinha_profundo', name: 'Marinha Profundo', c1: '#0A192F', c2: '#112240', c3: '#233554', c4: '#F8FAFC', c5: '#E2E8F0', c6: '#8892B0', c7: '#64FFDA', light: '#0A192F', dark: '#F8FAFC' },
   { id: 'marinha_classico', name: 'Marinha Clássico', c1: '#0B1120', c2: '#151F32', c3: '#1E293B', c4: '#F1F5F9', c5: '#CBD5E1', c6: '#94A3B8', c7: '#3B82F6', light: '#0B1120', dark: '#F8FAFC' },
@@ -49,13 +49,22 @@ const COLORS = [
   { id: 'marinha_atlantico', name: 'Marinha Atlântico', c1: '#082F49', c2: '#0C4A6E', c3: '#164E63', c4: '#ECFEFF', c5: '#CFFAFE', c6: '#A5F3FC', c7: '#22D3EE', light: '#082F49', dark: '#ECFEFF' },
 
   // ==========================================
-  // 3. TONS MEDITERRÂNEOS (Quentes, Terrosos, Praia)
+  // 3. TONS MEDITERRÂNEOS (Terrosos, Praia)
   // ==========================================
   { id: 'med_santorini', name: 'Mediterrâneo Santorini', c1: '#FAFAFA', c2: '#F4F4F5', c3: '#E5E7EB', c4: '#0F172A', c5: '#1E293B', c6: '#64748B', c7: '#0284C7', light: '#FFFFFF', dark: '#0F172A' },
   { id: 'med_terracota', name: 'Mediterrâneo Terracota', c1: '#FFF7ED', c2: '#FFEDD5', c3: '#FED7AA', c4: '#431407', c5: '#78350F', c6: '#9A3412', c7: '#EA580C', light: '#FFFFFF', dark: '#431407' },
   { id: 'med_azeite', name: 'Mediterrâneo Azeite', c1: '#FAFAF9', c2: '#F5F5F4', c3: '#E7E5E4', c4: '#1C1917', c5: '#292524', c6: '#57534E', c7: '#65A30D', light: '#FFFFFF', dark: '#1C1917' },
   { id: 'med_areia', name: 'Mediterrâneo Areia', c1: '#FEFCE8', c2: '#FEF9C3', c3: '#FEF08A', c4: '#451A03', c5: '#78350F', c6: '#A16207', c7: '#0284C7', light: '#FFFFFF', dark: '#451A03' },
   { id: 'med_capri', name: 'Mediterrâneo Capri', c1: '#FFFFFF', c2: '#F0FDF4', c3: '#DCFCE7', c4: '#064E3B', c5: '#065F46', c6: '#475569', c7: '#10B981', light: '#FFFFFF', dark: '#064E3B' },
+
+  // ==========================================
+  // 4. TONS CARIBE (Quentes, Turquesa, Coral)
+  // ==========================================
+  { id: 'caribe_coral', name: 'Caribe Coral', c1: '#FFF1F2', c2: '#FFE4E6', c3: '#FECDD3', c4: '#F43F5E', c5: '#E11D48', c6: '#9F1239', c7: '#0D9488', light: '#FFFFFF', dark: '#4C0519' },
+  { id: 'caribe_turquesa', name: 'Caribe Turquesa', c1: '#F0FDFA', c2: '#CCFBF1', c3: '#99F6E4', c4: '#0D9488', c5: '#0F766E', c6: '#115E59', c7: '#F59E0B', light: '#FFFFFF', dark: '#134E4A' },
+  { id: 'caribe_sol', name: 'Caribe Sol', c1: '#FFFBEB', c2: '#FEF3C7', c3: '#FDE047', c4: '#D97706', c5: '#B45309', c6: '#78350F', c7: '#0D9488', light: '#FFFFFF', dark: '#451A03' },
+  { id: 'caribe_paraiso', name: 'Caribe Paraíso', c1: '#F8FAFC', c2: '#E0F2FE', c3: '#BAE6FD', c4: '#0284C7', c5: '#0369A1', c6: '#0C4A6E', c7: '#F43F5E', light: '#FFFFFF', dark: '#0C4A6E' },
+  { id: 'caribe_brisa', name: 'Caribe Brisa', c1: '#FAFAF9', c2: '#F5F5F4', c3: '#E7E5E4', c4: '#D97706', c5: '#B45309', c6: '#78350F', c7: '#14B8A6', light: '#FFFFFF', dark: '#292524' },
 ];
 
 const PROMO_HTML = `
@@ -67,9 +76,10 @@ const PROMO_HTML = `
   <title>SiteZing - Criação Inteligente em Segundos</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    html, body { -ms-overflow-style: none; scrollbar-width: none; background-color: #F1F5F9; color: #1E293B; font-family: sans-serif; overflow-x: hidden; }
+    /* FUNDO QUENTE (STONE/PÉROLA) - VIBE CARIBE */
+    html, body { -ms-overflow-style: none; scrollbar-width: none; background-color: #FAFAF9; color: #1C1917; font-family: sans-serif; overflow-x: hidden; }
     ::-webkit-scrollbar { display: none; }
-    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.8); transition: all 0.3s ease; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); cursor: pointer; }
+    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(231, 229, 228, 0.8); transition: all 0.3s ease; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); cursor: pointer; }
     .glass-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 20px 40px -10px rgba(249, 115, 22, 0.15); border-color: rgba(249, 115, 22, 0.3); }
     
     @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
@@ -82,7 +92,7 @@ const PROMO_HTML = `
 </head>
 <body class="antialiased selection:bg-orange-500 selection:text-white">
   
-  <header class="fixed top-0 left-0 w-full z-[80] bg-[#F1F5F9]/80 backdrop-blur-md border-b border-slate-200/60 h-24 flex items-center px-6 md:px-12 transition-all">
+  <header class="fixed top-0 left-0 w-full z-[80] bg-[#FAFAF9]/80 backdrop-blur-md border-b border-stone-200/60 h-24 flex items-center px-6 md:px-12 transition-all">
     <div class="max-w-7xl mx-auto w-full flex items-center">
        <img src="${BRAND_LOGO}" alt="SiteZing Logo" class="h-16 md:h-20 w-auto drop-shadow-sm" />
     </div>
@@ -90,21 +100,17 @@ const PROMO_HTML = `
 
   <main class="pt-36 pb-24 px-6 md:px-12 max-w-7xl mx-auto flex flex-col justify-center min-h-screen relative">
     
-    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-200/40 blur-[150px] rounded-full pointer-events-none"></div>
+    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-200/30 blur-[150px] rounded-full pointer-events-none"></div>
     <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-orange-200/30 blur-[150px] rounded-full pointer-events-none"></div>
 
     <div class="relative z-10 animate-up text-center md:text-left max-w-3xl mb-16">
       
-      <div class="mb-12 flex justify-center md:justify-start">
-         <img src="${BRAND_LOGO}" alt="SiteZing Logo" class="h-32 md:h-40 w-auto drop-shadow-md animate-floating" />
-      </div>
-
-      <div class="inline-block px-4 py-1.5 rounded-full bg-white border border-blue-100 text-xs font-bold tracking-widest text-blue-600 mb-6 uppercase shadow-sm">A revolução da web</div>
+      <div class="inline-block px-4 py-1.5 rounded-full bg-white border border-teal-100 text-xs font-bold tracking-widest text-teal-600 mb-6 uppercase shadow-sm">A revolução da web</div>
       
-      <h1 class="text-[3rem] md:text-[5.5rem] font-black leading-[0.9] tracking-tighter mb-6 uppercase italic text-slate-900">
+      <h1 class="text-[3rem] md:text-[5.5rem] font-black leading-[0.9] tracking-tighter mb-6 uppercase italic text-stone-900">
         Seu site pronto em um <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500 pr-2 inline-block">ZING!!!</span>
       </h1>
-      <p class="text-lg md:text-2xl text-slate-500 font-light leading-relaxed">
+      <p class="text-lg md:text-2xl text-stone-500 font-light leading-relaxed">
         Não perca vendas por não estar no Google. A nossa inteligência artificial cria, escreve e publica o seu site automaticamente. Preencha o menu ao lado e veja a mágica acontecer.
       </p>
     </div>
@@ -113,30 +119,30 @@ const PROMO_HTML = `
       
       <div class="glass-card p-8 rounded-[2rem] relative overflow-hidden group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'free' }, '*')">
         <img src="${BRAND_LOGO}" class="plan-bg-logo" />
-        <div class="absolute top-0 right-0 bg-slate-200 text-slate-700 text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase">Sem pagamento antecipado</div>
-        <h3 class="text-2xl font-black mb-1 italic uppercase text-slate-800 mt-2">Teste Grátis</h3>
-        <p class="text-slate-500 mb-6 text-sm">Veja o seu site pronto hoje mesmo.</p>
-        <div class="text-4xl font-black mb-1 text-blue-600">R$ 0 <span class="text-sm text-slate-400 font-normal">/ 5 dias</span></div>
-        <p class="text-[11px] text-blue-500 font-bold mb-6">Todos os recursos disponíveis em qualquer plano.</p>
-        <ul class="space-y-3 text-slate-600 text-sm font-medium">
+        <div class="absolute top-0 right-0 bg-stone-200 text-stone-700 text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase">Sem pagamento antecipado</div>
+        <h3 class="text-2xl font-black mb-1 italic uppercase text-stone-800 mt-2">Teste Grátis</h3>
+        <p class="text-stone-500 mb-6 text-sm">Veja o seu site pronto hoje mesmo.</p>
+        <div class="text-4xl font-black mb-1 text-teal-600">R$ 0 <span class="text-sm text-stone-400 font-normal">/ 5 dias</span></div>
+        <p class="text-[11px] text-teal-500 font-bold mb-6">Todos os recursos disponíveis em qualquer plano.</p>
+        <ul class="space-y-3 text-stone-600 text-sm font-medium">
           <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-[10px]">✔</span> Geração por IA</li>
           <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-[10px]">✔</span> Domínio gratuito (.web.app)</li>
         </ul>
-        <div class="mt-6 text-[10px] text-slate-400 text-center uppercase tracking-widest font-bold group-hover:text-orange-500 transition-colors">Clique para ver regras</div>
+        <div class="mt-6 text-[10px] text-stone-400 text-center uppercase tracking-widest font-bold group-hover:text-orange-500 transition-colors">Clique para ver regras</div>
       </div>
 
-      <div class="glass-card p-8 rounded-[2rem] relative overflow-hidden group border-blue-200" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'monthly' }, '*')">
+      <div class="glass-card p-8 rounded-[2rem] relative overflow-hidden group border-teal-200" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'monthly' }, '*')">
         <img src="${BRAND_LOGO}" class="plan-bg-logo" />
-        <div class="absolute top-0 right-0 bg-blue-600 text-white text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase shadow-md">Mais Assinado</div>
-        <h3 class="text-2xl font-black mb-1 italic uppercase text-blue-600 mt-2">Mensal</h3>
-        <p class="text-slate-500 mb-6 text-sm">Ideal para validar seu negócio.</p>
-        <div class="text-4xl font-black mb-1 text-slate-900">R$ 49<span class="text-2xl">,90</span> <span class="text-sm text-slate-400 font-normal">/ mês</span></div>
-        <p class="text-[11px] text-slate-500 font-bold mb-6">Todos os recursos disponíveis em qualquer plano.</p>
-        <ul class="space-y-3 text-slate-600 text-sm font-medium">
-          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-[10px]">✔</span> Site online 24/7</li>
-          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-[10px]">✔</span> Domínio próprio (.com.br)</li>
+        <div class="absolute top-0 right-0 bg-teal-600 text-white text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase shadow-md">Mais Assinado</div>
+        <h3 class="text-2xl font-black mb-1 italic uppercase text-teal-600 mt-2">Mensal</h3>
+        <p class="text-stone-500 mb-6 text-sm">Ideal para validar seu negócio.</p>
+        <div class="text-4xl font-black mb-1 text-stone-900">R$ 49<span class="text-2xl">,90</span> <span class="text-sm text-stone-400 font-normal">/ mês</span></div>
+        <p class="text-[11px] text-stone-500 font-bold mb-6">Todos os recursos disponíveis em qualquer plano.</p>
+        <ul class="space-y-3 text-stone-600 text-sm font-medium">
+          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 text-[10px]">✔</span> Site online 24/7</li>
+          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 text-[10px]">✔</span> Domínio próprio (.com.br)</li>
         </ul>
-        <div class="mt-6 text-[10px] text-slate-400 text-center uppercase tracking-widest font-bold group-hover:text-orange-500 transition-colors">Clique para ver regras</div>
+        <div class="mt-6 text-[10px] text-stone-400 text-center uppercase tracking-widest font-bold group-hover:text-orange-500 transition-colors">Clique para ver regras</div>
       </div>
 
       <div class="glass-card p-8 rounded-[2rem] relative overflow-hidden border-orange-300 bg-white shadow-[0_20px_50px_-12px_rgba(249,115,22,0.15)] group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'annual' }, '*')">
@@ -150,15 +156,15 @@ const PROMO_HTML = `
         </div>
 
         <h3 class="text-2xl font-black mb-1 italic uppercase text-orange-500 mt-2">Anual</h3>
-        <p class="text-slate-500 mb-6 text-sm">A solução definitiva e econômica.</p>
-        <div class="text-4xl font-black mb-1 text-slate-900">R$ 499 <span class="text-sm text-slate-400 font-normal">/ 1º ano</span></div>
+        <p class="text-stone-500 mb-6 text-sm">A solução definitiva e econômica.</p>
+        <div class="text-4xl font-black mb-1 text-stone-900">R$ 499 <span class="text-sm text-stone-400 font-normal">/ 1º ano</span></div>
         <p class="text-[11px] text-orange-500 font-bold mb-6">Todos os recursos disponíveis em qualquer plano.</p>
-        <ul class="space-y-3 text-slate-600 text-sm font-medium">
+        <ul class="space-y-3 text-stone-600 text-sm font-medium">
           <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 text-[12px]">★</span> 2 meses grátis</li>
           <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 text-[12px]">★</span> Apontamento de Domínio</li>
           <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 text-[12px]">★</span> Alta velocidade Google</li>
         </ul>
-        <div class="mt-6 text-[10px] text-orange-400/80 text-center uppercase tracking-widest font-bold group-hover:text-orange-600 transition-colors">Clique para ver regras</div>
+        <div class="mt-6 text-[10px] text-stone-400/80 text-center uppercase tracking-widest font-bold group-hover:text-orange-600 transition-colors">Clique para ver regras</div>
       </div>
     </div>
   </main>
@@ -412,8 +418,8 @@ const PLAN_DETAILS = {
     title: "Plano Teste Grátis",
     price: "R$ 0,00",
     period: "por 5 dias",
-    color: "text-slate-800",
-    bgBadge: "bg-slate-200 text-slate-700",
+    color: "text-stone-800",
+    bgBadge: "bg-stone-200 text-stone-700",
     badge: "Sem pagamento antecipado",
     rules: [
       "Acesso completo à Inteligência Artificial da plataforma.",
@@ -427,8 +433,8 @@ const PLAN_DETAILS = {
     title: "Plano Mensal",
     price: "R$ 49,90",
     period: "/ mês",
-    color: "text-blue-600",
-    bgBadge: "bg-blue-600 text-white",
+    color: "text-teal-600",
+    bgBadge: "bg-teal-600 text-white",
     badge: "Mais Assinado",
     rules: [
       "Site online 24/7 com alta estabilidade (Google Cloud).",
@@ -457,7 +463,7 @@ const PLAN_DETAILS = {
 const App: React.FC = () => {
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // MENU FECHADO POR PADRÃO
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // Menu fechado por padrão
   const [aiContent, setAiContent] = useState<any>(null);
   const [isCanceling, setIsCanceling] = useState<string | null>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -477,7 +483,7 @@ const App: React.FC = () => {
   const [formData, setFormData] = useState({
     businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '',
     ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true,
-    showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'celeste_suave', logoBase64: ''
+    showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: ''
   });
 
   useIframeEditor({ setGeneratedHtml, setHasUnsavedChanges });
@@ -735,7 +741,7 @@ const App: React.FC = () => {
       alert("Site excluído com sucesso.");
       if (projectId === currentProjectSlug) {
         setGeneratedHtml(null); setCurrentProjectSlug(null); setHasUnsavedChanges(false); setActiveTab('geral');
-        setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'celeste_suave', logoBase64: '' });
+        setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '' });
       }
       fetchProjects();
     } catch (error) { alert("Erro ao excluir o site."); }
@@ -814,10 +820,11 @@ const App: React.FC = () => {
         * { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      <div className="w-full h-screen bg-[#F1F5F9] overflow-hidden font-sans text-slate-900 flex flex-col md:flex-row">
+      {/* FUNDO QUENTE (FAFAF9) - VIBE CARIBE */}
+      <div className="w-full h-screen bg-[#FAFAF9] overflow-hidden font-sans text-stone-900 flex flex-col md:flex-row">
         
         {/* Área Principal (Iframe) */}
-        <div className="flex-1 relative h-full overflow-hidden bg-[#F1F5F9]">
+        <div className="flex-1 relative h-full overflow-hidden bg-[#FAFAF9]">
           <iframe 
             srcDoc={generatedHtml ? getPreviewHtml(generatedHtml) : PROMO_HTML} 
             className="w-full h-full border-none bg-transparent" 
@@ -854,14 +861,14 @@ const App: React.FC = () => {
         {/* Modal de Detalhes do Plano */}
         <AnimatePresence>
           {selectedPlanModal && (
-            <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="fixed inset-0 z-[200] bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4">
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="bg-white border border-slate-200 p-8 rounded-3xl shadow-2xl max-w-lg w-full relative overflow-hidden"
+                className="bg-white border border-stone-200 p-8 rounded-3xl shadow-2xl max-w-lg w-full relative overflow-hidden"
               >
                 <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-3/4 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
                 
-                <button onClick={() => setSelectedPlanModal(null)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-800 transition-colors bg-slate-100 p-2 rounded-full">
+                <button onClick={() => setSelectedPlanModal(null)} className="absolute top-6 right-6 text-stone-400 hover:text-stone-800 transition-colors bg-stone-100 p-2 rounded-full">
                   <X size={18} />
                 </button>
 
@@ -873,12 +880,12 @@ const App: React.FC = () => {
                   {PLAN_DETAILS[selectedPlanModal].title}
                 </h2>
                 
-                <div className="text-4xl font-black mb-1 text-slate-900 mt-2">
-                  {PLAN_DETAILS[selectedPlanModal].price} <span className="text-sm text-slate-500 font-normal">{PLAN_DETAILS[selectedPlanModal].period}</span>
+                <div className="text-4xl font-black mb-1 text-stone-900 mt-2">
+                  {PLAN_DETAILS[selectedPlanModal].price} <span className="text-sm text-stone-500 font-normal">{PLAN_DETAILS[selectedPlanModal].period}</span>
                 </div>
-                <p className="text-xs text-slate-500 font-bold mb-8 pb-4 border-b border-slate-100">Todos os recursos disponíveis em qualquer plano.</p>
+                <p className="text-xs text-stone-500 font-bold mb-8 pb-4 border-b border-stone-100">Todos os recursos disponíveis em qualquer plano.</p>
 
-                <ul className="space-y-4 text-slate-600 text-sm font-medium mb-8 relative z-10">
+                <ul className="space-y-4 text-stone-600 text-sm font-medium mb-8 relative z-10">
                   {PLAN_DETAILS[selectedPlanModal].rules.map((rule, idx) => (
                     <li key={idx} className="flex items-start gap-3">
                       <CheckCircle size={18} className={`${PLAN_DETAILS[selectedPlanModal].color} shrink-0 mt-0.5`} />
@@ -888,7 +895,7 @@ const App: React.FC = () => {
                 </ul>
 
                 <div className="flex flex-col sm:flex-row gap-3 relative z-10">
-                  <button onClick={() => setSelectedPlanModal(null)} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-4 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors">
+                  <button onClick={() => setSelectedPlanModal(null)} className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 py-4 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors">
                     Voltar
                   </button>
                   <button onClick={() => { setSelectedPlanModal(null); setIsMenuOpen(true); }} className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-xl font-black uppercase tracking-wider text-xs transition-colors shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2">
@@ -903,27 +910,27 @@ const App: React.FC = () => {
         {/* Modal de Sucesso na Publicação */}
         <AnimatePresence>
           {publishModalUrl && (
-            <div className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="fixed inset-0 z-[100] bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4">
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="bg-white border border-slate-200 p-8 rounded-3xl shadow-2xl max-w-md w-full text-center space-y-6 relative overflow-hidden"
+                className="bg-white border border-stone-200 p-8 rounded-3xl shadow-2xl max-w-md w-full text-center space-y-6 relative overflow-hidden"
               >
                 <img src={BRAND_LOGO} className="absolute bottom-[-10%] left-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
                 <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-2 border border-emerald-100 relative z-10">
                   <CheckCircle size={40} />
                 </div>
                 <div className="relative z-10">
-                  <h2 className="text-2xl font-bold text-slate-900 mb-2">Site Publicado com Sucesso!</h2>
-                  <p className="text-slate-500 text-sm leading-relaxed">A sua página já está online. Caso tenha configurado um domínio oficial, pode demorar algumas horas para propagar.</p>
+                  <h2 className="text-2xl font-bold text-stone-900 mb-2">Site Publicado com Sucesso!</h2>
+                  <p className="text-stone-500 text-sm leading-relaxed">A sua página já está online. Caso tenha configurado um domínio oficial, pode demorar algumas horas para propagar.</p>
                 </div>
-                <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between gap-3 overflow-hidden relative z-10">
-                  <code className="text-blue-600 text-sm truncate flex-1 font-mono">{publishModalUrl}</code>
+                <div className="bg-stone-50 p-3 rounded-xl border border-stone-200 flex items-center justify-between gap-3 overflow-hidden relative z-10">
+                  <code className="text-teal-600 text-sm truncate flex-1 font-mono">{publishModalUrl}</code>
                 </div>
                 <div className="flex gap-3 pt-2 relative z-10">
-                  <button onClick={() => { navigator.clipboard.writeText(publishModalUrl); alert('Link copiado!'); }} className="flex-1 bg-white hover:bg-slate-50 text-slate-700 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors border border-slate-200 shadow-sm"><Copy size={18} /> Copiar Link</button>
-                  <button onClick={() => window.open(publishModalUrl, '_blank')} className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-blue-500/20"><ExternalLink size={18} /> Abrir Site</button>
+                  <button onClick={() => { navigator.clipboard.writeText(publishModalUrl); alert('Link copiado!'); }} className="flex-1 bg-white hover:bg-stone-50 text-stone-700 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors border border-stone-200 shadow-sm"><Copy size={18} /> Copiar Link</button>
+                  <button onClick={() => window.open(publishModalUrl, '_blank')} className="flex-1 bg-teal-600 hover:bg-teal-500 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-teal-500/20"><ExternalLink size={18} /> Abrir Site</button>
                 </div>
-                <button onClick={() => setPublishModalUrl(null)} className="text-slate-400 hover:text-slate-600 font-bold uppercase tracking-widest text-[10px] mt-4 block w-full transition-colors relative z-10">Fechar janela</button>
+                <button onClick={() => setPublishModalUrl(null)} className="text-stone-400 hover:text-stone-600 font-bold uppercase tracking-widest text-[10px] mt-4 block w-full transition-colors relative z-10">Fechar janela</button>
               </motion.div>
             </div>
           )}
@@ -937,25 +944,25 @@ const App: React.FC = () => {
               animate={{ width: window.innerWidth < 768 ? '100%' : 420, paddingLeft: 16, paddingRight: 16 }} 
               exit={{ width: 0, paddingLeft: 0, paddingRight: 0 }} 
               transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
-              className="flex-shrink-0 h-full flex flex-col justify-center overflow-hidden relative z-50 bg-[#F1F5F9] w-full md:w-[420px] py-4"
+              className="flex-shrink-0 h-full flex flex-col justify-center overflow-hidden relative z-50 bg-[#FAFAF9] w-full md:w-[420px] py-4"
             >
               <motion.div 
                 initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 20, opacity: 0 }} transition={{ delay: 0.1 }}
-                className="w-full h-full bg-[#F8FAFC] border border-slate-200 rounded-[2rem] shadow-xl flex flex-col overflow-hidden relative"
+                className="w-full h-full bg-[#F8FAFC] border border-stone-200 rounded-[2rem] shadow-xl flex flex-col overflow-hidden relative"
               >
                 {/* Cabeçalho do Painel */}
-                <div className="flex justify-between items-center px-6 py-5 border-b border-slate-200 flex-shrink-0 bg-white">
+                <div className="flex justify-between items-center px-6 py-5 border-b border-stone-200 flex-shrink-0 bg-white">
                   <div className="flex items-center gap-3 select-none">
                     <img src={BRAND_LOGO} alt="SiteZing" className="h-10 w-auto object-contain" />
                   </div>
                   <div className="flex items-center gap-4">
                     {loggedUserEmail ? (
-                      <button className="text-slate-400 hover:text-emerald-500 transition-colors" title={`Logado como: ${loggedUserEmail}`}><User size={18} /></button>
+                      <button className="text-stone-400 hover:text-teal-500 transition-colors" title={`Logado como: ${loggedUserEmail}`}><User size={18} /></button>
                     ) : (
-                      <button onClick={() => setIsLoginOpen(true)} className="text-xs font-bold text-emerald-600 hover:text-emerald-500 transition-colors flex items-center gap-1.5"><LogIn size={16} /> Login</button>
+                      <button onClick={() => setIsLoginOpen(true)} className="text-xs font-bold text-teal-600 hover:text-teal-500 transition-colors flex items-center gap-1.5"><LogIn size={16} /> Login</button>
                     )}
-                    <div className="w-px h-4 bg-slate-200"></div>
-                    <button onClick={() => setIsMenuOpen(false)} className="text-slate-400 hover:text-slate-800 transition-colors" title="Esconder Painel"><X size={18} /></button>
+                    <div className="w-px h-4 bg-stone-200"></div>
+                    <button onClick={() => setIsMenuOpen(false)} className="text-stone-400 hover:text-stone-800 transition-colors" title="Esconder Painel"><X size={18} /></button>
                   </div>
                 </div>
 
@@ -969,18 +976,18 @@ const App: React.FC = () => {
                     isPaid = currentProject.paymentStatus === 'paid';
                   }
                   return (
-                    <div className="flex border-b border-slate-200 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider flex-shrink-0 bg-white">
-                      <button onClick={() => setActiveTab('geral')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors ${activeTab === 'geral' ? 'text-emerald-600 border-b-2 border-emerald-600 bg-emerald-50/50' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'}`}>
+                    <div className="flex border-b border-stone-200 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider flex-shrink-0 bg-white">
+                      <button onClick={() => setActiveTab('geral')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors ${activeTab === 'geral' ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
                         Visual
                       </button>
-                      <button onClick={() => setActiveTab('dominio')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative ${activeTab === 'dominio' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'}`}>
+                      <button onClick={() => setActiveTab('dominio')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative ${activeTab === 'dominio' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
                         Domínio
                         {(!officialDomain || officialDomain === 'Pendente' || registerLater) && (
                           <span className="absolute top-3 right-4 flex h-2 w-2" title="Domínio não configurado"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span></span>
                         )}
                       </button>
                       {currentProjectSlug && (
-                        <button onClick={() => setActiveTab('assinatura')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative ${activeTab === 'assinatura' ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50/50' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'}`}>
+                        <button onClick={() => setActiveTab('assinatura')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative ${activeTab === 'assinatura' ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
                           Pagamento
                           {!isPaid && (
                             <span className="absolute top-3 right-2 flex h-2 w-2"><span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${daysLeft > 0 ? 'bg-yellow-400' : 'bg-red-400'}`}></span><span className={`relative inline-flex rounded-full h-2 w-2 ${daysLeft > 0 ? 'bg-yellow-500' : 'bg-red-500'}`}></span></span>
@@ -996,35 +1003,35 @@ const App: React.FC = () => {
                   {activeTab === 'geral' && (
                     <>
                       {currentProjectSlug && (
-                        <div className="group relative flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-200 -mt-2">
+                        <div className="group relative flex items-center justify-between bg-stone-50 p-3.5 rounded-xl border border-stone-200 -mt-2">
                           <div className="flex items-center gap-2 cursor-help">
-                            <Info size={14} className="text-slate-400" />
-                            <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">Status do Site</span>
+                            <Info size={14} className="text-stone-400" />
+                            <span className="text-xs text-stone-600 font-bold uppercase tracking-wider">Status do Site</span>
                           </div>
                           {getStatusBadge(savedProjects.find(p => p.id === currentProjectSlug) || {})}
                         </div>
                       )}
 
                       <div className="space-y-4">
-                        <div><label className="text-xs font-bold text-slate-500 uppercase flex gap-2 mb-1.5"><Briefcase size={12} /> Nome do Negócio</label><input className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-sm focus:border-emerald-500 outline-none transition-colors" placeholder="Ex: Eletricista Silva" value={formData.businessName} onChange={e => {setFormData({ ...formData, businessName: e.target.value }); setHasUnsavedChanges(true)}} /></div>
-                        <div><label className="text-xs font-bold text-slate-500 uppercase flex gap-2 mb-1.5"><MapPin size={12} /> Região de atuação</label><input className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-sm focus:border-emerald-500 outline-none transition-colors" placeholder="Ex: Zona Sul - SP" value={formData.region} onChange={e => {setFormData({ ...formData, region: e.target.value }); setHasUnsavedChanges(true)}} /></div>
-                        <div><label className="text-xs font-bold text-slate-500 uppercase flex gap-2 mb-1.5"><FileText size={12} /> Ideia Principal</label><textarea className="w-full h-20 bg-white border border-slate-200 rounded-xl p-3.5 text-sm resize-none focus:border-emerald-500 outline-none transition-colors" placeholder="Descreva os serviços..." value={formData.description} onChange={e => {setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true)}} /></div>
+                        <div><label className="text-xs font-bold text-stone-500 uppercase flex gap-2 mb-1.5"><Briefcase size={12} /> Nome do Negócio</label><input className="w-full bg-white border border-stone-200 rounded-xl p-3.5 text-sm focus:border-teal-500 outline-none transition-colors" placeholder="Ex: Eletricista Silva" value={formData.businessName} onChange={e => {setFormData({ ...formData, businessName: e.target.value }); setHasUnsavedChanges(true)}} /></div>
+                        <div><label className="text-xs font-bold text-stone-500 uppercase flex gap-2 mb-1.5"><MapPin size={12} /> Região de atuação</label><input className="w-full bg-white border border-stone-200 rounded-xl p-3.5 text-sm focus:border-teal-500 outline-none transition-colors" placeholder="Ex: Zona Sul - SP" value={formData.region} onChange={e => {setFormData({ ...formData, region: e.target.value }); setHasUnsavedChanges(true)}} /></div>
+                        <div><label className="text-xs font-bold text-stone-500 uppercase flex gap-2 mb-1.5"><FileText size={12} /> Ideia Principal</label><textarea className="w-full h-20 bg-white border border-stone-200 rounded-xl p-3.5 text-sm resize-none focus:border-teal-500 outline-none transition-colors" placeholder="Descreva os serviços..." value={formData.description} onChange={e => {setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true)}} /></div>
                       </div>
 
-                      <button onClick={handleGenerate} disabled={isGenerating} className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 border border-slate-700 transition-colors shadow-md">
+                      <button onClick={handleGenerate} disabled={isGenerating} className="w-full bg-stone-900 hover:bg-stone-800 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 border border-stone-700 transition-colors shadow-md">
                         {isGenerating ? <Loader2 className="animate-spin" /> : <RefreshCw size={18} />} {generatedHtml ? 'Recriar Site c/ IA' : 'Gerar Meu Site'}
                       </button>
 
                       {generatedHtml && (
-                        <div className="pt-6 border-t border-slate-100 space-y-6">
-                          <div className="space-y-2.5"><label className="text-xs font-bold text-slate-500 uppercase">Estilo do Site</label><select className="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm outline-none" value={formData.layoutStyle} onChange={e => {setFormData({ ...formData, layoutStyle: e.target.value }); setHasUnsavedChanges(true)}}>{LAYOUT_STYLES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}</select></div>
+                        <div className="pt-6 border-t border-stone-100 space-y-6">
+                          <div className="space-y-2.5"><label className="text-xs font-bold text-stone-500 uppercase">Estilo do Site</label><select className="w-full bg-white border border-stone-200 rounded-xl p-3 text-sm outline-none" value={formData.layoutStyle} onChange={e => {setFormData({ ...formData, layoutStyle: e.target.value }); setHasUnsavedChanges(true)}}>{LAYOUT_STYLES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}</select></div>
                           
-                          {/* CATEGORIZAÇÃO DE CORES (O QUE DEU ERRO ANTES FOI CORRIGIDO AQUI) */}
+                          {/* CATEGORIZAÇÃO DE CORES (INCLUINDO CARIBE) */}
                           <div className="space-y-4">
-                            <label className="text-xs font-bold text-slate-500 uppercase block border-b border-slate-100 pb-2">Temas (Cores)</label>
+                            <label className="text-xs font-bold text-stone-500 uppercase block border-b border-stone-100 pb-2">Temas (Cores)</label>
                             
                             <div className="space-y-2">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">1. Essenciais da Marca</span>
+                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">1. Essenciais da Marca</span>
                               <div className="grid grid-cols-5 gap-3">
                                 {COLORS.filter(c => !c.id.includes('_')).map(c => (
                                   <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
@@ -1033,7 +1040,7 @@ const App: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">2. Paleta Celeste (Ar/Céu)</span>
+                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">2. Paleta Celeste (Ar/Céu)</span>
                               <div className="grid grid-cols-5 gap-3">
                                 {COLORS.filter(c => c.id.startsWith('celeste_')).map(c => (
                                   <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
@@ -1042,7 +1049,7 @@ const App: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">3. Paleta Marinha (Oceano/Noite)</span>
+                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">3. Paleta Marinha (Oceano/Noite)</span>
                               <div className="grid grid-cols-5 gap-3">
                                 {COLORS.filter(c => c.id.startsWith('marinha_')).map(c => (
                                   <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
@@ -1051,9 +1058,19 @@ const App: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">4. Mediterrânea (Terra/Areia)</span>
+                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">4. Mediterrânea (Terra/Areia)</span>
                               <div className="grid grid-cols-5 gap-3">
                                 {COLORS.filter(c => c.id.startsWith('med_')).map(c => (
+                                  <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* 👇 NOVA CATEGORIA CARIBE 👇 */}
+                            <div className="space-y-2">
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">5. Caribe (Águas/Coral)</span>
+                              <div className="grid grid-cols-5 gap-3">
+                                {COLORS.filter(c => c.id.startsWith('caribe_')).map(c => (
                                   <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
                                 ))}
                               </div>
@@ -1061,35 +1078,35 @@ const App: React.FC = () => {
                           </div>
 
                           <div className="space-y-2.5">
-                            <label className="text-xs font-bold text-slate-500 uppercase flex justify-between items-center"><span>Sua Logomarca (Favicon)</span>{formData.logoBase64 && <button onClick={() => { setFormData(p => ({ ...p, logoBase64: '' })); setHasUnsavedChanges(true); }} className="text-red-500 hover:text-red-600 text-[10px] font-bold">X Remover</button>}</label>
+                            <label className="text-xs font-bold text-stone-500 uppercase flex justify-between items-center"><span>Sua Logomarca (Favicon)</span>{formData.logoBase64 && <button onClick={() => { setFormData(p => ({ ...p, logoBase64: '' })); setHasUnsavedChanges(true); }} className="text-red-500 hover:text-red-600 text-[10px] font-bold">X Remover</button>}</label>
                             {!formData.logoBase64 ? (
-                              <div className="space-y-2"><label className="cursor-pointer w-full border border-dashed border-slate-300 hover:border-blue-400 rounded-xl p-4 flex justify-center items-center gap-2 text-xs text-slate-500 transition-colors bg-slate-50"><Upload size={14} /> Fazer Upload da Marca<input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" /></label></div>
+                              <div className="space-y-2"><label className="cursor-pointer w-full border border-dashed border-stone-300 hover:border-teal-400 rounded-xl p-4 flex justify-center items-center gap-2 text-xs text-stone-500 transition-colors bg-stone-50"><Upload size={14} /> Fazer Upload da Marca<input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" /></label></div>
                             ) : (
-                              <div className="h-14 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center overflow-hidden p-2"><img src={formData.logoBase64} className="h-full object-contain" alt="Logo" /></div>
+                              <div className="h-14 bg-stone-50 border border-stone-200 rounded-xl flex items-center justify-center overflow-hidden p-2"><img src={formData.logoBase64} className="h-full object-contain" alt="Logo" /></div>
                             )}
                           </div>
 
-                          <div className="space-y-3 pt-5 border-t border-slate-100">
-                            <label className="text-xs font-bold text-slate-500 uppercase flex gap-1.5"><Globe size={14} /> Redes Sociais</label>
+                          <div className="space-y-3 pt-5 border-t border-stone-100">
+                            <label className="text-xs font-bold text-stone-500 uppercase flex gap-1.5"><Globe size={14} /> Redes Sociais</label>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              <input className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs focus:border-blue-500 outline-none" placeholder="WhatsApp (só números)" value={formData.whatsapp} onChange={e => {setFormData({ ...formData, whatsapp: e.target.value }); setHasUnsavedChanges(true)}} />
-                              <input className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs focus:border-blue-500 outline-none" placeholder="Instagram (@usuario)" value={formData.instagram} onChange={e => {setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true)}} />
-                              <input className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs focus:border-blue-500 outline-none" placeholder="Facebook (Link)" value={formData.facebook} onChange={e => {setFormData({ ...formData, facebook: e.target.value }); setHasUnsavedChanges(true)}} />
-                              <input className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs focus:border-blue-500 outline-none" placeholder="LinkedIn (Link)" value={formData.linkedin} onChange={e => {setFormData({ ...formData, linkedin: e.target.value }); setHasUnsavedChanges(true)}} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="WhatsApp (só números)" value={formData.whatsapp} onChange={e => {setFormData({ ...formData, whatsapp: e.target.value }); setHasUnsavedChanges(true)}} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="Instagram (@usuario)" value={formData.instagram} onChange={e => {setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true)}} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="Facebook (Link)" value={formData.facebook} onChange={e => {setFormData({ ...formData, facebook: e.target.value }); setHasUnsavedChanges(true)}} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="LinkedIn (Link)" value={formData.linkedin} onChange={e => {setFormData({ ...formData, linkedin: e.target.value }); setHasUnsavedChanges(true)}} />
                             </div>
                           </div>
 
-                          <div className="space-y-3 pt-5 border-t border-slate-100">
-                            <label className="text-xs font-bold text-slate-500 uppercase flex gap-1.5"><MapPin size={14} /> Contato e Localização</label>
+                          <div className="space-y-3 pt-5 border-t border-stone-100">
+                            <label className="text-xs font-bold text-stone-500 uppercase flex gap-1.5"><MapPin size={14} /> Contato e Localização</label>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              <input className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs focus:border-blue-500 outline-none" placeholder="Telefone" value={formData.phone} onChange={e => {setFormData({ ...formData, phone: e.target.value }); setHasUnsavedChanges(true)}} />
-                              <input className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs focus:border-blue-500 outline-none" placeholder="E-mail" value={formData.email} onChange={e => {setFormData({ ...formData, email: e.target.value }); setHasUnsavedChanges(true)}} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="Telefone" value={formData.phone} onChange={e => {setFormData({ ...formData, phone: e.target.value }); setHasUnsavedChanges(true)}} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="E-mail" value={formData.email} onChange={e => {setFormData({ ...formData, email: e.target.value }); setHasUnsavedChanges(true)}} />
                             </div>
-                            <input className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs focus:border-blue-500 outline-none" placeholder="Endereço Físico" value={formData.address} onChange={e => {setFormData({ ...formData, address: e.target.value }); setHasUnsavedChanges(true)}} />
+                            <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="Endereço Físico" value={formData.address} onChange={e => {setFormData({ ...formData, address: e.target.value }); setHasUnsavedChanges(true)}} />
                             
-                            <label className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600"><span>Exibir Mapa do Google</span><input type="checkbox" checked={formData.showMap} onChange={e => {setFormData({ ...formData, showMap: e.target.checked }); setHasUnsavedChanges(true)}} className="accent-blue-500" /></label>
-                            <label className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600"><span>Exibir botão Contato flutuante</span><input type="checkbox" checked={formData.showFloatingContact} onChange={e => {setFormData({ ...formData, showFloatingContact: e.target.checked }); setHasUnsavedChanges(true)}} className="accent-blue-500" /></label>
-                            <label className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600"><span>Exibir formulário de contato</span><input type="checkbox" checked={formData.showForm} onChange={e => {setFormData({ ...formData, showForm: e.target.checked }); setHasUnsavedChanges(true)}} className="accent-blue-500" /></label>
+                            <label className="flex items-center justify-between bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs text-stone-600"><span>Exibir Mapa do Google</span><input type="checkbox" checked={formData.showMap} onChange={e => {setFormData({ ...formData, showMap: e.target.checked }); setHasUnsavedChanges(true)}} className="accent-teal-500" /></label>
+                            <label className="flex items-center justify-between bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs text-stone-600"><span>Exibir botão Contato flutuante</span><input type="checkbox" checked={formData.showFloatingContact} onChange={e => {setFormData({ ...formData, showFloatingContact: e.target.checked }); setHasUnsavedChanges(true)}} className="accent-teal-500" /></label>
+                            <label className="flex items-center justify-between bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs text-stone-600"><span>Exibir formulário de contato</span><input type="checkbox" checked={formData.showForm} onChange={e => {setFormData({ ...formData, showForm: e.target.checked }); setHasUnsavedChanges(true)}} className="accent-teal-500" /></label>
                           </div>
                         </div>
                       )}
@@ -1099,21 +1116,21 @@ const App: React.FC = () => {
                   {activeTab === 'dominio' && generatedHtml && (
                     <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
                       {!currentProjectSlug ? (
-                        <div className="bg-blue-50/50 p-5 rounded-2xl border border-blue-100">
-                          <h4 className="text-sm font-bold text-blue-700 flex items-center gap-2"><Globe size={16}/> Qual será o endereço?</h4>
-                          <p className="text-xs text-blue-600/80 mb-5 leading-relaxed">Antes de salvar, precisamos saber se você vai usar um domínio oficial (Ex: Registro.br).</p>
+                        <div className="bg-teal-50/50 p-5 rounded-2xl border border-teal-100">
+                          <h4 className="text-sm font-bold text-teal-700 flex items-center gap-2"><Globe size={16}/> Qual será o endereço?</h4>
+                          <p className="text-xs text-teal-600/80 mb-5 leading-relaxed">Antes de salvar, precisamos saber se você vai usar um domínio oficial (Ex: Registro.br).</p>
                           <Suspense fallback={null}><DomainChecker onDomainChange={(domain, isLater) => { setOfficialDomain(domain); setRegisterLater(isLater); }} /></Suspense>
                         </div>
                       ) : (
                         <div className="space-y-4">
-                          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                          <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm">
                             <div className="flex items-center gap-3 mb-5">
-                              <div className="bg-blue-100 p-2.5 rounded-xl"><Globe className="text-blue-600 w-5 h-5" /></div>
-                              <div><h3 className="font-bold text-slate-950 text-sm">Apontamento DNS</h3><p className="text-[10px] text-slate-500">Configure no seu provedor de domínio</p></div>
+                              <div className="bg-teal-100 p-2.5 rounded-xl"><Globe className="text-teal-600 w-5 h-5" /></div>
+                              <div><h3 className="font-bold text-stone-950 text-sm">Apontamento DNS</h3><p className="text-[10px] text-stone-500">Configure no seu provedor de domínio</p></div>
                             </div>
-                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
-                              <div><div className="flex justify-between items-center mb-1"><span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">TIPO A</span></div><div className="bg-white p-3 rounded-xl border border-slate-200"><code className="text-emerald-600 text-xs font-bold select-all">199.36.158.100</code></div></div>
-                              <div><div className="flex justify-between items-center mb-1"><span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">TIPO TXT</span></div><div className="bg-white p-3 rounded-xl border border-slate-200"><code className="text-blue-700 text-[10px] break-all select-all block leading-tight">firebase-site-verification={currentProjectSlug}-app</code></div></div>
+                            <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 space-y-4">
+                              <div><div className="flex justify-between items-center mb-1"><span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">TIPO A</span></div><div className="bg-white p-3 rounded-xl border border-stone-200"><code className="text-emerald-600 text-xs font-bold select-all">199.36.158.100</code></div></div>
+                              <div><div className="flex justify-between items-center mb-1"><span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">TIPO TXT</span></div><div className="bg-white p-3 rounded-xl border border-stone-200"><code className="text-teal-700 text-[10px] break-all select-all block leading-tight">firebase-site-verification={currentProjectSlug}-app</code></div></div>
                             </div>
                           </div>
                         </div>
@@ -1123,23 +1140,23 @@ const App: React.FC = () => {
 
                   {activeTab === 'assinatura' && currentProjectSlug && (
                     <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
-                      <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm relative overflow-hidden">
+                      <div className="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-orange-100 blur-[50px] rounded-full pointer-events-none"></div>
-                        <h3 className="text-lg font-black text-slate-950 mb-1 flex items-center gap-2"><CreditCard size={18} className="text-orange-500" /> Assinatura</h3>
-                        <p className="text-xs text-slate-500 mb-6">Gerencie o plano do projeto <span className="text-orange-500 font-mono">{currentProjectSlug}</span></p>
+                        <h3 className="text-lg font-black text-stone-950 mb-1 flex items-center gap-2"><CreditCard size={18} className="text-orange-500" /> Assinatura</h3>
+                        <p className="text-xs text-stone-500 mb-6">Gerencie o plano do projeto <span className="text-orange-500 font-mono">{currentProjectSlug}</span></p>
 
                         {(!savedProjects.find(p => p.id === currentProjectSlug)?.paymentStatus || savedProjects.find(p => p.id === currentProjectSlug)?.paymentStatus !== 'paid') ? (
                           <div className="space-y-6">
                             <div className="grid grid-cols-1 gap-4">
-                              <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 flex flex-col h-full relative overflow-hidden">
+                              <div className="bg-stone-50 p-5 rounded-xl border border-stone-200 flex flex-col h-full relative overflow-hidden">
                                 <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
-                                <div className="absolute top-0 right-0 bg-blue-600 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg">Mais Assinado</div>
-                                <h4 className="text-blue-600 font-bold mb-2 uppercase tracking-wide text-xs">Plano Mensal</h4>
-                                <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-slate-950">R$ 49,99</span><span className="text-xs text-slate-500 font-medium pb-1">/mês</span></div>
-                                <ul className="space-y-2 text-xs text-slate-600 mb-6 flex-1 relative z-10">
+                                <div className="absolute top-0 right-0 bg-teal-600 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg">Mais Assinado</div>
+                                <h4 className="text-teal-600 font-bold mb-2 uppercase tracking-wide text-xs">Plano Mensal</h4>
+                                <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ 49,99</span><span className="text-xs text-stone-500 font-medium pb-1">/mês</span></div>
+                                <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
                                   <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5"/> Domínio próprio & Suporte</li>
                                 </ul>
-                                <button onClick={() => handleStripeCheckout(currentProjectSlug, 'mensal')} disabled={checkoutLoading === currentProjectSlug} className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors relative z-10">
+                                <button onClick={() => handleStripeCheckout(currentProjectSlug, 'mensal')} disabled={checkoutLoading === currentProjectSlug} className="w-full bg-teal-600 hover:bg-teal-500 text-white py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors relative z-10">
                                   {checkoutLoading === currentProjectSlug ? 'Processando...' : 'Assinar Mensal'}
                                 </button>
                               </div>
@@ -1148,8 +1165,8 @@ const App: React.FC = () => {
                                 <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
                                 <div className="absolute top-0 right-0 bg-orange-500 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg">Mais Econômico</div>
                                 <h4 className="text-orange-500 font-bold mb-2 uppercase tracking-wide text-xs">Plano Anual</h4>
-                                <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-slate-950">R$ 499</span><span className="text-xs text-slate-500 font-medium pb-1">/ano</span></div>
-                                <ul className="space-y-2 text-xs text-slate-600 mb-6 flex-1 relative z-10">
+                                <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ 499</span><span className="text-xs text-stone-500 font-medium pb-1">/ano</span></div>
+                                <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
                                   <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5"/> 2 meses grátis equivalentes</li>
                                 </ul>
                                 <button onClick={() => handleStripeCheckout(currentProjectSlug, 'anual')} disabled={checkoutLoading === currentProjectSlug} className="w-full bg-orange-500 hover:bg-orange-400 text-white py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-colors shadow-lg shadow-orange-500/20 relative z-10">
@@ -1169,14 +1186,14 @@ const App: React.FC = () => {
                   )}
                   
                   {loggedUserEmail && (
-                    <div className="mt-8 border-t border-slate-200 pt-6 space-y-4">
-                      <div className="flex items-center justify-between"><p className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2"><LayoutDashboard size={14} className="text-emerald-600"/>Meus Projetos</p><button onClick={handleLogout} className="text-[10px] font-bold text-red-500 hover:text-red-600 uppercase bg-red-50 px-2.5 py-1 rounded-lg">Sair</button></div>
+                    <div className="mt-8 border-t border-stone-200 pt-6 space-y-4">
+                      <div className="flex items-center justify-between"><p className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-2"><LayoutDashboard size={14} className="text-emerald-600"/>Meus Projetos</p><button onClick={handleLogout} className="text-[10px] font-bold text-red-500 hover:text-red-600 uppercase bg-red-50 px-2.5 py-1 rounded-lg">Sair</button></div>
                       <div className="max-h-52 overflow-y-auto space-y-2">
-                        {savedProjects.length === 0 ? <p className="text-xs text-slate-400 italic text-center py-4">Nenhum projeto ainda.</p> : (
+                        {savedProjects.length === 0 ? <p className="text-xs text-stone-400 italic text-center py-4">Nenhum projeto ainda.</p> : (
                           savedProjects.map((p: any) => (
-                            <div key={p.id} className="flex gap-1.5 bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
-                                <button onClick={() => handleLoadProject(p)} className={`flex-1 text-left text-xs bg-slate-50 hover:bg-slate-100 rounded-lg p-3 flex justify-between items-center transition-all ${currentProjectSlug === p.id ? 'ring-1 ring-blue-400' : ''}`}><div className="flex flex-col truncate pr-2"><span className="font-bold text-slate-800 truncate flex items-center gap-2">{p.businessName || 'Sem Nome'} {getStatusBadge(p)}</span><span className="text-[9px] text-slate-400 font-mono mt-1">{p.id}.web.app</span></div></button>
-                                <button onClick={() => handleDeleteSite(p.id)} className="w-10 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-lg flex items-center justify-center transition-all flex-shrink-0"><Trash2 size={14} /></button>
+                            <div key={p.id} className="flex gap-1.5 bg-white border border-stone-200 rounded-xl p-2.5 shadow-sm">
+                                <button onClick={() => handleLoadProject(p)} className={`flex-1 text-left text-xs bg-stone-50 hover:bg-stone-100 rounded-lg p-3 flex justify-between items-center transition-all ${currentProjectSlug === p.id ? 'ring-1 ring-teal-400' : ''}`}><div className="flex flex-col truncate pr-2"><span className="font-bold text-stone-800 truncate flex items-center gap-2">{p.businessName || 'Sem Nome'} {getStatusBadge(p)}</span><span className="text-[9px] text-stone-400 font-mono mt-1">{p.id}.web.app</span></div></button>
+                                <button onClick={() => handleDeleteSite(p.id)} className="w-10 bg-stone-50 hover:bg-red-50 text-stone-400 hover:text-red-500 rounded-lg flex items-center justify-center transition-all flex-shrink-0"><Trash2 size={14} /></button>
                             </div>
                           ))
                         )}
@@ -1187,11 +1204,11 @@ const App: React.FC = () => {
 
                 {/* Rodapé do Menu */}
                 {generatedHtml && (
-                  <div className="p-4 border-t border-slate-200 bg-white flex flex-col sm:flex-row items-center gap-3 flex-shrink-0">
-                    <button onClick={handleSaveOrUpdateSite} disabled={isSavingProject || (!hasUnsavedChanges && currentProjectSlug !== null)} className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${hasUnsavedChanges || !currentProjectSlug ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}>
+                  <div className="p-4 border-t border-stone-200 bg-white flex flex-col sm:flex-row items-center gap-3 flex-shrink-0">
+                    <button onClick={handleSaveOrUpdateSite} disabled={isSavingProject || (!hasUnsavedChanges && currentProjectSlug !== null)} className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${hasUnsavedChanges || !currentProjectSlug ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md' : 'bg-stone-100 text-stone-400 cursor-not-allowed'}`}>
                       {isSavingProject ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save size={14} />} {currentProjectSlug ? 'Atualizar' : 'Salvar Projeto'}
                     </button>
-                    <button onClick={handlePublishSite} disabled={isPublishing || hasUnsavedChanges || !currentProjectSlug} className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${!hasUnsavedChanges && currentProjectSlug ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20' : 'bg-slate-100 text-slate-400 cursor-not-allowed'}`}>
+                    <button onClick={handlePublishSite} disabled={isPublishing || hasUnsavedChanges || !currentProjectSlug} className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${!hasUnsavedChanges && currentProjectSlug ? 'bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-500/20' : 'bg-stone-100 text-stone-400 cursor-not-allowed'}`}>
                       {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe size={14} />} Publicar Site
                     </button>
                   </div>
