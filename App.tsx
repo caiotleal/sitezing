@@ -76,17 +76,12 @@ const PROMO_HTML = `
   <title>SiteZing - Criação Inteligente em Segundos</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* FUNDO QUENTE (STONE/PÉROLA) - VIBE CARIBE */
     html, body { -ms-overflow-style: none; scrollbar-width: none; background-color: #FAFAF9; color: #1C1917; font-family: sans-serif; overflow-x: hidden; }
     ::-webkit-scrollbar { display: none; }
     .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(231, 229, 228, 0.8); transition: all 0.3s ease; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); cursor: pointer; }
     .glass-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 20px 40px -10px rgba(249, 115, 22, 0.15); border-color: rgba(249, 115, 22, 0.3); }
-    
     @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     .animate-up { animation: fadeUp 1s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-    
-    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-    .animate-floating { animation: float 6s ease-in-out infinite; }
     .plan-bg-logo { position: absolute; bottom: -15%; right: -10%; width: 70%; height: auto; opacity: 0.03; pointer-events: none; filter: grayscale(100%); }
   </style>
 </head>
@@ -99,14 +94,11 @@ const PROMO_HTML = `
   </header>
 
   <main class="pt-36 pb-24 px-6 md:px-12 max-w-7xl mx-auto flex flex-col justify-center min-h-screen relative">
-    
     <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-200/30 blur-[150px] rounded-full pointer-events-none"></div>
     <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-orange-200/30 blur-[150px] rounded-full pointer-events-none"></div>
 
     <div class="relative z-10 animate-up text-center md:text-left max-w-3xl mb-16">
-      
       <div class="inline-block px-4 py-1.5 rounded-full bg-white border border-teal-100 text-xs font-bold tracking-widest text-teal-600 mb-6 uppercase shadow-sm">A revolução da web</div>
-      
       <h1 class="text-[3rem] md:text-[5.5rem] font-black leading-[0.9] tracking-tighter mb-6 uppercase italic text-stone-900">
         Seu site pronto em um <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500 pr-10 inline-block">ZING!!!</span>
       </h1>
@@ -122,7 +114,7 @@ const PROMO_HTML = `
         <div class="absolute top-0 right-0 bg-stone-200 text-stone-700 text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase">Sem pagamento antecipado</div>
         <h3 class="text-2xl font-black mb-1 italic uppercase text-stone-800 mt-2">Teste Grátis</h3>
         <p class="text-stone-500 mb-6 text-sm">Veja o seu site pronto hoje mesmo.</p>
-        <div class="text-4xl font-black mb-1 text-teal-600">R$ 0 <span class="text-sm text-stone-400 font-normal">/ 5 dias</span></div>
+        <div class="text-4xl font-black mb-1 text-teal-600">R$ 0 <span class="text-sm text-stone-400 font-normal">/ 7 dias</span></div>
         <p class="text-[11px] text-teal-500 font-bold mb-6">Todos os recursos disponíveis em qualquer plano.</p>
         <ul class="space-y-3 text-stone-600 text-sm font-medium">
           <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-[10px]">✔</span> Geração por IA</li>
@@ -148,13 +140,8 @@ const PROMO_HTML = `
       <div class="glass-card p-8 rounded-[2rem] relative overflow-hidden border-orange-300 bg-white shadow-[0_20px_50px_-12px_rgba(249,115,22,0.15)] group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'annual' }, '*')">
         <img src="${BRAND_LOGO}" class="plan-bg-logo" style="opacity: 0.06;" />
         <div class="absolute top-0 right-0 bg-gradient-to-r from-orange-500 to-orange-400 text-white text-[10px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase flex gap-1.5 items-center justify-center shadow-lg">
-          <svg class="h-3 w-3 flex-shrink-0 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2C9.5 2 7 4 6 6C4 8 3 11 3 14C3 17.5 5.5 20.5 9 21L12 22L15 21C18.5 20.5 21 17.5 21 14C21 11 20 8 18 6C17 4 14.5 2 12 2Z" fill="currentColor" stroke="currentColor" stroke-width="0.5" />
-            <path d="M10 16L12.5 18.5L16.5 14.5" stroke="#4C1D95" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
           <span class="leading-none">Mais Econômico</span>
         </div>
-
         <h3 class="text-2xl font-black mb-1 italic uppercase text-orange-500 mt-2">Anual</h3>
         <p class="text-stone-500 mb-6 text-sm">A solução definitiva e econômica.</p>
         <div class="text-4xl font-black mb-1 text-stone-900">R$ 499 <span class="text-sm text-stone-400 font-normal">/ 1º ano</span></div>
@@ -162,7 +149,6 @@ const PROMO_HTML = `
         <ul class="space-y-3 text-stone-600 text-sm font-medium">
           <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 text-[12px]">★</span> 2 meses grátis</li>
           <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 text-[12px]">★</span> Apontamento de Domínio</li>
-          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 text-[12px]">★</span> Alta velocidade Google</li>
         </ul>
         <div class="mt-6 text-[10px] text-stone-400/80 text-center uppercase tracking-widest font-bold group-hover:text-orange-600 transition-colors">Clique para ver regras</div>
       </div>
@@ -222,7 +208,6 @@ const getPreviewHtml = (baseHtml: string | null) => {
       .custom-editor-toolbar input[type="color"] { width: 22px; height: 22px; border: none; cursor: pointer; background: transparent; padding: 0; }
       .custom-editor-toolbar select { background: #27272a; color: white; border: 1px solid #3f3f46; border-radius: 6px; padding: 4px 8px; font-size: 12px; outline: none; cursor: pointer; height: 30px; }
       .custom-editor-toolbar button#text-delete { background: #ef444415; border: 1px solid #ef444450; color: #ef4444; font-size: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; padding: 0 10px; transition: all 0.2s; height: 30px; display: flex; align-items: center; gap: 4px; }
-      .custom-editor-toolbar button#text-delete:hover { background: #ef4444; color: white; border-color: #ef4444; }
       .editable-element { transition: all 0.2s; outline: 2px dashed transparent; outline-offset: 2px; }
       .editable-element:hover { outline-color: rgba(160, 160, 160, 0.5); cursor: pointer; }
       .editable-element:focus { outline-color: #ffffff; }
@@ -359,37 +344,6 @@ const getPreviewHtml = (baseHtml: string | null) => {
               sendCleanHtml();
             }
           }
-
-          if (e.data.type === 'STOCK_IMAGE_OPTIONS') {
-            const targetEl = document.querySelector(\`.editable-image[data-id="\${e.data.targetId}"]\`);
-            if (targetEl && e.data.options && e.data.options.length) {
-              let html = \`<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; height: 100%; min-height: 200px; background: #18181b; padding: 12px; border-radius: 12px;">\`;
-              e.data.options.forEach((optStr, idx) => {
-                 const urls = optStr.split('|');
-                 html += \`<div class="stock-opt stock-opt-\${idx}" style="cursor:pointer; position:relative; overflow:hidden; border-radius:8px; display:flex; align-items:center; justify-content:center; background:#27272a;">
-                     <img src="\${urls[0]}" onerror="this.src='\${urls[1]||urls[0]}'" style="width:100%; height:100%; object-fit:cover; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"/>
-                     <div style="position:absolute; bottom:4px; left:4px; background:rgba(0,0,0,0.7); color:white; font-size:10px; padding:2px 6px; border-radius:4px; pointer-events:none;">Usar esta</div>
-                  </div>\`;
-              });
-              html += \`</div>\`;
-              targetEl.innerHTML = html;
-              
-              setTimeout(() => {
-                 e.data.options.forEach((optStr, idx) => {
-                    const el = targetEl.querySelector('.stock-opt-' + idx);
-                    if(el) {
-                       el.addEventListener('click', (ev) => {
-                          ev.stopPropagation();
-                          const img = el.querySelector('img');
-                          if(img && img.src) {
-                             window.parent.postMessage({ type: 'INSERT_IMAGE', targetId: e.data.targetId, url: img.src }, '*');
-                          }
-                       });
-                    }
-                 });
-              }, 100);
-            }
-          }
         });
       });
     </script>
@@ -412,12 +366,12 @@ const extractCustomImages = (html: string | null) => {
   return images;
 };
 
-// DADOS DOS PLANOS PARA O MODAL
+// DADOS DOS PLANOS PARA O MODAL (Ajustado para 7 dias)
 const PLAN_DETAILS = {
   free: {
     title: "Plano Teste Grátis",
     price: "R$ 0,00",
-    period: "por 5 dias",
+    period: "por 7 dias",
     color: "text-stone-800",
     bgBadge: "bg-stone-200 text-stone-700",
     badge: "Sem pagamento antecipado",
@@ -425,7 +379,7 @@ const PLAN_DETAILS = {
       "Acesso completo à Inteligência Artificial da plataforma.",
       "Geração, edição e publicação de site grátis.",
       "Hospedagem segura com subdomínio (.web.app).",
-      "Após 5 dias, o site é congelado automaticamente caso não haja assinatura.",
+      "Após 7 dias, o site é congelado automaticamente caso não haja assinatura.",
       "Sem necessidade de cadastrar cartão de crédito para testar."
     ]
   },
@@ -463,11 +417,17 @@ const PLAN_DETAILS = {
 const App: React.FC = () => {
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // Menu fechado por padrão
+  const [isMenuOpen, setIsMenuOpen] = useState(false); 
   const [aiContent, setAiContent] = useState<any>(null);
-  const [isCanceling, setIsCanceling] = useState<string | null>(null);
+  
+  // MODAIS E ESTADOS DE TERMOS
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [selectedPlanModal, setSelectedPlanModal] = useState<'free' | 'monthly' | 'annual' | null>(null);
+  const [checkoutTermsAccepted, setCheckoutTermsAccepted] = useState(false);
+  const [cancelModalProject, setCancelModalProject] = useState<string | null>(null);
+  const [cancelTermsAccepted, setCancelTermsAccepted] = useState(false);
+  const [isCanceling, setIsCanceling] = useState(false);
+
   const [loggedUserEmail, setLoggedUserEmail] = useState<string | null>(auth.currentUser?.email || null);
   const [savedProjects, setSavedProjects] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'geral' | 'dominio' | 'assinatura'>('geral');
@@ -503,6 +463,7 @@ const App: React.FC = () => {
     const handleMessage = (e: MessageEvent) => {
       if (e.data.type === 'OPEN_PLAN_MODAL') {
         setSelectedPlanModal(e.data.plan);
+        setCheckoutTermsAccepted(false); // Reseta o aceite ao abrir
       }
     };
     window.addEventListener('message', handleMessage);
@@ -558,6 +519,7 @@ const App: React.FC = () => {
 
     let headInjection = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">';
     
+    // Configurando Logo e Favicon
     if (data.logoBase64) {
       headInjection += `<link rel="icon" type="image/png" href="${data.logoBase64}">`;
       html = html.replace(/\[\[LOGO_AREA\]\]/g, `<img src="${data.logoBase64}" class="h-10 md:h-12 w-auto object-contain transition-transform hover:scale-105" alt="Logo" />`);
@@ -569,8 +531,10 @@ const App: React.FC = () => {
     replaceAll('[[TIKTOK_BTN]]', ''); replaceAll('[[LINKEDIN_BTN]]', ''); replaceAll('[[IFOOD_BTN]]', ''); replaceAll('[[NOVE_NOVE_BTN]]', ''); replaceAll('[[KEETA_BTN]]', '');
 
     let socialHtml = '';
+    let glassSocials = ''; // Redes sociais para o header glass
     const addSocialBtn = (href: string, brandColor: string, label: string, innerHtml: string) => {
       socialHtml += `<a href="${href}" target="_blank" class="social-icon" style="color: ${brandColor};" title="${label}">${innerHtml}</a>`;
+      glassSocials += `<a href="${href}" target="_blank" class="glass-social-link" title="${label}">${innerHtml}</a>`;
     };
 
     if (data.whatsapp) addSocialBtn(`https://wa.me/${data.whatsapp.replace(/\D/g, '')}`, '#25D366', 'WhatsApp', '<i class="fab fa-whatsapp"></i>');
@@ -579,26 +543,24 @@ const App: React.FC = () => {
     if (data.linkedin) addSocialBtn(data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`, '#0A66C2', 'LinkedIn', '<i class="fab fa-linkedin-in"></i>');
     if (data.tiktok) addSocialBtn(data.tiktok.startsWith('http') ? data.tiktok : `https://${data.tiktok}`, '#fff', 'TikTok', '<i class="fab fa-tiktok"></i>');
     if (data.ifood) addSocialBtn(data.ifood.startsWith('http') ? data.ifood : `https://${data.ifood}`, '#EA1D2C', 'iFood', '<img src="https://cdn.simpleicons.org/ifood/EA1D2C" alt="iFood" class="float-logo"/>');
-    if (data.noveNove) addSocialBtn(data.noveNove.startsWith('http') ? data.noveNove : `https://${data.noveNove}`, '#FFC700', '99', '<span class="float-brand inline-block" style="color: #FFC700">99</span>');
-    if (data.keeta) addSocialBtn(data.keeta.startsWith('http') ? data.keeta : `https://${data.keeta}`, '#19B84A', 'Keeta', '<span class="float-brand inline-block" style="color: #19B84A">Keeta</span>');
 
     let contactHtml = '';
     if (data.showFloatingContact) {
       contactHtml = `<a href="#contato" class="contact-dock-btn"><i class="fas fa-comment-dots text-[18px]"></i> Fale Conosco</a>`;
     }
 
+    // Dock Flutuante (Existente)
     if (socialHtml || contactHtml) {
       const wrappedSocials = socialHtml ? `<div class="social-dock">${socialHtml}</div>` : '';
       const floatStyle = `
       <style>
         @keyframes gentle-float { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
-        .floating-dock { position: fixed; bottom: 32px; right: 32px; display: flex; align-items: center; gap: 16px; z-index: 99999; flex-wrap: wrap; justify-content: flex-end; animation: gentle-float 4s ease-in-out infinite; opacity: 0; pointer-events: none; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .floating-dock { position: fixed; bottom: 32px; right: 32px; display: flex; align-items: center; gap: 16px; z-index: 99990; flex-wrap: wrap; justify-content: flex-end; animation: gentle-float 4s ease-in-out infinite; opacity: 0; pointer-events: none; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .floating-dock.scrolled-active { opacity: 1; pointer-events: auto; transform: translateY(0px); }
         .social-dock { display: flex; align-items: center; gap: 4px; padding: 6px 16px; border-radius: 100px; background-color: ${colors.c2}cc; border: 1px solid ${colors.c3}; box-shadow: 0 8px 32px rgba(0,0,0,0.2); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
         .social-icon { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; font-size: 22px; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-decoration: none; }
         .social-icon:hover { transform: translateY(-4px) scale(1.15); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
         .social-icon .float-logo { width: 22px; height: 22px; object-fit: contain; }
-        .social-icon .float-brand { font-size: 13px; font-weight: 900; }
         .contact-dock-btn { display: flex; align-items: center; gap: 10px; padding: 12px 24px; border-radius: 100px; background-color: ${colors.c4}; color: ${colors.c1}; font-weight: 800; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 8px 32px rgba(0,0,0,0.3); transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-decoration: none; border: 1px solid ${colors.c3}40; pointer-events: auto; }
         .contact-dock-btn:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
         .floating-dock:hover { animation-play-state: paused; }
@@ -616,6 +578,57 @@ const App: React.FC = () => {
       headInjection += floatStyle;
       html = html.replace('</body>', `<div class="floating-dock">${contactHtml}${wrappedSocials}</div></body>`);
     }
+
+    // ==========================================
+    // INJEÇÃO DO HEADER GLASS NOS TEMPLATES
+    // ==========================================
+    const glassLogoContent = data.logoBase64 ? `<img src="${data.logoBase64}" alt="Logo" />` : `<span>${companyNameUpper}</span>`;
+    const glassHtml = `
+    <header class="glass-header-premium" id="glassHeaderPremium">
+        <div class="glass-container-premium">
+            <a href="#" class="glass-logo-premium">${glassLogoContent}</a>
+            <div class="glass-actions-premium">
+                <div class="glass-social-links-premium">${glassSocials}</div>
+                <a href="#contato" class="btn-contact-premium" style="background-color: ${colors.c4}; color: ${colors.c1};">Fale Conosco</a>
+            </div>
+        </div>
+    </header>
+    `;
+
+    const glassStyleAndScript = `
+    <style>
+        .glass-header-premium { position: fixed; top: -100px; left: 0; width: 100%; z-index: 9998; transition: top 0.4s ease-in-out; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05); }
+        .glass-header-premium.scrolled { top: 0; }
+        .glass-container-premium { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 15px 20px; }
+        .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: ${colors.c4}; }
+        .glass-logo-premium img { max-height: 40px; width: auto; display: block; }
+        .glass-logo-premium span { font-weight: 900; font-size: 1.2rem; text-transform: uppercase; }
+        .glass-actions-premium { display: flex; align-items: center; gap: 20px; }
+        .glass-social-links-premium { display: flex; gap: 15px; }
+        .glass-social-link { color: ${colors.c4}; text-decoration: none; font-size: 1.2rem; transition: transform 0.2s ease; display: flex; align-items: center; justify-content: center; }
+        .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
+        .glass-social-link img { width: 20px; height: 20px; object-fit: contain; }
+        .btn-contact-premium { padding: 10px 24px; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.95rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-contact-premium:hover { transform: scale(1.05); }
+        @media (max-width: 768px) { .glass-social-links-premium { display: none; } .glass-container-premium { padding: 12px 15px; } .btn-contact-premium { padding: 8px 18px; font-size: 0.85rem; } }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const header = document.getElementById("glassHeaderPremium");
+            if(header) {
+                window.addEventListener("scroll", () => {
+                    if (window.scrollY > 150) { header.classList.add("scrolled"); }
+                    else { header.classList.remove("scrolled"); }
+                });
+            }
+        });
+    </script>
+    `;
+
+    headInjection += glassStyleAndScript;
+    html = html.replace(/<body[^>]*>/i, `$&${glassHtml}`);
+    // ==========================================
+
 
     const footerBrand = `<div style="text-align:center; padding: 24px; font-size: 12px; opacity: 0.5; width: 100%; font-family: sans-serif; display: flex; align-items: center; justify-content: center; gap: 6px;">Criado por <a href="https://sitezing.com.br" target="_blank" style="text-decoration: none; font-weight: 900; display: flex; align-items: center; gap: 4px; color: inherit; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'"><img src="${BRAND_LOGO}" style="height: 16px; width: auto;" alt="SiteZing"/> SiteZing.com.br</a></div>`;
     html = html.replace('</body>', `${footerBrand}</body>`);
@@ -759,16 +772,17 @@ const App: React.FC = () => {
     finally { setCheckoutLoading(null); }
   };
   
-  const handleCancelSubscription = async (projectId: string) => {
-    if (!window.confirm("Tem certeza que deseja cancelar sua assinatura?\n\nSeu site continuará no ar até o final do período que já foi pago. Após essa data, ele será suspenso.")) return;
-    setIsCanceling(projectId);
+  // Função atualizada para abrir o novo modal de cancelamento
+  const handleConfirmCancel = async (projectId: string) => {
+    setIsCanceling(true);
     try {
       const cancelFn = httpsCallable(functions, 'cancelStripeSubscription');
       await cancelFn({ projectId });
       alert("Assinatura cancelada com sucesso!");
       fetchProjects(); 
+      setCancelModalProject(null);
     } catch (error: any) { alert("Erro ao cancelar: " + error.message); } 
-    finally { setIsCanceling(null); }
+    finally { setIsCanceling(false); }
   };
   
   const handleLoadProject = (project: any) => {
@@ -858,7 +872,44 @@ const App: React.FC = () => {
           <LoginPage isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onSubmit={handleLoginSubmit} brandLogo={BRAND_LOGO} />
         </Suspense>
 
-        {/* Modal de Detalhes do Plano */}
+        {/* Modal de Cancelamento (COM TERMOS) */}
+        <AnimatePresence>
+          {cancelModalProject && (
+            <div className="fixed inset-0 z-[200] bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-white border border-stone-200 p-8 rounded-3xl shadow-2xl max-w-lg w-full relative overflow-hidden"
+              >
+                <h2 className="text-2xl font-black mb-4 text-red-600 uppercase">Termos de Cancelamento</h2>
+                
+                <div className="mb-6 bg-red-50 p-5 rounded-xl border border-red-100">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={cancelTermsAccepted} 
+                      onChange={e => setCancelTermsAccepted(e.target.checked)} 
+                      className="mt-1 flex-shrink-0 w-5 h-5 accent-red-600 rounded border-gray-300" 
+                    />
+                    <span className="text-[12px] text-stone-700 leading-relaxed font-medium">
+                      Estou ciente de que, ao confirmar o cancelamento, <b>não haverá devolução ou reembolso de valores</b> referentes ao tempo restante da minha assinatura. Compreendo que meu site e meu acesso continuarão ativos apenas até o final do ciclo de faturamento já pago, sendo o serviço interrompido e os dados programados para exclusão após essa data.
+                    </span>
+                  </label>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button onClick={() => {setCancelModalProject(null); setCancelTermsAccepted(false)}} className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 py-4 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors">
+                    Voltar
+                  </button>
+                  <button onClick={() => handleConfirmCancel(cancelModalProject)} disabled={!cancelTermsAccepted || isCanceling} className={`flex-1 py-4 rounded-xl font-black uppercase tracking-wider text-xs transition-colors shadow-lg flex items-center justify-center gap-2 ${cancelTermsAccepted ? 'bg-red-600 hover:bg-red-700 text-white shadow-red-500/20' : 'bg-stone-300 text-stone-500 cursor-not-allowed'}`}>
+                    {isCanceling ? <Loader2 className="animate-spin w-4 h-4" /> : 'Confirmar Cancelamento'}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Modal de Detalhes do Plano (COM CHECKBOX PARA CHECKOUT) */}
         <AnimatePresence>
           {selectedPlanModal && (
             <div className="fixed inset-0 z-[200] bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4">
@@ -868,24 +919,24 @@ const App: React.FC = () => {
               >
                 <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-3/4 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
                 
-                <button onClick={() => setSelectedPlanModal(null)} className="absolute top-6 right-6 text-stone-400 hover:text-stone-800 transition-colors bg-stone-100 p-2 rounded-full">
+                <button onClick={() => setSelectedPlanModal(null)} className="absolute top-6 right-6 text-stone-400 hover:text-stone-800 transition-colors bg-stone-100 p-2 rounded-full z-20">
                   <X size={18} />
                 </button>
 
-                <div className={`inline-block px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 ${PLAN_DETAILS[selectedPlanModal].bgBadge}`}>
+                <div className={`inline-block px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 relative z-10 ${PLAN_DETAILS[selectedPlanModal].bgBadge}`}>
                   {PLAN_DETAILS[selectedPlanModal].badge}
                 </div>
                 
-                <h2 className={`text-3xl font-black mb-1 italic uppercase ${PLAN_DETAILS[selectedPlanModal].color}`}>
+                <h2 className={`text-3xl font-black mb-1 italic uppercase relative z-10 ${PLAN_DETAILS[selectedPlanModal].color}`}>
                   {PLAN_DETAILS[selectedPlanModal].title}
                 </h2>
                 
-                <div className="text-4xl font-black mb-1 text-stone-900 mt-2">
+                <div className="text-4xl font-black mb-1 text-stone-900 mt-2 relative z-10">
                   {PLAN_DETAILS[selectedPlanModal].price} <span className="text-sm text-stone-500 font-normal">{PLAN_DETAILS[selectedPlanModal].period}</span>
                 </div>
-                <p className="text-xs text-stone-500 font-bold mb-8 pb-4 border-b border-stone-100">Todos os recursos disponíveis em qualquer plano.</p>
+                <p className="text-xs text-stone-500 font-bold mb-6 pb-4 border-b border-stone-100 relative z-10">Todos os recursos disponíveis em qualquer plano.</p>
 
-                <ul className="space-y-4 text-stone-600 text-sm font-medium mb-8 relative z-10">
+                <ul className="space-y-4 text-stone-600 text-sm font-medium mb-6 relative z-10">
                   {PLAN_DETAILS[selectedPlanModal].rules.map((rule, idx) => (
                     <li key={idx} className="flex items-start gap-3">
                       <CheckCircle size={18} className={`${PLAN_DETAILS[selectedPlanModal].color} shrink-0 mt-0.5`} />
@@ -894,12 +945,35 @@ const App: React.FC = () => {
                   ))}
                 </ul>
 
+                {/* Bloco de Termos caso o usuário queira assinar antes do fim do trial */}
+                {selectedPlanModal !== 'free' && (
+                  <div className="mb-6 bg-stone-50 p-4 rounded-xl border border-stone-200 relative z-10">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={checkoutTermsAccepted} 
+                        onChange={e => setCheckoutTermsAccepted(e.target.checked)} 
+                        className="mt-1 flex-shrink-0 w-4 h-4 accent-teal-600 rounded" 
+                      />
+                      <span className="text-[10px] text-stone-600 leading-relaxed font-medium">
+                        Oferecemos 7 dias de avaliação gratuita. Por isso, <b>não realizamos reembolsos proporcionais</b>. 
+                        Ao prosseguir com a compra antes do término do seu teste, você declara estar ciente que já avaliou a plataforma, 
+                        concorda com a contratação e abre mão dos dias de teste restantes.
+                      </span>
+                    </label>
+                  </div>
+                )}
+
                 <div className="flex flex-col sm:flex-row gap-3 relative z-10">
                   <button onClick={() => setSelectedPlanModal(null)} className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 py-4 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors">
                     Voltar
                   </button>
-                  <button onClick={() => { setSelectedPlanModal(null); setIsMenuOpen(true); }} className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-xl font-black uppercase tracking-wider text-xs transition-colors shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2">
-                    <Rocket size={16} /> Criar Meu Site
+                  <button 
+                    onClick={() => { setSelectedPlanModal(null); setIsMenuOpen(true); }} 
+                    disabled={selectedPlanModal !== 'free' && !checkoutTermsAccepted}
+                    className={`flex-1 py-4 rounded-xl font-black uppercase tracking-wider text-xs transition-colors shadow-lg flex items-center justify-center gap-2 ${selectedPlanModal === 'free' || checkoutTermsAccepted ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-orange-500/20' : 'bg-stone-300 text-stone-500 cursor-not-allowed'}`}
+                  >
+                    <Rocket size={16} /> {selectedPlanModal === 'free' ? 'Criar Meu Site' : 'Prosseguir'}
                   </button>
                 </div>
               </motion.div>
@@ -907,30 +981,39 @@ const App: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* Modal de Sucesso na Publicação */}
+        {/* Modal de Sucesso na Publicação (INFORMATIVO SITE NO AR) */}
         <AnimatePresence>
           {publishModalUrl && (
             <div className="fixed inset-0 z-[100] bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4">
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="bg-white border border-stone-200 p-8 rounded-3xl shadow-2xl max-w-md w-full text-center space-y-6 relative overflow-hidden"
+                className="bg-white border border-stone-200 p-8 rounded-3xl shadow-2xl max-w-md w-full text-center space-y-5 relative overflow-hidden"
               >
                 <img src={BRAND_LOGO} className="absolute bottom-[-10%] left-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
-                <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-2 border border-emerald-100 relative z-10">
-                  <CheckCircle size={40} />
+                <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-2 border border-emerald-100 relative z-10">
+                  <CheckCircle size={32} />
                 </div>
                 <div className="relative z-10">
-                  <h2 className="text-2xl font-bold text-stone-900 mb-2">Site Publicado com Sucesso!</h2>
+                  <h2 className="text-2xl font-bold text-stone-900 mb-2">Seu site está no ar!</h2>
                   <p className="text-stone-500 text-sm leading-relaxed">A sua página já está online. Caso tenha configurado um domínio oficial, pode demorar algumas horas para propagar.</p>
                 </div>
-                <div className="bg-stone-50 p-3 rounded-xl border border-stone-200 flex items-center justify-between gap-3 overflow-hidden relative z-10">
+
+                {/* Informativo Legal de 7 Dias sem Checkbox */}
+                <div className="bg-orange-50 border border-orange-100 p-4 rounded-xl text-left relative z-10 shadow-sm">
+                   <h4 className="text-orange-600 font-bold text-[11px] uppercase tracking-wider mb-2">Aproveite seus 7 dias gratuitos</h4>
+                   <p className="text-[10px] text-stone-600 leading-relaxed font-medium">
+                     Durante esse período, explore todos os recursos. Lembre-se: caso a assinatura não seja efetivada ao final do prazo, o site entrará em estado de congelamento e, posteriormente, será excluído definitivamente do sistema.
+                   </p>
+                </div>
+
+                <div className="bg-stone-50 p-3 rounded-xl border border-stone-200 flex items-center justify-between gap-3 overflow-hidden relative z-10 mt-2">
                   <code className="text-teal-600 text-sm truncate flex-1 font-mono">{publishModalUrl}</code>
                 </div>
                 <div className="flex gap-3 pt-2 relative z-10">
                   <button onClick={() => { navigator.clipboard.writeText(publishModalUrl); alert('Link copiado!'); }} className="flex-1 bg-white hover:bg-stone-50 text-stone-700 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors border border-stone-200 shadow-sm"><Copy size={18} /> Copiar Link</button>
                   <button onClick={() => window.open(publishModalUrl, '_blank')} className="flex-1 bg-teal-600 hover:bg-teal-500 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-teal-500/20"><ExternalLink size={18} /> Abrir Site</button>
                 </div>
-                <button onClick={() => setPublishModalUrl(null)} className="text-stone-400 hover:text-stone-600 font-bold uppercase tracking-widest text-[10px] mt-4 block w-full transition-colors relative z-10">Fechar janela</button>
+                <button onClick={() => setPublishModalUrl(null)} className="text-stone-400 hover:text-stone-600 font-bold uppercase tracking-widest text-[10px] mt-2 block w-full transition-colors relative z-10">Fechar janela</button>
               </motion.div>
             </div>
           )}
@@ -1025,7 +1108,6 @@ const App: React.FC = () => {
                         <div className="pt-6 border-t border-stone-100 space-y-6">
                           <div className="space-y-2.5"><label className="text-xs font-bold text-stone-500 uppercase">Estilo do Site</label><select className="w-full bg-white border border-stone-200 rounded-xl p-3 text-sm outline-none" value={formData.layoutStyle} onChange={e => {setFormData({ ...formData, layoutStyle: e.target.value }); setHasUnsavedChanges(true)}}>{LAYOUT_STYLES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}</select></div>
                           
-                          {/* CATEGORIZAÇÃO DE CORES (INCLUINDO CARIBE) */}
                           <div className="space-y-4">
                             <label className="text-xs font-bold text-stone-500 uppercase block border-b border-stone-100 pb-2">Temas (Cores)</label>
                             
@@ -1039,7 +1121,7 @@ const App: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">2. Paleta Celeste (Ar/Céu)</span>
+                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">2. Paleta Celeste</span>
                               <div className="grid grid-cols-5 gap-3">
                                 {COLORS.filter(c => c.id.startsWith('celeste_')).map(c => (
                                   <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
@@ -1048,7 +1130,7 @@ const App: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">3. Paleta Marinha (Oceano/Noite)</span>
+                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">3. Paleta Marinha</span>
                               <div className="grid grid-cols-5 gap-3">
                                 {COLORS.filter(c => c.id.startsWith('marinha_')).map(c => (
                                   <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
@@ -1057,7 +1139,7 @@ const App: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">4. Mediterrânea (Terra/Areia)</span>
+                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">4. Mediterrânea</span>
                               <div className="grid grid-cols-5 gap-3">
                                 {COLORS.filter(c => c.id.startsWith('med_')).map(c => (
                                   <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
@@ -1065,9 +1147,8 @@ const App: React.FC = () => {
                               </div>
                             </div>
 
-                            {/* 👇 NOVA CATEGORIA CARIBE 👇 */}
                             <div className="space-y-2">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">5. Caribe (Águas/Coral)</span>
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">5. Caribe</span>
                               <div className="grid grid-cols-5 gap-3">
                                 {COLORS.filter(c => c.id.startsWith('caribe_')).map(c => (
                                   <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
@@ -1137,52 +1218,77 @@ const App: React.FC = () => {
                     </div>
                   )}
 
-                  {activeTab === 'assinatura' && currentProjectSlug && (
-                    <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
-                      <div className="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-orange-100 blur-[50px] rounded-full pointer-events-none"></div>
-                        <h3 className="text-lg font-black text-stone-950 mb-1 flex items-center gap-2"><CreditCard size={18} className="text-orange-500" /> Assinatura</h3>
-                        <p className="text-xs text-stone-500 mb-6">Gerencie o plano do projeto <span className="text-orange-500 font-mono">{currentProjectSlug}</span></p>
+                  {activeTab === 'assinatura' && currentProjectSlug && (() => {
+                    const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
+                    const isPaid = currentProject?.paymentStatus === 'paid';
+                    
+                    return (
+                      <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                        <div className="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm relative overflow-hidden">
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-orange-100 blur-[50px] rounded-full pointer-events-none"></div>
+                          <h3 className="text-lg font-black text-stone-950 mb-1 flex items-center gap-2"><CreditCard size={18} className="text-orange-500" /> Assinatura</h3>
+                          <p className="text-xs text-stone-500 mb-6">Gerencie o plano do projeto <span className="text-orange-500 font-mono">{currentProjectSlug}</span></p>
 
-                        {(!savedProjects.find(p => p.id === currentProjectSlug)?.paymentStatus || savedProjects.find(p => p.id === currentProjectSlug)?.paymentStatus !== 'paid') ? (
-                          <div className="space-y-6">
-                            <div className="grid grid-cols-1 gap-4">
-                              <div className="bg-stone-50 p-5 rounded-xl border border-stone-200 flex flex-col h-full relative overflow-hidden">
-                                <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
-                                <div className="absolute top-0 right-0 bg-teal-600 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg">Mais Assinado</div>
-                                <h4 className="text-teal-600 font-bold mb-2 uppercase tracking-wide text-xs">Plano Mensal</h4>
-                                <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ 49,99</span><span className="text-xs text-stone-500 font-medium pb-1">/mês</span></div>
-                                <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
-                                  <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5"/> Domínio próprio & Suporte</li>
-                                </ul>
-                                <button onClick={() => handleStripeCheckout(currentProjectSlug, 'mensal')} disabled={checkoutLoading === currentProjectSlug} className="w-full bg-teal-600 hover:bg-teal-500 text-white py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors relative z-10">
-                                  {checkoutLoading === currentProjectSlug ? 'Processando...' : 'Assinar Mensal'}
-                                </button>
-                              </div>
+                          {!isPaid ? (
+                            <div className="space-y-6">
+                              <div className="grid grid-cols-1 gap-4">
+                                <div className="bg-stone-50 p-5 rounded-xl border border-stone-200 flex flex-col h-full relative overflow-hidden">
+                                  <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
+                                  <div className="absolute top-0 right-0 bg-teal-600 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg">Mais Assinado</div>
+                                  <h4 className="text-teal-600 font-bold mb-2 uppercase tracking-wide text-xs">Plano Mensal</h4>
+                                  <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ 49,90</span><span className="text-xs text-stone-500 font-medium pb-1">/mês</span></div>
+                                  <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
+                                    <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5"/> Domínio próprio & Suporte</li>
+                                  </ul>
+                                  <button onClick={() => { setSelectedPlanModal('monthly'); setCheckoutTermsAccepted(false); }} className="w-full bg-teal-600 hover:bg-teal-500 text-white py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors relative z-10">
+                                    Assinar Mensal
+                                  </button>
+                                </div>
 
-                              <div className="bg-white p-5 rounded-xl border border-orange-200 flex flex-col h-full relative overflow-hidden shadow-md">
-                                <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
-                                <div className="absolute top-0 right-0 bg-orange-500 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg">Mais Econômico</div>
-                                <h4 className="text-orange-500 font-bold mb-2 uppercase tracking-wide text-xs">Plano Anual</h4>
-                                <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ 499</span><span className="text-xs text-stone-500 font-medium pb-1">/ano</span></div>
-                                <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
-                                  <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5"/> 2 meses grátis equivalentes</li>
-                                </ul>
-                                <button onClick={() => handleStripeCheckout(currentProjectSlug, 'anual')} disabled={checkoutLoading === currentProjectSlug} className="w-full bg-orange-500 hover:bg-orange-400 text-white py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-colors shadow-lg shadow-orange-500/20 relative z-10">
-                                  {checkoutLoading === currentProjectSlug ? 'Processando...' : 'Assinar Anual'}
-                                </button>
+                                <div className="bg-white p-5 rounded-xl border border-orange-200 flex flex-col h-full relative overflow-hidden shadow-md">
+                                  <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
+                                  <div className="absolute top-0 right-0 bg-orange-500 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg">Mais Econômico</div>
+                                  <h4 className="text-orange-500 font-bold mb-2 uppercase tracking-wide text-xs">Plano Anual</h4>
+                                  <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ 499</span><span className="text-xs text-stone-500 font-medium pb-1">/ano</span></div>
+                                  <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
+                                    <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5"/> 2 meses grátis equivalentes</li>
+                                  </ul>
+                                  <button onClick={() => { setSelectedPlanModal('annual'); setCheckoutTermsAccepted(false); }} className="w-full bg-orange-500 hover:bg-orange-400 text-white py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-colors shadow-lg shadow-orange-500/20 relative z-10">
+                                    Assinar Anual
+                                  </button>
+                                </div>
                               </div>
                             </div>
+                          ) : (
+                            <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-xl text-center space-y-4">
+                              <h4 className="font-black text-emerald-700 text-lg uppercase tracking-wider">Plano Ativo</h4>
+                              <p className="text-xs text-emerald-600/70">Seu site está operando com potência máxima.</p>
+                            </div>
+                          )}
+                          
+                          {/* Botão de Cancelar Assinatura Sempre Visível, porém inativo se não tiver como cancelar */}
+                          <div className="mt-8 pt-6 border-t border-stone-100">
+                             <h4 className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-3">Gerenciamento da Conta</h4>
+                             {isPaid ? (
+                               <button 
+                                 onClick={() => {setCancelModalProject(currentProjectSlug); setCancelTermsAccepted(false)}} 
+                                 className="w-full bg-white border border-red-200 text-red-600 hover:bg-red-50 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
+                               >
+                                 Cancelar Assinatura
+                               </button>
+                             ) : (
+                               <button 
+                                 onClick={() => alert("Sua assinatura já encontra-se inativa ou em período de teste gratuito sem vínculo financeiro. Fique tranquilo.")}
+                                 className="w-full bg-stone-100 border border-stone-200 text-stone-400 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-not-allowed"
+                               >
+                                 Cancelar Assinatura
+                               </button>
+                             )}
                           </div>
-                        ) : (
-                          <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-xl text-center space-y-4">
-                            <h4 className="font-black text-emerald-700 text-lg uppercase tracking-wider">Plano Ativo</h4>
-                            <p className="text-xs text-emerald-600/70">Seu site está operando com potência máxima.</p>
-                          </div>
-                        )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
                   
                   {loggedUserEmail && (
                     <div className="mt-8 border-t border-stone-200 pt-6 space-y-4">
