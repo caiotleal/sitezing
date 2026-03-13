@@ -108,7 +108,7 @@ const PROMO_HTML = `
       <div class="inline-block px-4 py-1.5 rounded-full bg-white border border-teal-100 text-xs font-bold tracking-widest text-teal-600 mb-6 uppercase shadow-sm">A revolução da web</div>
       
       <h1 class="text-[3rem] md:text-[5.5rem] font-black leading-[0.9] tracking-tighter mb-6 uppercase italic text-stone-900">
-        Seu site pronto em um <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500 pr-2 inline-block">ZING!!!</span>
+        Seu site pronto em um <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500 pr-10 inline-block">ZING!!!</span>
       </h1>
       <p class="text-lg md:text-2xl text-stone-500 font-light leading-relaxed">
         Não perca vendas por não estar no Google. A nossa inteligência artificial cria, escreve e publica o seu site automaticamente. Preencha o menu ao lado e veja a mágica acontecer.
@@ -1014,7 +1014,7 @@ const App: React.FC = () => {
 
                       <div className="space-y-4">
                         <div><label className="text-xs font-bold text-stone-500 uppercase flex gap-2 mb-1.5"><Briefcase size={12} /> Nome do Negócio</label><input className="w-full bg-white border border-stone-200 rounded-xl p-3.5 text-sm focus:border-teal-500 outline-none transition-colors" placeholder="Ex: Eletricista Silva" value={formData.businessName} onChange={e => {setFormData({ ...formData, businessName: e.target.value }); setHasUnsavedChanges(true)}} /></div>
-                        <div><label className="text-xs font-bold text-stone-500 uppercase flex gap-2 mb-1.5"><MapPin size={12} /> Região de atuação</label><input className="w-full bg-white border border-stone-200 rounded-xl p-3.5 text-sm focus:border-teal-500 outline-none transition-colors" placeholder="Ex: Zona Sul - SP" value={formData.region} onChange={e => {setFormData({ ...formData, region: e.target.value }); setHasUnsavedChanges(true)}} /></div>
+                        /*<div><label className="text-xs font-bold text-stone-500 uppercase flex gap-2 mb-1.5"><MapPin size={12} /> Região de atuação</label><input className="w-full bg-white border border-stone-200 rounded-xl p-3.5 text-sm focus:border-teal-500 outline-none transition-colors" placeholder="Ex: Zona Sul - SP" value={formData.region} onChange={e => {setFormData({ ...formData, region: e.target.value }); setHasUnsavedChanges(true)}} /></div>*/
                         <div><label className="text-xs font-bold text-stone-500 uppercase flex gap-2 mb-1.5"><FileText size={12} /> Ideia Principal</label><textarea className="w-full h-20 bg-white border border-stone-200 rounded-xl p-3.5 text-sm resize-none focus:border-teal-500 outline-none transition-colors" placeholder="Descreva os serviços..." value={formData.description} onChange={e => {setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true)}} /></div>
                       </div>
 
