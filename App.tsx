@@ -24,7 +24,7 @@ const LAYOUT_STYLES = [
 
 const COLORS = [
   // ==========================================
-  // PALETAS ORIGINAIS (Mantidas para não quebrar sites antigos)
+  // PALETAS ORIGINAIS (Essenciais da Marca)
   // ==========================================
   { id: 'obsidian', name: 'Obsidiana', c1: '#000000', c2: '#0a0a0a', c3: '#171717', c4: '#ffffff', c5: '#d4d4d8', c6: '#a1a1aa', c7: '#71717a', light: '#ffffff', dark: '#000000' },
   { id: 'slate', name: 'Ardósia', c1: '#020617', c2: '#0f172a', c3: '#1e293b', c4: '#3b82f6', c5: '#60a5fa', c6: '#93c5fd', c7: '#bfdbfe', light: '#f8fafc', dark: '#020617' },
@@ -49,7 +49,7 @@ const COLORS = [
   { id: 'marinha_atlantico', name: 'Marinha Atlântico', c1: '#082F49', c2: '#0C4A6E', c3: '#164E63', c4: '#ECFEFF', c5: '#CFFAFE', c6: '#A5F3FC', c7: '#22D3EE', light: '#082F49', dark: '#ECFEFF' },
 
   // ==========================================
-  // 3. TONS MEDITERRÂNEOS (Quentes, Terrosos, Praia, Natureza)
+  // 3. TONS MEDITERRÂNEOS (Quentes, Terrosos, Praia)
   // ==========================================
   { id: 'med_santorini', name: 'Mediterrâneo Santorini', c1: '#FAFAFA', c2: '#F4F4F5', c3: '#E5E7EB', c4: '#0F172A', c5: '#1E293B', c6: '#64748B', c7: '#0284C7', light: '#FFFFFF', dark: '#0F172A' },
   { id: 'med_terracota', name: 'Mediterrâneo Terracota', c1: '#FFF7ED', c2: '#FFEDD5', c3: '#FED7AA', c4: '#431407', c5: '#78350F', c6: '#9A3412', c7: '#EA580C', light: '#FFFFFF', dark: '#431407' },
@@ -75,6 +75,8 @@ const PROMO_HTML = `
     @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     .animate-up { animation: fadeUp 1s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
     
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+    .animate-floating { animation: float 6s ease-in-out infinite; }
     .plan-bg-logo { position: absolute; bottom: -15%; right: -10%; width: 70%; height: auto; opacity: 0.03; pointer-events: none; filter: grayscale(100%); }
   </style>
 </head>
@@ -82,7 +84,7 @@ const PROMO_HTML = `
   
   <header class="fixed top-0 left-0 w-full z-[80] bg-[#F1F5F9]/80 backdrop-blur-md border-b border-slate-200/60 h-24 flex items-center px-6 md:px-12 transition-all">
     <div class="max-w-7xl mx-auto w-full flex items-center">
-       <img src="${BRAND_LOGO}" alt="SiteZing Logo" class="h-20 md:h-24 w-auto drop-shadow-sm" />
+       <img src="${BRAND_LOGO}" alt="SiteZing Logo" class="h-16 md:h-20 w-auto drop-shadow-sm" />
     </div>
   </header>
 
@@ -93,6 +95,10 @@ const PROMO_HTML = `
 
     <div class="relative z-10 animate-up text-center md:text-left max-w-3xl mb-16">
       
+      <div class="mb-12 flex justify-center md:justify-start">
+         <img src="${BRAND_LOGO}" alt="SiteZing Logo" class="h-32 md:h-40 w-auto drop-shadow-md animate-floating" />
+      </div>
+
       <div class="inline-block px-4 py-1.5 rounded-full bg-white border border-blue-100 text-xs font-bold tracking-widest text-blue-600 mb-6 uppercase shadow-sm">A revolução da web</div>
       
       <h1 class="text-[3rem] md:text-[5.5rem] font-black leading-[0.9] tracking-tighter mb-6 uppercase italic text-slate-900">
@@ -133,7 +139,7 @@ const PROMO_HTML = `
         <div class="mt-6 text-[10px] text-slate-400 text-center uppercase tracking-widest font-bold group-hover:text-orange-500 transition-colors">Clique para ver regras</div>
       </div>
 
-      <div class="glass-card p-8 rounded-[2rem] relative overflow-hidden border-orange-300 bg-orange-50/30 shadow-[0_20px_50px_-12px_rgba(249,115,22,0.15)] group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'annual' }, '*')">
+      <div class="glass-card p-8 rounded-[2rem] relative overflow-hidden border-orange-300 bg-white shadow-[0_20px_50px_-12px_rgba(249,115,22,0.15)] group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'annual' }, '*')">
         <img src="${BRAND_LOGO}" class="plan-bg-logo" style="opacity: 0.06;" />
         <div class="absolute top-0 right-0 bg-gradient-to-r from-orange-500 to-orange-400 text-white text-[10px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase flex gap-1.5 items-center justify-center shadow-lg">
           <svg class="h-3 w-3 flex-shrink-0 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -451,7 +457,7 @@ const PLAN_DETAILS = {
 const App: React.FC = () => {
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // MENU FECHADO POR PADRÃO
   const [aiContent, setAiContent] = useState<any>(null);
   const [isCanceling, setIsCanceling] = useState<string | null>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -471,7 +477,7 @@ const App: React.FC = () => {
   const [formData, setFormData] = useState({
     businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '',
     ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true,
-    showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'celeste', logoBase64: ''
+    showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'celeste_suave', logoBase64: ''
   });
 
   useIframeEditor({ setGeneratedHtml, setHasUnsavedChanges });
@@ -729,7 +735,7 @@ const App: React.FC = () => {
       alert("Site excluído com sucesso.");
       if (projectId === currentProjectSlug) {
         setGeneratedHtml(null); setCurrentProjectSlug(null); setHasUnsavedChanges(false); setActiveTab('geral');
-        setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'celeste', logoBase64: '' });
+        setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'celeste_suave', logoBase64: '' });
       }
       fetchProjects();
     } catch (error) { alert("Erro ao excluir o site."); }
@@ -940,7 +946,7 @@ const App: React.FC = () => {
                 {/* Cabeçalho do Painel */}
                 <div className="flex justify-between items-center px-6 py-5 border-b border-slate-200 flex-shrink-0 bg-white">
                   <div className="flex items-center gap-3 select-none">
-                    <img src={BRAND_LOGO} alt="SiteZing" className="h-7 w-auto object-contain" />
+                    <img src={BRAND_LOGO} alt="SiteZing" className="h-10 w-auto object-contain" />
                   </div>
                   <div className="flex items-center gap-4">
                     {loggedUserEmail ? (
@@ -1012,12 +1018,11 @@ const App: React.FC = () => {
                       {generatedHtml && (
                         <div className="pt-6 border-t border-slate-100 space-y-6">
                           <div className="space-y-2.5"><label className="text-xs font-bold text-slate-500 uppercase">Estilo do Site</label><select className="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm outline-none" value={formData.layoutStyle} onChange={e => {setFormData({ ...formData, layoutStyle: e.target.value }); setHasUnsavedChanges(true)}}>{LAYOUT_STYLES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}</select></div>
-                          <div className="space-y-2.5">
-                            <label className="text-xs font-bold text-slate-500 uppercase">Temas (Cores)</label>
-<div className="space-y-4">
+                          
+                          {/* CATEGORIZAÇÃO DE CORES (O QUE DEU ERRO ANTES FOI CORRIGIDO AQUI) */}
+                          <div className="space-y-4">
                             <label className="text-xs font-bold text-slate-500 uppercase block border-b border-slate-100 pb-2">Temas (Cores)</label>
                             
-                            {/* Categoria 1: Essenciais (As originais) */}
                             <div className="space-y-2">
                               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">1. Essenciais da Marca</span>
                               <div className="grid grid-cols-5 gap-3">
@@ -1027,7 +1032,6 @@ const App: React.FC = () => {
                               </div>
                             </div>
 
-                            {/* Categoria 2: Paleta Celeste */}
                             <div className="space-y-2">
                               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">2. Paleta Celeste (Ar/Céu)</span>
                               <div className="grid grid-cols-5 gap-3">
@@ -1037,7 +1041,6 @@ const App: React.FC = () => {
                               </div>
                             </div>
 
-                            {/* Categoria 3: Paleta Marinha */}
                             <div className="space-y-2">
                               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">3. Paleta Marinha (Oceano/Noite)</span>
                               <div className="grid grid-cols-5 gap-3">
@@ -1047,7 +1050,6 @@ const App: React.FC = () => {
                               </div>
                             </div>
 
-                            {/* Categoria 4: Paleta Mediterrânea */}
                             <div className="space-y-2">
                               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">4. Mediterrânea (Terra/Areia)</span>
                               <div className="grid grid-cols-5 gap-3">
@@ -1057,6 +1059,7 @@ const App: React.FC = () => {
                               </div>
                             </div>
                           </div>
+
                           <div className="space-y-2.5">
                             <label className="text-xs font-bold text-slate-500 uppercase flex justify-between items-center"><span>Sua Logomarca (Favicon)</span>{formData.logoBase64 && <button onClick={() => { setFormData(p => ({ ...p, logoBase64: '' })); setHasUnsavedChanges(true); }} className="text-red-500 hover:text-red-600 text-[10px] font-bold">X Remover</button>}</label>
                             {!formData.logoBase64 ? (
@@ -1203,5 +1206,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-
-
