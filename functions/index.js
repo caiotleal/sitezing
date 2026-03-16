@@ -187,17 +187,25 @@ exports.checkDomainAvailability = onCall({ cors: true }, async (request) => {
 exports.saveSiteProject = onCall({ cors: true, memory: "512MiB" }, async (request) => {
   const uid = ensureAuthed(request);
   const { businessName, internalDomain, officialDomain, generatedHtml, formData, aiContent } = request.data;
-  const projectSlug = internalDomain;
+  
+  // OTIMIZAÇÃO: Garante que o projectSlug seja seguro para o Firebase Hosting
+  let safeBaseName = slugify(businessName).slice(0, 20); 
+  if (!safeBaseName) safeBaseName = "site";
+  const randomSuffix = Math.random().toString(36).substring(2, 6);
+  const projectSlug = `${safeBaseName}-${randomSuffix}`;
 
   await admin.firestore().collection("users").doc(uid).set({ activeUser: true, uid: uid }, { merge: true });
 
   const hosting = await createHostingSiteIfPossible(projectSlug);
+  if (hosting.status === "error") {
+      throw new HttpsError("internal", `Erro ao provisionar ambiente: ${hosting.message}`);
+  }
   await configureSiteRetention(projectSlug);
 
   const now = admin.firestore.FieldValue.serverTimestamp();
 
   await admin.firestore().collection("users").doc(uid).collection("projects").doc(projectSlug).set({
-    uid, businessName, projectSlug, hostingSiteId: projectSlug, internalDomain,
+    uid, businessName, projectSlug, hostingSiteId: projectSlug, internalDomain: projectSlug,
     officialDomain: officialDomain || "Pendente", generatedHtml, formData: formData || {}, aiContent: aiContent || {},
     hosting, autoDeploy: true, needsDeploy: true, updatedAt: now, createdAt: now,
     status: "draft", paymentStatus: "pending"
@@ -430,12 +438,10 @@ exports.cancelStripeSubscription = onCall({ cors: true }, async (request) => {
   }
 
   try {
-    // Comunica ao Stripe: "Não renove mais, mas mantenha ativo até o dia final"
     await stripe.subscriptions.update(project.stripeSubscriptionId, {
       cancel_at_period_end: true
     });
 
-    // Avisa o nosso banco de dados que o cancelamento foi programado
     await projectRef.update({
       cancelAtPeriodEnd: true,
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
@@ -468,12 +474,10 @@ exports.resumeStripeSubscription = onCall({ cors: true }, async (request) => {
   }
 
   try {
-    // Avisa a Stripe para cancelar o agendamento de exclusão e voltar a cobrar normalmente
     await stripe.subscriptions.update(project.stripeSubscriptionId, {
       cancel_at_period_end: false
     });
 
-    // Atualiza o banco de dados removendo a tag amarela de aviso
     await projectRef.update({
       cancelAtPeriodEnd: false,
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
