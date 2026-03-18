@@ -426,6 +426,9 @@ const App: React.FC = () => {
   const [officialDomain, setOfficialDomain] = useState('');
   const [registerLater, setRegisterLater] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [customDomainInput, setCustomDomainInput] = useState('');
+  const [isLinkingDomain, setIsLinkingDomain] = useState(false);
+  const [isVerifyingDomain, setIsVerifyingDomain] = useState(false);
 
   const [formData, setFormData] = useState({
     businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '',
@@ -587,7 +590,38 @@ const App: React.FC = () => {
 
     return html.replace('</head>', `${headInjection}</head>`);
   };
+const handleAddCustomDomain = async () => {
+    if (!customDomainInput) return alert('Digite um domínio válido (ex: suamarca.com.br).');
+    setIsLinkingDomain(true);
+    try {
+      const linkFn = httpsCallable(functions, 'addCustomDomain');
+      await linkFn({ projectId: currentProjectSlug, domain: customDomainInput });
+      alert('Domínio configurado! Agora copie os apontamentos DNS gerados e cole no seu provedor.');
+      fetchProjects(); // Recarrega os dados para puxar os DNS reais
+    } catch (error: any) {
+      alert('Erro ao vincular domínio: ' + error.message);
+    } finally {
+      setIsLinkingDomain(false);
+    }
+  };
 
+  const handleVerifyDomain = async (domainToVerify: string) => {
+    setIsVerifyingDomain(true);
+    try {
+      const verifyFn = httpsCallable(functions, 'verifyDomainPropagation');
+      const res: any = await verifyFn({ projectId: currentProjectSlug, domain: domainToVerify });
+      if (res.data?.isPropagated) {
+        alert('Sucesso! Seu domínio já propagou e está ativo.');
+      } else {
+        alert('Ainda aguardando propagação. Isso pode levar de 1 a 24 horas dependendo do seu provedor.');
+      }
+      fetchProjects();
+    } catch (error: any) {
+      alert('Erro ao verificar: ' + error.message);
+    } finally {
+      setIsVerifyingDomain(false);
+    }
+  };
   const handleGenerate = async () => {
     if (!formData.businessName || !formData.description) return alert('Preencha Nome e Ideia!');
     setIsGenerating(true);
