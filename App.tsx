@@ -1287,7 +1287,7 @@ const App: React.FC = () => {
                   )}
                 </div>
 
-{generatedHtml && (() => {
+                {generatedHtml && (() => {
                   const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
                   const isPublished = Boolean(currentProject?.publishUrl || currentProject?.status === 'active');
                   const isFrozen = currentProject?.status === 'frozen';
