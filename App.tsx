@@ -426,6 +426,7 @@ const App: React.FC = () => {
   const [officialDomain, setOfficialDomain] = useState('');
   const [registerLater, setRegisterLater] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+
   const [customDomainInput, setCustomDomainInput] = useState('');
   const [isLinkingDomain, setIsLinkingDomain] = useState(false);
   const [isVerifyingDomain, setIsVerifyingDomain] = useState(false);
@@ -590,16 +591,26 @@ const App: React.FC = () => {
 
     return html.replace('</head>', `${headInjection}</head>`);
   };
-const handleAddCustomDomain = async () => {
+
+  const handleAddCustomDomain = async () => {
     if (!customDomainInput) return alert('Digite um domínio válido (ex: suamarca.com.br).');
+    
+    if (customDomainInput.includes('sitezing.com.br')) {
+      return alert('Você não pode vincular o domínio oficial da plataforma. Digite o domínio do seu próprio negócio.');
+    }
+
     setIsLinkingDomain(true);
     try {
       const linkFn = httpsCallable(functions, 'addCustomDomain');
       await linkFn({ projectId: currentProjectSlug, domain: customDomainInput });
-      alert('Domínio configurado! Agora copie os apontamentos DNS gerados e cole no seu provedor.');
-      fetchProjects(); // Recarrega os dados para puxar os DNS reais
+      alert('Domínio configurado no sistema! Agora copie os apontamentos DNS gerados e cole no seu provedor.');
+      fetchProjects(); 
     } catch (error: any) {
-      alert('Erro ao vincular domínio: ' + error.message);
+      if (error.message.includes('already-exists') || error.message.includes('já está em uso')) {
+         alert('Este domínio já está em uso por outro site. Verifique se você digitou corretamente.');
+      } else {
+         alert('Erro ao vincular domínio: ' + error.message);
+      }
     } finally {
       setIsLinkingDomain(false);
     }
@@ -622,6 +633,7 @@ const handleAddCustomDomain = async () => {
       setIsVerifyingDomain(false);
     }
   };
+
   const handleGenerate = async () => {
     if (!formData.businessName || !formData.description) return alert('Preencha Nome e Ideia!');
     setIsGenerating(true);
@@ -651,7 +663,6 @@ const handleAddCustomDomain = async () => {
     reader.readAsDataURL(file);
   };
 
-  // NOVA FUNÇÃO DE SALVAR SEM TRAVA DE DOMÍNIO
   const handleSaveOrUpdateSite = async () => {
     if (!auth.currentUser) return setIsLoginOpen(true);
     
@@ -683,7 +694,6 @@ const handleAddCustomDomain = async () => {
     finally { setIsSavingProject(false); }
   };
 
-  // NOVA FUNÇÃO DE PUBLICAR RÁPIDO
   const handlePublishSite = async () => {
     if (hasUnsavedChanges) return alert("Salve suas alterações antes de publicar.");
     setIsPublishing(true);
@@ -1176,7 +1186,7 @@ const handleAddCustomDomain = async () => {
                     </>
                   )}
 
-            {activeTab === 'dominio' && generatedHtml && (
+                  {activeTab === 'dominio' && generatedHtml && (
                     <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
                       {!currentProjectSlug ? (
                         <div className="bg-teal-50/50 p-5 rounded-2xl border border-teal-100">
@@ -1293,7 +1303,7 @@ const handleAddCustomDomain = async () => {
                                         </div>
                                       </div>
 
-                                      {/* TIPO TXT (Verificação Firebase) - Só exibe se houver records retornados */}
+                                      {/* TIPO TXT (Verificação Firebase) */}
                                       {domainRecords && domainRecords.length > 0 && (
                                         <div className="pt-2 border-t border-orange-200/50">
                                           <div className="flex justify-between items-center mb-1">
@@ -1309,17 +1319,6 @@ const handleAddCustomDomain = async () => {
                                       )}
                                     </div>
                                   )}
-
-                                  <button 
-                                    onClick={() => handleVerifyDomain(currentProject.officialDomain)}
-                                    disabled={isVerifyingDomain || isDomainActive}
-                                    className={`w-full py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${isDomainActive ? 'bg-stone-100 text-stone-400 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-500/20'}`}
-                                  >
-                                    {isVerifyingDomain ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
-                                    {isDomainActive ? 'Conectado e Operacional' : 'Verificar Propagação'}
-                                  </button>
-                                </div>
-                              )}
 
                                   <button 
                                     onClick={() => handleVerifyDomain(currentProject.officialDomain)}
