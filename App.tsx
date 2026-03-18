@@ -1202,22 +1202,51 @@ const handleAddCustomDomain = async () => {
                               </div>
 
                               {!hasCustomDomain ? (
-                                <div className="space-y-4">
-                                  <p className="text-xs text-stone-600">Para usar um domínio personalizado, digite-o abaixo e clique em conectar.</p>
-                                  <div className="flex gap-2">
-                                    <input 
-                                      className="flex-1 bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm focus:border-teal-500 outline-none transition-colors" 
-                                      placeholder="Ex: seudominio.com.br" 
-                                      value={customDomainInput} 
-                                      onChange={e => setCustomDomainInput(e.target.value.toLowerCase().trim())} 
-                                    />
-                                    <button 
-                                      onClick={handleAddCustomDomain}
-                                      disabled={isLinkingDomain || !customDomainInput}
-                                      className="bg-stone-900 hover:bg-stone-800 disabled:bg-stone-300 text-white px-5 rounded-xl font-bold text-xs transition-colors flex items-center gap-2"
+                                <div className="space-y-6">
+                                  {/* PASSO 1: Obter Domínio */}
+                                  <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 bg-orange-100 text-orange-700 text-[9px] font-black uppercase px-3 py-1.5 rounded-bl-lg">Passo 1</div>
+                                    <h4 className="text-sm font-bold text-stone-900 mb-2 flex items-center gap-2"><Star size={16} className="text-orange-500"/> Obtenha seu endereço oficial</h4>
+                                    <p className="text-xs text-stone-600 leading-relaxed mb-4">
+                                      Para passar credibilidade, seu site precisa de um endereço profissional (ex: <b>suaempresa.com.br</b>). Recomendamos registrar o seu domínio diretamente no órgão oficial do Brasil, o Registro.br (custa apenas R$ 40,00 por ano).
+                                    </p>
+                                    <a 
+                                      href="https://registro.br" 
+                                      target="_blank" 
+                                      rel="noopener noreferrer" 
+                                      className="inline-flex items-center gap-2 bg-stone-100 hover:bg-stone-200 text-stone-800 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors"
                                     >
-                                      {isLinkingDomain ? <Loader2 size={16} className="animate-spin" /> : 'Conectar'}
-                                    </button>
+                                      <ExternalLink size={14} /> Abrir Registro.br
+                                    </a>
+                                  </div>
+
+                                  {/* PASSO 2: Conectar Domínio */}
+                                  <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm relative">
+                                    <div className="absolute top-0 right-0 bg-teal-100 text-teal-700 text-[9px] font-black uppercase px-3 py-1.5 rounded-bl-lg">Passo 2</div>
+                                    <h4 className="text-sm font-bold text-stone-900 mb-2">Já tenho um domínio. Conectar agora:</h4>
+                                    <p className="text-[10px] text-stone-500 mb-4">Digite apenas o endereço raiz. O nosso sistema já configura o "www" automaticamente para você.</p>
+                                    
+                                    <div className="flex gap-2 relative">
+                                      <input 
+                                        className="flex-1 bg-stone-50 border border-stone-200 rounded-xl p-3 pl-12 text-sm focus:border-teal-500 outline-none transition-colors font-mono text-stone-700" 
+                                        placeholder="suamarca.com.br" 
+                                        value={customDomainInput} 
+                                        onChange={e => {
+                                          let val = e.target.value.toLowerCase().trim();
+                                          val = val.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '');
+                                          setCustomDomainInput(val);
+                                        }} 
+                                      />
+                                      <span className="absolute left-4 top-3.5 text-stone-400 font-mono text-sm pointer-events-none">www.</span>
+                                      
+                                      <button 
+                                        onClick={handleAddCustomDomain}
+                                        disabled={isLinkingDomain || !customDomainInput}
+                                        className="bg-stone-900 hover:bg-stone-800 disabled:bg-stone-300 text-white px-5 rounded-xl font-bold text-xs transition-colors flex items-center gap-2"
+                                      >
+                                        {isLinkingDomain ? <Loader2 size={16} className="animate-spin" /> : 'Conectar'}
+                                      </button>
+                                    </div>
                                   </div>
                                 </div>
                               ) : (
@@ -1234,35 +1263,63 @@ const handleAddCustomDomain = async () => {
 
                                   {!isDomainActive && (
                                     <div className="bg-orange-50 p-4 rounded-xl border border-orange-200 space-y-4">
-                                      <p className="text-xs text-stone-700">Adicione estes registros no painel onde você comprou seu domínio (Registro.br, HostGator, etc):</p>
+                                      <p className="text-xs text-stone-700 font-medium">Acesse o painel do Registro.br (ou onde comprou o domínio) e adicione os seguintes apontamentos DNS:</p>
                                       
-                                      {domainRecords.length > 0 ? (
-                                        domainRecords.flatMap((recordGroup: any, idx: number) => 
-                                          recordGroup.records.map((rec: any, recIdx: number) => (
-                                            <div key={`${idx}-${recIdx}`}>
-                                              <div className="flex justify-between items-center mb-1">
-                                                <span className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">TIPO {rec.type}</span>
-                                              </div>
-                                              <div className="bg-white p-3 rounded-xl border border-orange-100">
-                                                <code className="text-stone-800 text-xs font-bold select-all break-all block">{rec.text || rec.domainName}</code>
-                                              </div>
-                                            </div>
-                                          ))
-                                        )
-                                      ) : (
-                                         <>
-                                           <div>
-                                             <div className="flex justify-between items-center mb-1"><span className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">TIPO A</span></div>
-                                             <div className="bg-white p-3 rounded-xl border border-orange-100"><code className="text-stone-800 text-xs font-bold select-all">199.36.158.100</code></div>
-                                           </div>
-                                           <div>
-                                             <div className="flex justify-between items-center mb-1"><span className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">TIPO TXT</span></div>
-                                             <div className="bg-white p-3 rounded-xl border border-orange-100"><code className="text-stone-800 text-xs font-bold select-all break-all block leading-tight">firebase-site-verification={currentProjectSlug}-app</code></div>
-                                           </div>
-                                         </>
+                                      {/* TIPO A (Raiz) */}
+                                      <div>
+                                        <div className="flex justify-between items-center mb-1">
+                                          <span className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">Passo 1: Apontamento TIPO A</span>
+                                        </div>
+                                        <div className="bg-white p-3 rounded-xl border border-orange-100 shadow-sm flex items-center justify-between">
+                                          <div>
+                                            <span className="text-[10px] text-stone-400 block mb-0.5">Nome/Host (deixe em branco)</span>
+                                            <code className="text-stone-800 text-xs font-bold select-all">199.36.158.100</code>
+                                          </div>
+                                          <Copy size={14} className="text-stone-300 cursor-pointer hover:text-orange-500" onClick={() => navigator.clipboard.writeText('199.36.158.100')} />
+                                        </div>
+                                      </div>
+
+                                      {/* TIPO CNAME (WWW) */}
+                                      <div>
+                                        <div className="flex justify-between items-center mb-1">
+                                          <span className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">Passo 2: Apontamento CNAME (Para o www funcionar)</span>
+                                        </div>
+                                        <div className="bg-white p-3 rounded-xl border border-orange-100 shadow-sm flex items-center justify-between">
+                                          <div>
+                                            <span className="text-[10px] text-stone-400 block mb-0.5">Nome: <b className="text-stone-700">www</b> | Destino:</span>
+                                            <code className="text-stone-800 text-xs font-bold select-all">{currentProjectSlug}.web.app</code>
+                                          </div>
+                                          <Copy size={14} className="text-stone-300 cursor-pointer hover:text-orange-500" onClick={() => navigator.clipboard.writeText(`${currentProjectSlug}.web.app`)} />
+                                        </div>
+                                      </div>
+
+                                      {/* TIPO TXT (Verificação Firebase) - Só exibe se houver records retornados */}
+                                      {domainRecords && domainRecords.length > 0 && (
+                                        <div className="pt-2 border-t border-orange-200/50">
+                                          <div className="flex justify-between items-center mb-1">
+                                            <span className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">Passo 3: TIPO TXT (Verificação de Segurança)</span>
+                                          </div>
+                                          <div className="bg-white p-3 rounded-xl border border-orange-100 shadow-sm">
+                                            <span className="text-[10px] text-stone-400 block mb-0.5">Nome (deixe em branco) | Valor:</span>
+                                            <code className="text-stone-800 text-[10px] font-bold select-all break-all block leading-tight">
+                                              {domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}
+                                            </code>
+                                          </div>
+                                        </div>
                                       )}
                                     </div>
                                   )}
+
+                                  <button 
+                                    onClick={() => handleVerifyDomain(currentProject.officialDomain)}
+                                    disabled={isVerifyingDomain || isDomainActive}
+                                    className={`w-full py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${isDomainActive ? 'bg-stone-100 text-stone-400 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-500/20'}`}
+                                  >
+                                    {isVerifyingDomain ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+                                    {isDomainActive ? 'Conectado e Operacional' : 'Verificar Propagação'}
+                                  </button>
+                                </div>
+                              )}
 
                                   <button 
                                     onClick={() => handleVerifyDomain(currentProject.officialDomain)}
