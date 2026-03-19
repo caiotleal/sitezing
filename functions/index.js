@@ -428,6 +428,42 @@ exports.verifyDomainPropagation = onCall({ cors: true, timeoutSeconds: 60 }, asy
     throw new HttpsError(error.code || "unknown", error.message);
   }
 });
+
+// Remover dominio//
+exports.removeCustomDomain = onCall({ cors: true, timeoutSeconds: 60 }, async (request) => {
+  const uid = ensureAuthed(request);
+  const { projectId, domain } = request.data;
+
+  if (!projectId || !domain) {
+    throw new HttpsError("invalid-argument", "Projeto e Domínio são obrigatórios.");
+  }
+
+  try {
+    const projectIdEnv = getProjectId();
+    const token = await getFirebaseAccessToken();
+    const cleanDomain = domain.trim().toLowerCase();
+
+    // Deleta o domínio raiz e o www da API moderna do Firebase
+    const rootUrl = `https://firebasehosting.googleapis.com/v1beta1/projects/${projectIdEnv}/sites/${projectId}/customDomains/${cleanDomain}`;
+    const wwwUrl = `https://firebasehosting.googleapis.com/v1beta1/projects/${projectIdEnv}/sites/${projectId}/customDomains/www.${cleanDomain}`;
+
+    await fetch(rootUrl, { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } });
+    await fetch(wwwUrl, { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } });
+
+    // Limpa o banco de dados
+    await admin.firestore().collection("users").doc(uid).collection("projects").doc(projectId).update({
+      officialDomain: "Pendente",
+      domainStatus: "PENDING",
+      domainRecords: null,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("[DNS REMOVE ERROR]:", error);
+    throw new HttpsError(error.code || "unknown", error.message);
+  }
+});
 // ==============================================================================
 // STRIPE CHECKOUT E MENSALIDADE
 // ==============================================================================
