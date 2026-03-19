@@ -431,6 +431,10 @@ const App: React.FC = () => {
   const [isLinkingDomain, setIsLinkingDomain] = useState(false);
   const [isVerifyingDomain, setIsVerifyingDomain] = useState(false);
 
+  // Estados de UI amigável
+  const [toast, setToast] = useState<{message: string, type: 'success'|'error'|'info'} | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{title: string, message: string, onConfirm: () => void} | null>(null);
+
   const [formData, setFormData] = useState({
     businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '',
     ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true,
@@ -475,6 +479,17 @@ const App: React.FC = () => {
     const unsub = onAuthStateChanged(auth, (user) => setLoggedUserEmail(user?.email || null));
     return () => unsub();
   }, []);
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  const showToast = (message: string, type: 'success'|'error'|'info' = 'info') => {
+    setToast({ message, type });
+  };
 
   const fetchProjects = async () => {
     if (!auth.currentUser) return setSavedProjects([]);
@@ -593,23 +608,23 @@ const App: React.FC = () => {
   };
 
   const handleAddCustomDomain = async () => {
-    if (!customDomainInput) return alert('Digite um domínio válido (ex: suamarca.com.br).');
+    if (!customDomainInput) return showToast('Digite um domínio válido (ex: suamarca.com.br).', 'error');
     
     if (customDomainInput.includes('sitezing.com.br')) {
-      return alert('Você não pode vincular o domínio oficial da plataforma. Digite o domínio do seu próprio negócio.');
+      return showToast('Você não pode vincular o domínio oficial da plataforma.', 'error');
     }
 
     setIsLinkingDomain(true);
     try {
       const linkFn = httpsCallable(functions, 'addCustomDomain');
       await linkFn({ projectId: currentProjectSlug, domain: customDomainInput });
-      alert('Domínio configurado no sistema! Agora copie os apontamentos DNS gerados e cole no seu provedor.');
+      showToast('Domínio configurado! Agora copie os apontamentos DNS gerados.', 'success');
       fetchProjects(); 
     } catch (error: any) {
       if (error.message.includes('already-exists') || error.message.includes('já está em uso')) {
-         alert('Este domínio já está em uso por outro site. Verifique se você digitou corretamente.');
+         showToast('Este domínio já está em uso por outro site.', 'error');
       } else {
-         alert('Erro ao vincular domínio: ' + error.message);
+         showToast('Erro ao vincular domínio: ' + error.message, 'error');
       }
     } finally {
       setIsLinkingDomain(false);
@@ -622,20 +637,20 @@ const App: React.FC = () => {
       const verifyFn = httpsCallable(functions, 'verifyDomainPropagation');
       const res: any = await verifyFn({ projectId: currentProjectSlug, domain: domainToVerify });
       if (res.data?.isPropagated) {
-        alert('Sucesso! Seu domínio já propagou e está ativo.');
+        showToast('Sucesso! Seu domínio já propagou e está ativo.', 'success');
       } else {
-        alert('Ainda aguardando propagação. Isso pode levar de 1 a 24 horas dependendo do seu provedor.');
+        showToast('Ainda aguardando propagação no provedor.', 'info');
       }
       fetchProjects();
     } catch (error: any) {
-      alert('Erro ao verificar: ' + error.message);
+      showToast('Erro ao verificar: ' + error.message, 'error');
     } finally {
       setIsVerifyingDomain(false);
     }
   };
 
   const handleGenerate = async () => {
-    if (!formData.businessName || !formData.description) return alert('Preencha Nome e Ideia!');
+    if (!formData.businessName || !formData.description) return showToast('Preencha Nome e Ideia para gerar!', 'error');
     setIsGenerating(true);
     try {
       if (aiContent && generatedHtml) {
@@ -643,6 +658,7 @@ const App: React.FC = () => {
         setGeneratedHtml(renderTemplate(aiContent, formData, extractedImages));
         setHasUnsavedChanges(true);
         setIsGenerating(false);
+        showToast('Layout atualizado com sucesso.', 'success');
         return;
       }
       const generateFn = httpsCallable(functions, 'generateSite');
@@ -651,7 +667,8 @@ const App: React.FC = () => {
       const extractedImages = extractCustomImages(generatedHtml);
       setGeneratedHtml(renderTemplate(result.data, formData, extractedImages));
       setHasUnsavedChanges(true);
-    } catch (error: any) { alert('Erro: ' + error.message); } 
+      showToast('Site gerado com inteligência artificial!', 'success');
+    } catch (error: any) { showToast('Erro na geração: ' + error.message, 'error'); } 
     finally { setIsGenerating(false); }
   };
 
@@ -672,6 +689,7 @@ const App: React.FC = () => {
       if (currentProjectSlug) {
         const updateFn = httpsCallable(functions, 'updateSiteProject');
         await updateFn({ targetId: currentProjectSlug, html: htmlToSave, formData, aiContent });
+        showToast('Alterações salvas com sucesso!', 'success');
       } else {
         const cleanName = formData.businessName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
         const randomSuffix = Math.random().toString(36).substring(2, 6);
@@ -687,15 +705,16 @@ const App: React.FC = () => {
             aiContent 
         });
         if (res.data?.projectSlug) setCurrentProjectSlug(res.data.projectSlug);
+        showToast('Projeto criado e salvo!', 'success');
       }
       setHasUnsavedChanges(false);
       fetchProjects();
-          } catch (err: any) { alert('Erro ao salvar o site.'); } 
+    } catch (err: any) { showToast('Erro ao salvar o site.', 'error'); } 
     finally { setIsSavingProject(false); }
   };
 
   const handlePublishSite = async () => {
-    if (hasUnsavedChanges) return alert("Salve suas alterações antes de publicar.");
+    if (hasUnsavedChanges) return showToast("Salve suas alterações antes de publicar.", "warning");
     setIsPublishing(true);
     try {
       const project = savedProjects.find(p => p.id === currentProjectSlug);
@@ -710,22 +729,28 @@ const App: React.FC = () => {
       
       fetchProjects(); 
       setPublishModalUrl(publicUrl);
-    } catch (err: any) { alert('Erro ao publicar: ' + err.message); } 
+    } catch (err: any) { showToast('Erro ao publicar: ' + err.message, 'error'); } 
     finally { setIsPublishing(false); }
   };
 
   const handleDeleteSite = async (projectId: string) => {
-    if (!window.confirm("Atenção! Esta ação apagará definitivamente o seu site do ar. Tem certeza absoluta?")) return;
-    try {
-      const deleteFn = httpsCallable(functions, 'deleteUserProject');
-      await deleteFn({ targetId: projectId });
-      alert("Site excluído com sucesso.");
-      if (projectId === currentProjectSlug) {
-        setGeneratedHtml(null); setCurrentProjectSlug(null); setHasUnsavedChanges(false); setActiveTab('geral');
-        setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40 });
+    setConfirmDialog({
+      title: 'Excluir Projeto',
+      message: 'Atenção! Esta ação apagará definitivamente o seu site do ar. Tem certeza absoluta?',
+      onConfirm: async () => {
+        try {
+          const deleteFn = httpsCallable(functions, 'deleteUserProject');
+          await deleteFn({ targetId: projectId });
+          showToast("Site excluído com sucesso.", "success");
+          if (projectId === currentProjectSlug) {
+            setGeneratedHtml(null); setCurrentProjectSlug(null); setHasUnsavedChanges(false); setActiveTab('geral');
+            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40 });
+          }
+          fetchProjects();
+        } catch (error) { showToast("Erro ao excluir o site.", "error"); }
+        setConfirmDialog(null);
       }
-      fetchProjects();
-    } catch (error) { alert("Erro ao excluir o site."); }
+    });
   };
 
   const handleStripeCheckout = async (projectId: string, planType: 'mensal' | 'anual') => {
@@ -736,7 +761,7 @@ const App: React.FC = () => {
       const res: any = await createCheckoutFn({ projectId, origin: window.location.origin, planType });
       if (res.data?.url) { window.location.href = res.data.url; return; }
       throw new Error('URL de checkout inválida.');
-    } catch (error: any) { alert('Erro ao iniciar pagamento: ' + error.message); } 
+    } catch (error: any) { showToast('Erro ao iniciar pagamento.', 'error'); } 
     finally { setCheckoutLoading(null); }
   };
   
@@ -745,10 +770,10 @@ const App: React.FC = () => {
     try {
       const cancelFn = httpsCallable(functions, 'cancelStripeSubscription');
       await cancelFn({ projectId });
-      alert("Assinatura cancelada com sucesso!");
+      showToast("Assinatura programada para cancelamento.", "success");
       fetchProjects(); 
       setCancelModalProject(null);
-    } catch (error: any) { alert("Erro ao cancelar: " + error.message); } 
+    } catch (error: any) { showToast("Erro ao cancelar: " + error.message, "error"); } 
     finally { setIsCanceling(false); }
   };
   
@@ -767,11 +792,17 @@ const App: React.FC = () => {
   const handleLogout = async () => {
     await signOut(auth);
     setSavedProjects([]); setCurrentProjectSlug(null); setGeneratedHtml(null);
+    showToast('Você saiu da conta.', 'info');
   };
 
   const handleLoginSubmit = async (email: string, password: string) => {
-    try { await signInWithEmailAndPassword(auth, email, password); } 
-    catch { await createUserWithEmailAndPassword(auth, email, password); }
+    try { 
+      await signInWithEmailAndPassword(auth, email, password); 
+      showToast('Bem-vindo de volta!', 'success');
+    } catch { 
+      await createUserWithEmailAndPassword(auth, email, password); 
+      showToast('Conta criada com sucesso!', 'success');
+    }
     setIsLoginOpen(false);
   };
 
@@ -800,6 +831,48 @@ const App: React.FC = () => {
         ::-webkit-scrollbar { display: none; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl font-bold text-sm border backdrop-blur-md"
+            style={{
+              backgroundColor: toast.type === 'error' ? 'rgba(254, 242, 242, 0.95)' : toast.type === 'success' ? 'rgba(240, 253, 244, 0.95)' : 'rgba(255, 251, 235, 0.95)',
+              color: toast.type === 'error' ? '#991B1B' : toast.type === 'success' ? '#166534' : '#92400E',
+              borderColor: toast.type === 'error' ? '#FCA5A5' : toast.type === 'success' ? '#86EFAC' : '#FCD34D'
+            }}
+          >
+            {toast.type === 'error' ? <AlertCircle size={18} /> : toast.type === 'success' ? <CheckCircle size={18} /> : <Info size={18} />}
+            {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirm Modal */}
+      <AnimatePresence>
+        {confirmDialog && (
+          <div className="fixed inset-0 z-[300] bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl"
+            >
+              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100">
+                <AlertCircle size={32} />
+              </div>
+              <h2 className="text-xl font-black text-stone-900 mb-2 uppercase">{confirmDialog.title}</h2>
+              <p className="text-sm text-stone-500 mb-6 leading-relaxed">{confirmDialog.message}</p>
+              <div className="flex gap-3">
+                <button onClick={() => setConfirmDialog(null)} className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 py-3.5 rounded-xl font-bold text-xs transition-colors">Cancelar</button>
+                <button onClick={confirmDialog.onConfirm} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3.5 rounded-xl font-bold text-xs shadow-lg shadow-red-500/20 transition-colors">Confirmar</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <div className="w-full h-screen bg-[#FAFAF9] overflow-hidden font-sans text-stone-900 flex flex-col md:flex-row">
         
@@ -938,7 +1011,7 @@ const App: React.FC = () => {
                         if (currentProjectSlug) {
                           handleStripeCheckout(currentProjectSlug, selectedPlanModal === 'monthly' ? 'mensal' : 'anual');
                         } else {
-                          alert("Para prosseguir com a assinatura, primeiro preencha os dados e gere o visual do seu site!");
+                          showToast("Para assinar, primeiro preencha os dados e gere o seu site!", "warning");
                           setSelectedPlanModal(null);
                           setIsMenuOpen(true);
                         }
@@ -986,7 +1059,7 @@ const App: React.FC = () => {
                   <div className="bg-orange-50 border border-orange-100 p-4 rounded-xl text-left relative z-10 shadow-sm">
                      <h4 className="text-orange-600 font-bold text-[11px] uppercase tracking-wider mb-2">Aproveite seus 7 dias gratuitos</h4>
                      <p className="text-[10px] text-stone-600 leading-relaxed font-medium">
-                       Durante esse período, explore todos os recursos. Lembre-se: caso a assinatura não seja efetivada ao final do prazo, o site entrará em estado de congelamento e, posteriormente, será excluído definitivamente do sistema.
+                       Durante esse período, explore todos os recursos. Lembre-se: caso a assinatura não seja efetivada ao final do prazo, o site entrará em estado de congelamento e será excluído.
                      </p>
                   </div>
                 )}
@@ -995,7 +1068,7 @@ const App: React.FC = () => {
                   <code className="text-teal-600 text-sm truncate flex-1 font-mono">{publishModalUrl}</code>
                 </div>
                 <div className="flex gap-3 pt-2 relative z-10">
-                  <button onClick={() => { navigator.clipboard.writeText(publishModalUrl); alert('Link copiado!'); }} className="flex-1 bg-white hover:bg-stone-50 text-stone-700 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors border border-stone-200 shadow-sm"><Copy size={18} /> Copiar Link</button>
+                  <button onClick={() => { navigator.clipboard.writeText(publishModalUrl); showToast('Link copiado!', 'success'); }} className="flex-1 bg-white hover:bg-stone-50 text-stone-700 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors border border-stone-200 shadow-sm"><Copy size={18} /> Copiar Link</button>
                   <button onClick={() => window.open(publishModalUrl, '_blank')} className="flex-1 bg-teal-600 hover:bg-teal-500 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-teal-500/20"><ExternalLink size={18} /> Abrir Site</button>
                 </div>
                 <button onClick={() => setPublishModalUrl(null)} className="text-stone-400 hover:text-stone-600 font-bold uppercase tracking-widest text-[10px] mt-2 block w-full transition-colors relative z-10">Fechar janela</button>
@@ -1197,7 +1270,7 @@ const App: React.FC = () => {
                       ) : (() => {
                         const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
                         const hasCustomDomain = currentProject?.officialDomain && currentProject.officialDomain !== 'Pendente' && !currentProject.officialDomain.includes('.web.app');
-                        const isDomainActive = currentProject?.domainStatus === 'ACTIVE';
+                        const isDomainActive = currentProject?.domainStatus === 'ACTIVE' || currentProject?.domainStatus === 'HOSTING_ACTIVE';
                         const domainRecords = currentProject?.domainRecords || [];
 
                         return (
@@ -1236,23 +1309,25 @@ const App: React.FC = () => {
                                     <h4 className="text-sm font-bold text-stone-900 mb-2">Já tenho um domínio. Conectar agora:</h4>
                                     <p className="text-[10px] text-stone-500 mb-4">Digite apenas o endereço raiz. O nosso sistema já configura o "www" automaticamente para você.</p>
                                     
-                                    <div className="flex gap-2 relative">
-                                      <input 
-                                        className="flex-1 bg-stone-50 border border-stone-200 rounded-xl p-3 pl-12 text-sm focus:border-teal-500 outline-none transition-colors font-mono text-stone-700" 
-                                        placeholder="suamarca.com.br" 
-                                        value={customDomainInput} 
-                                        onChange={e => {
-                                          let val = e.target.value.toLowerCase().trim();
-                                          val = val.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '');
-                                          setCustomDomainInput(val);
-                                        }} 
-                                      />
-                                      <span className="absolute left-4 top-3.5 text-stone-400 font-mono text-sm pointer-events-none">www.</span>
-                                      
+                                    {/* Ajuste de layout do botão e input de domínio */}
+                                    <div className="flex flex-col sm:flex-row gap-2 relative">
+                                      <div className="relative flex-1">
+                                        <input 
+                                          className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 pl-12 text-sm focus:border-teal-500 outline-none transition-colors font-mono text-stone-700 h-12" 
+                                          placeholder="suamarca.com.br" 
+                                          value={customDomainInput} 
+                                          onChange={e => {
+                                            let val = e.target.value.toLowerCase().trim();
+                                            val = val.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '');
+                                            setCustomDomainInput(val);
+                                          }} 
+                                        />
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 font-mono text-sm pointer-events-none">www.</span>
+                                      </div>
                                       <button 
                                         onClick={handleAddCustomDomain}
                                         disabled={isLinkingDomain || !customDomainInput}
-                                        className="bg-stone-900 hover:bg-stone-800 disabled:bg-stone-300 text-white px-5 rounded-xl font-bold text-xs transition-colors flex items-center gap-2"
+                                        className="bg-stone-900 hover:bg-stone-800 disabled:bg-stone-300 text-white px-6 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-2 h-12 shrink-0"
                                       >
                                         {isLinkingDomain ? <Loader2 size={16} className="animate-spin" /> : 'Conectar'}
                                       </button>
@@ -1271,7 +1346,7 @@ const App: React.FC = () => {
                                     </span>
                                   </div>
 
-                                {!isDomainActive && (
+                                  {!isDomainActive && (
                                     <div className="bg-white border border-stone-200 shadow-sm p-4 sm:p-5 rounded-2xl space-y-5 animate-in fade-in duration-500">
                                       <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 sm:p-5">
                                         <h4 className="text-xs font-black text-orange-800 mb-2 flex items-center gap-2 uppercase tracking-wider">
@@ -1297,7 +1372,7 @@ const App: React.FC = () => {
                                             <div className="col-span-2 font-black text-stone-800">A</div>
                                             <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-2.5 py-1.5 rounded-lg">
                                               <span className="font-mono text-teal-700 font-bold select-all">199.36.158.100</span>
-                                              <button onClick={() => { navigator.clipboard.writeText('199.36.158.100'); alert('IP copiado!'); }} className="text-teal-500 hover:text-teal-700 transition-colors p-1 bg-white rounded shadow-sm border border-teal-100" title="Copiar"><Copy size={12} /></button>
+                                              <button onClick={() => { navigator.clipboard.writeText('199.36.158.100'); showToast('IP copiado!', 'success'); }} className="text-teal-500 hover:text-teal-700 transition-colors p-1 bg-white rounded shadow-sm border border-teal-100" title="Copiar"><Copy size={12} /></button>
                                             </div>
                                           </div>
 
@@ -1307,7 +1382,7 @@ const App: React.FC = () => {
                                             <div className="col-span-2 font-black text-stone-800">CNAME</div>
                                             <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-2.5 py-1.5 rounded-lg overflow-hidden">
                                               <span className="font-mono text-teal-700 font-bold select-all truncate">{currentProjectSlug}.web.app</span>
-                                              <button onClick={() => { navigator.clipboard.writeText(`${currentProjectSlug}.web.app`); alert('Destino copiado!'); }} className="text-teal-500 hover:text-teal-700 transition-colors p-1 bg-white rounded shadow-sm border border-teal-100 ml-2 shrink-0" title="Copiar"><Copy size={12} /></button>
+                                              <button onClick={() => { navigator.clipboard.writeText(`${currentProjectSlug}.web.app`); showToast('Destino copiado!', 'success'); }} className="text-teal-500 hover:text-teal-700 transition-colors p-1 bg-white rounded shadow-sm border border-teal-100 ml-2 shrink-0" title="Copiar"><Copy size={12} /></button>
                                             </div>
                                           </div>
 
@@ -1320,7 +1395,7 @@ const App: React.FC = () => {
                                                 <span className="font-mono text-[10px] text-teal-700 font-bold select-all truncate" title={domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}>
                                                   {domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}
                                                 </span>
-                                                <button onClick={() => { navigator.clipboard.writeText(domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`); alert('TXT copiado!'); }} className="text-teal-500 hover:text-teal-700 transition-colors p-1 bg-white rounded shadow-sm border border-teal-100 ml-2 shrink-0" title="Copiar"><Copy size={12} /></button>
+                                                <button onClick={() => { navigator.clipboard.writeText(domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`); showToast('TXT copiado!', 'success'); }} className="text-teal-500 hover:text-teal-700 transition-colors p-1 bg-white rounded shadow-sm border border-teal-100 ml-2 shrink-0" title="Copiar"><Copy size={12} /></button>
                                               </div>
                                             </div>
                                           )}
@@ -1437,7 +1512,7 @@ const App: React.FC = () => {
                                </button>
                              ) : (
                                <button 
-                                 onClick={() => alert("Sua assinatura já encontra-se inativa ou em período de teste gratuito sem vínculo financeiro. Fique tranquilo.")}
+                                 onClick={() => showToast("Sua assinatura já encontra-se inativa ou em período de teste gratuito.", "info")}
                                  className="w-full bg-stone-100 border border-stone-200 text-stone-400 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-not-allowed"
                                >
                                  Cancelar Assinatura
@@ -1466,10 +1541,21 @@ const App: React.FC = () => {
                   )}
                 </div>
 
+                {/* BOTÕES DE AÇÃO PRINCIPAIS (COM TRAVA DE VENCIMENTO) */}
                 {generatedHtml && (() => {
                   const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
                   const isPublished = Boolean(currentProject?.publishUrl || currentProject?.status === 'active');
-                  const isFrozen = currentProject?.status === 'frozen';
+                  
+                  // Lógica blindada para verificar se o projeto precisa de pagamento
+                  let isExpired = false;
+                  if (currentProject?.expiresAt) {
+                    const expDate = currentProject.expiresAt._seconds ? currentProject.expiresAt._seconds * 1000 : currentProject.expiresAt.seconds * 1000;
+                    if (expDate < Date.now() && currentProject.paymentStatus !== 'paid') {
+                      isExpired = true;
+                    }
+                  }
+                  
+                  const needsPayment = currentProject?.status === 'frozen' || isExpired;
 
                   return (
                     <div className="p-4 border-t border-stone-200 bg-white flex flex-col sm:flex-row items-center gap-3 flex-shrink-0">
@@ -1482,13 +1568,16 @@ const App: React.FC = () => {
                         {currentProjectSlug ? 'Salvar Alterações' : 'Salvar Projeto'}
                       </button>
                       
-                      {isFrozen ? (
+                      {needsPayment ? (
                         <button 
-                          onClick={() => setActiveTab('assinatura')} 
+                          onClick={() => {
+                            setActiveTab('assinatura');
+                            showToast('Seu período de teste expirou. Ative seu plano para publicar as alterações!', 'info');
+                          }} 
                           className="w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20"
                         >
                           <Zap size={14} /> 
-                          Ativar Meu Site
+                          Renovar Assinatura
                         </button>
                       ) : (
                         <button 
