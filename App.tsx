@@ -1271,52 +1271,61 @@ const App: React.FC = () => {
                                     </span>
                                   </div>
 
-                                  {!isDomainActive && (
-                                    <div className="bg-orange-50 p-4 rounded-xl border border-orange-200 space-y-4">
-                                      <p className="text-xs text-stone-700 font-medium">Acesse o painel do Registro.br (ou onde comprou o domínio) e adicione os seguintes apontamentos DNS:</p>
-                                      
-                                      {/* TIPO A (Raiz) */}
-                                      <div>
-                                        <div className="flex justify-between items-center mb-1">
-                                          <span className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">Passo 1: Apontamento TIPO A</span>
-                                        </div>
-                                        <div className="bg-white p-3 rounded-xl border border-orange-100 shadow-sm flex items-center justify-between">
-                                          <div>
-                                            <span className="text-[10px] text-stone-400 block mb-0.5">Nome/Host (deixe em branco)</span>
-                                            <code className="text-stone-800 text-xs font-bold select-all">199.36.158.100</code>
+                                {!isDomainActive && (
+                                    <div className="bg-white border border-stone-200 shadow-sm p-4 sm:p-5 rounded-2xl space-y-5 animate-in fade-in duration-500">
+                                      <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 sm:p-5">
+                                        <h4 className="text-xs font-black text-orange-800 mb-2 flex items-center gap-2 uppercase tracking-wider">
+                                          <Settings size={16} className="text-orange-500" /> Como configurar no Registro.br
+                                        </h4>
+                                        <p className="text-[11px] text-orange-700/90 leading-relaxed mb-5 font-medium">
+                                          Acesse o painel onde você comprou o seu domínio. Procure pela opção <strong className="bg-orange-200/50 px-1 rounded">"Editar Zona DNS"</strong> e adicione as linhas exatamente como mostramos na tabela abaixo. 
+                                          <br className="mb-1" /><span className="text-orange-600/80 italic">*Dica: Se já existir um apontamento do tipo "A" ou "CNAME" com o mesmo nome lá, exclua o antigo primeiro.</span>
+                                        </p>
+
+                                        {/* Tabela Didática simulando o painel de DNS */}
+                                        <div className="border border-stone-300 rounded-xl overflow-hidden bg-white shadow-sm">
+                                          {/* Cabeçalho da Tabela */}
+                                          <div className="bg-stone-100 text-[10px] font-black text-stone-500 p-3 grid grid-cols-12 gap-2 uppercase tracking-widest border-b border-stone-200">
+                                            <div className="col-span-4">Nome (Host)</div>
+                                            <div className="col-span-2">Tipo</div>
+                                            <div className="col-span-6">Dados (Valor/Destino)</div>
                                           </div>
-                                          <Copy size={14} className="text-stone-300 cursor-pointer hover:text-orange-500" onClick={() => navigator.clipboard.writeText('199.36.158.100')} />
+
+                                          {/* Linha 1: TIPO A */}
+                                          <div className="p-3 grid grid-cols-12 gap-2 border-b border-stone-100 text-xs items-center hover:bg-stone-50 transition-colors group">
+                                            <div className="col-span-4 text-stone-400 italic font-medium text-[11px]">Deixe em branco</div>
+                                            <div className="col-span-2 font-black text-stone-800">A</div>
+                                            <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-2.5 py-1.5 rounded-lg">
+                                              <span className="font-mono text-teal-700 font-bold select-all">199.36.158.100</span>
+                                              <button onClick={() => { navigator.clipboard.writeText('199.36.158.100'); alert('IP copiado!'); }} className="text-teal-500 hover:text-teal-700 transition-colors p-1 bg-white rounded shadow-sm border border-teal-100" title="Copiar"><Copy size={12} /></button>
+                                            </div>
+                                          </div>
+
+                                          {/* Linha 2: CNAME (WWW) */}
+                                          <div className="p-3 grid grid-cols-12 gap-2 border-b border-stone-100 text-xs items-center hover:bg-stone-50 transition-colors group">
+                                            <div className="col-span-4 font-mono text-stone-800 font-bold">www</div>
+                                            <div className="col-span-2 font-black text-stone-800">CNAME</div>
+                                            <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-2.5 py-1.5 rounded-lg overflow-hidden">
+                                              <span className="font-mono text-teal-700 font-bold select-all truncate">{currentProjectSlug}.web.app</span>
+                                              <button onClick={() => { navigator.clipboard.writeText(`${currentProjectSlug}.web.app`); alert('Destino copiado!'); }} className="text-teal-500 hover:text-teal-700 transition-colors p-1 bg-white rounded shadow-sm border border-teal-100 ml-2 shrink-0" title="Copiar"><Copy size={12} /></button>
+                                            </div>
+                                          </div>
+
+                                          {/* Linha 3: TXT (Se Firebase exigir) */}
+                                          {domainRecords && domainRecords.length > 0 && (
+                                            <div className="p-3 grid grid-cols-12 gap-2 text-xs items-center hover:bg-stone-50 transition-colors group">
+                                              <div className="col-span-4 text-stone-400 italic font-medium text-[11px]">Deixe em branco</div>
+                                              <div className="col-span-2 font-black text-stone-800">TXT</div>
+                                              <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-2.5 py-1.5 rounded-lg overflow-hidden">
+                                                <span className="font-mono text-[10px] text-teal-700 font-bold select-all truncate" title={domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}>
+                                                  {domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}
+                                                </span>
+                                                <button onClick={() => { navigator.clipboard.writeText(domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`); alert('TXT copiado!'); }} className="text-teal-500 hover:text-teal-700 transition-colors p-1 bg-white rounded shadow-sm border border-teal-100 ml-2 shrink-0" title="Copiar"><Copy size={12} /></button>
+                                              </div>
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
-
-                                      {/* TIPO CNAME (WWW) */}
-                                      <div>
-                                        <div className="flex justify-between items-center mb-1">
-                                          <span className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">Passo 2: Apontamento CNAME (Para o www funcionar)</span>
-                                        </div>
-                                        <div className="bg-white p-3 rounded-xl border border-orange-100 shadow-sm flex items-center justify-between">
-                                          <div>
-                                            <span className="text-[10px] text-stone-400 block mb-0.5">Nome: <b className="text-stone-700">www</b> | Destino:</span>
-                                            <code className="text-stone-800 text-xs font-bold select-all">{currentProjectSlug}.web.app</code>
-                                          </div>
-                                          <Copy size={14} className="text-stone-300 cursor-pointer hover:text-orange-500" onClick={() => navigator.clipboard.writeText(`${currentProjectSlug}.web.app`)} />
-                                        </div>
-                                      </div>
-
-                                      {/* TIPO TXT (Verificação Firebase) */}
-                                      {domainRecords && domainRecords.length > 0 && (
-                                        <div className="pt-2 border-t border-orange-200/50">
-                                          <div className="flex justify-between items-center mb-1">
-                                            <span className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">Passo 3: TIPO TXT (Verificação de Segurança)</span>
-                                          </div>
-                                          <div className="bg-white p-3 rounded-xl border border-orange-100 shadow-sm">
-                                            <span className="text-[10px] text-stone-400 block mb-0.5">Nome (deixe em branco) | Valor:</span>
-                                            <code className="text-stone-800 text-[10px] font-bold select-all break-all block leading-tight">
-                                              {domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}
-                                            </code>
-                                          </div>
-                                        </div>
-                                      )}
                                     </div>
                                   )}
 
