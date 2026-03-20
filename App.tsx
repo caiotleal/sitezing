@@ -1341,9 +1341,9 @@ const App: React.FC = () => {
                     const isPaid = currentProject?.paymentStatus === 'paid';
                     const isCanceled = currentProject?.cancelAtPeriodEnd === true || currentProject?.subscriptionStatus === 'canceled';
                     
-                    // Lógica para verificar se o projeto congelou ou venceu
+                    // Lógica para verificar se o projeto congelou ou venceu (CORRIGIDA)
                     let isExpired = false;
-                    if (currentProject?.expiresAt && expDate && expDate < Date.now() && !isPaid) {
+                    if (expirationDate && expirationDate < Date.now() && !isPaid) {
                       isExpired = true;
                     }
                     const needsPayment = currentProject?.status === 'frozen' || isExpired;
