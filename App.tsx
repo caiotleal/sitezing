@@ -410,54 +410,39 @@ const extractCustomImages = (html: string | null) => {
   return images;
 };
 
-const PLAN_DETAILS = {
-  free: {
-    title: "Plano Teste Grátis",
-    price: "R$ 0,00",
-    period: "por 7 dias",
-    color: "text-stone-800",
-    bgBadge: "bg-stone-200 text-stone-700",
-    badge: "Sem pagamento antecipado",
-    rules: [
-      "Acesso completo à Inteligência Artificial da plataforma.",
-      "Geração, edição e publicação de site grátis.",
-      "Hospedagem segura no roteador da plataforma.",
-      "Após 7 dias, o site é congelado automaticamente caso não haja assinatura.",
-      "Sem necessidade de cadastrar cartão de crédito para testar."
-    ]
-  },
-  monthly: {
-    title: "Plano Mensal",
-    price: "R$ 49,90",
-    period: "/ mês",
-    color: "text-teal-600",
-    bgBadge: "bg-teal-600 text-white",
-    badge: "Mais Assinado",
-    rules: [
-      "Site online 24/7 com alta estabilidade (Google Cloud).",
-      "Conexão liberada para domínio próprio profissional (ex: .com.br).",
-      "Cobrança recorrente mensal no cartão de crédito.",
-      "Cancele quando quiser diretamente pelo painel, sem multas ou fidelidade.",
-      "Suporte prioritário e blindagem de segurança no Google."
-    ]
-  },
-  annual: {
-    title: "Plano Anual",
-    price: "R$ 499,00",
-    period: "/ 1º ano",
-    color: "text-orange-500",
-    bgBadge: "bg-gradient-to-r from-orange-500 to-orange-400 text-white",
-    badge: "Mais Econômico",
-    rules: [
-      "Desconto equivalente a 2 meses grátis em relação ao plano mensal.",
-      "Apontamento de domínio premium configurado para você.",
-      "Alta velocidade de carregamento para otimização SEO no Google.",
-      "Ciclo de renovação a cada 12 meses, garantindo o menor preço do ano."
-    ]
-  }
-};
+const BUILDER_DOMAINS = ['localhost', 'sitezing.com.br', 'www.sitezing.com.br', 'criador-de-site-1a91d.web.app', 'criador-de-site-1a91d.firebaseapp.com'];
 
 const App: React.FC = () => {
+  // INTERCEPTADOR DE SUBDOMÍNIO E DOMÍNIO CUSTOMIZADO
+  const [isClientSiteView, setIsClientSiteView] = useState(false);
+
+  useEffect(() => {
+    const host = window.location.hostname.toLowerCase();
+    
+    if (!BUILDER_DOMAINS.includes(host)) {
+      setIsClientSiteView(true);
+      const fetchSite = async () => {
+        try {
+          const getSiteFn = httpsCallable(functions, 'getSiteContent');
+          const res: any = await getSiteFn({ domain: host });
+          if (res.data?.html) {
+            document.open();
+            document.write(res.data.html);
+            document.close();
+          }
+        } catch(error: any) {
+          document.body.innerHTML = `
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; background:#f9fafb; color:#334155;">
+              <h1 style="font-size: 2rem; margin-bottom: 10px;">Oops!</h1>
+              <p>${error.message || 'Site não encontrado ou inativo.'}</p>
+            </div>
+          `;
+        }
+      };
+      fetchSite();
+    }
+  }, []);
+
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
@@ -481,13 +466,13 @@ const App: React.FC = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [publishModalUrl, setPublishModalUrl] = useState<string | null>(null);
   const [officialDomain, setOfficialDomain] = useState('');
-  const [registerLater, setRegisterLater] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
   const [customDomainInput, setCustomDomainInput] = useState('');
   const [isLinkingDomain, setIsLinkingDomain] = useState(false);
   const [isVerifyingDomain, setIsVerifyingDomain] = useState(false);
-  
+  const [isDnsModalOpen, setIsDnsModalOpen] = useState(false);
+
   const [toast, setToast] = useState<{message: string, type: 'success'|'error'|'info'|'warning'} | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{title: string, message: string, onConfirm: () => void} | null>(null);
 
@@ -508,8 +493,8 @@ const App: React.FC = () => {
       document.getElementsByTagName('head')[0].appendChild(link);
     }
     link.href = BRAND_LOGO;
-    document.title = "SiteZing - Seu site pronto em um ZING !!!";
-  }, []);
+    if (!isClientSiteView) document.title = "SiteZing - Muito mais que um site !!!";
+  }, [isClientSiteView]);
 
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
@@ -543,6 +528,14 @@ const App: React.FC = () => {
     }
   }, [toast]);
 
+  if (isClientSiteView) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white">
+        <Loader2 className="animate-spin text-orange-500 w-12 h-12" />
+      </div>
+    );
+  }
+
   const showToast = (message: string, type: 'success'|'error'|'info'|'warning' = 'info') => {
     setToast({ message, type });
   };
@@ -554,113 +547,6 @@ const App: React.FC = () => {
       const listRes: any = await listFn({});
       setSavedProjects(listRes.data?.projects || []);
     } catch { setSavedProjects([]); }
-  };
-
-  useEffect(() => { fetchProjects(); }, [loggedUserEmail]);
-
-  const renderTemplate = (content: any, data: typeof formData, customImages: Record<string, string> = {}) => {
-    let html = TEMPLATES[data.layoutStyle] || TEMPLATES['layout_modern_center'];
-    const colors = COLORS.find(c => c.id === data.colorId) || COLORS[0];
-
-    const replaceAll = (token: string, value: string) => { html = html.split(token).join(value); };
-    const companyNameUpper = (data.businessName || 'Sua Empresa').toUpperCase();
-
-    replaceAll('{{BUSINESS_NAME}}', companyNameUpper);
-    replaceAll('{{HERO_TITLE}}', content.heroTitle || `Bem-vindo à ${data.businessName}`);
-    replaceAll('{{HERO_SUBTITLE}}', content.heroSubtitle || 'Presença digital profissional.');
-    replaceAll('{{ABOUT_TITLE}}', content.aboutTitle || 'Quem Somos');
-    replaceAll('{{ABOUT_TEXT}}', content.aboutText || 'Nossa história e serviços.');
-    replaceAll('{{CONTACT_CALL}}', content.contactCall || 'Fale conosco');
-    
-    replaceAll('{{COLOR_1}}', colors.c1); replaceAll('{{COLOR_2}}', colors.c2); replaceAll('{{COLOR_3}}', colors.c3);
-    replaceAll('{{COLOR_4}}', colors.c4); replaceAll('{{COLOR_5}}', colors.c5); replaceAll('{{COLOR_6}}', colors.c6);
-    replaceAll('{{COLOR_7}}', colors.c7); replaceAll('{{COLOR_LIGHT}}', colors.light); replaceAll('{{COLOR_DARK}}', colors.dark);
-    
-    replaceAll('{{ADDRESS}}', data.region ? `${data.address || 'Endereço não informado'} - ${data.region}` : (data.address || 'Endereço não informado'));
-    replaceAll('{{PHONE}}', data.phone || data.whatsapp || 'Telefone não informado');
-    replaceAll('{{EMAIL}}', data.email || 'Email não informado');
-
-    let headInjection = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">';
-    
-    const logoHeight = data.logoSize || 40;
-    if (data.logoBase64) {
-      headInjection += `<link rel="icon" type="image/png" href="${data.logoBase64}">`;
-      headInjection += `<style>.glass-logo-premium img { max-height: ${logoHeight}px !important; }</style>`;
-      html = html.replace(/\[\[LOGO_AREA\]\]/g, `<img src="${data.logoBase64}" style="max-height: ${logoHeight}px; width: auto; display: block; object-fit: contain; transition: transform 0.2s ease;" alt="Logo" />`);
-    } else {
-      html = html.replace(/\[\[LOGO_AREA\]\]/g, `<span style="font-weight: 900; font-size: 1.2rem; text-transform: uppercase;">${companyNameUpper}</span>`);
-    }
-
-    replaceAll('[[WHATSAPP_BTN]]', ''); replaceAll('[[INSTAGRAM_BTN]]', ''); replaceAll('[[FACEBOOK_BTN]]', '');
-    replaceAll('[[TIKTOK_BTN]]', ''); replaceAll('[[LINKEDIN_BTN]]', ''); replaceAll('[[IFOOD_BTN]]', ''); replaceAll('[[NOVE_NOVE_BTN]]', ''); replaceAll('[[KEETA_BTN]]', '');
-
-    let socialHtml = '';
-    const addSocialBtn = (href: string, brandColor: string, label: string, innerHtml: string) => {
-      socialHtml += `<a href="${href}" target="_blank" class="glass-social-link" style="color: ${brandColor};" title="${label}">${innerHtml}</a>`;
-    };
-
-    if (data.whatsapp) addSocialBtn(`https://wa.me/${data.whatsapp.replace(/\D/g, '')}`, '#25D366', 'WhatsApp', '<i class="fab fa-whatsapp"></i>');
-    if (data.instagram) addSocialBtn(`https://instagram.com/${data.instagram.replace('@', '')}`, '#E1306C', 'Instagram', '<i class="fab fa-instagram"></i>');
-    if (data.facebook) addSocialBtn(data.facebook.startsWith('http') ? data.facebook : `https://${data.facebook}`, '#1877F2', 'Facebook', '<i class="fab fa-facebook-f"></i>');
-    if (data.linkedin) addSocialBtn(data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`, '#0A66C2', 'LinkedIn', '<i class="fab fa-linkedin-in"></i>');
-    if (data.tiktok) addSocialBtn(data.tiktok.startsWith('http') ? data.tiktok : `https://${data.tiktok}`, '#000000', 'TikTok', '<i class="fab fa-tiktok"></i>');
-    if (data.ifood) addSocialBtn(data.ifood.startsWith('http') ? data.ifood : `https://${data.ifood}`, '#EA1D2C', 'iFood', '<img src="https://cdn.simpleicons.org/ifood/EA1D2C" alt="iFood" style="width: 20px; height: 20px; object-fit: contain;"/>');
-    if (data.noveNove) addSocialBtn(data.noveNove.startsWith('http') ? data.noveNove : `https://${data.noveNove}`, '#FFC700', '99', '<span style="font-size: 15px; font-weight: 900; line-height: 1;">99</span>');
-    if (data.keeta) addSocialBtn(data.keeta.startsWith('http') ? data.keeta : `https://${data.keeta}`, '#19B84A', 'Keeta', '<span style="font-size: 15px; font-weight: 900; line-height: 1;">Keeta</span>');
-
-    replaceAll('[[SOCIAL_LINKS]]', socialHtml);
-
-    const headerContactBtn = data.showForm 
-      ? `<a href="#contato" class="btn-contact-premium"><span class="desktop-text">Fale Conosco</span><i class="fas fa-comment-dots mobile-icon"></i></a>` 
-      : ``;
-    replaceAll('[[HEADER_CONTACT_BTN]]', headerContactBtn);
-
-    const footerBrand = `<div style="text-align:center; padding: 24px; font-size: 12px; opacity: 0.5; width: 100%; font-family: sans-serif; display: flex; align-items: center; justify-content: center; gap: 6px;">Criado por <a href="https://sitezing.com.br" target="_blank" style="text-decoration: none; font-weight: 900; display: flex; align-items: center; gap: 4px; color: inherit; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'"><img src="${BRAND_LOGO}" style="height: 16px; width: auto;" alt="SiteZing"/> SiteZing.com.br</a></div>`;
-    html = html.replace('</body>', `${footerBrand}</body>`);
-
-    const mapUrl = data.address ? `https://maps.google.com/maps?q=${encodeURIComponent(data.address)}&t=&z=13&ie=UTF8&iwloc=&output=embed` : '';
-    const mapCode = (data.showMap && mapUrl) ? `<div class="overflow-hidden rounded-[2rem] mt-6 map-container ux-glass"><iframe src="${mapUrl}" width="100%" height="240" style="border:0;" loading="lazy"></iframe></div>` : '';
-    replaceAll('[[MAP_AREA]]', mapCode);
-    
-    const formAction = data.email ? `action="https://formsubmit.co/ajax/${data.email}"` : '';
-    const hiddenInputs = data.email ? `<input type="hidden" name="_subject" value="[Contato do seu Site] Nova mensagem de um cliente"><input type="hidden" name="_language" value="pt-BR"><input type="hidden" name="_template" value="box"><input type="hidden" name="_captcha" value="false">` : '';
-
-    const formCode = data.showForm ? `
-    <form id="sitecraft-contact-form" ${formAction} class="space-y-4 ux-form ux-glass p-8 md:p-12 rounded-[2rem] relative">
-      ${hiddenInputs}
-      <input name="Nome" required class="w-full bg-[${colors.c1}] border border-[${colors.c3}] rounded-xl p-4 text-sm focus:outline-none focus:border-[${colors.c4}] transition-all text-[${colors.c4}] placeholder:text-[${colors.c6}]" placeholder="Seu nome" />
-      <input name="Email" type="email" required class="w-full bg-[${colors.c1}] border border-[${colors.c3}] rounded-xl p-4 text-sm focus:outline-none focus:border-[${colors.c4}] transition-all text-[${colors.c4}] placeholder:text-[${colors.c6}]" placeholder="Seu email" />
-      <textarea name="Mensagem" required class="w-full bg-[${colors.c1}] border border-[${colors.c3}] rounded-xl p-4 text-sm focus:outline-none focus:border-[${colors.c4}] transition-all text-[${colors.c4}] placeholder:text-[${colors.c6}]" rows="4" placeholder="Sua mensagem"></textarea>
-      <button type="${data.email ? 'submit' : 'button'}" class="btn-primary w-full py-4 rounded-xl font-bold uppercase tracking-widest transition-all text-[${colors.c1}]" style="background-color: ${colors.c7}; border: none;">Enviar mensagem</button>
-    </form>
-    <script id="contact-form-script">
-      document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('sitecraft-contact-form');
-        if (form && form.hasAttribute('action')) {
-          form.addEventListener('submit', function(e) {
-            e.preventDefault(); 
-            const btn = form.querySelector('button[type="submit"]');
-            if(btn) { btn.innerText = 'Enviando...'; btn.style.opacity = '0.7'; btn.disabled = true; }
-            fetch(form.action, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(form).entries())) })
-            .then(response => response.json())
-            .then(data => { form.innerHTML = '<div style="text-align:center; padding: 20px; animation: fadeUp 0.5s ease;"><div style="width: 64px; height: 64px; background: rgba(16,185,129,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;"><i class="fas fa-check" style="font-size: 30px; color: #10b981;"></i></div><h3 style="font-size: 24px; font-weight: 900; color: ${colors.c4}; margin-bottom: 8px;">Enviado com sucesso!</h3><p style="font-size: 14px; color: ${colors.c6};">Agradecemos o seu contato. Retornaremos o mais breve possível.</p></div>'; })
-            .catch(error => { if(btn) { btn.innerText = 'Erro ao enviar. Tente novamente.'; btn.style.opacity = '1'; btn.disabled = false; } });
-          });
-        }
-      });
-    </script>` : '';
-
-    replaceAll('[[CONTACT_FORM]]', formCode);
-
-    const imgPlaceholder = (id: string, label: string) => {
-      if (customImages[id]) return `<div class="editable-image-wrapper w-full py-4"><div class="editable-image rounded-2xl flex flex-col items-center justify-center text-zinc-500 hover:text-emerald-500 transition-colors cursor-pointer w-full min-h-[320px] bg-black/20" data-id="${id}"><img src="${customImages[id]}" class="w-full h-full block object-contain" style="border-radius: inherit; margin: 0; box-shadow: none;" /></div></div>`;
-      return `<div class="editable-image-wrapper w-full py-4"><div class="editable-image rounded-2xl flex flex-col items-center justify-center text-zinc-500 hover:text-emerald-500 transition-colors cursor-pointer w-full min-h-[320px] bg-black/20" data-id="${id}"><i class="fas fa-camera text-4xl mb-3"></i><span class="text-xs font-bold uppercase tracking-widest">Adicionar Imagem - ${label}</span></div></div>`;
-    };
-
-    replaceAll('[[HERO_IMAGE]]', imgPlaceholder('hero-img', 'Destaque (Topo)'));
-    replaceAll('[[ABOUT_IMAGE]]', imgPlaceholder('about-img', 'Quem Somos'));
-
-    return html.replace('</head>', `${headInjection}</head>`);
   };
 
   const handleAddCustomDomain = async () => {
@@ -763,6 +649,7 @@ const App: React.FC = () => {
         await updateFn({ targetId: currentProjectSlug, html: htmlToSave, formData, aiContent });
         showToast('Alterações salvas com sucesso!', 'success');
       } else {
+        // Validação agressiva de nome no primeiro salvamento
         const saveFn = httpsCallable(functions, 'saveSiteProject');
         const res: any = await saveFn({ 
             businessName: formData.businessName, 
@@ -776,7 +663,9 @@ const App: React.FC = () => {
       }
       setHasUnsavedChanges(false);
       fetchProjects();
-    } catch (err: any) { showToast('Erro ao salvar o site.', 'error'); } 
+    } catch (err: any) { 
+      showToast(err.message.includes('já está em uso') ? err.message : 'Erro ao salvar o site.', 'error'); 
+    } 
     finally { setIsSavingProject(false); }
   };
 
@@ -972,7 +861,7 @@ const App: React.FC = () => {
                   {isUpdatePublish ? 'Publicação Atualizada!' : 'Seu site está no ar!'}
                 </h2>
                 <p className="text-stone-500 text-sm leading-relaxed">
-                  {isUpdatePublish ? 'As alterações já refletem no seu endereço online.' : 'A sua página já está online. Caso tenha configurado um domínio oficial, pode demorar algumas horas para propagar.'}
+                  {isUpdatePublish ? 'As alterações já refletem no seu endereço online.' : 'A sua página já está online e com Certificado de Segurança SSL ativo.'}
                 </p>
               </div>
 
@@ -1008,6 +897,88 @@ const App: React.FC = () => {
             </motion.div>
           </div>
         )}
+      </AnimatePresence>
+
+      {/* MODAL AMPLO DE INSTRUÇÕES DNS */}
+      <AnimatePresence>
+        {isDnsModalOpen && currentProjectSlug && (() => {
+          const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
+          const domainRecords = currentProject?.domainRecords || [];
+          return (
+            <div className="fixed inset-0 z-[200] bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-white border border-stone-200 p-8 rounded-3xl shadow-2xl max-w-3xl w-full relative overflow-hidden"
+              >
+                <button onClick={() => setIsDnsModalOpen(false)} className="absolute top-6 right-6 text-stone-400 hover:text-stone-800 transition-colors bg-stone-100 p-2 rounded-full z-20">
+                  <X size={18} />
+                </button>
+
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="bg-orange-100 p-3 rounded-xl"><Settings className="text-orange-600 w-6 h-6" /></div>
+                  <div>
+                    <h2 className="text-2xl font-black text-stone-900 uppercase">Apontamentos DNS</h2>
+                    <p className="text-sm text-stone-500">Configure o domínio <span className="font-bold text-teal-600">{currentProject.officialDomain}</span></p>
+                  </div>
+                </div>
+
+                <div className="bg-orange-50 border border-orange-200 rounded-2xl p-6 mb-6">
+                  <p className="text-sm text-orange-800 leading-relaxed font-medium mb-4">
+                    Acesse o painel do seu provedor de domínio (ex: Registro.br, HostGator, Locaweb) e procure pela opção <strong>"Editar Zona DNS"</strong>. Em seguida, adicione as linhas abaixo <strong>exatamente</strong> como são apresentadas.
+                    <br/><span className="text-xs text-orange-600 italic block mt-1">* Dica de Ouro: Se o painel já possuir apontamentos do tipo "A" ou "CNAME" conflitantes, exclua os antigos primeiro.</span>
+                  </p>
+
+                  <div className="border border-stone-300 rounded-xl overflow-hidden bg-white shadow-sm">
+                    {/* Cabeçalho da Tabela */}
+                    <div className="bg-stone-100 text-xs font-black text-stone-500 p-4 grid grid-cols-12 gap-3 uppercase tracking-widest border-b border-stone-200">
+                      <div className="col-span-4">Nome (Host)</div>
+                      <div className="col-span-2">Tipo</div>
+                      <div className="col-span-6">Dados (Valor/Destino)</div>
+                    </div>
+
+                    {/* Linha 1: TIPO A */}
+                    <div className="p-4 grid grid-cols-12 gap-3 border-b border-stone-100 text-sm items-center hover:bg-stone-50 transition-colors">
+                      <div className="col-span-4 text-stone-500 font-medium">@ <span className="text-[11px] text-stone-400 italic">(Ou deixe em branco)</span></div>
+                      <div className="col-span-2 font-black text-stone-800">A</div>
+                      <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
+                        <span className="font-mono text-teal-700 font-bold select-all">199.36.158.100</span>
+                        <button onClick={() => { navigator.clipboard.writeText('199.36.158.100'); showToast('IP copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100"><Copy size={14}/> Copiar</button>
+                      </div>
+                    </div>
+
+                    {/* Linha 2: CNAME (WWW) */}
+                    <div className="p-4 grid grid-cols-12 gap-3 border-b border-stone-100 text-sm items-center hover:bg-stone-50 transition-colors">
+                      <div className="col-span-4 font-mono text-stone-800 font-bold">www</div>
+                      <div className="col-span-2 font-black text-stone-800">CNAME</div>
+                      <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
+                        <span className="font-mono text-teal-700 font-bold select-all truncate">{currentProjectSlug}.sitezing.com.br</span>
+                        <button onClick={() => { navigator.clipboard.writeText(`${currentProjectSlug}.sitezing.com.br`); showToast('Destino copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100 shrink-0 ml-2"><Copy size={14}/> Copiar</button>
+                      </div>
+                    </div>
+
+                    {/* Linha 3: TXT (Se houver) */}
+                    {domainRecords && domainRecords.length > 0 && (
+                      <div className="p-4 grid grid-cols-12 gap-3 text-sm items-center hover:bg-stone-50 transition-colors">
+                        <div className="col-span-4 text-stone-500 font-medium">@ <span className="text-[11px] text-stone-400 italic">(Ou deixe em branco)</span></div>
+                        <div className="col-span-2 font-black text-stone-800">TXT</div>
+                        <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
+                          <span className="font-mono text-xs text-teal-700 font-bold select-all truncate" title={domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}>
+                            {domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}
+                          </span>
+                          <button onClick={() => { navigator.clipboard.writeText(domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`); showToast('TXT copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100 shrink-0 ml-2"><Copy size={14}/> Copiar</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <button onClick={() => setIsDnsModalOpen(false)} className="w-full bg-stone-900 hover:bg-stone-800 text-white py-4 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors">
+                  Pronto, entendi como configurar
+                </button>
+              </motion.div>
+            </div>
+          );
+        })()}
       </AnimatePresence>
 
       <div className="w-full h-screen bg-[#FAFAF9] overflow-hidden font-sans text-stone-900 flex flex-col md:flex-row">
@@ -1237,9 +1208,8 @@ const App: React.FC = () => {
                         </div>
                       ) : (() => {
                         const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
-                        const hasCustomDomain = currentProject?.officialDomain && currentProject.officialDomain !== 'Pendente' && !currentProject.officialDomain.includes('.web.app');
+                        const hasCustomDomain = currentProject?.officialDomain && currentProject.officialDomain !== 'Pendente' && !currentProject.officialDomain.includes('.sitezing.com.br');
                         const isDomainActive = currentProject?.domainStatus === 'ACTIVE' || currentProject?.domainStatus === 'HOSTING_ACTIVE';
-                        const domainRecords = currentProject?.domainRecords || [];
 
                         return (
                           <div className="space-y-4">
@@ -1324,51 +1294,18 @@ const App: React.FC = () => {
                                   </div>
 
                                   {!isDomainActive && (
-                                    <div className="bg-orange-50 border border-orange-200 p-4 sm:p-5 rounded-2xl flex flex-col space-y-4">
+                                    <div className="bg-orange-50 border border-orange-200 p-4 sm:p-5 rounded-2xl flex flex-col items-center justify-center text-center space-y-3">
+                                      <Settings className="text-orange-400 w-8 h-8" />
                                       <div>
-                                        <h4 className="text-xs font-black text-orange-800 uppercase tracking-wider flex items-center gap-2 mb-1"><Settings size={16} className="text-orange-500" /> Configuração DNS</h4>
-                                        <p className="text-[11px] text-orange-700/80 leading-relaxed font-medium">Acesse o seu provedor de domínio (ex: Registro.br) e adicione os registros abaixo. <br/><span className="italic">*Se houver apontamentos antigos do tipo A ou CNAME, exclua-os.</span></p>
+                                        <h4 className="text-sm font-black text-orange-800">Finalize a Configuração DNS</h4>
+                                        <p className="text-[11px] text-orange-700/80 mt-1">Para o site funcionar, você precisa adicionar alguns dados no seu provedor de domínio.</p>
                                       </div>
-
-                                      {/* Layout DNS Moderno (Cards Empilhados para evitar esmagamento) */}
-                                      <div className="space-y-3">
-                                        <div className="bg-white rounded-xl p-3.5 border border-orange-200/60 shadow-sm transition-all hover:border-teal-300">
-                                          <div className="flex justify-between items-center mb-2">
-                                            <span className="font-black text-stone-800 uppercase tracking-widest text-[10px]">TIPO A</span>
-                                            <span className="text-[10px] text-stone-400 italic">Nome: @ (Em branco)</span>
-                                          </div>
-                                          <div className="flex justify-between items-center bg-stone-50 border border-stone-200 px-3 py-2 rounded-lg">
-                                            <span className="font-mono text-teal-700 font-bold select-all text-sm">199.36.158.100</span>
-                                            <button onClick={() => { navigator.clipboard.writeText('199.36.158.100'); showToast('IP copiado!', 'success'); }} className="text-stone-400 hover:text-teal-600 transition-colors"><Copy size={16}/></button>
-                                          </div>
-                                        </div>
-
-                                        <div className="bg-white rounded-xl p-3.5 border border-orange-200/60 shadow-sm transition-all hover:border-teal-300">
-                                          <div className="flex justify-between items-center mb-2">
-                                            <span className="font-black text-stone-800 uppercase tracking-widest text-[10px]">CNAME (WWW)</span>
-                                            <span className="text-[10px] text-stone-400 italic">Nome: www</span>
-                                          </div>
-                                          <div className="flex justify-between items-center bg-stone-50 border border-stone-200 px-3 py-2 rounded-lg">
-                                            <span className="font-mono text-teal-700 font-bold select-all text-sm truncate">{currentProjectSlug}.sitezing.com.br</span>
-                                            <button onClick={() => { navigator.clipboard.writeText(`${currentProjectSlug}.sitezing.com.br`); showToast('Destino copiado!', 'success'); }} className="text-stone-400 hover:text-teal-600 transition-colors ml-2 shrink-0"><Copy size={16}/></button>
-                                          </div>
-                                        </div>
-
-                                        {domainRecords && domainRecords.length > 0 && (
-                                          <div className="bg-white rounded-xl p-3.5 border border-orange-200/60 shadow-sm transition-all hover:border-teal-300">
-                                            <div className="flex justify-between items-center mb-2">
-                                              <span className="font-black text-stone-800 uppercase tracking-widest text-[10px]">TXT (Verificação)</span>
-                                              <span className="text-[10px] text-stone-400 italic">Nome: @ (Em branco)</span>
-                                            </div>
-                                            <div className="flex justify-between items-center bg-stone-50 border border-stone-200 px-3 py-2 rounded-lg">
-                                              <span className="font-mono text-[10px] text-teal-700 font-bold select-all truncate" title={domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}>
-                                                {domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}
-                                              </span>
-                                              <button onClick={() => { navigator.clipboard.writeText(domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`); showToast('TXT copiado!', 'success'); }} className="text-stone-400 hover:text-teal-600 transition-colors ml-2 shrink-0"><Copy size={16}/></button>
-                                            </div>
-                                          </div>
-                                        )}
-                                      </div>
+                                      <button 
+                                        onClick={() => setIsDnsModalOpen(true)}
+                                        className="mt-2 bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-colors shadow-lg shadow-orange-500/20"
+                                      >
+                                        Abrir Instruções de Apontamento
+                                      </button>
                                     </div>
                                   )}
 
