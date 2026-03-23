@@ -718,9 +718,13 @@ const App: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
+  const slugify = (value = "") => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48);
+
   const handleSaveOrUpdateSite = async () => {
     if (!auth.currentUser) return setIsLoginOpen(true);
     
+    if (!formData.businessName) return showToast('Preencha o Nome do Negócio antes de salvar.', 'warning');
+
     setIsSavingProject(true);
     try {
       const htmlToSave = cleanHtmlForPublishing(generatedHtml);
@@ -729,9 +733,18 @@ const App: React.FC = () => {
         await updateFn({ targetId: currentProjectSlug, html: htmlToSave, formData, aiContent });
         showToast('Alterações salvas com sucesso!', 'success');
       } else {
+        const targetSlug = slugify(formData.businessName).slice(0, 30);
+        const checkFn = httpsCallable(functions, 'checkDomainAvailability');
+        const checkRes: any = await checkFn({ projectSlug: targetSlug });
+        
+        if (!checkRes.data?.available) {
+           throw new Error('already-exists');
+        }
+
         const saveFn = httpsCallable(functions, 'saveSiteProject');
         const res: any = await saveFn({ 
             businessName: formData.businessName, 
+            internalDomain: targetSlug,
             officialDomain: officialDomain || "Pendente", 
             generatedHtml: htmlToSave, 
             formData, 
@@ -746,7 +759,11 @@ const App: React.FC = () => {
       const listRes: any = await listFn({});
       setSavedProjects(listRes.data?.projects || []);
     } catch (err: any) { 
-      showToast(err.message.includes('já está em uso') ? err.message : 'Erro ao salvar o site.', 'error'); 
+      if (err.message.includes('já está em uso') || err.message.includes('already-exists')) {
+         showToast('Este nome de negócio já está em uso por outro site. Por favor, adicione um diferencial ao nome.', 'error'); 
+      } else {
+         showToast('Erro ao salvar o site: ' + err.message, 'error'); 
+      }
     } 
     finally { setIsSavingProject(false); }
   };

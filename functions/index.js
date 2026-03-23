@@ -110,8 +110,8 @@ exports.saveSiteProject = onCall({ cors: true, memory: "512MiB" }, async (reques
   const uid = ensureAuthed(request);
   const { businessName, officialDomain, internalDomain, generatedHtml, formData, aiContent } = request.data;
   
-  // Confia na URL gerada pelo painel React do usuário
-  const projectSlug = internalDomain || (slugify(businessName).slice(0, 30) + "-" + Math.random().toString(36).substring(2, 6));
+  // Confia na URL gerada pelo painel React do usuário ou cria um slug fixo
+  const projectSlug = internalDomain || slugify(businessName).slice(0, 30);
 
   // Validação Backend: Garante que não duplica URL
   const snap = await admin.firestore().collectionGroup("projects").where("projectSlug", "==", projectSlug).limit(1).get();
@@ -129,6 +129,14 @@ exports.saveSiteProject = onCall({ cors: true, memory: "512MiB" }, async (reques
   }, { merge: true });
 
   return { success: true, projectSlug };
+});
+
+exports.checkDomainAvailability = onCall({ cors: true }, async (request) => {
+  const { projectSlug } = request.data;
+  if (!projectSlug) throw new HttpsError("invalid-argument", "Slug não informado.");
+  
+  const snap = await admin.firestore().collectionGroup("projects").where("projectSlug", "==", projectSlug).limit(1).get();
+  return { available: snap.empty };
 });
 
 exports.updateSiteProject = onCall({ cors: true }, async (request) => {
