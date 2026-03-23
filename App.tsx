@@ -430,8 +430,46 @@ const App: React.FC = () => {
     businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '',
     ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true,
     showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', 
-    logoBase64: '', logoSize: 40
+    logoBase64: '', logoSize: 40, segment: ''
   });
+
+  const [showFloatModal, setShowFloatModal] = useState(false);
+  const [floatDomainStatus, setFloatDomainStatus] = useState<{ loading: boolean; available?: boolean; slug?: string; alternatives?: string[] }>({ loading: false });
+  const floatCheckTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!generatedHtml && !currentProjectSlug && !isClientSiteView) {
+      const timer = setTimeout(() => setShowFloatModal(true), 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [generatedHtml, currentProjectSlug, isClientSiteView]);
+
+  const handleFloatNameChange = (val: string) => {
+    setFormData(p => ({ ...p, businessName: val }));
+    if (val.length < 3) {
+      setFloatDomainStatus({ loading: false });
+      return;
+    }
+    setFloatDomainStatus({ loading: true });
+    if (floatCheckTimeout.current) clearTimeout(floatCheckTimeout.current);
+    floatCheckTimeout.current = setTimeout(async () => {
+      try {
+        const checkFn = httpsCallable(functions, 'checkDomainAvailability');
+        const res: any = await checkFn({ projectSlug: val });
+        if (res.data?.available) {
+          setFloatDomainStatus({ loading: false, available: true, slug: res.data.checkedSlug });
+        } else if (res.data && res.data.available === false) {
+          const slug = res.data.checkedSlug || val.toLowerCase().replace(/[^a-z0-9]/g, '');
+          setFloatDomainStatus({ 
+            loading: false, available: false, slug, 
+            alternatives: [`${slug}-br`, `${slug}-oficial`, `site-${slug}`]
+          });
+        }
+      } catch (e) {
+        setFloatDomainStatus({ loading: false });
+      }
+    }, 800);
+  };
 
   useIframeEditor({ setGeneratedHtml, setHasUnsavedChanges });
 
@@ -688,7 +726,8 @@ const App: React.FC = () => {
   };
 
   const handleGenerate = async () => {
-    if (!formData.businessName || !formData.description) return showToast('Preencha Nome e Ideia para gerar!', 'error');
+    if (!formData.businessName) return showToast('Preencha o Nome do Negócio para gerar!', 'error');
+    setShowFloatModal(false);
     setIsGenerating(true);
     try {
       if (aiContent && generatedHtml) {
@@ -1438,7 +1477,8 @@ const App: React.FC = () => {
                           {isPaid && isCanceled && daysLeft > 0 ? (
                             <div className="bg-orange-50 border border-orange-200 p-6 rounded-xl text-center space-y-4 relative z-10">
                               <h4 className="font-black text-orange-700 text-lg uppercase tracking-wider">Assinatura Cancelada</h4>
-                              <p className="text-xs text-orange-600/80">Seu site continuará no ar até o fim do ciclo pago. Deseja reativar a renovação automática para não perdê-lo?</p>
+                              <p className="text-xs text-orange-600/80 mb-2">Seu site continuará no ar, recebendo visitas e contatos normalmente até o cumprimento total do período que você já pagou. Nenhum valor retroativo será cobrado ou estornado.</p>
+                              <p className="text-[11px] text-orange-700/60 font-medium">Após o vencimento, o site entrará em estado de Congelamento por 5 dias e, após isso, será definitivamente suspenso. Deseja reativar a renovação automática para não perdê-lo?</p>
                               <button 
                                 onClick={() => handleResumeSubscription(currentProjectSlug)} 
                                 disabled={isResuming} 
@@ -1470,9 +1510,14 @@ const App: React.FC = () => {
                                   <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ 49,90</span><span className="text-xs text-stone-500 font-medium pb-1">/mês</span></div>
                                   <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
                                     <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5"/> Domínio próprio & Suporte</li>
+                                    <li className="flex items-start gap-2 text-[10px] text-stone-500 mt-4 italic">Sem multa de cancelamento. Sem devoluções de períodos já utilizados. Ao cancelar, o site expira no último dia pago.</li>
                                   </ul>
-                                  <button onClick={() => { setSelectedPlanModal('monthly'); setCheckoutTermsAccepted(false); }} className="w-full bg-teal-600 hover:bg-teal-500 text-white py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors relative z-10 shadow-lg shadow-teal-500/20">
-                                    {needsPayment ? 'Reativar com Plano Mensal' : 'Assinar Mensal'}
+                                  <button 
+                                    onClick={() => handleStripeCheckout(currentProjectSlug, 'mensal')} 
+                                    disabled={checkoutLoading === currentProjectSlug}
+                                    className="w-full bg-teal-600 hover:bg-teal-500 text-white py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors relative z-10 shadow-lg shadow-teal-500/20"
+                                  >
+                                    {checkoutLoading === currentProjectSlug ? <Loader2 className="animate-spin w-4 h-4 mx-auto" /> : needsPayment ? 'Reativar com Plano Mensal' : 'Assinar Mensal'}
                                   </button>
                                 </div>
 
@@ -1483,9 +1528,14 @@ const App: React.FC = () => {
                                   <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ 499</span><span className="text-xs text-stone-500 font-medium pb-1">/ano</span></div>
                                   <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
                                     <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5"/> 2 meses grátis equivalentes</li>
+                                    <li className="flex items-start gap-2 text-[10px] text-stone-500 mt-4 italic">Maior economia a longo prazo. Regras de cancelamento sem devolução proporcional aplicáveis. Site online pelos 12 meses inteiros.</li>
                                   </ul>
-                                  <button onClick={() => { setSelectedPlanModal('annual'); setCheckoutTermsAccepted(false); }} className="w-full bg-orange-500 hover:bg-orange-400 text-white py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-colors shadow-lg shadow-orange-500/20 relative z-10">
-                                    {needsPayment ? 'Reativar com Plano Anual' : 'Assinar Anual'}
+                                  <button 
+                                    onClick={() => handleStripeCheckout(currentProjectSlug, 'anual')} 
+                                    disabled={checkoutLoading === currentProjectSlug}
+                                    className="w-full bg-orange-500 hover:bg-orange-400 text-white py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-colors shadow-lg shadow-orange-500/20 relative z-10"
+                                  >
+                                    {checkoutLoading === currentProjectSlug ? <Loader2 className="animate-spin w-4 h-4 mx-auto" /> : needsPayment ? 'Reativar com Plano Anual' : 'Assinar Anual'}
                                   </button>
                                 </div>
                               </div>
@@ -1586,6 +1636,164 @@ const App: React.FC = () => {
           )}
         </AnimatePresence>
       </div>
+      {/* MODAL DOS PLANOS E REGRAS (Vindo do iFrame) */}
+      <AnimatePresence>
+        {selectedPlanModal && (
+          <div className="fixed inset-0 z-[400] bg-stone-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-3xl overflow-hidden max-w-lg w-full shadow-2xl relative"
+            >
+              <button onClick={() => setSelectedPlanModal(null)} className="absolute top-4 right-4 bg-white/50 hover:bg-white text-stone-500 p-2 rounded-full transition-colors z-20">
+                <X size={20} />
+              </button>
+
+              <div className={`p-8 pb-10 text-center relative ${
+                selectedPlanModal === 'free' ? 'bg-stone-100' :
+                selectedPlanModal === 'monthly' ? 'bg-teal-600 text-white' : 'bg-gradient-to-r from-orange-500 to-amber-500 text-white'
+              }`}>
+                {selectedPlanModal !== 'free' && <div className="absolute inset-0 opacity-10"><img src={BRAND_LOGO} className="w-full h-full object-cover filter blur-sm" alt="" /></div>}
+                
+                <h2 className="text-3xl font-black uppercase tracking-tight italic relative z-10">
+                  {selectedPlanModal === 'free' ? 'Plano Turbo Teste' : selectedPlanModal === 'monthly' ? 'Plano Mensal' : 'Plano Anual Start'}
+                </h2>
+                
+                <div className="mt-4 flex items-center justify-center gap-2 relative z-10">
+                  <span className="text-[10px] uppercase tracking-widest font-bold opacity-80 border border-current px-3 py-1 rounded-full">
+                    {selectedPlanModal === 'free' ? 'Sem Compromisso' : 'Liberação Imediata'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-8">
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-bold text-sm text-stone-800">Serviços Disponíveis para você</h4>
+                      <p className="text-xs text-stone-500 mt-1">Acesso irrestrito a Inteligência Artificial geradora de sites. Todos os blocos liberados, design ilimitado.</p>
+                    </div>
+                  </div>
+                  {selectedPlanModal !== 'free' && (
+                    <div className="flex items-start gap-3">
+                      <Globe className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-bold text-sm text-stone-800">Domínio Próprio Exclusivo</h4>
+                        <p className="text-xs text-stone-500 mt-1">Hospedagem Premium com SSL no Google Cloud e conexão liberada para seu próprio domínio (.com.br).</p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-start gap-3">
+                    <ShieldCheck className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-bold text-sm text-stone-800">Termos Transparente e Amigável</h4>
+                      <p className="text-xs text-stone-500 mt-1 leading-relaxed">
+                        {selectedPlanModal === 'free' 
+                          ? 'Ao fim dos 7 dias, caso não assine, seu site será gentilmente congelado mantendo os seus dados blindados por 30 dias.' 
+                          : 'Cancele quando decidir de forma clara pelo painel. Sem multa. Seu site continua faturando pra você até o final exato do período que adquiriu (sem devolução retroativa de valor pago).'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => {
+                    setSelectedPlanModal(null);
+                    setIsMenuOpen(true);
+                  }}
+                  className={`w-full py-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg hover:translate-y-[-2px] ${
+                    selectedPlanModal === 'free' 
+                      ? 'bg-stone-900 text-white hover:bg-stone-800 shadow-stone-900/20' 
+                      : selectedPlanModal === 'monthly' ? 'bg-teal-600 text-white hover:bg-teal-500 shadow-teal-500/30'
+                      : 'bg-orange-500 text-white hover:bg-orange-400 shadow-orange-500/30'
+                  }`}
+                >
+                  🚀 Criar seu site agora
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL FLUTUANTE DE CAPTAÇÃO 10S */}
+      <AnimatePresence>
+        {showFloatModal && !isMenuOpen && !generatedHtml && !currentProjectSlug && (
+          <motion.div 
+            initial={{ opacity: 0, y: 100, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 100, scale: 0.9 }}
+            className="fixed bottom-6 right-6 z-[300] w-[calc(100%-48px)] md:w-[380px] bg-white border border-stone-200 shadow-2xl rounded-3xl overflow-hidden"
+          >
+            <div className="bg-gradient-to-r from-teal-600 to-indigo-600 p-5 relative">
+              <button onClick={() => setShowFloatModal(false)} className="absolute top-3 right-3 text-white/50 hover:text-white transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+              <h3 className="text-lg font-black text-white flex items-center gap-2 italic uppercase">
+                <Rocket className="w-5 h-5 text-yellow-300" /> Crie em 30 Segundos
+              </h3>
+              <p className="text-white/80 text-[11px] mt-1 font-medium">Deixe a nossa IA montar tudo de imediato.</p>
+            </div>
+            <div className="p-5 relative">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold text-stone-500 mb-1.5 block">Nome da Empresa</label>
+                  <input 
+                    type="text" placeholder="Ex: Studio da Beleza"
+                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none text-stone-800 font-medium"
+                    value={formData.businessName}
+                    onChange={(e) => handleFloatNameChange(e.target.value)}
+                  />
+                </div>
+                
+                {/* DOMAIN FEEDBACK MODAL */}
+                {!floatDomainStatus.loading && floatDomainStatus.available === false && (
+                   <div className="text-[10px] text-red-500">
+                     Opa, nome em uso! Sugestões: 
+                     <div className="flex flex-wrap gap-1 mt-1">
+                       {floatDomainStatus.alternatives?.map(alt => (
+                         <span key={alt} onClick={() => handleFloatNameChange(alt)} className="cursor-pointer bg-red-50 px-1.5 border border-red-200 rounded font-bold">{alt}</span>
+                       ))}
+                     </div>
+                   </div>
+                )}
+                {!floatDomainStatus.loading && floatDomainStatus.available && floatDomainStatus.slug && (
+                   <div className="text-[10px] text-emerald-600 flex items-center gap-1 font-bold"><CheckCircle className="w-3 h-3"/> Livre: {floatDomainStatus.slug}.sitezing.com.br</div>
+                )}
+
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold text-stone-500 mb-1.5 block">Segmento / Ramo</label>
+                  <select 
+                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none text-stone-800 font-medium appearance-none"
+                    value={formData.segment || ''}
+                    onChange={(e) => setFormData(p => ({ ...p, segment: e.target.value }))}
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="Advocacia">Jurídico / Advocacia</option>
+                    <option value="Tecnologia">Tecnologia / Startup</option>
+                    <option value="Saúde">Saúde / Clínica</option>
+                    <option value="Beleza">Beleza / Estética</option>
+                    <option value="Vendas">Loja / Comércio</option>
+                    <option value="Serviços">Prestação de Serviços</option>
+                    <option value="Outros">Outros Ramo</option>
+                  </select>
+                </div>
+
+                <button 
+                  onClick={() => {
+                     if (!formData.businessName || !formData.segment || floatDomainStatus.available === false) return;
+                     // Set a mock description to pass validation and generate
+                     setFormData(p => ({ ...p, description: `Uma empresa chamada ${p.businessName} focada no segmento de ${p.segment}.` }));
+                     setTimeout(() => handleGenerate(), 100);
+                  }}
+                  disabled={isGenerating || !formData.businessName || !formData.segment || floatDomainStatus.available === false}
+                  className="w-full bg-stone-900 border border-stone-800 text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 mt-2 transition-all disabled:opacity-50"
+                >
+                  {isGenerating ? <Loader2 className="animate-spin w-4 h-4" /> : <>✨ Começar Magia</>}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

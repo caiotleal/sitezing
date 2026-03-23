@@ -188,7 +188,21 @@ exports.publishUserProject = onCall({ cors: true }, async (request) => {
     if (project.status === "frozen") throw new HttpsError("permission-denied", "Site congelado. Renove o plano.");
     
     // GERA A URL OFICIAL USANDO O WILDCARD
-    const publicUrl = `https://${project.projectSlug}.sitezing.com.br`;
+    const subdomainVal = `${project.projectSlug}.sitezing.com.br`;
+    const publicUrl = `https://${subdomainVal}`;
+
+    // REGISTRA O SUBDOMÍNIO NO FIREBASE HOSTING PARA SSL E ROTEAMENTO
+    try {
+      const projectIdEnv = getProjectId();
+      const token = await getFirebaseAccessToken();
+      const apiUrl = `https://firebasehosting.googleapis.com/v1beta1/projects/${projectIdEnv}/sites/${projectIdEnv}/customDomains?customDomainId=${subdomainVal}`;
+      await fetch(apiUrl, {
+        method: "POST", headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({}) 
+      });
+    } catch (apiError) {
+      console.error("Erro ao registrar subdomínio no Hosting da nuvem Firebase:", apiError);
+    }
 
     const isPaidProject = project.paymentStatus === "paid";
     let nextExpiresAt = project.expiresAt || null;
@@ -222,13 +236,18 @@ exports.deleteUserProject = onCall({ cors: true }, async (request) => {
   if (snap.exists) {
     const project = snap.data();
     // Limpa domínios anexados ao projeto principal do Firebase se houver
-    if (project.officialDomain && project.officialDomain !== "Pendente") {
-      try {
-        const projectIdEnv = getProjectId();
-        const token = await getFirebaseAccessToken();
+    try {
+      const projectIdEnv = getProjectId();
+      const token = await getFirebaseAccessToken();
+      const cleanSub = `${project.projectSlug}.sitezing.com.br`;
+      await fetch(`https://firebasehosting.googleapis.com/v1beta1/projects/${projectIdEnv}/sites/${projectIdEnv}/customDomains/${cleanSub}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` }});
+      
+      if (project.officialDomain && project.officialDomain !== "Pendente") {
         await fetch(`https://firebasehosting.googleapis.com/v1beta1/projects/${projectIdEnv}/sites/${projectIdEnv}/customDomains/${project.officialDomain}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` }});
         await fetch(`https://firebasehosting.googleapis.com/v1beta1/projects/${projectIdEnv}/sites/${projectIdEnv}/customDomains/www.${project.officialDomain}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` }});
-      } catch (e) {}
+      }
+    } catch (e) {
+      console.error("Erro ao remover domínios do hosting durante deleção de projeto:", e);
     }
     await ref.delete();
   }
