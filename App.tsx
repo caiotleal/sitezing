@@ -53,141 +53,85 @@ const PROMO_HTML = `
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SiteZing - Muito mais que um site</title>
+  <title>SiteZing - Criação Inteligente em Segundos</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    html, body { scroll-behavior: smooth; font-family: 'Inter', sans-serif; background-color: #ffffff; color: #111827; }
+    html, body { -ms-overflow-style: none; scrollbar-width: none; background-color: #FAFAF9; color: #1C1917; font-family: sans-serif; overflow-x: hidden; }
     ::-webkit-scrollbar { display: none; }
-    .btn-orange { background-color: #f97316; color: white; transition: all 0.3s; }
-    .btn-orange:hover { background-color: #ea580c; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.3); }
-    .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(231, 229, 228, 0.8); transition: all 0.3s ease; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); cursor: pointer; }
+    .glass-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 20px 40px -10px rgba(249, 115, 22, 0.15); border-color: rgba(249, 115, 22, 0.3); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-up { animation: fadeUp 1s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    .plan-bg-logo { position: absolute; bottom: -15%; right: -10%; width: 70%; height: auto; opacity: 0.03; pointer-events: none; filter: grayscale(100%); }
   </style>
 </head>
 <body class="antialiased selection:bg-orange-500 selection:text-white">
-  
-  <header class="fixed top-0 w-full bg-white/90 backdrop-blur-md z-50 border-b border-gray-100 transition-all">
-    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-       <img src="${BRAND_LOGO}" alt="SiteZing Logo" class="h-10 md:h-12 w-auto" />
-       <div class="hidden md:flex items-center gap-6 text-sm font-semibold text-gray-600">
-         <a href="#features" class="hover:text-orange-500 transition-colors">Recursos</a>
-         <a href="#pricing" class="hover:text-orange-500 transition-colors">Planos</a>
-         <button onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'free' }, '*')" class="btn-orange px-6 py-2.5 rounded-full font-bold shadow-md shadow-orange-500/20">Começar Agora</button>
-       </div>
+  <header class="fixed top-0 left-0 w-full z-[80] bg-[#FAFAF9]/80 backdrop-blur-md border-b border-stone-200/60 h-24 flex items-center px-6 md:px-12 transition-all">
+    <div class="max-w-7xl mx-auto w-full flex items-center">
+       <img src="${BRAND_LOGO}" alt="SiteZing Logo" class="h-16 md:h-20 w-auto drop-shadow-sm" />
     </div>
   </header>
 
-  <section class="pt-32 pb-20 px-6 max-w-7xl mx-auto flex flex-col items-center text-center">
-    <div class="inline-block px-4 py-1.5 rounded-full bg-orange-50 text-orange-600 text-xs font-bold tracking-widest uppercase mb-6 border border-orange-100">Criação por Inteligência Artificial</div>
-    <h1 class="text-5xl md:text-7xl font-black tracking-tight text-gray-900 mb-6 leading-tight">
-      Muito mais que um site.<br/><span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">Uma presença online completa.</span>
-    </h1>
-    <p class="text-xl text-gray-500 max-w-3xl mx-auto mb-10 leading-relaxed">
-      Site customizado, SEO integrado e ferramentas digitais que ajudam você a ser encontrado no Google e gerar negócios no piloto automático. Sem dores de cabeça com tecnologia.
-    </p>
-    <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-      <button onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'free' }, '*')" class="btn-orange w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 shadow-xl shadow-orange-500/20">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" /></svg>
-        Gerar meu Site em Segundos
-      </button>
-      <a href="#features" class="w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-lg text-gray-600 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-center border border-gray-200">
-        Ver Funcionalidades
-      </a>
-    </div>
-  </section>
+  <main class="pt-36 pb-24 px-6 md:px-12 max-w-7xl mx-auto flex flex-col justify-center min-h-screen relative">
+    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-200/30 blur-[150px] rounded-full pointer-events-none"></div>
+    <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-orange-200/30 blur-[150px] rounded-full pointer-events-none"></div>
 
-  <section id="features" class="py-20 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-6">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-4">Nós fazemos tudo para você</h2>
-        <p class="text-gray-500 text-lg">Deixamos a parte técnica conosco para você focar no seu negócio.</p>
-      </div>
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 card-hover transition-all">
-          <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center text-orange-500 mb-6">
-             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-          </div>
-          <h3 class="text-xl font-bold text-gray-900 mb-3">Design Profissional</h3>
-          <p class="text-gray-500 leading-relaxed text-sm">Nossa IA cria os textos, o design e estrutura tudo em menos de 1 minuto. Sem precisar arrastar blocos ou escrever códigos.</p>
-        </div>
-        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 card-hover transition-all">
-          <div class="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center text-teal-600 mb-6">
-             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-          </div>
-          <h3 class="text-xl font-bold text-gray-900 mb-3">Otimização SEO</h3>
-          <p class="text-gray-500 leading-relaxed text-sm">Seu site já nasce preparado para as buscas do Google. Meta tags, velocidade e arquitetura feitas para você ser encontrado facilmente.</p>
-        </div>
-        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 card-hover transition-all">
-          <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 mb-6">
-             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
-          </div>
-          <h3 class="text-xl font-bold text-gray-900 mb-3">Domínio & Hospedagem</h3>
-          <p class="text-gray-500 leading-relaxed text-sm">Conecte seu domínio profissional e tenha a estabilidade de uma hospedagem na infraestrutura ultrarrápida do Google Cloud.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="pricing" class="py-24 px-6 max-w-7xl mx-auto">
-    <div class="text-center mb-16">
-      <h2 class="text-3xl md:text-4xl font-black text-gray-900 mb-4">Planos sem surpresas</h2>
-      <p class="text-gray-500 text-lg">Experiência de agência, preço de software. Sem contratos de fidelidade.</p>
+    <div class="relative z-10 animate-up text-center md:text-left max-w-3xl mb-16">
+      <div class="inline-block px-4 py-1.5 rounded-full bg-white border border-teal-100 text-xs font-bold tracking-widest text-teal-600 mb-6 uppercase shadow-sm">A revolução da web</div>
+      <h1 class="text-[3rem] md:text-[5.5rem] font-black leading-[0.9] tracking-tighter mb-6 uppercase italic text-stone-900">
+        Seu site pronto em um <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500 pr-10 inline-block">ZING!!!</span>
+      </h1>
+      <p class="text-lg md:text-2xl text-stone-500 font-light leading-relaxed">
+        Não perca vendas por não estar no Google. A nossa inteligência artificial cria, escreve e publica o seu site automaticamente. Preencha o menu ao lado e veja a mágica acontecer.
+      </p>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto items-center">
-      <div class="border border-gray-200 bg-white rounded-3xl p-8 flex flex-col relative card-hover transition-all h-[420px]">
-        <h3 class="text-xl font-black text-gray-900 mb-2 uppercase tracking-wide">Teste Grátis</h3>
-        <p class="text-sm text-gray-500 mb-6 h-10">Crie seu site e veja o resultado antes de pagar.</p>
-        <div class="mb-6">
-          <span class="text-4xl font-black">R$ 0</span>
-          <span class="text-gray-500 font-medium">/ 7 dias</span>
-        </div>
-        <button onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'free' }, '*')" class="w-full py-3.5 rounded-xl border border-gray-300 text-gray-700 font-bold hover:border-gray-400 hover:bg-gray-50 transition-all mb-6">Testar Agora</button>
-        <ul class="space-y-3 text-sm text-gray-600 font-medium flex-1">
-          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> IA liberada</li>
-          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Domínio temporário</li>
+    <div class="grid md:grid-cols-3 gap-6 relative z-10 animate-up" style="animation-delay: 0.2s;">
+      <div class="glass-card p-8 rounded-[2rem] relative overflow-hidden group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'free' }, '*')">
+        <img src="${BRAND_LOGO}" class="plan-bg-logo" />
+        <div class="absolute top-0 right-0 bg-stone-200 text-stone-700 text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase">Sem pagamento antecipado</div>
+        <h3 class="text-2xl font-black mb-1 italic uppercase text-stone-800 mt-2">Teste Grátis</h3>
+        <p class="text-stone-500 mb-6 text-sm">Veja o seu site pronto hoje mesmo.</p>
+        <div class="text-4xl font-black mb-1 text-teal-600">R$ 0 <span class="text-sm text-stone-400 font-normal">/ 7 dias</span></div>
+        <p class="text-[11px] text-teal-500 font-bold mb-6">Todos os recursos disponíveis em qualquer plano.</p>
+        <ul class="space-y-3 text-stone-600 text-sm font-medium">
+          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-[10px]">✔</span> Geração por IA</li>
+          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-[10px]">✔</span> Domínio gratuito (.web.app)</li>
         </ul>
+        <div class="mt-6 text-[10px] text-stone-400 text-center uppercase tracking-widest font-bold group-hover:text-orange-500 transition-colors">Clique para ver regras</div>
       </div>
 
-      <div class="border-2 border-orange-500 bg-white rounded-3xl p-8 flex flex-col relative shadow-xl card-hover transition-all md:scale-105 h-[460px] z-10">
-        <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-orange-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-md">Mais Assinado</div>
-        <h3 class="text-xl font-black text-gray-900 mb-2 uppercase tracking-wide">Mensal</h3>
-        <p class="text-sm text-gray-500 mb-6 h-10">O essencial para manter seu negócio profissional.</p>
-        <div class="mb-6">
-          <span class="text-4xl font-black">R$ 49</span><span class="text-2xl font-black">,90</span>
-          <span class="text-gray-500 font-medium">/ mês</span>
-        </div>
-        <button onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'monthly' }, '*')" class="w-full py-3.5 rounded-xl btn-orange font-bold transition-all mb-6 shadow-lg shadow-orange-500/20">Assinar Mensal</button>
-        <ul class="space-y-3 text-sm text-gray-600 font-medium flex-1">
-          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Domínio próprio (.com.br)</li>
-          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Hospedagem Google</li>
-          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Suporte Prioritário</li>
+      <div class="glass-card p-8 rounded-[2rem] relative overflow-hidden group border-teal-200" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'monthly' }, '*')">
+        <img src="${BRAND_LOGO}" class="plan-bg-logo" />
+        <div class="absolute top-0 right-0 bg-teal-600 text-white text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase shadow-md">Mais Assinado</div>
+        <h3 class="text-2xl font-black mb-1 italic uppercase text-teal-600 mt-2">Mensal</h3>
+        <p class="text-stone-500 mb-6 text-sm">Ideal para validar seu negócio.</p>
+        <div class="text-4xl font-black mb-1 text-stone-900">R$ 49<span class="text-2xl">,90</span> <span class="text-sm text-stone-400 font-normal">/ mês</span></div>
+        <p class="text-[11px] text-stone-500 font-bold mb-6">Todos os recursos disponíveis em qualquer plano.</p>
+        <ul class="space-y-3 text-stone-600 text-sm font-medium">
+          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 text-[10px]">✔</span> Site online 24/7</li>
+          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 text-[10px]">✔</span> Domínio próprio (.com.br)</li>
         </ul>
+        <div class="mt-6 text-[10px] text-stone-400 text-center uppercase tracking-widest font-bold group-hover:text-orange-500 transition-colors">Clique para ver regras</div>
       </div>
 
-      <div class="border border-gray-200 bg-white rounded-3xl p-8 flex flex-col relative card-hover transition-all h-[420px]">
-        <div class="absolute top-4 right-4 text-teal-600 bg-teal-50 px-2.5 py-1 rounded text-xs font-black uppercase tracking-wider border border-teal-100">-16% OFF</div>
-        <h3 class="text-xl font-black text-gray-900 mb-2 uppercase tracking-wide">Anual</h3>
-        <p class="text-sm text-gray-500 mb-6 h-10">Economia e tranquilidade o ano todo.</p>
-        <div class="mb-6">
-          <span class="text-4xl font-black">R$ 499</span>
-          <span class="text-gray-500 font-medium">/ 1º ano</span>
+      <div class="glass-card p-8 rounded-[2rem] relative overflow-hidden border-orange-300 bg-white shadow-[0_20px_50px_-12px_rgba(249,115,22,0.15)] group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'annual' }, '*')">
+        <img src="${BRAND_LOGO}" class="plan-bg-logo" style="opacity: 0.06;" />
+        <div class="absolute top-0 right-0 bg-gradient-to-r from-orange-500 to-orange-400 text-white text-[10px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase flex gap-1.5 items-center justify-center shadow-lg">
+          <span class="leading-none">Mais Econômico</span>
         </div>
-        <button onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'annual' }, '*')" class="w-full py-3.5 rounded-xl border border-gray-300 text-gray-900 font-bold hover:border-teal-500 hover:text-teal-600 transition-all mb-6">Assinar Anual</button>
-        <ul class="space-y-3 text-sm text-gray-600 font-medium flex-1">
-          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-teal-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> 2 Meses Grátis</li>
-          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-teal-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg> Apontamento Exclusivo</li>
+        <h3 class="text-2xl font-black mb-1 italic uppercase text-orange-500 mt-2">Anual</h3>
+        <p class="text-stone-500 mb-6 text-sm">A solução definitiva e econômica.</p>
+        <div class="text-4xl font-black mb-1 text-stone-900">R$ 499 <span class="text-sm text-stone-400 font-normal">/ 1º ano</span></div>
+        <p class="text-[11px] text-orange-500 font-bold mb-6">Todos os recursos disponíveis em qualquer plano.</p>
+        <ul class="space-y-3 text-stone-600 text-sm font-medium">
+          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 text-[12px]">★</span> 2 meses grátis</li>
+          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 text-[12px]">★</span> Apontamento de Domínio</li>
         </ul>
+        <div class="mt-6 text-[10px] text-stone-400/80 text-center uppercase tracking-widest font-bold group-hover:text-orange-600 transition-colors">Clique para ver regras</div>
       </div>
     </div>
-  </section>
-
-  <footer class="bg-gray-900 text-white py-20 text-center px-6">
-    <div class="max-w-3xl mx-auto">
-      <h2 class="text-3xl md:text-4xl font-black mb-8 tracking-tight">Pronto para ter seu site no ar hoje?</h2>
-      <button onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'free' }, '*')" class="btn-orange px-8 py-4 rounded-xl font-bold text-lg inline-block shadow-lg shadow-orange-500/20">Começar Gratuitamente</button>
-      <p class="mt-8 text-gray-400 text-xs font-medium uppercase tracking-widest">© 2026 SiteZing. Desenvolvido com Inteligência Artificial.</p>
-    </div>
-  </footer>
+  </main>
 </body>
 </html>
 `;
@@ -410,15 +354,17 @@ const extractCustomImages = (html: string | null) => {
   return images;
 };
 
+// DOMÍNIOS DA PLATAFORMA QUE CARREGAM O EDITOR
 const BUILDER_DOMAINS = ['localhost', 'sitezing.com.br', 'www.sitezing.com.br', 'criador-de-site-1a91d.web.app', 'criador-de-site-1a91d.firebaseapp.com'];
 
 const App: React.FC = () => {
-  // INTERCEPTADOR DE SUBDOMÍNIO E DOMÍNIO CUSTOMIZADO
+  // INTERCEPTADOR DE SUBDOMÍNIO (WILDCARD) E DOMÍNIO CUSTOMIZADO
   const [isClientSiteView, setIsClientSiteView] = useState(false);
 
   useEffect(() => {
     const host = window.location.hostname.toLowerCase();
     
+    // Se a URL acessada NÃO for a raiz da plataforma, é o site de um cliente
     if (!BUILDER_DOMAINS.includes(host)) {
       setIsClientSiteView(true);
       const fetchSite = async () => {
@@ -432,9 +378,9 @@ const App: React.FC = () => {
           }
         } catch(error: any) {
           document.body.innerHTML = `
-            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; background:#f9fafb; color:#334155;">
-              <h1 style="font-size: 2rem; margin-bottom: 10px;">Oops!</h1>
-              <p>${error.message || 'Site não encontrado ou inativo.'}</p>
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; background:#FAFAF9; color:#1C1917;">
+              <h1 style="font-size: 2.5rem; margin-bottom: 10px; font-weight: 900;">Site Indisponível</h1>
+              <p style="color: #57534E;">${error.message || 'O site que você está procurando não existe ou foi suspenso.'}</p>
             </div>
           `;
         }
@@ -466,6 +412,7 @@ const App: React.FC = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [publishModalUrl, setPublishModalUrl] = useState<string | null>(null);
   const [officialDomain, setOfficialDomain] = useState('');
+  const [registerLater, setRegisterLater] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
   const [customDomainInput, setCustomDomainInput] = useState('');
@@ -528,10 +475,14 @@ const App: React.FC = () => {
     }
   }, [toast]);
 
+  // Se for o visitante vendo um site do cliente, congela a tela na animação de carregamento
   if (isClientSiteView) {
     return (
-      <div className="flex items-center justify-center h-screen bg-white">
-        <Loader2 className="animate-spin text-orange-500 w-12 h-12" />
+      <div className="flex items-center justify-center h-screen bg-[#FAFAF9]">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="animate-spin text-orange-500 w-10 h-10" />
+          <span className="text-stone-400 text-xs font-bold uppercase tracking-widest animate-pulse">Carregando Site...</span>
+        </div>
       </div>
     );
   }
@@ -649,7 +600,7 @@ const App: React.FC = () => {
         await updateFn({ targetId: currentProjectSlug, html: htmlToSave, formData, aiContent });
         showToast('Alterações salvas com sucesso!', 'success');
       } else {
-        // Validação agressiva de nome no primeiro salvamento
+        // Validação Agressiva no Back-end: Garante que não duplica
         const saveFn = httpsCallable(functions, 'saveSiteProject');
         const res: any = await saveFn({ 
             businessName: formData.businessName, 
@@ -664,6 +615,7 @@ const App: React.FC = () => {
       setHasUnsavedChanges(false);
       fetchProjects();
     } catch (err: any) { 
+      // Se der erro de already-exists (nome em uso), exibe na tela
       showToast(err.message.includes('já está em uso') ? err.message : 'Erro ao salvar o site.', 'error'); 
     } 
     finally { setIsSavingProject(false); }
@@ -844,61 +796,6 @@ const App: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* MODAL DE SUCESSO E AVISO DE ASSINATURA */}
-      <AnimatePresence>
-        {publishModalUrl && (
-          <div className="fixed inset-0 z-[100] bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-white border border-stone-200 p-8 rounded-3xl shadow-2xl max-w-md w-full text-center space-y-5 relative overflow-hidden"
-            >
-              <img src={BRAND_LOGO} className="absolute bottom-[-10%] left-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
-              <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-2 border border-emerald-100 relative z-10">
-                <CheckCircle size={32} />
-              </div>
-              <div className="relative z-10">
-                <h2 className="text-2xl font-bold text-stone-900 mb-2">
-                  {isUpdatePublish ? 'Publicação Atualizada!' : 'Seu site está no ar!'}
-                </h2>
-                <p className="text-stone-500 text-sm leading-relaxed">
-                  {isUpdatePublish ? 'As alterações já refletem no seu endereço online.' : 'A sua página já está online e com Certificado de Segurança SSL ativo.'}
-                </p>
-              </div>
-
-              {/* AVISO DO TEMPO DE TRIAL E BOTÃO PARA ASSINAR */}
-              {savedProjects.find(p => p.id === currentProjectSlug)?.paymentStatus !== 'paid' && (
-                <div className="bg-orange-50 border border-orange-200 p-5 rounded-2xl text-left relative z-10 shadow-sm mt-4">
-                   <h4 className="text-orange-800 font-black text-xs uppercase tracking-wider mb-2 flex items-center gap-2">
-                     <AlertCircle size={16} className="text-orange-500"/> Atenção ao Prazo
-                   </h4>
-                   <p className="text-[11px] text-orange-700/90 leading-relaxed font-medium mb-4">
-                     O seu site está em <b>período de teste gratuito por 7 dias</b>. Se a assinatura premium não for ativada até o final do prazo, o site será congelado e sairá do ar automaticamente.
-                   </p>
-                   <button 
-                     onClick={() => {
-                       setPublishModalUrl(null);
-                       setActiveTab('assinatura');
-                     }} 
-                     className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-bold text-xs shadow-lg shadow-orange-500/20 transition-all uppercase tracking-wider flex items-center justify-center gap-2"
-                   >
-                     <Zap size={14}/> Ativar Plano Premium
-                   </button>
-                </div>
-              )}
-
-              <div className="bg-stone-50 p-3 rounded-xl border border-stone-200 flex items-center justify-between gap-3 overflow-hidden relative z-10 mt-2">
-                <code className="text-teal-600 text-sm truncate flex-1 font-mono">{publishModalUrl}</code>
-              </div>
-              <div className="flex gap-3 pt-2 relative z-10">
-                <button onClick={() => { navigator.clipboard.writeText(publishModalUrl); showToast('Link copiado!', 'success'); }} className="flex-1 bg-white hover:bg-stone-50 text-stone-700 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors border border-stone-200 shadow-sm"><Copy size={18} /> Copiar Link</button>
-                <button onClick={() => window.open(publishModalUrl, '_blank')} className="flex-1 bg-teal-600 hover:bg-teal-500 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-teal-500/20"><ExternalLink size={18} /> Abrir Site</button>
-              </div>
-              <button onClick={() => setPublishModalUrl(null)} className="text-stone-400 hover:text-stone-600 font-bold uppercase tracking-widest text-[10px] mt-2 block w-full transition-colors relative z-10">Fechar janela</button>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
       {/* MODAL AMPLO DE INSTRUÇÕES DNS */}
       <AnimatePresence>
         {isDnsModalOpen && currentProjectSlug && (() => {
@@ -951,8 +848,8 @@ const App: React.FC = () => {
                       <div className="col-span-4 font-mono text-stone-800 font-bold">www</div>
                       <div className="col-span-2 font-black text-stone-800">CNAME</div>
                       <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
-                        <span className="font-mono text-teal-700 font-bold select-all truncate">{currentProjectSlug}.sitezing.com.br</span>
-                        <button onClick={() => { navigator.clipboard.writeText(`${currentProjectSlug}.sitezing.com.br`); showToast('Destino copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100 shrink-0 ml-2"><Copy size={14}/> Copiar</button>
+                        <span className="font-mono text-teal-700 font-bold select-all truncate">sitezing.com.br</span>
+                        <button onClick={() => { navigator.clipboard.writeText(`sitezing.com.br`); showToast('Destino copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100 shrink-0 ml-2"><Copy size={14}/> Copiar</button>
                       </div>
                     </div>
 
@@ -1294,18 +1191,36 @@ const App: React.FC = () => {
                                   </div>
 
                                   {!isDomainActive && (
-                                    <div className="bg-orange-50 border border-orange-200 p-4 sm:p-5 rounded-2xl flex flex-col items-center justify-center text-center space-y-3">
-                                      <Settings className="text-orange-400 w-8 h-8" />
+                                    <div className="bg-orange-50 border border-orange-200 p-4 sm:p-5 rounded-2xl flex flex-col space-y-4">
                                       <div>
-                                        <h4 className="text-sm font-black text-orange-800">Finalize a Configuração DNS</h4>
-                                        <p className="text-[11px] text-orange-700/80 mt-1">Para o site funcionar, você precisa adicionar alguns dados no seu provedor de domínio.</p>
+                                        <h4 className="text-xs font-black text-orange-800 uppercase tracking-wider flex items-center gap-2 mb-1"><Settings size={16} className="text-orange-500" /> Configuração DNS</h4>
+                                        <p className="text-[11px] text-orange-700/80 leading-relaxed font-medium">Acesse o seu provedor de domínio (ex: Registro.br) e adicione os registros abaixo. <br/><span className="italic">*Se houver apontamentos antigos do tipo A ou CNAME, exclua-os.</span></p>
                                       </div>
-                                      <button 
-                                        onClick={() => setIsDnsModalOpen(true)}
-                                        className="mt-2 bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-colors shadow-lg shadow-orange-500/20"
-                                      >
-                                        Abrir Instruções de Apontamento
-                                      </button>
+
+                                      {/* Layout DNS Moderno (Cards Empilhados para evitar esmagamento) */}
+                                      <div className="space-y-3">
+                                        <div className="bg-white rounded-xl p-3.5 border border-orange-200/60 shadow-sm transition-all hover:border-teal-300">
+                                          <div className="flex justify-between items-center mb-2">
+                                            <span className="font-black text-stone-800 uppercase tracking-widest text-[10px]">TIPO A</span>
+                                            <span className="text-[10px] text-stone-400 italic">Nome: @ (Em branco)</span>
+                                          </div>
+                                          <div className="flex justify-between items-center bg-stone-50 border border-stone-200 px-3 py-2 rounded-lg">
+                                            <span className="font-mono text-teal-700 font-bold select-all text-sm">199.36.158.100</span>
+                                            <button onClick={() => { navigator.clipboard.writeText('199.36.158.100'); showToast('IP copiado!', 'success'); }} className="text-stone-400 hover:text-teal-600 transition-colors"><Copy size={16}/></button>
+                                          </div>
+                                        </div>
+
+                                        <div className="bg-white rounded-xl p-3.5 border border-orange-200/60 shadow-sm transition-all hover:border-teal-300">
+                                          <div className="flex justify-between items-center mb-2">
+                                            <span className="font-black text-stone-800 uppercase tracking-widest text-[10px]">CNAME (WWW)</span>
+                                            <span className="text-[10px] text-stone-400 italic">Nome: www</span>
+                                          </div>
+                                          <div className="flex justify-between items-center bg-stone-50 border border-stone-200 px-3 py-2 rounded-lg">
+                                            <span className="font-mono text-teal-700 font-bold select-all text-sm truncate">sitezing.com.br</span>
+                                            <button onClick={() => { navigator.clipboard.writeText(`sitezing.com.br`); showToast('Destino copiado!', 'success'); }} className="text-stone-400 hover:text-teal-600 transition-colors ml-2 shrink-0"><Copy size={16}/></button>
+                                          </div>
+                                        </div>
+                                      </div>
                                     </div>
                                   )}
 
