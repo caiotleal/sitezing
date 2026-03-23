@@ -6,9 +6,6 @@ const admin = require("firebase-admin");
 const { GoogleAuth } = require("google-auth-library");
 const { onRequest } = require("firebase-functions/v2/https");
 
-// ============================================================================
-// CONFIGURAÇÃO DA STRIPE
-// ============================================================================
 const stripe = require("stripe")("sk_test_51T3iV5LK0sp6cEMAbpSV1cM4MGESQ9s3EOffFfpUuiU0cbinuy64HCekpoyfAuWZy1gemNFcSpgF1cKPgHDM3pf500vcGP7tGW");
 
 if (!admin.apps.length) admin.initializeApp();
@@ -42,77 +39,75 @@ async function getFirebaseAccessToken() {
 // ============================================================================
 async function ensureRouterSiteReady() {
   const projectId = getProjectId();
-  const masterSite = `${projectId}-router`; // Este será o nosso site coringa
+  const masterSite = `${projectId}-router`; 
   const token = await getFirebaseAccessToken();
 
   try {
-    // 1. Tenta criar o site roteador (se já existir, a API apenas ignora com erro 409)
     await fetch(`https://firebasehosting.googleapis.com/v1beta1/projects/${projectId}/sites?siteId=${masterSite}`, {
       method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ type: "USER_SITE" }),
     });
 
-    // 2. Sobrepõe uma versão garantindo que TUDO (**) vá para a Cloud Function 'servesite'
     const createVersion = await fetch(`https://firebasehosting.googleapis.com/v1beta1/sites/${masterSite}/versions`, {
       method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        config: { rewrites: [{ glob: "**", function: "servesite" }] }
-      }),
+      body: JSON.stringify({ config: { rewrites: [{ glob: "**", function: "servesite" }] } }),
     });
     const version = await createVersion.json();
 
-    // 3. Finaliza
     await fetch(`https://firebasehosting.googleapis.com/v1beta1/${version.name}?updateMask=status`, {
       method: "PATCH", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ status: "FINALIZED" }),
     });
 
-    // 4. Lança para o ar
     await fetch(`https://firebasehosting.googleapis.com/v1beta1/sites/${masterSite}/releases?versionName=${encodeURIComponent(version.name)}`, {
       method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ message: "Roteador Multi-Tenant Master Ativo" }),
     });
-  } catch (error) {
-    console.error("[ROUTER SETUP ERROR]:", error);
-  }
+  } catch (error) { console.error("[ROUTER SETUP ERROR]:", error); }
 
   return masterSite;
 }
 
 // A CLOUD FUNCTION QUE INTERCEPTA E RENDERIZA TODOS OS SITES DO MUNDO
 exports.servesite = onRequest({ cors: true, timeoutSeconds: 15, memory: "256MiB" }, async (req, res) => {
-  const host = req.hostname.replace(/^www\./, '').toLowerCase();
-  const db = admin.firestore();
-
   try {
+    const host = req.hostname.replace(/^www\./, '').toLowerCase();
+    const db = admin.firestore();
     let projectSnap;
 
-    // Se estiver acessando pela URL gratuita gerada pelo Roteador (ex: criador-router.web.app/slug)
-    if (host.includes('web.app') || host.includes('firebaseapp.com')) {
-      const slug = req.path.split('/')[1]; // Pega o que vem depois da barra
-      if (!slug) return res.status(200).send("<h1>SiteZing Roteador Global Ativo 🚀</h1>");
-      
+    // 1. Domínio da plataforma (ex: eletricista.sitezing.com.br)
+    if (host.includes('sitezing.com.br')) {
+      const slug = host.split('.')[0]; 
+      if (!slug || slug === 'sitezing' || slug === 'www') {
+        return res.status(200).send("<h1>SiteZing Master Roteador Ativo 🚀</h1>");
+      }
       projectSnap = await db.collectionGroup("projects").where("projectSlug", "==", slug).limit(1).get();
-    } else {
-      // Se for domínio oficial configurado (ex: casacaiu.com.br)
+    } 
+    // 2. URL Fallback do Firebase (ex: roteador.web.app/eletricista)
+    else if (host.includes('web.app') || host.includes('firebaseapp.com')) {
+      const slug = req.path.split('/')[1]; 
+      if (!slug) return res.status(200).send("<h1>SiteZing Cloud Roteador Ativo 🚀</h1>");
+      projectSnap = await db.collectionGroup("projects").where("projectSlug", "==", slug).limit(1).get();
+    } 
+    // 3. Domínio Customizado do Cliente (ex: casacaiu.com.br)
+    else {
       projectSnap = await db.collectionGroup("projects").where("officialDomain", "==", host).limit(1).get();
     }
 
-    if (projectSnap.empty) {
-      return res.status(404).send("<html><body style='text-align:center; padding:50px; font-family:sans-serif;'><h1>404 - Site não encontrado</h1><p>Esta página não existe ou não foi publicada.</p></body></html>");
+    if (!projectSnap || projectSnap.empty) {
+      return res.status(404).send("<html><body style='text-align:center; padding:50px; font-family:sans-serif;'><h1>404 - Site não encontrado</h1><p>Verifique o endereço e tente novamente.</p></body></html>");
     }
 
     const project = projectSnap.docs[0].data();
 
     if (project.status === "frozen") {
-      return res.status(403).send("<html><body style='text-align:center; padding:50px; font-family:sans-serif; background:#FFF7ED; color:#9A3412;'><h1>Site Suspenso</h1><p>O serviço encontra-se temporariamente inativo.</p></body></html>");
+      return res.status(403).send("<html><body style='text-align:center; padding:50px; font-family:sans-serif; background:#FFF7ED; color:#9A3412;'><h1>Site Temporariamente Inativo</h1><p>O administrador deste site precisa renovar o plano.</p></body></html>");
     }
 
-    // Sucesso absoluto: Devolve o HTML direto da veia
     res.status(200).send(project.generatedHtml);
   } catch (error) {
     console.error("Router error:", error);
-    res.status(500).send("Erro interno no Roteador.");
+    res.status(500).send(`Erro interno no Roteador: ${error.message}`);
   }
 });
 
@@ -202,9 +197,10 @@ exports.publishUserProject = onCall({ cors: true }, async (request) => {
 
     if (project.status === "frozen") throw new HttpsError("permission-denied", "Site congelado. Renove o plano.");
 
-    // Garante o Roteador e pega a URL Free
-    const masterSite = await ensureRouterSiteReady();
-    const publicUrl = `https://${masterSite}.web.app/${project.projectSlug}`;
+    await ensureRouterSiteReady();
+    
+    // GERA A URL COM O DOMÍNIO DA PLATAFORMA
+    const publicUrl = `https://${project.projectSlug}.sitezing.com.br`;
 
     const isPaidProject = project.paymentStatus === "paid";
     let nextExpiresAt = project.expiresAt || null;
@@ -215,7 +211,6 @@ exports.publishUserProject = onCall({ cors: true }, async (request) => {
       nextExpiresAt = admin.firestore.Timestamp.fromDate(trialExpiration);
     }
 
-    // Deploy instantâneo (só atualiza o banco)
     await ref.set({
       published: true, 
       publishUrl: publicUrl, 
@@ -238,7 +233,6 @@ exports.deleteUserProject = onCall({ cors: true }, async (request) => {
 
   if (snap.exists) {
     const project = snap.data();
-    // Limpa o domínio do Roteador Master se existir
     if (project.officialDomain && project.officialDomain !== "Pendente") {
       try {
         const projectIdEnv = getProjectId();
@@ -254,7 +248,7 @@ exports.deleteUserProject = onCall({ cors: true }, async (request) => {
 });
 
 // ==============================================================================
-// GESTÃO DE DOMÍNIOS PERSONALIZADOS E DNS (NO ROTEADOR MASTER)
+// GESTÃO DE DOMÍNIOS PERSONALIZADOS (NO ROTEADOR MASTER)
 // ==============================================================================
 exports.addCustomDomain = onCall({ cors: true, timeoutSeconds: 60 }, async (request) => {
   const uid = ensureAuthed(request);
@@ -264,7 +258,7 @@ exports.addCustomDomain = onCall({ cors: true, timeoutSeconds: 60 }, async (requ
 
   try {
     const projectIdEnv = getProjectId();
-    const masterSite = `${projectIdEnv}-router`; // Pendura TODOS os domínios aqui
+    const masterSite = `${projectIdEnv}-router`; 
     const token = await getFirebaseAccessToken();
     const cleanDomain = domain.trim().toLowerCase();
 
@@ -368,7 +362,7 @@ exports.createStripeCheckoutSession = onCall({ cors: true }, async (request) => 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription", payment_method_types: ["card"],
     line_items: [{
-      price_data: { currency: "brl", product_data: { name: `SiteCraft - Plano ${isAnual ? 'Anual' : 'Mensal'}`, description: isAnual ? "Hospedagem e manutenção por 12 meses" : "Hospedagem e manutenção mensal" }, unit_amount: amount, recurring: { interval: isAnual ? "year" : "month" } },
+      price_data: { currency: "brl", product_data: { name: `SiteZing - Plano ${isAnual ? 'Anual' : 'Mensal'}`, description: isAnual ? "Hospedagem e manutenção por 12 meses" : "Hospedagem e manutenção mensal" }, unit_amount: amount, recurring: { interval: isAnual ? "year" : "month" } },
       quantity: 1
     }],
     metadata: { planType: isAnual ? 'anual' : 'mensal' }, locale: "pt-BR", client_reference_id: projectId,
