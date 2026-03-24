@@ -36,11 +36,23 @@ export const TEMPLATES: Record<string, string> = {
         .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
         .btn-contact-premium { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-contact-premium:hover { transform: scale(1.05); opacity: 0.9; }
+        
         @media (max-width: 768px) {
-           .glass-social-links-premium { gap: 10px; }
-           .glass-social-link { font-size: 1.1rem; }
-           .glass-logo-premium img { max-height: 28px !important; }
+            .glass-container-premium { 
+                display: flex !important; 
+                flex-direction: column !important; 
+                justify-content: center !important;
+                align-items: center !important;
+                padding: 10px !important;
+                gap: 5px !important;
+            }
+            .glass-logo-premium { justify-content: center !important; margin-bottom: 2px !important; }
+            .glass-actions-premium { justify-content: center !important; width: 100% !important; gap: 10px !important; }
+            .glass-social-links-premium { gap: 10px !important; }
+            .glass-social-link { font-size: 1.1rem !important; }
+            .glass-logo-premium img { max-height: 28px !important; }
         }
+
       </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>
     <body class="antialiased flex flex-col min-h-screen">
@@ -141,11 +153,23 @@ export const TEMPLATES: Record<string, string> = {
         .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
         .btn-contact-premium { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-contact-premium:hover { transform: scale(1.05); opacity: 0.9; }
+        
         @media (max-width: 768px) {
-           .glass-social-links-premium { gap: 10px; }
-           .glass-social-link { font-size: 1.1rem; }
-           .glass-logo-premium img { max-height: 28px !important; }
+            .glass-container-premium { 
+                display: flex !important; 
+                flex-direction: column !important; 
+                justify-content: center !important;
+                align-items: center !important;
+                padding: 10px !important;
+                gap: 5px !important;
+            }
+            .glass-logo-premium { justify-content: center !important; margin-bottom: 2px !important; }
+            .glass-actions-premium { justify-content: center !important; width: 100% !important; gap: 10px !important; }
+            .glass-social-links-premium { gap: 10px !important; }
+            .glass-social-link { font-size: 1.1rem !important; }
+            .glass-logo-premium img { max-height: 28px !important; }
         }
+
       </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>
     <body class="antialiased flex flex-col min-h-screen">
@@ -241,11 +265,23 @@ export const TEMPLATES: Record<string, string> = {
         .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
         .btn-contact-premium { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-contact-premium:hover { transform: scale(1.05); opacity: 0.9; }
+        
         @media (max-width: 768px) {
-           .glass-social-links-premium { gap: 10px; }
-           .glass-social-link { font-size: 1.1rem; }
-           .glass-logo-premium img { max-height: 28px !important; }
+            .glass-container-premium { 
+                display: flex !important; 
+                flex-direction: column !important; 
+                justify-content: center !important;
+                align-items: center !important;
+                padding: 10px !important;
+                gap: 5px !important;
+            }
+            .glass-logo-premium { justify-content: center !important; margin-bottom: 2px !important; }
+            .glass-actions-premium { justify-content: center !important; width: 100% !important; gap: 10px !important; }
+            .glass-social-links-premium { gap: 10px !important; }
+            .glass-social-link { font-size: 1.1rem !important; }
+            .glass-logo-premium img { max-height: 28px !important; }
         }
+
       </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>
     <body class="antialiased p-4 md:p-8 min-h-screen flex flex-col relative">
@@ -350,11 +386,23 @@ export const TEMPLATES: Record<string, string> = {
         .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
         .btn-contact-premium { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-contact-premium:hover { transform: scale(1.05); opacity: 0.9; }
+        
         @media (max-width: 768px) {
-           .glass-social-links-premium { gap: 10px; }
-           .glass-social-link { font-size: 1.1rem; }
-           .glass-logo-premium img { max-height: 28px !important; }
+            .glass-container-premium { 
+                display: flex !important; 
+                flex-direction: column !important; 
+                justify-content: center !important;
+                align-items: center !important;
+                padding: 10px !important;
+                gap: 5px !important;
+            }
+            .glass-logo-premium { justify-content: center !important; margin-bottom: 2px !important; }
+            .glass-actions-premium { justify-content: center !important; width: 100% !important; gap: 10px !important; }
+            .glass-social-links-premium { gap: 10px !important; }
+            .glass-social-link { font-size: 1.1rem !important; }
+            .glass-logo-premium img { max-height: 28px !important; }
         }
+
       </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>
     <body class="antialiased flex flex-col min-h-screen">
@@ -452,11 +500,23 @@ export const TEMPLATES: Record<string, string> = {
         .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
         .btn-contact-premium { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-contact-premium:hover { transform: scale(1.05); opacity: 0.9; }
+        
         @media (max-width: 768px) {
-           .glass-social-links-premium { gap: 10px; }
-           .glass-social-link { font-size: 1.1rem; }
-           .glass-logo-premium img { max-height: 28px !important; }
+            .glass-container-premium { 
+                display: flex !important; 
+                flex-direction: column !important; 
+                justify-content: center !important;
+                align-items: center !important;
+                padding: 10px !important;
+                gap: 5px !important;
+            }
+            .glass-logo-premium { justify-content: center !important; margin-bottom: 2px !important; }
+            .glass-actions-premium { justify-content: center !important; width: 100% !important; gap: 10px !important; }
+            .glass-social-links-premium { gap: 10px !important; }
+            .glass-social-link { font-size: 1.1rem !important; }
+            .glass-logo-premium img { max-height: 28px !important; }
         }
+
       </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>
     <body class="antialiased">
