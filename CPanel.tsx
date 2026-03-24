@@ -247,6 +247,15 @@ const CPanel: React.FC = () => {
     </div>
   );
 
+  if (view === 'platform' && !platformConfigs) return (
+    <div className="flex-1 flex items-center justify-center h-full">
+      <div className="flex flex-col items-center gap-3">
+        <Loader2 className="w-10 h-10 animate-spin text-purple-500" />
+        <p className="text-[10px] font-bold text-stone-300 uppercase tracking-widest">Carregando Configurações...</p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-[#FBFBFA] text-[#1C1917] flex font-[Inter]">
       <aside className="w-72 bg-white border-r border-stone-200 h-screen sticky top-0 flex flex-col">
@@ -265,7 +274,7 @@ const CPanel: React.FC = () => {
           <button onClick={() => setView('domains')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'domains' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
             <Globe size={18} /> Domínios
           </button>
-          <button onClick={() => setView('platform')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'platform' ? 'bg-orange-50 text-orange-600' : 'text-stone-Stone-500 hover:bg-stone-50'}`}>
+          <button onClick={() => setView('platform')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'platform' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
             <Layout size={18} /> Plataforma
           </button>
           <button onClick={() => setView('settings')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'settings' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>

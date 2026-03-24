@@ -233,9 +233,13 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
   
   // Banner de Marketing
   if (platformConfigs.marketing?.bannerActive && platformConfigs.marketing?.bannerText) {
-    const bannerColor = platformConfigs.marketing.bannerType === 'warning' ? '#f59e0b' : '#3b82f6';
+    let bannerColor = '#3b82f6'; // info (default blue)
+    if (platformConfigs.marketing.bannerType === 'warning') bannerColor = '#f59e0b'; // orange
+    if (platformConfigs.marketing.bannerType === 'christmas') bannerColor = '#ef4444'; // red
+    if (platformConfigs.marketing.bannerType === 'black-friday') bannerColor = '#1c1917'; // stone-900
+    
     const bannerHtml = `
-      <div style="background: ${bannerColor}; color: white; text-align: center; padding: 12px; font-weight: 900; font-size: 14px; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-transform: uppercase; letter-spacing: 1px;">
+      <div style="background: ${bannerColor}; color: white; text-align: center; padding: 12px; font-weight: 900; font-size: 14px; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-transform: uppercase; letter-spacing: 1px; line-height: 1.2;">
         ${platformConfigs.marketing.bannerText}
       </div>
     `;
@@ -247,8 +251,8 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
         body { padding-top: 44px !important; }
       </style>
     `;
-    html = html.replace('</head>', `${bannerStyles}</head>`);
-    html = html.replace('<body>', `<body>${bannerHtml}`);
+    html = html.replace(/<\/head>/i, `${bannerStyles}</head>`);
+    html = html.replace(/<body[^>]*>/i, (match) => `${match}${bannerHtml}`);
   }
 
   return html;
