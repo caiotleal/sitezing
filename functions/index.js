@@ -70,7 +70,19 @@ exports.getSiteContent = onCall({ cors: true }, async (request) => {
     throw new HttpsError("permission-denied", "Este site encontra-se temporariamente suspenso.");
   }
 
-  return { html: project.generatedHtml };
+  let html = project.generatedHtml || "";
+
+  // Injeção de CSS Manual (Zing! Instant)
+  if (project.manualCss) {
+    const styleTag = `<style id="admin-manual-css">${project.manualCss}</style>`;
+    if (html.includes('</head>')) {
+      html = html.replace('</head>', `${styleTag}</head>`);
+    } else {
+      html = styleTag + html;
+    }
+  }
+
+  return { html };
 });
 
 // ============================================================================
@@ -621,6 +633,30 @@ exports.updateProjectAdminManual = onCall({ cors: true }, async (request) => {
 /**
  * GESTÃO DE CONFIGURAÇÕES GLOBAIS (ADMIN)
  */
+/**
+ * CONFIGURAÇÕES PÚBLICAS (Acesso Geral)
+ */
+exports.getPlatformConfigsPublic = onCall({ cors: true }, async (request) => {
+  const db = admin.firestore();
+  try {
+    const configDoc = await db.collection("configs").doc("platform").get();
+    if (!configDoc.exists) {
+      return {
+        pricing: { mensal: 49.90, anual: 499.00 },
+        marketing: { bannerActive: false, bannerText: "", bannerType: "info" }
+      };
+    }
+    const data = configDoc.data();
+    // NÃO RETORNA STRIPE KEYS OU LEGAL EM CONFIG PÚBLICA (Segurança)
+    return {
+      pricing: data.pricing || { mensal: 49.90, anual: 499.00 },
+      marketing: data.marketing || { bannerActive: false, bannerText: "", bannerType: "info" }
+    };
+  } catch (error) {
+    return { pricing: { mensal: 49.90, anual: 499.00 }, marketing: { bannerActive: false } };
+  }
+});
+
 exports.getPlatformConfigs = onCall({ cors: true }, async (request) => {
   if (request.auth?.token?.email !== ADMIN_EMAIL) {
     throw new HttpsError("permission-denied", "Acesso restrito ao administrador.");

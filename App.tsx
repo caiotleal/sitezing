@@ -102,18 +102,9 @@ const PROMO_HTML = `
           dummy.select();
           document.execCommand('copy');
           document.body.removeChild(dummy);
-          alert('Link da SiteZing copiado!');
+          alert('Link copiado para a área de transferência!');
         }
       } catch (err) { console.log('Erro ao compartilhar:', err); }
-    }
-
-    function sharePlan(plan) {
-      event.stopPropagation();
-      let msg = "Confira este plano na SiteZing: ";
-      if (plan === 'free') msg = "Tenha seu site online sem gastar nada por 7 dias! Teste a SiteZing hoje.";
-      if (plan === 'monthly') msg = "Site profissional por apenas R$49,90/mês na SiteZing. Confira!";
-      if (plan === 'annual') msg = "O melhor custo-benefício! Site profissional por R$499/ano na SiteZing.";
-      zingShare(msg);
     }
   </script>
 </head>
@@ -223,6 +214,45 @@ const PROMO_HTML = `
 </body>
 </html>
 `;
+
+const getDynamicPromoHtml = (platformConfigs: any) => {
+  if (!platformConfigs) return PROMO_HTML;
+
+  let html = PROMO_HTML;
+  // Preços Mensal
+  if (platformConfigs.pricing?.mensal) {
+    const val = platformConfigs.pricing.mensal.toString().split('.');
+    const integer = val[0];
+    const decimal = val[1] || '00';
+    html = html.replace(/R\$ 49<span class="text-2xl">,90<\/span>/g, `R$ ${integer}<span class="text-2xl">,${decimal}</span>`);
+  }
+  // Preços Anual
+  if (platformConfigs.pricing?.anual) {
+    html = html.replace(/R\$ 499/g, `R$ ${platformConfigs.pricing.anual}`);
+  }
+  
+  // Banner de Marketing
+  if (platformConfigs.marketing?.bannerActive && platformConfigs.marketing?.bannerText) {
+    const bannerColor = platformConfigs.marketing.bannerType === 'warning' ? '#f59e0b' : '#3b82f6';
+    const bannerHtml = `
+      <div style="background: ${bannerColor}; color: white; text-align: center; padding: 12px; font-weight: 900; font-size: 14px; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-transform: uppercase; letter-spacing: 1px;">
+        ${platformConfigs.marketing.bannerText}
+      </div>
+    `;
+    // Ajustar layout do header para o banner
+    const bannerStyles = `
+      <style>
+        header { top: 44px !important; }
+        main { padding-top: calc(8rem + 44px) !important; }
+        body { padding-top: 44px !important; }
+      </style>
+    `;
+    html = html.replace('</head>', `${bannerStyles}</head>`);
+    html = html.replace('<body>', `<body>${bannerHtml}`);
+  }
+
+  return html;
+};
 
 const cleanHtmlForPublishing = (rawHtml: string | null, preserveEditable = false) => {
   if (!rawHtml) return '';
@@ -510,6 +540,7 @@ const App: React.FC = () => {
   const [customDomainInput, setCustomDomainInput] = useState('');
   const [isLinkingDomain, setIsLinkingDomain] = useState(false);
   const [isVerifyingDomain, setIsVerifyingDomain] = useState(false);
+  const [platformConfigs, setPlatformConfigs] = useState<any>(null);
   const [isDnsModalOpen, setIsDnsModalOpen] = useState(false);
 
   const [toast, setToast] = useState<{message: string, type: 'success'|'error'|'info'|'warning'} | null>(null);
@@ -590,6 +621,19 @@ const App: React.FC = () => {
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, []);
+
+  useEffect(() => {
+    const fetchConfigs = async () => {
+      try {
+        const getConfigs = httpsCallable(functions, 'getPlatformConfigsPublic');
+        const res: any = await getConfigs();
+        setPlatformConfigs(res.data);
+      } catch (e) {
+        console.error("Erro ao buscar configs publicas:", e);
+      }
+    };
+    if (!isClientSiteView) fetchConfigs();
+  }, [isClientSiteView]);
 
   useEffect(() => {
     if (!generatedHtml && !currentProjectSlug && !isClientSiteView) {
@@ -1423,7 +1467,7 @@ const App: React.FC = () => {
         
         <div className="flex-1 relative h-full overflow-hidden bg-[#FAFAF9]">
           <iframe 
-            srcDoc={generatedHtml ? getPreviewHtml(generatedHtml) : PROMO_HTML} 
+            srcDoc={generatedHtml ? getPreviewHtml(generatedHtml) : getDynamicPromoHtml(platformConfigs)} 
             className="w-full h-full border-none bg-transparent" 
             title="Visão Principal" 
           />
@@ -1511,6 +1555,11 @@ const App: React.FC = () => {
                           {!isPaid && (
                             <span className="absolute top-3 right-2 flex h-2 w-2"><span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${daysLeft > 0 ? 'bg-yellow-400' : 'bg-red-400'}`}></span><span className={`relative inline-flex rounded-full h-2 w-2 ${daysLeft > 0 ? 'bg-yellow-500' : 'bg-red-500'}`}></span></span>
                           )}
+                        </button>
+                      )}
+                      {loggedUserEmail === 'caiotleal@gmail.com' && (
+                        <button onClick={() => setActiveTab('plataforma')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors ${activeTab === 'plataforma' ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
+                          Plataforma
                         </button>
                       )}
                     </div>
@@ -1848,6 +1897,90 @@ const App: React.FC = () => {
                     </div>
                   )}
 
+                  {activeTab === 'plataforma' && loggedUserEmail === 'caiotleal@gmail.com' && (
+                    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300 pb-10">
+                      <div className="bg-purple-50 border border-purple-100 p-5 rounded-2xl relative overflow-hidden shadow-sm">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-purple-100 blur-[50px] rounded-full pointer-events-none opacity-50"></div>
+                        <h3 className="text-sm font-black text-purple-700 mb-1 flex items-center gap-2"><Settings size={16} /> Configurações Globais</h3>
+                        <p className="text-[10px] text-purple-600/70 uppercase font-bold tracking-widest mb-6">Controle preços, banners e branding</p>
+
+                        <div className="space-y-5 relative z-10">
+                          {/* PREÇOS */}
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2"><CreditCard size={12}/> Tabela de Preços (Stripe)</label>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <span className="text-[9px] font-extrabold text-stone-500 uppercase">Mensal (R$)</span>
+                                <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-sm font-black text-stone-800 focus:border-purple-400 outline-none" value={platformConfigs?.pricing?.mensal || ''} onChange={e => setPlatformConfigs({...platformConfigs, pricing: {...platformConfigs.pricing, mensal: e.target.value}})} />
+                              </div>
+                              <div className="space-y-1">
+                                <span className="text-[9px] font-extrabold text-stone-500 uppercase">Anual (R$)</span>
+                                <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-sm font-black text-stone-800 focus:border-purple-400 outline-none" value={platformConfigs?.pricing?.anual || ''} onChange={e => setPlatformConfigs({...platformConfigs, pricing: {...platformConfigs.pricing, anual: e.target.value}})} />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* BANNERS */}
+                          <div className="space-y-3 pt-4 border-t border-purple-100">
+                             <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2"><Zap size={12}/> Banner de Marketing (Topo)</label>
+                             <div className="bg-white border border-stone-200 rounded-xl p-4 space-y-4">
+                                <label className="flex items-center justify-between text-xs font-bold text-stone-600">
+                                   <span>Banner Ativo?</span>
+                                   <input type="checkbox" checked={platformConfigs?.marketing?.bannerActive || false} onChange={e => setPlatformConfigs({...platformConfigs, marketing: {...platformConfigs.marketing, bannerActive: e.target.checked}})} className="accent-purple-500 w-4 h-4" />
+                                </label>
+                                <div className="space-y-1">
+                                   <span className="text-[9px] font-extrabold text-stone-500 uppercase">Texto do Banner</span>
+                                   <input className="w-full bg-stone-50 border border-stone-200 rounded-lg p-2.5 text-xs text-stone-700 focus:border-purple-400 outline-none" placeholder="Ex: Black Friday: 50% OFF!" value={platformConfigs?.marketing?.bannerText || ''} onChange={e => setPlatformConfigs({...platformConfigs, marketing: {...platformConfigs.marketing, bannerText: e.target.value}})} />
+                                </div>
+                                <div className="space-y-1">
+                                   <span className="text-[9px] font-extrabold text-stone-500 uppercase">Tipo / Cor</span>
+                                   <select className="w-full bg-stone-50 border border-stone-200 rounded-lg p-2.5 text-xs text-stone-700 outline-none" value={platformConfigs?.marketing?.bannerType || 'info'} onChange={e => setPlatformConfigs({...platformConfigs, marketing: {...platformConfigs.marketing, bannerType: e.target.value}})}>
+                                      <option value="info">Azul (Informação)</option>
+                                      <option value="warning">Laranja (Destaque)</option>
+                                   </select>
+                                </div>
+                             </div>
+                          </div>
+
+                          {/* CHAVES DE CONEXÃO */}
+                          <div className="space-y-3 pt-4 border-t border-purple-100">
+                             <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2"><ShieldCheck size={12}/> Chave Stripe Production</label>
+                             <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-[10px] font-mono text-stone-500 focus:border-purple-400 outline-none" placeholder="sk_live_..." type="password" value={platformConfigs?.stripe?.secretKey || ''} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, secretKey: e.target.value}})} />
+                             <p className="text-[9px] text-stone-400 italic">Cuidado: Alterar esta chave pode quebrar os pagamentos atuais.</p>
+                          </div>
+
+                          {/* TERMOS E LEGAL */}
+                          <div className="space-y-3 pt-4 border-t border-purple-100">
+                             <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2"><FileText size={12}/> Conteúdo Institucional</label>
+                             <div className="space-y-1">
+                                <span className="text-[9px] font-extrabold text-stone-500 uppercase">Termos de Uso (Texto)</span>
+                                <textarea className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs text-stone-700 h-24 resize-none outline-none focus:border-purple-400" placeholder="Digite os termos de uso aqui..." value={platformConfigs?.legal?.terms || ''} onChange={e => setPlatformConfigs({...platformConfigs, legal: {...platformConfigs.legal, terms: e.target.value}})} />
+                             </div>
+                          </div>
+
+                          <button 
+                            onClick={async () => {
+                              try {
+                                setIsSavingProject(true);
+                                const upFn = httpsCallable(functions, 'updatePlatformConfigs');
+                                await upFn(platformConfigs);
+                                showToast("Configurações da Plataforma Atualizadas!", "success");
+                              } catch (e: any) {
+                                console.error(e);
+                                showToast("Erro ao salvar: " + e.message, "error");
+                              } finally {
+                                setIsSavingProject(false);
+                              }
+                            }}
+                            className="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2"
+                          >
+                             {isSavingProject ? <Loader2 className="animate-spin w-4 h-4" /> : <Save size={16}/>} Salvar Alterações Globais
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {activeTab === 'assinatura' && currentProjectSlug && (() => {
                     const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
                     
@@ -1930,7 +2063,7 @@ const App: React.FC = () => {
                                   <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
                                   <div className="absolute top-0 right-0 bg-teal-600 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg">Mais Assinado</div>
                                   <h4 className="text-teal-600 font-bold mb-2 uppercase tracking-wide text-xs">Plano Mensal</h4>
-                                  <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ 49,90</span><span className="text-xs text-stone-500 font-medium pb-1">/mês</span></div>
+                                  <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ {platformConfigs?.pricing?.mensal || '49,90'}</span><span className="text-xs text-stone-500 font-medium pb-1">/mês</span></div>
                                   <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
                                     <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5"/> Domínio próprio & Suporte</li>
                                     <li className="flex items-start gap-2 text-[10px] text-stone-500 mt-4 italic">Sem multa de cancelamento. Sem devoluções de períodos já utilizados. Ao cancelar, o site expira no último dia pago.</li>
@@ -1948,7 +2081,7 @@ const App: React.FC = () => {
                                   <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
                                   <div className="absolute top-0 right-0 bg-orange-500 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg">Mais Econômico</div>
                                   <h4 className="text-orange-500 font-bold mb-2 uppercase tracking-wide text-xs">Plano Anual</h4>
-                                  <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ 499</span><span className="text-xs text-stone-500 font-medium pb-1">/ano</span></div>
+                                  <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ {platformConfigs?.pricing?.anual || '499'}</span><span className="text-xs text-stone-500 font-medium pb-1">/ano</span></div>
                                   <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
                                     <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5"/> 2 meses grátis equivalentes</li>
                                     <li className="flex items-start gap-2 text-[10px] text-stone-500 mt-4 italic">Maior economia a longo prazo. Regras de cancelamento sem devolução proporcional aplicáveis. Site online pelos 12 meses inteiros.</li>
