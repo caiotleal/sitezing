@@ -2019,26 +2019,24 @@ const App: React.FC = () => {
                     />
                   </div>
                   
-                  {/* DOMAIN FEEDBACK MODAL */}
-                  <div className="min-h-[20px] text-center">
-                    {!floatDomainStatus.loading && floatDomainStatus.available === false && (
-                       <div className="space-y-2">
-                         <div className="text-xs text-red-500 font-bold flex items-center justify-center gap-1"><AlertCircle size={14}/> Nome em uso! Sugestões:</div>
-                         <div className="flex flex-wrap justify-center gap-1.5">
-                           {floatDomainStatus.alternatives?.map(alt => (
-                             <button key={alt} onClick={() => handleFloatNameChange(alt)} className="cursor-pointer bg-red-50 px-2 py-1 text-[10px] border border-red-200 rounded-md font-bold text-red-700 hover:bg-red-100 transition-colors uppercase">{alt}</button>
-                           ))}
-                         </div>
-                       </div>
-                    )}
-                    {!floatDomainStatus.loading && floatDomainStatus.available && floatDomainStatus.slug && (
-                       <div className="text-[11px] text-emerald-600 flex items-center justify-center gap-1 font-black bg-emerald-50 py-1.5 rounded-lg border border-emerald-100">
-                         <CheckCircle className="w-3.5 h-3.5"/> Livre: {floatDomainStatus.slug}.sitezing.com.br
-                       </div>
-                    )}
-                    {floatDomainStatus.loading && (
-                      <div className="text-xs text-stone-400 flex items-center justify-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin"/> Mapeando domínio...</div>
-                    )}
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest font-black text-stone-500 mb-2.5 flex items-center justify-center gap-1.5"><Globe size={12}/> Seu Link Oficial</label>
+                    <div className="flex bg-white border border-stone-200 rounded-xl overflow-hidden focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20 transition-all shadow-sm">
+                       <input className="flex-1 bg-transparent px-3 py-3.5 text-[12px] font-mono font-bold text-teal-600 outline-none w-full text-right placeholder:text-stone-300" placeholder="meu-site" value={formData.customSlug} onChange={e => handleCustomSlugChange(e.target.value)} />
+                       <span className="bg-stone-50 border-l border-stone-200 px-3 py-3.5 text-[11px] font-bold text-stone-400 flex items-center select-none shadow-inner">.sitezing.com.br</span>
+                    </div>
+
+                    <div className="mt-2 min-h-[16px] text-center">
+                       {floatDomainStatus.loading && (
+                          <div className="text-[10px] text-stone-400 flex items-center justify-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin"/> Mapeando domínio...</div>
+                       )}
+                       {!floatDomainStatus.loading && formData.customSlug.length >= 3 && floatDomainStatus.available === false && (
+                          <div className="text-[10px] text-red-500 font-bold flex items-center justify-center gap-1"><AlertCircle size={10}/> Indisponível. Altere acima!</div>
+                       )}
+                       {!floatDomainStatus.loading && formData.customSlug.length >= 3 && floatDomainStatus.available && floatDomainStatus.slug && (
+                          <div className="text-[10px] text-emerald-600 font-bold flex items-center justify-center gap-1"><CheckCircle size={10}/> Domínio liberado!</div>
+                       )}
+                    </div>
                   </div>
 
                   <button 
