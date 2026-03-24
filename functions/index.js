@@ -618,3 +618,43 @@ exports.updateProjectAdminManual = onCall({ cors: true }, async (request) => {
   return { success: true };
 });
 
+/**
+ * GESTÃO DE CONFIGURAÇÕES GLOBAIS (ADMIN)
+ */
+exports.getPlatformConfigs = onCall({ cors: true }, async (request) => {
+  if (request.auth?.token?.email !== ADMIN_EMAIL) {
+    throw new HttpsError("permission-denied", "Acesso restrito ao administrador.");
+  }
+  const db = admin.firestore();
+  try {
+    const configDoc = await db.collection("configs").doc("platform").get();
+    if (!configDoc.exists) {
+      return {
+        stripe: { mode: "test", testPublicKey: "", testSecretKey: "", prodPublicKey: "", prodSecretKey: "" },
+        pricing: { mensal: 49.90, anual: 499.00 },
+        marketing: { bannerActive: false, bannerText: "Promoção Especial!", bannerType: "info", couponCode: "" },
+        legal: { termsOfUse: "", privacyPolicy: "" }
+      };
+    }
+    return configDoc.data();
+  } catch (error) {
+    throw new HttpsError("internal", error.message);
+  }
+});
+
+exports.updatePlatformConfigs = onCall({ cors: true }, async (request) => {
+  if (request.auth?.token?.email !== ADMIN_EMAIL) {
+    throw new HttpsError("permission-denied", "Acesso restrito ao administrador.");
+  }
+  const { configs } = request.data;
+  const db = admin.firestore();
+  try {
+    await db.collection("configs").doc("platform").set({
+      ...configs,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    return { success: true };
+  } catch (error) {
+    throw new HttpsError("internal", error.message);
+  }
+});

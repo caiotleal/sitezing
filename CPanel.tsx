@@ -5,7 +5,8 @@ import { auth, functions, db } from './firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart3, Users, Globe, Settings, LogOut, ChevronRight, Eye, Edit3, 
-  Search, ShieldAlert, DollarSign, ExternalLink, Loader2, RefreshCw, Save, Trash2, Star, X
+  Search, ShieldAlert, DollarSign, ExternalLink, Loader2, RefreshCw, Save, Trash2, Star, X,
+  Layout, CreditCard, Megaphone, FileText, CheckCircle2
 } from 'lucide-react';
 import { BRAND_LOGO } from './components/brand';
 
@@ -15,8 +16,10 @@ const CPanel: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<any[]>([]);
+  const [platformConfigs, setPlatformConfigs] = useState<any>(null);
+  const [isSavingConfigs, setIsSavingConfigs] = useState(false);
   const [stats, setStats] = useState({ totalSites: 0, totalRevenue: 0, activeSites: 0 });
-  const [view, setView] = useState<'dashboard' | 'editor' | 'users' | 'domains' | 'settings'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'editor' | 'users' | 'domains' | 'settings' | 'platform' | 'edit'>('dashboard');
   const [editingProject, setEditingProject] = useState<any>(null);
   const [editingFormData, setEditingFormData] = useState<any>(null);
   const [manualCss, setManualCss] = useState('');
@@ -28,22 +31,50 @@ const CPanel: React.FC = () => {
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState('');
 
+  const fetchPlatformConfigs = async () => {
+    try {
+      const getConfigs = httpsCallable(functions, 'getPlatformConfigs');
+      const result: any = await getConfigs();
+      setPlatformConfigs(result.data);
+    } catch (error) {
+      console.error("Erro ao buscar configurações da plataforma:", error);
+    }
+  };
+
+  const savePlatformConfigs = async () => {
+    setIsSavingConfigs(true);
+    try {
+      const updateConfigs = httpsCallable(functions, 'updatePlatformConfigs');
+      await updateConfigs({ configs: platformConfigs });
+      alert("Configurações atualizadas com sucesso!");
+    } catch (error) {
+      console.error("Erro ao salvar configurações:", error);
+      alert("Falha ao salvar configurações.");
+    } finally {
+      setIsSavingConfigs(false);
+    }
+  };
+
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
-      if (u && u.email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+    if (view === 'platform') fetchPlatformConfigs();
+  }, [view]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      if (u && u.email === ADMIN_EMAIL) {
         setUser(u);
         fetchAdminData();
       } else {
         setUser(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
     
     document.body.style.backgroundColor = '#FBFBFA';
     document.body.style.color = '#1C1917';
     
     return () => {
-      unsub();
+      unsubscribe();
       document.body.style.backgroundColor = '';
       document.body.style.color = '';
     };
@@ -232,8 +263,11 @@ const CPanel: React.FC = () => {
           <button onClick={() => setView('domains')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'domains' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
             <Globe size={18} /> Domínios
           </button>
+          <button onClick={() => setView('platform')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'platform' ? 'bg-orange-50 text-orange-600' : 'text-stone-Stone-500 hover:bg-stone-50'}`}>
+            <Layout size={18} /> Plataforma
+          </button>
           <button onClick={() => setView('settings')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'settings' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
-            <Settings size={18} /> Configurações
+            <Settings size={18} /> Ajustes Admin
           </button>
         </nav>
 
@@ -247,10 +281,11 @@ const CPanel: React.FC = () => {
       <main className="flex-1 overflow-y-auto">
         <header className="h-20 bg-white border-b border-stone-200 flex items-center justify-between px-8 sticky top-0 z-30">
           <h2 className="text-xl font-black uppercase italic tracking-tight text-stone-900">
-            {view === 'dashboard' ? 'Gestão de Plataforma' : 
+            {view === 'dashboard' ? 'Dashboard Geral' : 
              view === 'users' ? 'Gestão de Usuários' :
              view === 'domains' ? 'Gestão de Domínios' :
-             view === 'settings' ? 'Configurações de Admin' : `Ajuste Admin: ${editingProject?.businessName}`}
+             view === 'platform' ? 'Configurações da Plataforma' :
+             view === 'settings' ? 'Ajustes Admin' : `Ajuste Admin: ${editingProject?.businessName}`}
           </h2>
           <div className="flex items-center gap-4">
             <div className="bg-stone-100 px-4 py-2 rounded-lg flex items-center gap-2">
@@ -414,7 +449,182 @@ const CPanel: React.FC = () => {
               </motion.div>
             )}
 
-            {view === 'settings' && (
+            {view === 'platform' && platformConfigs && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <h2 className="text-2xl font-black text-stone-900 italic uppercase">Configurações Globais</h2>
+                <p className="text-stone-500 text-xs font-bold uppercase tracking-widest mt-1">Gerencie chaves, preços e campanhas da plataforma</p>
+              </div>
+              <button 
+                onClick={savePlatformConfigs}
+                disabled={isSavingConfigs}
+                className="flex items-center gap-2 bg-stone-900 text-white px-8 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-stone-800 transition-all shadow-xl disabled:opacity-50"
+              >
+                {isSavingConfigs ? <Loader2 className="animate-spin w-4 h-4" /> : <Save size={16} />}
+                {isSavingConfigs ? 'Salvando...' : 'Salvar Alterações'}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Vendas e Planos */}
+              <div className="bg-white rounded-[2.5rem] p-8 border border-stone-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-3 bg-orange-50 text-orange-600 rounded-2xl"><DollarSign size={24} /></div>
+                  <h3 className="font-black italic uppercase text-lg">Vendas e Planos</h3>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Preço Mensal (BRL)</label>
+                    <input 
+                      type="number" step="0.01" value={platformConfigs.pricing.mensal} 
+                      onChange={e => setPlatformConfigs({...platformConfigs, pricing: {...platformConfigs.pricing, mensal: parseFloat(e.target.value)}})}
+                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Preço Anual (BRL)</label>
+                    <input 
+                      type="number" step="0.01" value={platformConfigs.pricing.anual} 
+                      onChange={e => setPlatformConfigs({...platformConfigs, pricing: {...platformConfigs.pricing, anual: parseFloat(e.target.value)}})}
+                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Cupom de Boas-vindas</label>
+                    <input 
+                      type="text" value={platformConfigs.marketing.couponCode || ''} 
+                      onChange={e => setPlatformConfigs({...platformConfigs, marketing: {...platformConfigs.marketing, couponCode: e.target.value.toUpperCase()}})}
+                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none placeholder:text-stone-300"
+                      placeholder="EX: SITEZING10"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Integração Stripe */}
+              <div className="bg-white rounded-[2.5rem] p-8 border border-stone-200 shadow-sm">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl"><CreditCard size={24} /></div>
+                    <h3 className="font-black italic uppercase text-lg">Gateway Stripe</h3>
+                  </div>
+                  <select 
+                    value={platformConfigs.stripe.mode} 
+                    onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, mode: e.target.value}})}
+                    className="text-[10px] font-black uppercase tracking-widest bg-stone-100 px-3 py-1.5 rounded-full outline-none border-none cursor-pointer"
+                  >
+                    <option value="test">Teste</option>
+                    <option value="prod">Produção</option>
+                  </select>
+                </div>
+                <div className="space-y-4">
+                  {platformConfigs.stripe.mode === 'test' ? (
+                    <>
+                      <div>
+                        <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Test Public Key</label>
+                        <input type="password" value={platformConfigs.stripe.testPublicKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, testPublicKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Test Secret Key</label>
+                        <input type="password" value={platformConfigs.stripe.testSecretKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, testSecretKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Production Public Key</label>
+                        <input type="password" value={platformConfigs.stripe.prodPublicKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, prodPublicKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Production Secret Key</label>
+                        <input type="password" value={platformConfigs.stripe.prodSecretKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, prodSecretKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Marketing e Banners */}
+              <div className="bg-white rounded-[2.5rem] p-8 border border-stone-200 shadow-sm md:col-span-2">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl"><Megaphone size={24} /></div>
+                    <h3 className="font-black italic uppercase text-lg">Campanhas e Banners</h3>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-[10px] font-black uppercase text-stone-400 tracking-widest">Ativar Banner</span>
+                    <button 
+                      onClick={() => setPlatformConfigs({...platformConfigs, marketing: {...platformConfigs.marketing, bannerActive: !platformConfigs.marketing.bannerActive}})}
+                      className={`w-12 h-6 rounded-full relative transition-all ${platformConfigs.marketing.bannerActive ? 'bg-orange-500' : 'bg-stone-200'}`}
+                    >
+                      <motion.div 
+                        initial={false}
+                        animate={{ x: platformConfigs.marketing.bannerActive ? 24 : 4 }}
+                        className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm" 
+                      />
+                    </button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Texto do Banner Digital</label>
+                    <textarea 
+                      value={platformConfigs.marketing.bannerText}
+                      onChange={e => setPlatformConfigs({...platformConfigs, marketing: {...platformConfigs.marketing, bannerText: e.target.value}})}
+                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-3xl text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none h-32"
+                      placeholder="Ex: Oferta Limitada! Use o cupom BLACK60 para 60% de desconto no plano anual."
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Estilo Visual da Campanha</label>
+                    <div className="grid grid-cols-2 gap-4">
+                      {['info', 'christmas', 'black-friday', 'warning'].map(type => (
+                        <button 
+                          key={type}
+                          onClick={() => setPlatformConfigs({...platformConfigs, marketing: {...platformConfigs.marketing, bannerType: type}})}
+                          className={`p-4 rounded-2xl border-2 transition-all font-black text-[10px] uppercase tracking-widest ${platformConfigs.marketing.bannerType === type ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-100 bg-stone-50 text-stone-400 hover:border-stone-200'}`}
+                        >
+                          {type.replace('-', ' ')}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Jurídico e Documentos */}
+              <div className="bg-white rounded-[2.5rem] p-8 border border-stone-200 shadow-sm md:col-span-2">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="p-3 bg-stone-50 text-stone-600 rounded-2xl"><FileText size={24} /></div>
+                  <h3 className="font-black italic uppercase text-lg">Termos e Políticas</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Termos de Uso</label>
+                    <textarea 
+                      value={platformConfigs.legal.termsOfUse}
+                      onChange={e => setPlatformConfigs({...platformConfigs, legal: {...platformConfigs.legal, termsOfUse: e.target.value}})}
+                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-3xl text-[10px] font-normal focus:ring-2 focus:ring-orange-500 outline-none h-64 overflow-y-auto"
+                      placeholder="Cole aqui os termos de uso da sua plataforma..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Política de Privacidade</label>
+                    <textarea 
+                      value={platformConfigs.legal.privacyPolicy}
+                      onChange={e => setPlatformConfigs({...platformConfigs, legal: {...platformConfigs.legal, privacyPolicy: e.target.value}})}
+                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-3xl text-[10px] font-normal focus:ring-2 focus:ring-orange-500 outline-none h-64 overflow-y-auto"
+                      placeholder="Cole aqui a política de privacidade..."
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {view === 'settings' && (
               <motion.div key="settings" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-2xl space-y-6">
                 <div className="bg-white p-8 rounded-2xl border border-stone-200 shadow-sm space-y-6">
                   <h3 className="text-lg font-black uppercase italic">Configurações Gerais</h3>
