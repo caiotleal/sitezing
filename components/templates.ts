@@ -61,7 +61,7 @@ export const TEMPLATES: Record<string, string> = {
           <div class="glass-container-premium [[HEADER_LAYOUT_CLASS]]">
               <a href="#" class="glass-logo-premium">[[LOGO_AREA]]</a>
               <div class="glass-actions-premium">
-                  <div class="glass-social-links-premium">[[SOCIAL_LINKS]]</div>
+                  [[SOCIAL_LINKS_CONTAINER]]
                   
               </div>
           </div>
@@ -178,7 +178,7 @@ export const TEMPLATES: Record<string, string> = {
           <div class="glass-container-premium [[HEADER_LAYOUT_CLASS]]">
               <a href="#" class="glass-logo-premium">[[LOGO_AREA]]</a>
               <div class="glass-actions-premium">
-                  <div class="glass-social-links-premium">[[SOCIAL_LINKS]]</div>
+                  [[SOCIAL_LINKS_CONTAINER]]
                   
               </div>
           </div>
@@ -290,7 +290,7 @@ export const TEMPLATES: Record<string, string> = {
           <div class="glass-container-premium [[HEADER_LAYOUT_CLASS]]">
               <a href="#" class="glass-logo-premium">[[LOGO_AREA]]</a>
               <div class="glass-actions-premium">
-                  <div class="glass-social-links-premium">[[SOCIAL_LINKS]]</div>
+                  [[SOCIAL_LINKS_CONTAINER]]
                   
               </div>
           </div>
@@ -411,7 +411,7 @@ export const TEMPLATES: Record<string, string> = {
           <div class="glass-container-premium [[HEADER_LAYOUT_CLASS]]">
               <a href="#" class="glass-logo-premium">[[LOGO_AREA]]</a>
               <div class="glass-actions-premium">
-                  <div class="glass-social-links-premium">[[SOCIAL_LINKS]]</div>
+                  [[SOCIAL_LINKS_CONTAINER]]
                   
               </div>
           </div>
@@ -525,7 +525,7 @@ export const TEMPLATES: Record<string, string> = {
           <div class="glass-container-premium [[HEADER_LAYOUT_CLASS]]">
               <a href="#" class="glass-logo-premium">[[LOGO_AREA]]</a>
               <div class="glass-actions-premium">
-                  <div class="glass-social-links-premium">[[SOCIAL_LINKS]]</div>
+                  [[SOCIAL_LINKS_CONTAINER]]
                   
               </div>
           </div>

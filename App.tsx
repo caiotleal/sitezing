@@ -671,7 +671,36 @@ const App: React.FC = () => {
     replaceAll('{{PHONE}}', data.phone || data.whatsapp || 'Telefone não informado');
     replaceAll('{{EMAIL}}', data.email || 'Email não informado');
 
-    let headInjection = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">';
+    let headInjection = `
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+      <meta name="description" content="${data.description || 'Confira nosso site profissional.'}">
+      <meta property="og:title" content="${data.businessName || 'Meu Site Profissional'}">
+      <meta property="og:description" content="${data.description || 'Confira nosso site profissional.'}">
+      <meta property="og:image" content="${data.logoBase64 || BRAND_LOGO}">
+      <meta property="og:type" content="website">
+      <meta name="theme-color" content="${colors.c2}">
+      <script>
+        async function zingShareSite() {
+          const shareData = {
+            title: "${data.businessName || 'Meu Site'}",
+            text: "Confira o site profissional de ${data.businessName || 'minha empresa'}!",
+            url: window.location.href
+          };
+          try {
+            if (navigator.share) { await navigator.share(shareData); }
+            else { 
+              const dummy = document.createElement('input');
+              document.body.appendChild(dummy);
+              dummy.value = window.location.href;
+              dummy.select();
+              document.execCommand('copy');
+              document.body.removeChild(dummy);
+              alert('Link copiado para a área de transferência!');
+            }
+          } catch (err) { console.log('Erro ao compartilhar:', err); }
+        }
+      </script>
+    `;
     
     const logoHeight = data.logoSize || 40;
     if (data.logoBase64) {
@@ -699,6 +728,8 @@ const App: React.FC = () => {
     if (data.noveNove) addSocialBtn(data.noveNove.startsWith('http') ? data.noveNove : `https://${data.noveNove}`, '#FFC700', '99', '<span style="font-size: 15px; font-weight: 900; line-height: 1;">99</span>');
     if (data.keeta) addSocialBtn(data.keeta.startsWith('http') ? data.keeta : `https://${data.keeta}`, '#19B84A', 'Keeta', '<span style="font-size: 15px; font-weight: 900; line-height: 1;">Keeta</span>');
 
+    const shareBtnHtml = `<div class="glass-social-links-premium">[[SOCIAL_LINKS]]<div class="glass-social-link" onclick="zingShareSite()" title="Compartilhar Site" style="cursor:pointer; color: ${colors.c4};"><i class="fas fa-arrow-up-from-bracket"></i></div></div>`;
+    replaceAll('[[SOCIAL_LINKS_CONTAINER]]', shareBtnHtml);
     replaceAll('[[SOCIAL_LINKS]]', socialHtml);
 
     const headerContactBtn = '';
