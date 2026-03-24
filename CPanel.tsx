@@ -327,9 +327,10 @@ const CPanel: React.FC = () => {
                             </td>
                             <td className="px-6 py-4 text-right">
                               <div className="flex items-center justify-end gap-2">
-                                <a href={`https://${p.internalDomain}.sitezing.com.br`} target="_blank" className="p-2 text-stone-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all"><Eye size={16} /></a>
-                                <button onClick={() => handleOpenEditor(p)} className="p-2 text-stone-400 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-all"><Edit3 size={16} /></button>
-                                <button onClick={() => handleDeleteProject(p.id)} className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"><Trash2 size={16} /></button>
+                                <a href={`https://${p.internalDomain}.sitezing.com.br`} target="_blank" className="p-2 text-stone-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all" title="Ver Site"><Eye size={16} /></a>
+                                <button onClick={() => setInspectingProject(p)} className="p-2 text-stone-400 hover:text-purple-500 hover:bg-purple-50 rounded-lg transition-all" title="Ver JSON Bruto"><Search size={16} /></button>
+                                <button onClick={() => handleOpenEditor(p)} className="p-2 text-stone-400 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-all" title="Editar Admin"><Edit3 size={16} /></button>
+                                <button onClick={() => handleDeleteProject(p.id)} className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Apagar Site"><Trash2 size={16} /></button>
                               </div>
                             </td>
                           </tr>
@@ -341,6 +342,8 @@ const CPanel: React.FC = () => {
               </motion.div>
             )}
 
+            {/* ... (outros views: users, domains, settings) */}
+            
             {view === 'users' && (
               <motion.div key="users" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                 <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
@@ -409,17 +412,13 @@ const CPanel: React.FC = () => {
                       </div>
                       <div className="w-12 h-6 bg-stone-200 rounded-full relative"><div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full"></div></div>
                     </div>
-                    <div className="flex items-center justify-between p-4 bg-stone-50 rounded-xl">
-                      <div>
-                        <p className="text-sm font-bold">Notificações Slack/Discord</p>
-                        <p className="text-[10px] text-stone-500">Receba avisos de novas vendas admin.</p>
-                      </div>
-                      <div className="w-12 h-6 bg-emerald-500 rounded-full relative"><div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div></div>
-                    </div>
                   </div>
                 </div>
               </motion.div>
             )}
+
+            {view === 'editor' && (
+              // ... o editor já está lá
 
             {view === 'editor' && (
               <motion.div key="editor" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-6">
