@@ -5,7 +5,7 @@ import { auth, functions, db } from './firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart3, Users, Globe, Settings, LogOut, ChevronRight, Eye, Edit3, 
-  Search, ShieldAlert, DollarSign, ExternalLink, Loader2, RefreshCw, Save
+  Search, ShieldAlert, DollarSign, ExternalLink, Loader2, RefreshCw, Save, Trash2, Star
 } from 'lucide-react';
 import { BRAND_LOGO } from './components/brand';
 
