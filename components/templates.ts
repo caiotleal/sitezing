@@ -16,9 +16,18 @@ export const TEMPLATES: Record<string, string> = {
         .glass { background: {{COLOR_2}}; backdrop-filter: blur(10px); border: 1px solid {{COLOR_3}}; }
         
         /* HEADER GLASS NATIVO */
-        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
+        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
         
-        .glass-container-premium { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
+        .glass-container-premium { display: flex; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
+        .glass-container-premium.logo_left_icons_right { flex-direction: row; justify-content: space-between; }
+        .glass-container-premium.logo_right_icons_left { flex-direction: row-reverse; justify-content: space-between; }
+        .glass-container-premium.logo_center_icons_right { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
+        .glass-container-premium.logo_center_icons_right .glass-logo-premium { grid-column: 2; justify-self: center; }
+        .glass-container-premium.logo_center_icons_right .glass-actions-premium { grid-column: 3; justify-self: end; }
+        .glass-container-premium.logo_center_icons_left { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
+        .glass-container-premium.logo_center_icons_left .glass-logo-premium { grid-column: 2; justify-self: center; }
+        .glass-container-premium.logo_center_icons_left .glass-actions-premium { grid-column: 1; justify-self: start; }
+
         .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: {{COLOR_4}}; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; flex-shrink: 0; }
         .glass-logo-premium img { max-height: 36px; width: auto; display: block; }
         .glass-actions-premium { display: flex; align-items: center; gap: 15px; flex-wrap: nowrap; }
@@ -33,24 +42,20 @@ export const TEMPLATES: Record<string, string> = {
            .glass-logo-premium img { max-height: 28px !important; }
         }
       </style>
-    </head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>
     <body class="antialiased flex flex-col min-h-screen">
       
       <header class="glass-header-premium" id="glassHeaderPremium">
-          <div class="glass-container-premium">
+          <div class="glass-container-premium [[HEADER_LAYOUT_CLASS]]">
               <a href="#" class="glass-logo-premium">[[LOGO_AREA]]</a>
               <div class="glass-actions-premium">
                   <div class="glass-social-links-premium">[[SOCIAL_LINKS]]</div>
-                  [[HEADER_CONTACT_BTN]]
+                  
               </div>
           </div>
       </header>
 
-      <header class="fixed w-full top-0 z-50 glass border-b border-[{{COLOR_3}}]">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div class="text-2xl font-black tracking-tighter">[[LOGO_AREA]]</div>
-        </div>
-      </header>
+      
 
       <section class="pt-40 pb-20 px-6 flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-b from-[{{COLOR_2}}] to-transparent opacity-50"></div>
@@ -116,9 +121,18 @@ export const TEMPLATES: Record<string, string> = {
       <style>
         body { font-family: 'Space Grotesk', sans-serif; background-color: {{COLOR_1}}; color: {{COLOR_4}}; }
         
-        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
+        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
         
-        .glass-container-premium { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
+        .glass-container-premium { display: flex; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
+        .glass-container-premium.logo_left_icons_right { flex-direction: row; justify-content: space-between; }
+        .glass-container-premium.logo_right_icons_left { flex-direction: row-reverse; justify-content: space-between; }
+        .glass-container-premium.logo_center_icons_right { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
+        .glass-container-premium.logo_center_icons_right .glass-logo-premium { grid-column: 2; justify-self: center; }
+        .glass-container-premium.logo_center_icons_right .glass-actions-premium { grid-column: 3; justify-self: end; }
+        .glass-container-premium.logo_center_icons_left { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
+        .glass-container-premium.logo_center_icons_left .glass-logo-premium { grid-column: 2; justify-self: center; }
+        .glass-container-premium.logo_center_icons_left .glass-actions-premium { grid-column: 1; justify-self: start; }
+
         .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: {{COLOR_4}}; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; flex-shrink: 0; }
         .glass-logo-premium img { max-height: 36px; width: auto; display: block; }
         .glass-actions-premium { display: flex; align-items: center; gap: 15px; flex-wrap: nowrap; }
@@ -133,15 +147,15 @@ export const TEMPLATES: Record<string, string> = {
            .glass-logo-premium img { max-height: 28px !important; }
         }
       </style>
-    </head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>
     <body class="antialiased flex flex-col min-h-screen">
       
       <header class="glass-header-premium" id="glassHeaderPremium">
-          <div class="glass-container-premium">
+          <div class="glass-container-premium [[HEADER_LAYOUT_CLASS]]">
               <a href="#" class="glass-logo-premium">[[LOGO_AREA]]</a>
               <div class="glass-actions-premium">
                   <div class="glass-social-links-premium">[[SOCIAL_LINKS]]</div>
-                  [[HEADER_CONTACT_BTN]]
+                  
               </div>
           </div>
       </header>
@@ -207,9 +221,18 @@ export const TEMPLATES: Record<string, string> = {
         body { font-family: 'Outfit', sans-serif; background-color: {{COLOR_1}}; color: {{COLOR_4}}; }
         .glass-panel { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 2rem; backdrop-filter: blur(20px); }
         
-        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
+        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
         
-        .glass-container-premium { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
+        .glass-container-premium { display: flex; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
+        .glass-container-premium.logo_left_icons_right { flex-direction: row; justify-content: space-between; }
+        .glass-container-premium.logo_right_icons_left { flex-direction: row-reverse; justify-content: space-between; }
+        .glass-container-premium.logo_center_icons_right { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
+        .glass-container-premium.logo_center_icons_right .glass-logo-premium { grid-column: 2; justify-self: center; }
+        .glass-container-premium.logo_center_icons_right .glass-actions-premium { grid-column: 3; justify-self: end; }
+        .glass-container-premium.logo_center_icons_left { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
+        .glass-container-premium.logo_center_icons_left .glass-logo-premium { grid-column: 2; justify-self: center; }
+        .glass-container-premium.logo_center_icons_left .glass-actions-premium { grid-column: 1; justify-self: start; }
+
         .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: {{COLOR_4}}; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; flex-shrink: 0; }
         .glass-logo-premium img { max-height: 36px; width: auto; display: block; }
         .glass-actions-premium { display: flex; align-items: center; gap: 15px; flex-wrap: nowrap; }
@@ -224,15 +247,15 @@ export const TEMPLATES: Record<string, string> = {
            .glass-logo-premium img { max-height: 28px !important; }
         }
       </style>
-    </head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>
     <body class="antialiased p-4 md:p-8 min-h-screen flex flex-col relative">
       
       <header class="glass-header-premium" id="glassHeaderPremium">
-          <div class="glass-container-premium">
+          <div class="glass-container-premium [[HEADER_LAYOUT_CLASS]]">
               <a href="#" class="glass-logo-premium">[[LOGO_AREA]]</a>
               <div class="glass-actions-premium">
                   <div class="glass-social-links-premium">[[SOCIAL_LINKS]]</div>
-                  [[HEADER_CONTACT_BTN]]
+                  
               </div>
           </div>
       </header>
@@ -307,9 +330,18 @@ export const TEMPLATES: Record<string, string> = {
         body { font-family: 'Lato', sans-serif; background-color: {{COLOR_1}}; color: {{COLOR_4}}; }
         h1, h2, h3, .logo-text { font-family: 'Playfair Display', serif; }
         
-        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
+        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
         
-        .glass-container-premium { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
+        .glass-container-premium { display: flex; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
+        .glass-container-premium.logo_left_icons_right { flex-direction: row; justify-content: space-between; }
+        .glass-container-premium.logo_right_icons_left { flex-direction: row-reverse; justify-content: space-between; }
+        .glass-container-premium.logo_center_icons_right { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
+        .glass-container-premium.logo_center_icons_right .glass-logo-premium { grid-column: 2; justify-self: center; }
+        .glass-container-premium.logo_center_icons_right .glass-actions-premium { grid-column: 3; justify-self: end; }
+        .glass-container-premium.logo_center_icons_left { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
+        .glass-container-premium.logo_center_icons_left .glass-logo-premium { grid-column: 2; justify-self: center; }
+        .glass-container-premium.logo_center_icons_left .glass-actions-premium { grid-column: 1; justify-self: start; }
+
         .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: {{COLOR_4}}; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; flex-shrink: 0; }
         .glass-logo-premium img { max-height: 36px; width: auto; display: block; }
         .glass-actions-premium { display: flex; align-items: center; gap: 15px; flex-wrap: nowrap; }
@@ -324,15 +356,15 @@ export const TEMPLATES: Record<string, string> = {
            .glass-logo-premium img { max-height: 28px !important; }
         }
       </style>
-    </head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>
     <body class="antialiased flex flex-col min-h-screen">
       
       <header class="glass-header-premium" id="glassHeaderPremium">
-          <div class="glass-container-premium">
+          <div class="glass-container-premium [[HEADER_LAYOUT_CLASS]]">
               <a href="#" class="glass-logo-premium">[[LOGO_AREA]]</a>
               <div class="glass-actions-premium">
                   <div class="glass-social-links-premium">[[SOCIAL_LINKS]]</div>
-                  [[HEADER_CONTACT_BTN]]
+                  
               </div>
           </div>
       </header>
@@ -400,9 +432,18 @@ export const TEMPLATES: Record<string, string> = {
         body { font-family: 'Montserrat', sans-serif; background-color: {{COLOR_1}}; color: {{COLOR_4}}; overflow-x: hidden; }
         .section-curve { border-bottom-left-radius: 5rem; border-bottom-right-radius: 5rem; }
         
-        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
+        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
         
-        .glass-container-premium { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
+        .glass-container-premium { display: flex; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
+        .glass-container-premium.logo_left_icons_right { flex-direction: row; justify-content: space-between; }
+        .glass-container-premium.logo_right_icons_left { flex-direction: row-reverse; justify-content: space-between; }
+        .glass-container-premium.logo_center_icons_right { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
+        .glass-container-premium.logo_center_icons_right .glass-logo-premium { grid-column: 2; justify-self: center; }
+        .glass-container-premium.logo_center_icons_right .glass-actions-premium { grid-column: 3; justify-self: end; }
+        .glass-container-premium.logo_center_icons_left { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
+        .glass-container-premium.logo_center_icons_left .glass-logo-premium { grid-column: 2; justify-self: center; }
+        .glass-container-premium.logo_center_icons_left .glass-actions-premium { grid-column: 1; justify-self: start; }
+
         .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: {{COLOR_4}}; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; flex-shrink: 0; }
         .glass-logo-premium img { max-height: 36px; width: auto; display: block; }
         .glass-actions-premium { display: flex; align-items: center; gap: 15px; flex-wrap: nowrap; }
@@ -417,15 +458,15 @@ export const TEMPLATES: Record<string, string> = {
            .glass-logo-premium img { max-height: 28px !important; }
         }
       </style>
-    </head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>
     <body class="antialiased">
       
       <header class="glass-header-premium" id="glassHeaderPremium">
-          <div class="glass-container-premium">
+          <div class="glass-container-premium [[HEADER_LAYOUT_CLASS]]">
               <a href="#" class="glass-logo-premium">[[LOGO_AREA]]</a>
               <div class="glass-actions-premium">
                   <div class="glass-social-links-premium">[[SOCIAL_LINKS]]</div>
-                  [[HEADER_CONTACT_BTN]]
+                  
               </div>
           </div>
       </header>

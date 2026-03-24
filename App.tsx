@@ -431,9 +431,9 @@ const App: React.FC = () => {
     businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '',
     ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true,
     showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', 
-    showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', 
     logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [] as any[], editorialSummary: '',
-    customSlug: '', isCustomSlugEdited: false, googlePhotos: [] as string[]
+    customSlug: '', isCustomSlugEdited: false, googlePhotos: [] as string[],
+    headerLayout: 'logo_left_icons_right'
   });
   const [pendingSave, setPendingSave] = useState(false);
 
@@ -701,13 +701,34 @@ const App: React.FC = () => {
 
     replaceAll('[[SOCIAL_LINKS]]', socialHtml);
 
-    const headerContactBtn = data.showForm 
-      ? `<a href="#contato" class="btn-contact-premium"><i class="fas fa-comment-dots" style="font-size: 1.25rem;"></i></a>` 
-      : ``;
+    const headerContactBtn = '';
     replaceAll('[[HEADER_CONTACT_BTN]]', headerContactBtn);
+    replaceAll('[[HEADER_LAYOUT_CLASS]]', data.headerLayout || 'logo_left_icons_right');
 
     const footerBrand = `<div style="text-align:center; padding: 24px; font-size: 12px; opacity: 0.5; width: 100%; font-family: sans-serif; display: flex; align-items: center; justify-content: center; gap: 6px;">Criado por <a href="https://sitezing.com.br" target="_blank" style="text-decoration: none; font-weight: 900; display: flex; align-items: center; gap: 4px; color: inherit; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'"><img src="${BRAND_LOGO}" style="height: 16px; width: auto;" alt="SiteZing"/> SiteZing.com.br</a></div>`;
-    html = html.replace('</body>', `${footerBrand}</body>`);
+    
+    const floatingContactHtml = data.showFloatingContact ? `
+      <style>
+        .glass-contact-float { position: fixed; bottom: 30px; right: 30px; z-index: 9999; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 8px 32px rgba(0,0,0,0.2); cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; transform: translateY(20px) scale(0.8); pointer-events: none; text-decoration: none; }
+        .glass-contact-float.visible { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+        .glass-contact-float:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.1) rotate(5deg); }
+        .glass-contact-float i { font-size: 1.5rem; }
+      </style>
+      <a href="https://wa.me/${(data.whatsapp || '').replace(/\D/g, '')}" target="_blank" class="glass-contact-float" id="zingFloatingContact">
+        <i class="fab fa-whatsapp"></i>
+      </a>
+      <script>
+        window.addEventListener('scroll', function() {
+          const btn = document.getElementById('zingFloatingContact');
+          if (btn) {
+            if (window.scrollY > 300) { btn.classList.add('visible'); }
+            else { btn.classList.remove('visible'); }
+          }
+        });
+      </script>
+    ` : '';
+
+    html = html.replace('</body>', `${floatingContactHtml}${footerBrand}</body>`);
 
     const mapUrl = data.address ? `https://maps.google.com/maps?q=${encodeURIComponent(data.address)}&t=&z=13&ie=UTF8&iwloc=&output=embed` : '';
     const mapCode = (data.showMap && mapUrl) ? `<div class="overflow-hidden rounded-[2rem] mt-6 map-container ux-glass"><iframe src="${mapUrl}" width="100%" height="240" style="border:0;" loading="lazy"></iframe></div>` : '';
@@ -1000,7 +1021,7 @@ const App: React.FC = () => {
           showToast("Site excluído com sucesso.", "success");
           if (projectId === currentProjectSlug) {
             setGeneratedHtml(null); setCurrentProjectSlug(null); setHasUnsavedChanges(false); setActiveTab('geral');
-            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false });
+            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right' });
           }
           
           const listFn = httpsCallable(functions, 'listUserProjects');
@@ -1439,7 +1460,22 @@ const App: React.FC = () => {
 
                       {generatedHtml && (
                         <div className="pt-6 border-t border-stone-100 space-y-6">
-                          <div className="space-y-2.5"><label className="text-xs font-bold text-stone-500 uppercase">Estilo do Site</label><select className="w-full bg-white border border-stone-200 rounded-xl p-3 text-sm outline-none" value={formData.layoutStyle} onChange={e => {setFormData({ ...formData, layoutStyle: e.target.value }); setHasUnsavedChanges(true)}}>{LAYOUT_STYLES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}</select></div>
+                          <div className="space-y-4">
+                            <div className="space-y-2.5">
+                              <label className="text-xs font-bold text-stone-500 uppercase">Estilo do Site</label>
+                              <select className="w-full bg-white border border-stone-200 rounded-xl p-3 text-sm outline-none" value={formData.layoutStyle} onChange={e => {setFormData({ ...formData, layoutStyle: e.target.value }); setHasUnsavedChanges(true)}}>{LAYOUT_STYLES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}</select>
+                            </div>
+
+                            <div className="space-y-2.5">
+                              <label className="text-xs font-bold text-stone-500 uppercase">Layout do Cabeçalho</label>
+                              <select className="w-full bg-white border border-stone-200 rounded-xl p-3 text-sm outline-none font-medium" value={formData.headerLayout} onChange={e => {setFormData({ ...formData, headerLayout: e.target.value }); setHasUnsavedChanges(true)}}>
+                                <option value="logo_left_icons_right">Logo Esquerda / Ícones Direita</option>
+                                <option value="logo_right_icons_left">Logo Direita / Ícones Esquerda</option>
+                                <option value="logo_center_icons_right">Logo Centro / Ícones Direita</option>
+                                <option value="logo_center_icons_left">Logo Centro / Ícones Esquerda</option>
+                              </select>
+                            </div>
+                          </div>
                           
                           <div className="space-y-4">
                             <label className="text-xs font-bold text-stone-500 uppercase block border-b border-stone-100 pb-2">Temas (Cores)</label>
