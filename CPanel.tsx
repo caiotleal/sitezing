@@ -299,9 +299,9 @@ const CPanel: React.FC = () => {
                         <tr className="bg-stone-50 border-b border-stone-200">
                           <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest">Projeto / Proprietário</th>
                           <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest">Criação</th>
-                          <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest">Plano / Stripe</th>
-                          <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest">Status Geral</th>
+                          <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest">Valor</th>
                           <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest">Assinatura</th>
+                          <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest">Site</th>
                           <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest text-right">Ações</th>
                         </tr>
                       </thead>
@@ -318,25 +318,27 @@ const CPanel: React.FC = () => {
                               </div>
                             </td>
                             <td className="px-6 py-4">
-                              <div className="text-xs font-bold text-stone-700 capitalize">
-                                {p.planSelected === 'mensal' || p.plan === 'mensal' ? 'Mensal (R$ 49,90)' : p.planSelected === 'anual' || p.plan === 'anual' ? 'Anual (R$ 499,00)' : 'Gratuito'}
+                              <div className="text-xs font-bold text-stone-700">
+                                {p.planSelected === 'mensal' || p.plan === 'mensal' ? 'R$ 49,90' : p.planSelected === 'anual' || p.plan === 'anual' ? 'R$ 499,00' : 'R$ 0,00'}
                               </div>
-                              <div className="text-[9px] text-stone-400 font-mono">{p.stripeSubscriptionId || 'Sem Checkout'}</div>
+                              <div className="text-[9px] text-stone-400 font-mono">{p.stripeSubscriptionId || 'N/A'}</div>
                             </td>
                             <td className="px-6 py-4">
                               <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                                p.status === 'active' || p.status === 'published' ? 'bg-emerald-100 text-emerald-700' : 
-                                p.status === 'frozen' ? 'bg-blue-100 text-blue-700' : 
-                                p.status === 'expired' ? 'bg-red-100 text-red-700' : 'bg-stone-100 text-stone-500'
+                                (p.subscriptionStatus === 'active' || p.paymentStatus === 'paid') && !p.cancelAtPeriodEnd ? 'bg-emerald-100 text-emerald-700' : 
+                                p.cancelAtPeriodEnd ? 'bg-amber-100 text-amber-700' : 'bg-stone-100 text-stone-500'
                               }`}>
-                                {p.status || 'Draft'}
+                                {p.cancelAtPeriodEnd ? 'CANCELADA' : 
+                                 (p.subscriptionStatus === 'active' || p.paymentStatus === 'paid' ? 'ATIVA' : 'INATIVA')}
                               </span>
                             </td>
                             <td className="px-6 py-4">
                               <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                                p.subscriptionStatus === 'active' || p.paymentStatus === 'paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-stone-50 text-stone-400'
+                                p.status === 'active' || p.status === 'published' ? 'bg-emerald-50 text-emerald-600' : 
+                                p.status === 'frozen' ? 'bg-blue-100 text-blue-700' : 
+                                p.status === 'expired' ? 'bg-red-100 text-red-700' : 'bg-stone-100 text-stone-500'
                               }`}>
-                                {p.subscriptionStatus || (p.paymentStatus === 'paid' ? 'Paid' : 'N/A')}
+                                {p.status || 'Draft'}
                               </span>
                             </td>
                             <td className="px-6 py-4 text-right">
