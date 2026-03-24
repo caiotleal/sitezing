@@ -431,7 +431,9 @@ const App: React.FC = () => {
     businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '',
     ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true,
     showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', 
-    logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [] as any[], editorialSummary: ''
+    showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', 
+    logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [] as any[], editorialSummary: '',
+    customSlug: '', isCustomSlugEdited: false
   });
   const [pendingSave, setPendingSave] = useState(false);
 
@@ -494,10 +496,8 @@ const App: React.FC = () => {
     }
   }, [generatedHtml, currentProjectSlug, isClientSiteView]);
 
-  const handleFloatNameChange = (val: string) => {
-    setFormData(p => ({ ...p, businessName: val }));
-    setHasUnsavedChanges(true);
-    if (val.length < 3) {
+  const checkDomainDebounced = (slugToCheck: string) => {
+    if (slugToCheck.length < 3) {
       setFloatDomainStatus({ loading: false });
       return;
     }
@@ -506,11 +506,11 @@ const App: React.FC = () => {
     floatCheckTimeout.current = setTimeout(async () => {
       try {
         const checkFn = httpsCallable(functions, 'checkDomainAvailability');
-        const res: any = await checkFn({ projectSlug: val });
+        const res: any = await checkFn({ projectSlug: slugToCheck });
         if (res.data?.available) {
           setFloatDomainStatus({ loading: false, available: true, slug: res.data.checkedSlug });
         } else if (res.data && res.data.available === false) {
-          const slug = res.data.checkedSlug || val.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const slug = res.data.checkedSlug || slugToCheck.toLowerCase().replace(/[^a-z0-9]/g, '');
           setFloatDomainStatus({ 
             loading: false, available: false, slug, 
             alternatives: [`${slug}-br`, `${slug}-oficial`, `site-${slug}`]
@@ -520,6 +520,25 @@ const App: React.FC = () => {
         setFloatDomainStatus({ loading: false });
       }
     }, 800);
+  };
+
+  const handleFloatNameChange = (val: string) => {
+    setFormData(p => {
+      let nextSlug = p.customSlug;
+      if (!p.isCustomSlugEdited) {
+         nextSlug = slugify(val).slice(0, 30);
+         checkDomainDebounced(nextSlug);
+      }
+      return { ...p, businessName: val, customSlug: nextSlug };
+    });
+    setHasUnsavedChanges(true);
+  };
+
+  const handleCustomSlugChange = (val: string) => {
+    const safeSlug = slugify(val).slice(0, 30);
+    setFormData(p => ({ ...p, customSlug: safeSlug, isCustomSlugEdited: true }));
+    setHasUnsavedChanges(true);
+    checkDomainDebounced(safeSlug);
   };
 
   useIframeEditor({ setGeneratedHtml, setHasUnsavedChanges });
@@ -856,7 +875,7 @@ const App: React.FC = () => {
         await updateFn({ targetId: currentProjectSlug, html: htmlToSave, formData, aiContent });
         showToast('Alterações salvas com sucesso!', 'success');
       } else {
-        const targetSlug = slugify(formData.businessName).slice(0, 30);
+        const targetSlug = formData.customSlug || slugify(formData.businessName).slice(0, 30);
         const checkFn = httpsCallable(functions, 'checkDomainAvailability');
         const checkRes: any = await checkFn({ projectSlug: targetSlug });
         
@@ -928,7 +947,7 @@ const App: React.FC = () => {
           showToast("Site excluído com sucesso.", "success");
           if (projectId === currentProjectSlug) {
             setGeneratedHtml(null); setCurrentProjectSlug(null); setHasUnsavedChanges(false); setActiveTab('geral');
-            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '' });
+            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false });
           }
           
           const listFn = httpsCallable(functions, 'listUserProjects');
@@ -1203,7 +1222,7 @@ const App: React.FC = () => {
         </div>
 
         <Suspense fallback={null}>
-          <LoginPage isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onSubmit={handleLoginSubmit} brandLogo={BRAND_LOGO} />
+          <LoginPage isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onSubmit={handleLoginSubmit} />
         </Suspense>
 
         <AnimatePresence initial={false}>
@@ -1309,16 +1328,23 @@ const App: React.FC = () => {
 
                         <div className="relative">
                           <label className="text-[11px] font-black text-stone-500 uppercase flex items-center gap-1.5 mb-1.5"><Briefcase size={12} /> Nome do Negócio</label>
-                          <input className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-[12px] font-bold text-stone-800 focus:border-teal-500 outline-none transition-colors" placeholder="Ex: Eletricista Silva" value={formData.businessName} onChange={e => handleFloatNameChange(e.target.value)} />
+                          <input className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-[12px] font-bold text-stone-800 focus:border-teal-500 outline-none transition-colors mb-3" placeholder="Ex: Eletricista Silva" value={formData.businessName} onChange={e => handleFloatNameChange(e.target.value)} />
+                          
+                          <label className="text-[11px] font-black text-stone-500 uppercase flex items-center gap-1.5 mb-1.5"><Globe size={12} /> Seu Link Oficial</label>
+                          <div className="flex bg-stone-50 border border-stone-200 rounded-xl overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
+                             <input className="flex-1 bg-transparent px-3 py-2.5 text-[12px] font-mono font-bold text-blue-600 outline-none w-full text-right" placeholder="meu-site" value={formData.customSlug} onChange={e => handleCustomSlugChange(e.target.value)} />
+                             <span className="bg-stone-100 border-l border-stone-200 px-3 py-2.5 text-[11px] font-bold text-stone-400 flex items-center select-none shadow-inner">.sitezing.com.br</span>
+                          </div>
+
                           <div className="mt-1.5 min-h-[16px]">
                              {floatDomainStatus.loading && (
                                 <div className="text-[10px] text-stone-400 flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin"/> Validando domínio...</div>
                              )}
-                             {!floatDomainStatus.loading && formData.businessName.length >= 3 && floatDomainStatus.available === false && (
-                                <div className="text-[10px] text-red-500 font-bold flex items-center gap-1"><AlertCircle size={10}/> "{floatDomainStatus.slug}" já está em uso! Geraremos um link único para você.</div>
+                             {!floatDomainStatus.loading && formData.customSlug.length >= 3 && floatDomainStatus.available === false && (
+                                <div className="text-[10px] text-red-500 font-bold flex items-center gap-1"><AlertCircle size={10}/> "{floatDomainStatus.slug}" já está em uso! Tente modificar.</div>
                              )}
-                             {!floatDomainStatus.loading && formData.businessName.length >= 3 && floatDomainStatus.available && floatDomainStatus.slug && (
-                                <div className="text-[10px] text-emerald-600 font-bold flex items-center gap-1"><CheckCircle size={10}/> Domínio liberado: {floatDomainStatus.slug}.sitezing.com.br</div>
+                             {!floatDomainStatus.loading && formData.customSlug.length >= 3 && floatDomainStatus.available && floatDomainStatus.slug && (
+                                <div className="text-[10px] text-emerald-600 font-bold flex items-center gap-1"><CheckCircle size={10}/> Liberado!</div>
                              )}
                           </div>
                         </div>
