@@ -585,7 +585,7 @@ const App: React.FC = () => {
         return renderTemplate(aiContent, formData, extractedImages);
       });
     }
-  }, [formData.layoutStyle, formData.colorId, formData.logoBase64, formData.logoSize, formData.whatsapp, formData.instagram, formData.facebook, formData.linkedin, formData.tiktok, formData.ifood, formData.noveNove, formData.keeta, formData.showForm, formData.showFloatingContact, formData.showMap, formData.address, formData.phone, formData.email, formData.region]);
+  }, [formData.layoutStyle, formData.headerLayout, formData.colorId, formData.logoBase64, formData.logoSize, formData.whatsapp, formData.instagram, formData.facebook, formData.linkedin, formData.tiktok, formData.ifood, formData.noveNove, formData.keeta, formData.showForm, formData.showFloatingContact, formData.showMap, formData.address, formData.phone, formData.email, formData.region]);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -709,13 +709,13 @@ const App: React.FC = () => {
     
     const floatingContactHtml = data.showFloatingContact ? `
       <style>
-        .glass-contact-float { position: fixed; bottom: 30px; right: 30px; z-index: 9999; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 8px 32px rgba(0,0,0,0.2); cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; transform: translateY(20px) scale(0.8); pointer-events: none; text-decoration: none; }
+        .glass-contact-float { position: fixed; bottom: 30px; right: 30px; z-index: 9999; background: color-mix(in srgb, ${colors.c1} 60%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid ${colors.c3}; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: ${colors.c4}; box-shadow: 0 8px 32px rgba(0,0,0,0.15); cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; transform: translateY(20px) scale(0.8); pointer-events: none; text-decoration: none; }
         .glass-contact-float.visible { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-        .glass-contact-float:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.1) rotate(5deg); }
+        .glass-contact-float:hover { background: ${colors.c2}; border-color: ${colors.c7}; color: ${colors.c7}; transform: scale(1.1) rotate(5deg); }
         .glass-contact-float i { font-size: 1.5rem; }
       </style>
-      <a href="https://wa.me/${(data.whatsapp || '').replace(/\D/g, '')}" target="_blank" class="glass-contact-float" id="zingFloatingContact">
-        <i class="fab fa-whatsapp"></i>
+      <a href="#contato" class="glass-contact-float" id="zingFloatingContact">
+        <i class="fas fa-comment-dots"></i>
       </a>
       <script>
         window.addEventListener('scroll', function() {
