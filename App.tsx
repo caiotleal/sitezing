@@ -54,16 +54,30 @@ const PROMO_HTML = `
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SiteZing - Criação Inteligente em Segundos</title>
+  <meta name="description" content="Tenha seu site profissional online em segundos. Inteligência Artificial que cria, escreve e publica para você.">
+  <meta property="og:title" content="SiteZing - Seu Site Pronto em Segundos">
+  <meta property="og:description" content="Tenha seu site online sem gastar nada por 7 dias. Teste agora a evolução da criação de sites!">
+  <meta property="og:image" content="${BRAND_LOGO}">
+  <meta property="og:url" content="https://sitezing.com.br">
+  <meta property="og:type" content="website">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html, body { -ms-overflow-style: none; scrollbar-width: none; background-color: #FAFAF9; color: #1C1917; font-family: sans-serif; overflow-x: hidden; }
     ::-webkit-scrollbar { display: none; }
-    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(231, 229, 228, 0.8); transition: all 0.3s ease; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); cursor: pointer; }
+    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(231, 229, 228, 0.8); transition: all 0.3s ease; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); position: relative; }
     .glass-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 20px 40px -10px rgba(249, 115, 22, 0.15); border-color: rgba(249, 115, 22, 0.3); }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     .animate-up { animation: fadeUp 1s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
     .plan-bg-logo { position: absolute; bottom: -15%; right: -10%; width: 70%; height: auto; opacity: 0.03; pointer-events: none; filter: grayscale(100%); }
     
+    @keyframes zingPulse { 0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(249, 115, 22, 0); } 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); } }
+    .share-float-btn { position: fixed; bottom: 100px; right: 40px; z-index: 100; background: #f97316; color: white; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(249,115,22,0.4); cursor: pointer; animation: zingPulse 2s infinite; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .share-float-btn:hover { transform: scale(1.1) rotate(15deg); background: #ea580c; }
+    .card-share-btn { position: absolute; bottom: 20px; right: 20px; width: 32px; height: 32px; background: #f5f5f4; color: #78716c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; z-index: 20; }
+    .glass-card:hover .card-share-btn { opacity: 1; transform: translateY(0); }
+    .card-share-btn:hover { background: #f97316; color: white; }
+
     @media (min-width: 1024px) {
       body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
       main { flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: none !important; padding: 0 8% !important; margin: 0 !important; }
@@ -73,10 +87,10 @@ const PROMO_HTML = `
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script>
-    async function zingSharePlatform() {
+    async function zingShare(text) {
       const shareData = {
-        title: "SiteZing - Criação Inteligente de Sites",
-        text: "Crie seu site profissional em segundos com a SiteZing! 🚀",
+        title: "SiteZing - Seu Site Pronto em Segundos",
+        text: text || "Tenha seu site online sem gastar nada por 7 dias! Crie seu site profissional em segundos com a SiteZing! 🚀",
         url: window.location.origin
       };
       try {
@@ -92,13 +106,26 @@ const PROMO_HTML = `
         }
       } catch (err) { console.log('Erro ao compartilhar:', err); }
     }
+
+    function sharePlan(plan) {
+      event.stopPropagation();
+      let msg = "Confira este plano na SiteZing: ";
+      if (plan === 'free') msg = "Tenha seu site online sem gastar nada por 7 dias! Teste a SiteZing hoje.";
+      if (plan === 'monthly') msg = "Site profissional por apenas R$49,90/mês na SiteZing. Confira!";
+      if (plan === 'annual') msg = "O melhor custo-benefício! Site profissional por R$499/ano na SiteZing.";
+      zingShare(msg);
+    }
   </script>
 </head>
 <body class="antialiased selection:bg-orange-500 selection:text-white">
+  <div class="share-float-btn" onclick="zingShare()" title="Compartilhar SiteZing">
+    <i class="fas fa-share-alt text-2xl"></i>
+  </div>
+
   <header class="fixed top-0 left-0 w-full z-[80] bg-[#FAFAF9]/80 backdrop-blur-md border-b border-stone-200/60 h-24 flex items-center px-6 md:px-12 transition-all">
     <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
        <img src="${BRAND_LOGO}" alt="SiteZing Logo" class="h-12 md:h-16 w-auto drop-shadow-sm" />
-       <div onclick="zingSharePlatform()" class="cursor-pointer bg-white border border-stone-200 w-12 h-12 rounded-full flex items-center justify-center text-stone-500 hover:text-orange-500 hover:border-orange-500 transition-all shadow-sm">
+       <div onclick="zingShare()" class="cursor-pointer bg-white border border-stone-200 w-12 h-12 rounded-full flex items-center justify-center text-stone-500 hover:text-orange-500 hover:border-orange-500 transition-all shadow-sm">
          <i class="fas fa-share-alt"></i>
        </div>
     </div>
@@ -118,7 +145,8 @@ const PROMO_HTML = `
     </div>
 
     <div class="grid md:grid-cols-3 gap-6 relative z-10 animate-up" style="animation-delay: 0.2s;">
-      <div class="glass-card p-8 rounded-[2rem] relative overflow-hidden group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'free' }, '*')">
+      <div class="glass-card p-8 rounded-[2rem] overflow-hidden group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'free' }, '*')">
+        <div class="card-share-btn" onclick="sharePlan('free')" title="Compartilhar este plano"><i class="fas fa-share-alt"></i></div>
         <img src="${BRAND_LOGO}" class="plan-bg-logo" />
         <div class="absolute top-0 right-0 bg-stone-200 text-stone-700 text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase">Sem pagamento antecipado</div>
         <h3 class="text-2xl font-black mb-1 italic uppercase text-stone-800 mt-2">Teste Grátis</h3>
@@ -132,7 +160,8 @@ const PROMO_HTML = `
         <div class="mt-6 text-[10px] text-stone-400 text-center uppercase tracking-widest font-bold group-hover:text-orange-500 transition-colors">Clique para ver regras</div>
       </div>
 
-      <div class="glass-card p-8 rounded-[2rem] relative overflow-hidden group border-teal-200" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'monthly' }, '*')">
+      <div class="glass-card p-8 rounded-[2rem] overflow-hidden group border-teal-200" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'monthly' }, '*')">
+        <div class="card-share-btn" onclick="sharePlan('monthly')" title="Compartilhar este plano"><i class="fas fa-share-alt"></i></div>
         <img src="${BRAND_LOGO}" class="plan-bg-logo" />
         <div class="absolute top-0 right-0 bg-teal-600 text-white text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase shadow-md">Mais Assinado</div>
         <h3 class="text-2xl font-black mb-1 italic uppercase text-teal-600 mt-2">Mensal</h3>
@@ -146,7 +175,8 @@ const PROMO_HTML = `
         <div class="mt-6 text-[10px] text-stone-400 text-center uppercase tracking-widest font-bold group-hover:text-orange-500 transition-colors">Clique para ver regras</div>
       </div>
 
-      <div class="glass-card p-8 rounded-[2rem] relative overflow-hidden border-orange-300 bg-white shadow-[0_20px_50px_-12px_rgba(249,115,22,0.15)] group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'annual' }, '*')">
+      <div class="glass-card p-8 rounded-[2rem] overflow-hidden border-orange-300 bg-white shadow-[0_20px_50px_-12px_rgba(249,115,22,0.15)] group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'annual' }, '*')">
+        <div class="card-share-btn" onclick="sharePlan('annual')" title="Compartilhar este plano"><i class="fas fa-share-alt"></i></div>
         <img src="${BRAND_LOGO}" class="plan-bg-logo" style="opacity: 0.06;" />
         <div class="absolute top-0 right-0 bg-gradient-to-r from-orange-500 to-orange-400 text-white text-[10px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase flex gap-1.5 items-center justify-center shadow-lg">
           <span class="leading-none">Mais Econômico</span>
@@ -684,8 +714,8 @@ const App: React.FC = () => {
 
   const sharePlatform = async () => {
     const shareData = {
-      title: "SiteZing - Criação Inteligente de Sites",
-      text: "Crie seu site profissional em segundos com a SiteZing! 🚀",
+      title: "SiteZing - Seu Site Pronto em Segundos",
+      text: "Tenha seu site online sem gastar nada por 7 dias! Crie seu site profissional em segundos com a SiteZing! 🚀",
       url: window.location.origin
     };
     try {
