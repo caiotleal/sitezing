@@ -478,12 +478,6 @@ const App: React.FC = () => {
        updates.editorialSummary = d.editorialSummary;
        updates.description = d.editorialSummary;
     }
-    if (d.website) {
-       try {
-           const domain = new URL(d.website).hostname;
-           updates.logoBase64 = `https://logo.clearbit.com/${domain}`;
-       } catch (e) {}
-    }
     
     setFormData(prev => {
         const nextState = { ...prev, ...updates };
@@ -708,7 +702,7 @@ const App: React.FC = () => {
     replaceAll('[[SOCIAL_LINKS]]', socialHtml);
 
     const headerContactBtn = data.showForm 
-      ? `<a href="#contato" class="btn-contact-premium"><span class="desktop-text">Fale Conosco</span><i class="fas fa-comment-dots mobile-icon"></i></a>` 
+      ? `<a href="#contato" class="btn-contact-premium"><i class="fas fa-comment-dots" style="font-size: 1.25rem;"></i></a>` 
       : ``;
     replaceAll('[[HEADER_CONTACT_BTN]]', headerContactBtn);
 

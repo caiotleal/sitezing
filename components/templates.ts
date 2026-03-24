@@ -16,8 +16,8 @@ export const TEMPLATES: Record<string, string> = {
         .glass { background: {{COLOR_2}}; backdrop-filter: blur(10px); border: 1px solid {{COLOR_3}}; }
         
         /* HEADER GLASS NATIVO */
-        .glass-header-premium { position: fixed; top: -100px; left: 0; width: 100%; z-index: 9998; transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
-        .glass-header-premium.scrolled { top: 0; }
+        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
+        
         .glass-container-premium { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
         .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: {{COLOR_4}}; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; flex-shrink: 0; }
         .glass-logo-premium img { max-height: 36px; width: auto; display: block; }
@@ -25,13 +25,9 @@ export const TEMPLATES: Record<string, string> = {
         .glass-social-links-premium { display: flex; gap: 12px; align-items: center; }
         .glass-social-link { font-size: 1.3rem; transition: transform 0.2s ease; display: flex; align-items: center; justify-content: center; text-decoration: none; }
         .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
-        .btn-contact-premium { padding: 10px 24px; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .btn-contact-premium { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-contact-premium:hover { transform: scale(1.05); opacity: 0.9; }
-        .mobile-icon { display: none; }
         @media (max-width: 768px) {
-           .desktop-text { display: none; }
-           .mobile-icon { display: block; font-size: 1.2rem; margin: 0; }
-           .btn-contact-premium { padding: 10px; width: 40px; height: 40px; border-radius: 50%; }
            .glass-social-links-premium { gap: 10px; }
            .glass-social-link { font-size: 1.1rem; }
            .glass-logo-premium img { max-height: 28px !important; }
@@ -100,17 +96,7 @@ export const TEMPLATES: Record<string, string> = {
         </div>
       </section>
 
-      <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const header = document.getElementById("glassHeaderPremium");
-            if(header) {
-                window.addEventListener("scroll", () => {
-                    if (window.scrollY > 150) { header.classList.add("scrolled"); }
-                    else { header.classList.remove("scrolled"); }
-                });
-            }
-        });
-      </script>
+      
     </body>
     </html>
   `,
@@ -130,8 +116,8 @@ export const TEMPLATES: Record<string, string> = {
       <style>
         body { font-family: 'Space Grotesk', sans-serif; background-color: {{COLOR_1}}; color: {{COLOR_4}}; }
         
-        .glass-header-premium { position: fixed; top: -100px; left: 0; width: 100%; z-index: 9998; transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
-        .glass-header-premium.scrolled { top: 0; }
+        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
+        
         .glass-container-premium { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
         .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: {{COLOR_4}}; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; flex-shrink: 0; }
         .glass-logo-premium img { max-height: 36px; width: auto; display: block; }
@@ -139,13 +125,9 @@ export const TEMPLATES: Record<string, string> = {
         .glass-social-links-premium { display: flex; gap: 12px; align-items: center; }
         .glass-social-link { font-size: 1.3rem; transition: transform 0.2s ease; display: flex; align-items: center; justify-content: center; text-decoration: none; }
         .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
-        .btn-contact-premium { padding: 10px 24px; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .btn-contact-premium { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-contact-premium:hover { transform: scale(1.05); opacity: 0.9; }
-        .mobile-icon { display: none; }
         @media (max-width: 768px) {
-           .desktop-text { display: none; }
-           .mobile-icon { display: block; font-size: 1.2rem; margin: 0; }
-           .btn-contact-premium { padding: 10px; width: 40px; height: 40px; border-radius: 50%; }
            .glass-social-links-premium { gap: 10px; }
            .glass-social-link { font-size: 1.1rem; }
            .glass-logo-premium img { max-height: 28px !important; }
@@ -164,9 +146,7 @@ export const TEMPLATES: Record<string, string> = {
           </div>
       </header>
 
-      <nav class="p-6 flex justify-between items-center max-w-7xl mx-auto w-full absolute top-0 left-0 right-0 z-50">
-        <div class="text-2xl font-bold tracking-tighter">[[LOGO_AREA]]</div>
-      </nav>
+      
 
       <section class="pt-32 pb-20 px-6 max-w-7xl mx-auto w-full flex-1 flex flex-col md:flex-row items-center gap-12">
         <div class="flex-1 w-full text-center md:text-left">
@@ -206,17 +186,7 @@ export const TEMPLATES: Record<string, string> = {
         [[MAP_AREA]]
       </section>
 
-      <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const header = document.getElementById("glassHeaderPremium");
-            if(header) {
-                window.addEventListener("scroll", () => {
-                    if (window.scrollY > 150) { header.classList.add("scrolled"); }
-                    else { header.classList.remove("scrolled"); }
-                });
-            }
-        });
-      </script>
+      
     </body>
     </html>
   `,
@@ -237,8 +207,8 @@ export const TEMPLATES: Record<string, string> = {
         body { font-family: 'Outfit', sans-serif; background-color: {{COLOR_1}}; color: {{COLOR_4}}; }
         .glass-panel { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 2rem; backdrop-filter: blur(20px); }
         
-        .glass-header-premium { position: fixed; top: -100px; left: 0; width: 100%; z-index: 9998; transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
-        .glass-header-premium.scrolled { top: 0; }
+        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
+        
         .glass-container-premium { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
         .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: {{COLOR_4}}; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; flex-shrink: 0; }
         .glass-logo-premium img { max-height: 36px; width: auto; display: block; }
@@ -246,13 +216,9 @@ export const TEMPLATES: Record<string, string> = {
         .glass-social-links-premium { display: flex; gap: 12px; align-items: center; }
         .glass-social-link { font-size: 1.3rem; transition: transform 0.2s ease; display: flex; align-items: center; justify-content: center; text-decoration: none; }
         .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
-        .btn-contact-premium { padding: 10px 24px; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .btn-contact-premium { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-contact-premium:hover { transform: scale(1.05); opacity: 0.9; }
-        .mobile-icon { display: none; }
         @media (max-width: 768px) {
-           .desktop-text { display: none; }
-           .mobile-icon { display: block; font-size: 1.2rem; margin: 0; }
-           .btn-contact-premium { padding: 10px; width: 40px; height: 40px; border-radius: 50%; }
            .glass-social-links-premium { gap: 10px; }
            .glass-social-link { font-size: 1.1rem; }
            .glass-logo-premium img { max-height: 28px !important; }
@@ -274,12 +240,10 @@ export const TEMPLATES: Record<string, string> = {
       <div class="fixed top-0 left-0 w-96 h-96 bg-[{{COLOR_5}}] rounded-full mix-blend-multiply filter blur-[128px] opacity-20 z-0"></div>
       <div class="fixed bottom-0 right-0 w-96 h-96 bg-[{{COLOR_7}}] rounded-full mix-blend-multiply filter blur-[128px] opacity-20 z-0"></div>
 
-      <div class="max-w-7xl mx-auto w-full z-10 flex-1 flex flex-col gap-6">
+      <div class="max-w-7xl mx-auto w-full z-10 flex-1 flex flex-col gap-6 pt-32">
         
         <div class="grid md:grid-cols-3 gap-6">
-          <header class="glass-panel p-8 md:col-span-3 flex justify-between items-center">
-            <div class="text-3xl font-extrabold uppercase tracking-widest">[[LOGO_AREA]]</div>
-          </header>
+          
           
           <div class="glass-panel p-10 md:col-span-2 flex flex-col justify-center">
             <h1 class="text-4xl md:text-6xl font-extrabold mb-4">{{HERO_TITLE}}</h1>
@@ -322,17 +286,7 @@ export const TEMPLATES: Record<string, string> = {
 
       </div>
 
-      <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const header = document.getElementById("glassHeaderPremium");
-            if(header) {
-                window.addEventListener("scroll", () => {
-                    if (window.scrollY > 150) { header.classList.add("scrolled"); }
-                    else { header.classList.remove("scrolled"); }
-                });
-            }
-        });
-      </script>
+      
     </body>
     </html>
   `,
@@ -353,8 +307,8 @@ export const TEMPLATES: Record<string, string> = {
         body { font-family: 'Lato', sans-serif; background-color: {{COLOR_1}}; color: {{COLOR_4}}; }
         h1, h2, h3, .logo-text { font-family: 'Playfair Display', serif; }
         
-        .glass-header-premium { position: fixed; top: -100px; left: 0; width: 100%; z-index: 9998; transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
-        .glass-header-premium.scrolled { top: 0; }
+        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
+        
         .glass-container-premium { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
         .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: {{COLOR_4}}; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; flex-shrink: 0; }
         .glass-logo-premium img { max-height: 36px; width: auto; display: block; }
@@ -362,13 +316,9 @@ export const TEMPLATES: Record<string, string> = {
         .glass-social-links-premium { display: flex; gap: 12px; align-items: center; }
         .glass-social-link { font-size: 1.3rem; transition: transform 0.2s ease; display: flex; align-items: center; justify-content: center; text-decoration: none; }
         .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
-        .btn-contact-premium { padding: 10px 24px; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .btn-contact-premium { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-contact-premium:hover { transform: scale(1.05); opacity: 0.9; }
-        .mobile-icon { display: none; }
         @media (max-width: 768px) {
-           .desktop-text { display: none; }
-           .mobile-icon { display: block; font-size: 1.2rem; margin: 0; }
-           .btn-contact-premium { padding: 10px; width: 40px; height: 40px; border-radius: 50%; }
            .glass-social-links-premium { gap: 10px; }
            .glass-social-link { font-size: 1.1rem; }
            .glass-logo-premium img { max-height: 28px !important; }
@@ -387,15 +337,11 @@ export const TEMPLATES: Record<string, string> = {
           </div>
       </header>
 
-      <nav class="w-full border-b border-[{{COLOR_3}}]">
-        <div class="max-w-5xl mx-auto px-6 py-8 text-center">
-          <div class="text-3xl font-bold tracking-widest logo-text">[[LOGO_AREA]]</div>
-        </div>
-      </nav>
+      
 
       <main class="flex-1 max-w-4xl mx-auto w-full px-6">
         
-        <section class="py-24 text-center">
+        <section class="pt-40 pb-24 text-center">
           <h1 class="text-5xl md:text-7xl mb-6">{{HERO_TITLE}}</h1>
           <p class="text-xl uppercase tracking-widest opacity-60 mb-12">{{HERO_SUBTITLE}}</p>
           <div class="w-full mb-12">[[HERO_IMAGE]]</div>
@@ -433,17 +379,7 @@ export const TEMPLATES: Record<string, string> = {
         © {{BUSINESS_NAME}}
       </footer>
 
-      <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const header = document.getElementById("glassHeaderPremium");
-            if(header) {
-                window.addEventListener("scroll", () => {
-                    if (window.scrollY > 150) { header.classList.add("scrolled"); }
-                    else { header.classList.remove("scrolled"); }
-                });
-            }
-        });
-      </script>
+      
     </body>
     </html>
   `,
@@ -464,8 +400,8 @@ export const TEMPLATES: Record<string, string> = {
         body { font-family: 'Montserrat', sans-serif; background-color: {{COLOR_1}}; color: {{COLOR_4}}; overflow-x: hidden; }
         .section-curve { border-bottom-left-radius: 5rem; border-bottom-right-radius: 5rem; }
         
-        .glass-header-premium { position: fixed; top: -100px; left: 0; width: 100%; z-index: 9998; transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1); background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
-        .glass-header-premium.scrolled { top: 0; }
+        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
+        
         .glass-container-premium { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
         .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: {{COLOR_4}}; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; flex-shrink: 0; }
         .glass-logo-premium img { max-height: 36px; width: auto; display: block; }
@@ -473,13 +409,9 @@ export const TEMPLATES: Record<string, string> = {
         .glass-social-links-premium { display: flex; gap: 12px; align-items: center; }
         .glass-social-link { font-size: 1.3rem; transition: transform 0.2s ease; display: flex; align-items: center; justify-content: center; text-decoration: none; }
         .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
-        .btn-contact-premium { padding: 10px 24px; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .btn-contact-premium { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .btn-contact-premium:hover { transform: scale(1.05); opacity: 0.9; }
-        .mobile-icon { display: none; }
         @media (max-width: 768px) {
-           .desktop-text { display: none; }
-           .mobile-icon { display: block; font-size: 1.2rem; margin: 0; }
-           .btn-contact-premium { padding: 10px; width: 40px; height: 40px; border-radius: 50%; }
            .glass-social-links-premium { gap: 10px; }
            .glass-social-link { font-size: 1.1rem; }
            .glass-logo-premium img { max-height: 28px !important; }
@@ -498,10 +430,8 @@ export const TEMPLATES: Record<string, string> = {
           </div>
       </header>
 
-      <section class="bg-[{{COLOR_2}}] section-curve pt-10 pb-32 px-6 relative z-20 shadow-2xl">
-        <header class="max-w-7xl mx-auto flex justify-between items-center mb-20">
-          <div class="text-2xl font-black uppercase tracking-tight">[[LOGO_AREA]]</div>
-        </header>
+      <section class="bg-[{{COLOR_2}}] section-curve pt-32 pb-32 px-6 relative z-20 shadow-2xl">
+        
         
         <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div>
@@ -544,17 +474,7 @@ export const TEMPLATES: Record<string, string> = {
         </div>
       </section>
 
-      <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const header = document.getElementById("glassHeaderPremium");
-            if(header) {
-                window.addEventListener("scroll", () => {
-                    if (window.scrollY > 150) { header.classList.add("scrolled"); }
-                    else { header.classList.remove("scrolled"); }
-                });
-            }
-        });
-      </script>
+      
     </body>
     </html>
   `
