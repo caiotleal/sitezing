@@ -233,22 +233,49 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
   
   // Banner de Marketing
   if (platformConfigs.marketing?.bannerActive && platformConfigs.marketing?.bannerText) {
-    let bannerColor = '#3b82f6'; // info (default blue)
-    if (platformConfigs.marketing.bannerType === 'warning') bannerColor = '#f59e0b'; // orange
-    if (platformConfigs.marketing.bannerType === 'christmas') bannerColor = '#ef4444'; // red
-    if (platformConfigs.marketing.bannerType === 'black-friday') bannerColor = '#1c1917'; // stone-900
-    
+    const type = platformConfigs.marketing.bannerType || 'info';
+    let bannerStyle = '';
+    let bannerContent = platformConfigs.marketing.bannerText;
+    let extraCss = '';
+
+    if (type === 'christmas') {
+      bannerStyle = 'background: linear-gradient(90deg, #ef4444 0%, #991b1b 100%); border-bottom: 2px solid #fca5a5;';
+      bannerContent = `<i class="fas fa-snowflake animate-pulse mr-2"></i> ${bannerContent} <i class="fas fa-snowflake animate-pulse ml-2"></i>`;
+      extraCss = `
+        @keyframes snow { from { background-position: 0 0; } to { background-position: 500px 500px; } }
+        .banner-christmas::before { content: ""; position: absolute; inset: 0; opacity: 0.15; background-image: url('https://www.transparenttextures.com/patterns/snow.png'); animation: snow 20s linear infinite; pointer-events: none; }
+      `;
+    } else if (type === 'black-friday') {
+      bannerStyle = 'background: #000; border-bottom: 2px solid #f97316; box-shadow: 0 0 20px rgba(249,115,22,0.4);';
+      bannerContent = `<i class="fas fa-tag text-orange-500 mr-2"></i> <span style="text-shadow: 0 0 10px #f97316;">${bannerContent}</span> <i class="fas fa-bolt text-orange-500 ml-2"></i>`;
+      extraCss = `
+        @keyframes neonPulse { 0%, 100% { border-color: #f97316; box-shadow: 0 0 15px rgba(249,115,22,0.4); } 50% { border-color: #fbbf24; box-shadow: 0 0 30px rgba(249,115,22,0.6); } }
+        .banner-black-friday { animation: neonPulse 2s infinite ease-in-out; }
+      `;
+    } else if (type === 'warning') {
+      bannerStyle = 'background: #f97316;';
+      bannerContent = `<i class="fas fa-fire-alt animate-bounce mr-2"></i> ${bannerContent}`;
+      extraCss = `
+        @keyframes zingPulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        .banner-warning { animation: zingPulse 1.5s infinite ease-in-out; }
+      `;
+    } else {
+      bannerStyle = 'background: #3b82f6;';
+      bannerContent = `<i class="fas fa-info-circle mr-2"></i> ${bannerContent}`;
+    }
+
     const bannerHtml = `
-      <div style="background: ${bannerColor}; color: white; text-align: center; padding: 12px; font-weight: 900; font-size: 14px; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-transform: uppercase; letter-spacing: 1px; line-height: 1.2;">
-        ${platformConfigs.marketing.bannerText}
+      <div class="banner-${type}" style="${bannerStyle} color: white; text-align: center; padding: 14px; font-weight: 900; font-size: 14px; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; text-transform: uppercase; letter-spacing: 1.5px; line-height: 1.2; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+        ${bannerContent}
       </div>
     `;
-    // Ajustar layout do header para o banner
+
     const bannerStyles = `
       <style>
-        header { top: 44px !important; }
-        main { padding-top: calc(8rem + 44px) !important; }
-        body { padding-top: 44px !important; }
+        ${extraCss}
+        header { top: 46px !important; transition: top 0.3s ease; }
+        main { padding-top: calc(8rem + 46px) !important; transition: padding 0.3s ease; }
+        body { padding-top: 46px !important; }
       </style>
     `;
     html = html.replace(/<\/head>/i, `${bannerStyles}</head>`);
