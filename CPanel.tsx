@@ -61,7 +61,7 @@ const CPanel: React.FC = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
-      if (u && u.email === ADMIN_EMAIL) {
+      if (u && u.email?.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
         setUser(u);
         fetchAdminData();
       } else {
@@ -102,7 +102,7 @@ const CPanel: React.FC = () => {
       const res: any = await listFn({});
       const allProjects = Array.isArray(res.data?.projects) ? res.data.projects : [];
       // Ordenar por data de criação (se houver) decrescente
-      setProjects(allProjects.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)));
+      setProjects(allProjects.sort((a,b) => (b.createdAt?._seconds || 0) - (a.createdAt?._seconds || 0)));
 
       let revenue = 0;
       allProjects.forEach((p: any) => {
@@ -123,6 +123,8 @@ const CPanel: React.FC = () => {
     } catch (err: any) {
       console.error("Erro fetchAdminData:", err);
       setProjects([]);
+    } finally {
+      setLoading(false);
     }
   };
 
