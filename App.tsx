@@ -682,6 +682,21 @@ const App: React.FC = () => {
     );
   }
 
+  const sharePlatform = async () => {
+    const shareData = {
+      title: "SiteZing - Criação Inteligente de Sites",
+      text: "Crie seu site profissional em segundos com a SiteZing! 🚀",
+      url: window.location.origin
+    };
+    try {
+      if (navigator.share) { await navigator.share(shareData); }
+      else { 
+        navigator.clipboard.writeText(window.location.origin);
+        showToast('Link da SiteZing copiado!', 'success');
+      }
+    } catch (err) { console.log('Erro ao compartilhar:', err); }
+  };
+
   const showToast = (message: string, type: 'success'|'error'|'info'|'warning' = 'info') => {
     setToast({ message, type });
   };
@@ -1418,13 +1433,17 @@ const App: React.FC = () => {
             >
               <motion.div 
                 initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 20, opacity: 0 }} transition={{ delay: 0.1 }}
-                className="w-full h-full bg-[#F8FAFC] border border-stone-200 rounded-[2rem] shadow-xl flex flex-col overflow-hidden relative"
+                className="w-full h-full lg:aspect-[16/9] lg:max-h-[min(90vh,900px)] lg:mx-auto lg:my-auto bg-[#F8FAFC] border border-stone-200 lg:rounded-[2rem] rounded-none shadow-xl flex flex-col overflow-hidden relative"
               >
                 <div className="flex justify-between items-center px-6 py-5 border-b border-stone-200 flex-shrink-0 bg-white">
                   <div className="flex items-center gap-3 select-none">
                     <img src={BRAND_LOGO} alt="SiteZing" className="h-10 w-auto object-contain" />
                   </div>
                   <div className="flex items-center gap-4">
+                    <button onClick={sharePlatform} className="text-stone-400 hover:text-orange-500 transition-colors p-2 rounded-full hover:bg-orange-50" title="Compartilhar SiteZing">
+                      <ExternalLink size={18} />
+                    </button>
+                    <div className="w-px h-4 bg-stone-200"></div>
                     {loggedUserEmail ? (
                       <button className="text-stone-400 hover:text-teal-500 transition-colors" title={`Logado como: ${loggedUserEmail}`}><User size={18} /></button>
                     ) : (
