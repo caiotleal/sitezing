@@ -521,7 +521,8 @@ const App: React.FC = () => {
     showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', 
     logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [] as any[], editorialSummary: '',
     customSlug: '', isCustomSlugEdited: false, googlePhotos: [] as string[],
-    headerLayout: 'logo_left_icons_right'
+    headerLayout: 'logo_left_icons_right',
+    manualCss: ''
   });
   const [pendingSave, setPendingSave] = useState(false);
 
@@ -782,6 +783,7 @@ const App: React.FC = () => {
       <meta property="og:image" content="${data.logoBase64 || BRAND_LOGO}">
       <meta property="og:type" content="website">
       <meta name="theme-color" content="${colors.c2}">
+      <style>${data.manualCss || ''}</style>
       <script>
         async function zingShareSite() {
           const shareData = {
