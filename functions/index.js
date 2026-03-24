@@ -575,7 +575,7 @@ exports.updateProjectAdminManual = onCall({ cors: true }, async (request) => {
   if (request.auth?.token?.email !== ADMIN_EMAIL) {
     throw new HttpsError("permission-denied", "Acesso restrito ao administrador.");
   }
-  const { projectId, manualCss } = request.data;
+  const { projectId, manualCss, formData } = request.data;
   const db = admin.firestore();
   
   const projectsSnap = await db.collectionGroup("projects").get();
@@ -586,20 +586,15 @@ exports.updateProjectAdminManual = onCall({ cors: true }, async (request) => {
   const docRef = projectDoc.ref;
   const currentData = projectDoc.data();
   
-  let newHtml = currentData.generatedHtml || '';
-  const cssBlock = `<style id="admin-css">${manualCss}</style>`;
-  
-  if (newHtml.includes('id="admin-css"')) {
-    newHtml = newHtml.replace(/<style id="admin-css">.*?<\/style>/s, cssBlock);
-  } else {
-    newHtml = newHtml.replace('</head>', `${cssBlock}</head>`);
-  }
+  // Mesclar formData se enviado, senão usa o atual
+  const updatedFormData = formData ? { ...(currentData.formData || {}), ...formData, manualCss } : { ...(currentData.formData || {}), manualCss };
 
-  const updatedFormData = { ...(currentData.formData || {}), manualCss };
+  // O HTML não é atualizado aqui porque o site do cliente renderiza o formData dinamicamente na visita ou no preview
+  // Se o usuário quiser regenerar o HTML estático, precisaria chamar as outras funções, 
+  // mas como o preview do cliente usa formData, carregar os novos dados já "resolve".
 
   await docRef.update({ 
     manualCss, 
-    generatedHtml: newHtml,
     formData: updatedFormData
   });
   

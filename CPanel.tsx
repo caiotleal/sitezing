@@ -269,7 +269,9 @@ const CPanel: React.FC = () => {
                               <div className="text-[9px] font-mono text-stone-400">{p.id}</div>
                             </td>
                             <td className="px-6 py-4">
-                              <div className="text-xs font-bold text-stone-700 capitalize">{p.plan || 'Free'}</div>
+                              <div className="text-xs font-bold text-stone-700 capitalize">
+                                {p.plan === 'monthly' ? 'Mensal (R$ 49,90)' : p.plan === 'annual' ? 'Anual (R$ 499,00)' : 'Gratuito'}
+                              </div>
                               <div className="text-[9px] text-stone-400 font-mono">{p.stripeSubscriptionId || 'Sem Checkout'}</div>
                             </td>
                             <td className="px-6 py-4">
@@ -320,6 +322,22 @@ const CPanel: React.FC = () => {
                       <div className="space-y-3">
                         <label className="block text-[10px] font-black uppercase text-stone-400">Instagram</label>
                         <input type="text" value={editingFormData.instagram || ''} onChange={e => updateField('instagram', e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs focus:ring-2 focus:ring-orange-500 outline-none transition-all font-bold" />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="block text-[10px] font-black uppercase text-stone-400">E-mail de Contato</label>
+                        <input type="email" value={editingFormData.email || ''} onChange={e => updateField('email', e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs focus:ring-2 focus:ring-orange-500 outline-none transition-all font-bold" />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="block text-[10px] font-black uppercase text-stone-400">Facebook</label>
+                        <input type="text" value={editingFormData.facebook || ''} onChange={e => updateField('facebook', e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs focus:ring-2 focus:ring-orange-500 outline-none transition-all font-bold" />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="block text-[10px] font-black uppercase text-stone-400">TikTok</label>
+                        <input type="text" value={editingFormData.tiktok || ''} onChange={e => updateField('tiktok', e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs focus:ring-2 focus:ring-orange-500 outline-none transition-all font-bold" />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="block text-[10px] font-black uppercase text-stone-400">Link iFood</label>
+                        <input type="text" value={editingFormData.ifood || ''} onChange={e => updateField('ifood', e.target.value)} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs focus:ring-2 focus:ring-orange-500 outline-none transition-all font-bold" />
                       </div>
                       <div className="space-y-3">
                         <label className="block text-[10px] font-black uppercase text-stone-400">Endereço</label>
