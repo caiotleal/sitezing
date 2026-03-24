@@ -538,7 +538,7 @@ exports.fetchGoogleBusiness = onCall({ cors: true }, async (request) => {
 // ============================================================================
 // FUNÇÕES DE ADMINISTRAÇÃO (cPanel)
 // ============================================================================
-const ADMIN_EMAIL = 'caiotleal@gmail.com.br';
+const ADMIN_EMAIL = 'caiotleal@gmail.com';
 
 exports.listAllProjectsAdmin = onCall({ cors: true }, async (request) => {
   if (request.auth?.token?.email !== ADMIN_EMAIL) {

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { BRAND_LOGO } from './components/brand';
 
-const ADMIN_EMAIL = 'caiotleal@gmail.com.br';
+const ADMIN_EMAIL = 'caiotleal@gmail.com';
 
 const CPanel: React.FC = () => {
   const [user, setUser] = useState<any>(null);
