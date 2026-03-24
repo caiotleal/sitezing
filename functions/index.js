@@ -498,7 +498,7 @@ exports.fetchGoogleBusiness = onCall({ cors: true }, async (request) => {
     const headers = {
       "Content-Type": "application/json",
       "X-Goog-Api-Key": apiKey,
-      "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.websiteUri,places.rating,places.reviews"
+      "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.websiteUri,places.rating,places.reviews,places.photos"
     };
 
     const searchRes = await axios.post(searchUrl, data, { headers });
@@ -516,13 +516,18 @@ exports.fetchGoogleBusiness = onCall({ cors: true }, async (request) => {
       relative_time_description: r.relativePublishTimeDescription || ""
     }));
 
+    const parsedPhotos = (place.photos || []).slice(0, 12).map(p => {
+       return `https://places.googleapis.com/v1/${p.name}/media?maxHeightPx=800&maxWidthPx=800&key=${apiKey}`;
+    });
+
     return {
       name: place.displayName?.text || "",
       address: place.formattedAddress || "",
       phone: place.nationalPhoneNumber || "",
       website: place.websiteUri || "",
       rating: place.rating || 0,
-      reviews: parsedReviews
+      reviews: parsedReviews,
+      photos: parsedPhotos
     };
   } catch (err) {
     console.error("Erro na API Places (New):", err.response?.data || err.message);
