@@ -16,11 +16,12 @@ const CPanel: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<any[]>([]);
   const [stats, setStats] = useState({ totalSites: 0, totalRevenue: 0, activeSites: 0 });
-  const [view, setView] = useState<'dashboard' | 'editor'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'editor' | 'users' | 'domains' | 'settings'>('dashboard');
   const [editingProject, setEditingProject] = useState<any>(null);
   const [editingFormData, setEditingFormData] = useState<any>(null);
   const [manualCss, setManualCss] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -134,6 +135,35 @@ const CPanel: React.FC = () => {
     setEditingFormData((prev: any) => ({ ...prev, [field]: value }));
   };
 
+  // Helper selectors
+  const filteredProjects = projects.filter(p => 
+    p.businessName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.ownerEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.id?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const uniqueUsers = Array.from(new Set(projects.map(p => p.ownerEmail))).map(email => {
+    const userProjects = projects.filter(p => p.ownerEmail === email);
+    return {
+      email: email || 'Anônimo',
+      count: userProjects.length,
+      active: userProjects.filter(p => p.status === 'active' || p.status === 'published').length,
+      revenue: userProjects.reduce((sum, p) => {
+        if (p.plan === 'monthly') return sum + 49.90;
+        if (p.plan === 'annual') return sum + 41.58;
+        return sum;
+      }, 0)
+    };
+  });
+
+  const domains = projects.filter(p => p.officialDomain && p.officialDomain !== 'Pendente').map(p => ({
+    id: p.id,
+    businessName: p.businessName,
+    domain: p.officialDomain,
+    status: p.domainStatus || 'PENDING',
+    internal: `${p.internalDomain}.sitezing.com.br`
+  }));
+
   if (loading) return (
     <div className="min-h-screen bg-stone-50 flex items-center justify-center">
       <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
@@ -185,13 +215,13 @@ const CPanel: React.FC = () => {
           <button onClick={() => setView('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'dashboard' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
             <BarChart3 size={18} /> Dashboard
           </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-stone-500 hover:bg-stone-50 transition-all">
+          <button onClick={() => setView('users')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'users' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
             <Users size={18} /> Usuários
           </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-stone-500 hover:bg-stone-50 transition-all">
+          <button onClick={() => setView('domains')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'domains' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
             <Globe size={18} /> Domínios
           </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-stone-500 hover:bg-stone-50 transition-all">
+          <button onClick={() => setView('settings')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'settings' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
             <Settings size={18} /> Configurações
           </button>
         </nav>
@@ -206,7 +236,10 @@ const CPanel: React.FC = () => {
       <main className="flex-1 overflow-y-auto">
         <header className="h-20 bg-white border-b border-stone-200 flex items-center justify-between px-8 sticky top-0 z-30">
           <h2 className="text-xl font-black uppercase italic tracking-tight text-stone-900">
-            {view === 'dashboard' ? 'Gestão de Plataforma' : `Ajuste Admin: ${editingProject?.businessName}`}
+            {view === 'dashboard' ? 'Gestão de Plataforma' : 
+             view === 'users' ? 'Gestão de Usuários' :
+             view === 'domains' ? 'Gestão de Domínios' :
+             view === 'settings' ? 'Configurações de Admin' : `Ajuste Admin: ${editingProject?.businessName}`}
           </h2>
           <div className="flex items-center gap-4">
             <div className="bg-stone-100 px-4 py-2 rounded-lg flex items-center gap-2">
@@ -218,7 +251,7 @@ const CPanel: React.FC = () => {
 
         <div className="p-8">
           <AnimatePresence mode="wait">
-            {view === 'dashboard' ? (
+            {view === 'dashboard' && (
               <motion.div key="dash" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm relative overflow-hidden group">
@@ -235,9 +268,9 @@ const CPanel: React.FC = () => {
                   </div>
                   <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><Users size={48} className="text-blue-500" /></div>
-                    <p className="text-[10px] font-black uppercase text-stone-400 tracking-widest mb-1">Crescimento da Base</p>
-                    <h3 className="text-3xl font-black text-stone-900">{(stats.totalSites / 2).toFixed(0)}%</h3>
-                    <p className="text-[11px] text-blue-600 font-bold mt-2">Novos usuários este mês</p>
+                    <p className="text-[10px] font-black uppercase text-stone-400 tracking-widest mb-1">Total de Clientes</p>
+                    <h3 className="text-3xl font-black text-stone-900">{uniqueUsers.length}</h3>
+                    <p className="text-[11px] text-blue-600 font-bold mt-2">Média {(stats.totalSites / (uniqueUsers.length || 1)).toFixed(1)} sites/usuário</p>
                   </div>
                 </div>
 
@@ -245,7 +278,7 @@ const CPanel: React.FC = () => {
                   <div className="p-6 border-b border-stone-200 flex items-center justify-between">
                     <div className="relative w-80">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={16} />
-                      <input type="text" placeholder="Buscar site, dono ou Stripe ID..." className="w-full bg-stone-50 border border-stone-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-orange-500 transition-all font-medium" />
+                      <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Buscar site, dono ou Stripe ID..." className="w-full bg-stone-50 border border-stone-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-orange-500 transition-all font-medium" />
                     </div>
                     <button onClick={fetchAdminData} className="p-2 text-stone-400 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-all"><RefreshCw size={20} /></button>
                   </div>
@@ -261,7 +294,7 @@ const CPanel: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-stone-100">
-                        {projects.map((p: any) => (
+                        {filteredProjects.map((p: any) => (
                           <tr key={p.id} className="hover:bg-stone-50/50 transition-colors">
                             <td className="px-6 py-4">
                               <div className="font-bold text-stone-900">{p.businessName}</div>
@@ -304,7 +337,89 @@ const CPanel: React.FC = () => {
                   </div>
                 </div>
               </motion.div>
-            ) : (
+            )}
+
+            {view === 'users' && (
+              <motion.div key="users" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="bg-stone-50 border-b border-stone-200">
+                        <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest">E-mail do Cliente</th>
+                        <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest">Qtd Sites</th>
+                        <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest">Sites Ativos</th>
+                        <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest">Receita Estimada</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-stone-100">
+                      {uniqueUsers.map(u => (
+                        <tr key={u.email} className="hover:bg-stone-50/50">
+                          <td className="px-6 py-4 font-bold text-stone-900">{u.email}</td>
+                          <td className="px-6 py-4 text-xs font-bold">{u.count}</td>
+                          <td className="px-6 py-4 text-xs font-bold text-emerald-600">{u.active}</td>
+                          <td className="px-6 py-4 text-xs font-black">R$ {u.revenue.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            )}
+
+            {view === 'domains' && (
+              <motion.div key="domains" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                <div className="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="bg-stone-50 border-b border-stone-200">
+                        <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest">Projeto</th>
+                        <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest">Domínio Oficial</th>
+                        <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest">Redirecionamento</th>
+                        <th className="px-6 py-4 text-[10px] font-black uppercase text-stone-400 tracking-widest">Status DNS</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-stone-100">
+                      {domains.map(d => (
+                        <tr key={d.id} className="hover:bg-stone-50/50">
+                          <td className="px-6 py-4 font-bold text-stone-900">{d.businessName}</td>
+                          <td className="px-6 py-4 text-xs font-mono text-blue-600">{d.domain}</td>
+                          <td className="px-6 py-4 text-xs font-mono text-stone-400">{d.internal}</td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${d.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700' : 'bg-yellow-100 text-yellow-700'}`}>{d.status}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            )}
+
+            {view === 'settings' && (
+              <motion.div key="settings" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-2xl space-y-6">
+                <div className="bg-white p-8 rounded-2xl border border-stone-200 shadow-sm space-y-6">
+                  <h3 className="text-lg font-black uppercase italic">Configurações Gerais</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-stone-50 rounded-xl">
+                      <div>
+                        <p className="text-sm font-bold">Modo de Manutenção</p>
+                        <p className="text-[10px] text-stone-500">Bloqueia o acesso de todos os clientes ao criador.</p>
+                      </div>
+                      <div className="w-12 h-6 bg-stone-200 rounded-full relative"><div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full"></div></div>
+                    </div>
+                    <div className="flex items-center justify-between p-4 bg-stone-50 rounded-xl">
+                      <div>
+                        <p className="text-sm font-bold">Notificações Slack/Discord</p>
+                        <p className="text-[10px] text-stone-500">Receba avisos de novas vendas admin.</p>
+                      </div>
+                      <div className="w-12 h-6 bg-emerald-500 rounded-full relative"><div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div></div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {view === 'editor' && (
               <motion.div key="editor" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-6">
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                   {/* Sidebar de Edição */}
