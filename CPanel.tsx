@@ -195,7 +195,7 @@ const CPanel: React.FC = () => {
 
     return {
       email: user.email || 'Anônimo',
-      uid: user.uid,
+      uid: user.uid || `user-${Math.random()}`,
       count: userProjects.length,
       active: userProjects.filter(p => p.status === 'active' || p.status === 'published').length,
       revenue: userRevenue
@@ -421,8 +421,8 @@ const CPanel: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-stone-100">
-                      {uniqueUsers.map(u => (
-                        <tr key={u.email} className="hover:bg-stone-50/50">
+                      {uniqueUsers.map((u, idx) => (
+                        <tr key={u.uid || `u-${idx}`} className="hover:bg-stone-50/50">
                           <td className="px-6 py-4 font-bold text-stone-900">{u.email}</td>
                           <td className="px-6 py-4 text-xs font-bold">{u.count}</td>
                           <td className="px-6 py-4 text-xs font-bold text-emerald-600">{u.active}</td>
