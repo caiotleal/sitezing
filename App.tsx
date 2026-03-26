@@ -79,7 +79,7 @@ const PROMO_HTML = `
     .card-share-btn:hover { background: #f97316; color: white; }
 
     @media (min-width: 1024px) {
-      body { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+      body { display: flex; flex-direction: column; }
       main { flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: none !important; padding: 0 8% !important; margin: 0 !important; }
       header { height: 80px !important; }
       .footer-commercial { height: 80px; }
@@ -127,8 +127,8 @@ const PROMO_HTML = `
     <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-orange-200/30 blur-[150px] rounded-full pointer-events-none"></div>
 
     <div class="relative z-10 animate-up text-center md:text-left max-w-3xl mb-12">
-      <h1 class="text-[3rem] md:text-[5rem] font-black leading-[0.9] tracking-tighter mb-6 uppercase italic text-stone-900">
-        Seu site pronto em um <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500 pr-10 inline-block">ZING!!!</span>
+      <h1 class="text-[3.5rem] md:text-[6rem] font-black leading-[0.9] tracking-tighter mb-6 uppercase italic text-stone-900">
+        Seu site pronto em um <span class="text-orange-500 pr-10 inline-block drop-shadow-sm">ZING!!!</span>
       </h1>
       <p class="text-lg md:text-xl text-stone-500 font-light leading-relaxed">
         Não perca vendas por não estar no Google. A nossa inteligência artificial cria, escreve e publica o seu site automaticamente. Preencha o menu ao lado e veja a mágica acontecer.
@@ -427,6 +427,14 @@ const getPreviewHtml = (baseHtml: string | null) => {
       .editable-element:focus { outline-color: #ffffff; }
       .editable-image { position: relative; transition: all 0.2s; overflow: hidden; }
       .editable-image:hover { background: transparent; }
+      @keyframes guide-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); transform: scale(1); }
+        50% { box-shadow: 0 0 0 15px rgba(249, 115, 22, 0); transform: scale(1.05); }
+        100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); transform: scale(1); }
+      }
+      .animate-guide-pulse {
+        animation: guide-pulse 2s infinite;
+      }
     </style>
     <div id="editor-toolbar" class="custom-editor-toolbar">
       <div class="color-picker-group" title="Cor do Texto (Fonte)"><span class="color-picker-label">T</span><input type="color" id="fore-color-picker" /></div>
@@ -590,6 +598,28 @@ const extractCustomImages = (html: string | null) => {
   return images;
 };
 
+const GuidedTip: React.FC<{
+  step: number; 
+  currentStep: number; 
+  text: string; 
+  position?: 'top' | 'bottom' | 'left' | 'right';
+  targetRef?: React.RefObject<HTMLElement>;
+}> = ({ step, currentStep, text }) => {
+  if (step !== currentStep) return null;
+  return (
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.8, y: 10 }} 
+      animate={{ opacity: 1, scale: 1, y: 0 }} 
+      className="absolute z-[100] bg-orange-600 text-white px-4 py-3 rounded-2xl shadow-xl border-2 border-orange-400 font-bold text-xs flex items-center gap-2 max-w-[200px] text-center"
+      style={{ left: '50%', transform: 'translateX(-50%)', bottom: '110%' }}
+    >
+      <div className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-orange-600"></div>
+      <Sparkles size={16} className="shrink-0 animate-pulse text-yellow-300" />
+      {text}
+    </motion.div>
+  );
+};
+
 // DOMÍNIOS DA PLATAFORMA QUE CARREGAM O EDITOR
 const BUILDER_DOMAINS = ['localhost', 'sitezing.com.br', 'www.sitezing.com.br', 'criador-de-site-1a91d.web.app', 'criador-de-site-1a91d.firebaseapp.com'];
 
@@ -682,6 +712,11 @@ const App: React.FC = () => {
   const [isFetchingGoogle, setIsFetchingGoogle] = useState(false);
   const [googleStatus, setGoogleStatus] = useState<{type: 'success'|'error', msg: string}|null>(null);
   const [pendingGoogleData, setPendingGoogleData] = useState<any>(null);
+  const [guideStep, setGuideStep] = useState(0);
+
+  const nextGuideStep = (step: number) => {
+    if (guideStep < step) setGuideStep(step);
+  };
 
   const fetchGoogleData = async () => {
     if (!formData.googlePlaceUrl) return;
@@ -755,7 +790,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!generatedHtml && !currentProjectSlug && !isClientSiteView) {
-      const timer = setTimeout(() => setShowFloatModal(true), 10000);
+      const timer = setTimeout(() => setShowFloatModal(true), 0);
       return () => clearTimeout(timer);
     }
   }, [generatedHtml, currentProjectSlug, isClientSiteView]);
@@ -1217,6 +1252,7 @@ const App: React.FC = () => {
       setGeneratedHtml(renderTemplate(result.data, formData, extractedImages));
       setHasUnsavedChanges(true);
       showToast('Site gerado com inteligência artificial!', 'success');
+      nextGuideStep(1); // Passo 1: Minimizar para ver
     } catch (error: any) { showToast('Erro na geração: ' + error.message, 'error'); } 
     finally { setIsGenerating(false); }
   };
@@ -1269,6 +1305,7 @@ const App: React.FC = () => {
         });
         if (res.data?.projectSlug) setCurrentProjectSlug(res.data.projectSlug);
         showToast('Projeto criado e salvo!', 'success');
+        nextGuideStep(3); // Passo 3: Publicar
       }
       setHasUnsavedChanges(false);
       
@@ -1304,6 +1341,7 @@ const App: React.FC = () => {
       setSavedProjects(listRes.data?.projects || []);
 
       setPublishModalUrl(publicUrl);
+      nextGuideStep(4); // Passo 4: Pagamento
     } catch (err: any) { showToast('Erro ao publicar: ' + err.message, 'error'); } 
     finally { setIsPublishing(false); }
   };
@@ -1593,7 +1631,7 @@ const App: React.FC = () => {
           <AnimatePresence>
             {!isMenuOpen && (
               <div 
-                className="absolute top-6 right-6 z-[90] flex items-center cursor-pointer group" 
+                className={`absolute top-6 right-6 z-[90] flex items-center cursor-pointer group ${!generatedHtml ? 'animate-guide-pulse' : ''}`} 
                 onClick={() => setIsMenuOpen(true)}
               >
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="relative flex items-center justify-center">
@@ -1604,7 +1642,8 @@ const App: React.FC = () => {
                   />
                   <div className="relative flex items-center gap-2 bg-white px-5 py-3 rounded-full border border-orange-200 shadow-lg group-hover:shadow-orange-500/20 transition-all group-hover:border-orange-400">
                     <Rocket size={18} className="text-orange-500" />
-                    <span className="text-sm font-black uppercase tracking-widest text-orange-600">Crie seu Site</span>
+                    <span className="text-sm font-black uppercase tracking-widest text-orange-600">{generatedHtml ? 'Editar Site' : 'Crie seu Site'}</span>
+                    <GuidedTip step={2} currentStep={guideStep} text="Clique aqui para continuar editando seu site!" />
                   </div>
                 </motion.div>
               </div>
@@ -1644,7 +1683,10 @@ const App: React.FC = () => {
                       <button onClick={() => setIsLoginOpen(true)} className="text-xs font-bold text-teal-600 hover:text-teal-500 transition-colors flex items-center gap-1.5"><LogIn size={16} /> Login</button>
                     )}
                     <div className="w-px h-4 bg-stone-200"></div>
-                    <button onClick={() => setIsMenuOpen(false)} className="text-stone-400 hover:text-stone-800 transition-colors" title="Esconder Painel"><X size={18} /></button>
+                    <button onClick={() => { setIsMenuOpen(false); nextGuideStep(2); }} className={`text-stone-400 hover:text-stone-800 transition-colors relative ${guideStep === 1 ? 'animate-guide-pulse bg-orange-100 rounded-full p-1' : ''}`} title="Esconder Painel">
+                      <X size={18} />
+                      <GuidedTip step={1} currentStep={guideStep} text="Minimize aqui para ver como seu site ficou!" />
+                    </button>
                   </div>
                 </div>
 
@@ -1668,9 +1710,10 @@ const App: React.FC = () => {
                         )}
                       </button>
                       {currentProjectSlug && (
-                        <button onClick={() => setActiveTab('assinatura')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative ${activeTab === 'assinatura' ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
-                          Pagamento
-                          {!isPaid && (
+                      <button onClick={() => setActiveTab('assinatura')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative ${activeTab === 'assinatura' ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'} ${guideStep === 4 ? 'animate-guide-pulse' : ''}`}>
+                        Pagamento
+                        <GuidedTip step={4} currentStep={guideStep} text="Tudo pronto! Ative seu plano para manter seu site online." />
+                        {!isPaid && (
                             <span className="absolute top-3 right-2 flex h-2 w-2"><span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${daysLeft > 0 ? 'bg-yellow-400' : 'bg-red-400'}`}></span><span className={`relative inline-flex rounded-full h-2 w-2 ${daysLeft > 0 ? 'bg-yellow-500' : 'bg-red-500'}`}></span></span>
                           )}
                         </button>
@@ -2275,10 +2318,11 @@ const App: React.FC = () => {
                       <button 
                         onClick={handleSaveOrUpdateSite} 
                         disabled={isSavingProject || (!hasUnsavedChanges && currentProjectSlug !== null)} 
-                        className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${hasUnsavedChanges || !currentProjectSlug ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md' : 'bg-stone-100 text-stone-400 cursor-not-allowed'}`}
+                        className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 relative ${hasUnsavedChanges || !currentProjectSlug ? (guideStep === 2 ? 'bg-orange-500 animate-guide-pulse text-white shadow-lg' : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md') : 'bg-stone-100 text-stone-400 cursor-not-allowed'}`}
                       >
                         {isSavingProject ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save size={14} />} 
                         {currentProjectSlug ? 'Salvar Alterações' : 'Salvar Projeto'}
+                        <GuidedTip step={2} currentStep={guideStep} text="Salve seu projeto para garantir seu link oficial!" />
                       </button>
                       
                       {needsPayment ? (
@@ -2296,10 +2340,11 @@ const App: React.FC = () => {
                         <button 
                           onClick={handlePublishSite} 
                           disabled={isPublishing || hasUnsavedChanges || !currentProjectSlug} 
-                          className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${!hasUnsavedChanges && currentProjectSlug ? (isPublished ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20' : 'bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-500/20') : 'bg-stone-100 text-stone-400 cursor-not-allowed'}`}
+                          className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 relative ${!hasUnsavedChanges && currentProjectSlug ? (guideStep === 3 ? 'bg-orange-500 animate-guide-pulse text-white shadow-lg' : (isPublished ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20' : 'bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-500/20')) : 'bg-stone-100 text-stone-400 cursor-not-allowed'}`}
                         >
                           {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : (isPublished ? <RefreshCw size={14} /> : <Globe size={14} />)} 
                           {isPublished ? 'Atualizar Publicação' : 'Publicar Site'}
+                          <GuidedTip step={3} currentStep={guideStep} text="Clique aqui para colocar seu site no ar!" />
                         </button>
                       )}
                     </div>

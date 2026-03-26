@@ -24,7 +24,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
   const checkTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowFloatModal(true), 10000);
+    const timer = setTimeout(() => setShowFloatModal(true), 0);
     return () => clearTimeout(timer);
   }, []);
 
@@ -123,8 +123,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold mb-6">
               <Zap className="w-3 h-3 fill-current" /> NOVO: DEPLOY INSTANTÂNEO
             </div>
-            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-[1.1] tracking-tight">
-              Sua empresa merece um <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">site de elite.</span>
+            <h1 className="text-5xl md:text-8xl font-black mb-6 leading-[0.9] tracking-tighter uppercase italic">
+              Seu site em um <span className="text-orange-500 drop-shadow-sm">ZING!!!</span>
             </h1>
             <p className="text-lg text-zinc-400 mb-10 max-w-lg leading-relaxed">
               Esqueça editores complexos. Digite o nome da sua empresa e nós geramos, configuramos e publicamos seu site profissional em segundos.
