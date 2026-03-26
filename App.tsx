@@ -122,11 +122,12 @@ const PROMO_HTML = `
     </div>
   </header>
 
-  <main class="pt-64 pb-12 px-6 md:px-20 w-full mx-auto flex flex-col justify-center min-h-[calc(100vh-160px)] relative">
+  <main class="pt-12 pb-12 px-6 md:px-20 w-full mx-auto flex flex-col min-h-screen relative">
+    <div class="h-24 md:h-32 w-full"></div>
     <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-200/30 blur-[150px] rounded-full pointer-events-none"></div>
     <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-orange-200/30 blur-[150px] rounded-full pointer-events-none"></div>
 
-    <div class="relative z-10 animate-up text-center md:text-left max-w-6xl mb-12">
+    <div class="relative z-10 animate-up text-center md:text-left max-w-6xl mb-12 mt-12 md:mt-0">
       <h1 class="text-[3.5rem] md:text-[6.5rem] font-black leading-[0.85] tracking-tighter mb-6 uppercase italic text-stone-900">
         Seu site pronto em um <span class="text-orange-500 pr-10 inline-block drop-shadow-sm">ZING!!!</span>
       </h1>
@@ -952,6 +953,7 @@ const App: React.FC = () => {
 
   const renderTemplate = (content: any, data: typeof formData, customImages: Record<string, string> = {}) => {
     let html = TEMPLATES[data.layoutStyle] || TEMPLATES['layout_modern_center'];
+    html = html.replace('</header>', '</header><div class="h-28 md:h-36 w-full"></div>');
     const colors = COLORS.find(c => c.id === data.colorId) || COLORS[0];
 
     const replaceAll = (token: string, value: string) => { html = html.split(token).join(value); };
