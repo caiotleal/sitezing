@@ -199,7 +199,7 @@ const PROMO_HTML = `
         </div>
       </div>
       <div id="reviews-grid" class="grid md:grid-cols-3 gap-6">
-        <!-- Reviews serão injetados aqui -->
+        <!-- REVIEWS_START -->
         <div class="glass-card p-6 rounded-2xl border-stone-200/40 text-left">
           <div class="flex items-center gap-3 mb-4">
             <div class="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center text-stone-400"><i class="fas fa-user"></i></div>
@@ -230,6 +230,7 @@ const PROMO_HTML = `
           </div>
           <p class="text-xs text-stone-500 leading-relaxed italic">"O suporte é excelente e a plataforma é muito intuitiva. Recomendo para todos os meus parceiros."</p>
         </div>
+        <!-- REVIEWS_END -->
       </div>
     </div>
   </main>
@@ -369,7 +370,7 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
     `).join('');
     
     html = html.replace(/<div id="google-reviews-section"[^>]*class="[^"]*opacity-0[^"]*"/i, (match) => match.replace('opacity-0', 'opacity-100'));
-    html = html.replace(/<div id="reviews-grid"[^>]*>([\s\S]*?)<\/div>/i, `<div id="reviews-grid" class="grid md:grid-cols-3 gap-6">${reviewsHtml}</div>`);
+    html = html.replace(/<!-- REVIEWS_START -->([\s\S]*?)<!-- REVIEWS_END -->/i, `<!-- REVIEWS_START -->${reviewsHtml}<!-- REVIEWS_END -->`);
   }
 
   return html;
