@@ -700,7 +700,7 @@ exports.getPlatformConfigs = onCall({ cors: true }, async (request) => {
     const configDoc = await db.collection("configs").doc("platform").get();
     if (!configDoc.exists) {
       return {
-        stripe: { mode: "test", testPublicKey: "", testSecretKey: "", prodPublicKey: "", prodSecretKey: "" },
+        stripe: { mode: "test", testPublicKey: "", testSecretKey: "", testWebhookSecret: "", prodPublicKey: "", prodSecretKey: "", prodWebhookSecret: "" },
         pricing: { mensal: 49.90, anual: 499.00 },
         marketing: { bannerActive: false, bannerText: "Promoção Especial!", bannerType: "info", couponCode: "" },
         legal: { termsOfUse: "", privacyPolicy: "" }
