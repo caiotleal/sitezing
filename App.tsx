@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndP
 import { auth, functions, db } from './firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, Info
+  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, Info, Sparkles
 } from 'lucide-react';
 import { TEMPLATES } from './components/templates';
 const LoginPage = lazy(() => import('./components/LoginPage'));
@@ -79,8 +79,8 @@ const PROMO_HTML = `
     .card-share-btn:hover { background: #f97316; color: white; }
 
     @media (min-width: 1024px) {
-      body { display: flex; flex-direction: column; }
-      main { flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: none !important; padding: 0 8% !important; margin: 0 !important; }
+      body { display: block; }
+      main { padding: 0 8% !important; margin: 0 !important; }
       header { height: 80px !important; }
       .footer-commercial { height: 80px; }
     }
@@ -122,7 +122,7 @@ const PROMO_HTML = `
     </div>
   </header>
 
-  <main class="pt-32 pb-12 px-6 md:px-12 max-w-7xl mx-auto flex flex-col justify-center min-h-[calc(100vh-160px)] relative">
+  <main class="pt-44 pb-12 px-6 md:px-12 max-w-7xl mx-auto flex flex-col justify-center min-h-[calc(100vh-160px)] relative">
     <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-200/30 blur-[150px] rounded-full pointer-events-none"></div>
     <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-orange-200/30 blur-[150px] rounded-full pointer-events-none"></div>
 
@@ -1240,6 +1240,7 @@ const App: React.FC = () => {
         showToast('Layout atualizado com sucesso.', 'success');
         return;
       }
+      console.log("Chamando generateSite...");
       const generateFn = httpsCallable(functions, 'generateSite');
       const result: any = await generateFn({ 
         businessName: formData.businessName, 
@@ -1247,14 +1248,23 @@ const App: React.FC = () => {
         region: formData.region,
         googleContext: formData.showReviews ? JSON.stringify({ summary: formData.editorialSummary, reviews: formData.reviews }) : ''
       });
+      console.log("Resultado da IA recebido:", result.data ? "Sucesso (HTML presente)" : "Falha (Sem dados)");
       setAiContent(result.data);
       const extractedImages = extractCustomImages(generatedHtml);
-      setGeneratedHtml(renderTemplate(result.data, formData, extractedImages));
+      const outputHtml = renderTemplate(result.data, formData, extractedImages);
+      console.log("Template renderizado, tamanho:", outputHtml?.length || 0);
+      setGeneratedHtml(outputHtml);
       setHasUnsavedChanges(true);
       showToast('Site gerado com inteligência artificial!', 'success');
       nextGuideStep(1); // Passo 1: Minimizar para ver
-    } catch (error: any) { showToast('Erro na geração: ' + error.message, 'error'); } 
-    finally { setIsGenerating(false); }
+    } catch (error: any) { 
+      console.error("Erro Crítico na Geração:", error);
+      showToast('Erro na geração: ' + error.message, 'error'); 
+    } 
+    finally { 
+      console.log("Finalizando estado de geração.");
+      setIsGenerating(false); 
+    }
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

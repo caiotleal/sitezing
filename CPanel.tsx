@@ -604,11 +604,11 @@ const CPanel: React.FC = () => {
                 </div>
                 <div className="space-y-6">
                   <div>
-                    <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Busca da sua Empresa no Google</label>
-                    <div className="flex gap-2">
+                    <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Nome da Empresa ou Link do Google Maps</label>
+                    <div className="flex gap-2 mb-4">
                       <input 
                         className="flex-1 px-4 py-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold focus:ring-2 focus:ring-orange-500 outline-none" 
-                        placeholder="Ex: SiteZing São Paulo" 
+                        placeholder="Ex: SiteZing São Paulo ou Link Completo" 
                         value={platformConfigs?.marketing?.googleSearchQuery || ''} 
                         onChange={e => setPlatformConfigs({...platformConfigs, marketing: {...platformConfigs.marketing, googleSearchQuery: e.target.value}})} 
                       />
@@ -632,6 +632,19 @@ const CPanel: React.FC = () => {
                          <RefreshCw size={16}/>
                       </button>
                     </div>
+
+                    <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Ajuste Manual de Depoimentos (JSON)</label>
+                    <textarea 
+                      value={JSON.stringify(platformConfigs?.reviews || [], null, 2)}
+                      onChange={e => {
+                        try {
+                          const parsed = JSON.parse(e.target.value);
+                          setPlatformConfigs({...platformConfigs, reviews: parsed});
+                        } catch(err) {} 
+                      }}
+                      className="w-full h-32 px-4 py-3 bg-stone-100 border border-stone-200 rounded-xl text-[10px] font-mono focus:ring-2 focus:ring-orange-500 outline-none overflow-y-auto"
+                      placeholder='[ { "author_name": "Nome", "text": "Mensagem", "rating": 5 } ]'
+                    />
                   </div>
                   {platformConfigs?.reviews && platformConfigs.reviews.length > 0 ? (
                     <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl">
