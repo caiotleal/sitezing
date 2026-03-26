@@ -137,52 +137,7 @@ const PROMO_HTML = `
     </div>
 
     <div class="grid md:grid-cols-3 gap-6 relative z-10 animate-up" style="animation-delay: 0.2s;">
-      <div class="glass-card p-8 rounded-[2rem] overflow-hidden group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'free' }, '*')">
-        <div class="card-share-btn" onclick="sharePlan('free')" title="Compartilhar este plano"><i class="fas fa-share-alt"></i></div>
-        <img src="${BRAND_LOGO}" class="plan-bg-logo" />
-        <div class="absolute top-0 right-0 bg-stone-200 text-stone-700 text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase">Sem pagamento antecipado</div>
-        <h3 class="text-2xl font-black mb-1 italic uppercase text-stone-800 mt-2">Teste Grátis</h3>
-        <p class="text-stone-500 mb-6 text-sm">Veja o seu site pronto hoje mesmo.</p>
-        <div class="text-4xl font-black mb-1 text-teal-600">R$ 0 <span class="text-sm text-stone-400 font-normal">/ 7 dias</span></div>
-        <p class="text-[11px] text-teal-500 font-bold mb-6">Todos os recursos disponíveis em qualquer plano.</p>
-        <ul class="space-y-3 text-stone-600 text-sm font-medium">
-          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-[10px]">✔</span> Geração por IA</li>
-          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-[10px]">✔</span> Domínio gratuito (.web.app)</li>
-        </ul>
-        <div class="mt-6 text-[10px] text-stone-400 text-center uppercase tracking-widest font-bold group-hover:text-orange-500 transition-colors">Clique para ver regras</div>
-      </div>
-
-      <div class="glass-card p-8 rounded-[2rem] overflow-hidden group border-teal-200" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'monthly' }, '*')">
-        <div class="card-share-btn" onclick="sharePlan('monthly')" title="Compartilhar este plano"><i class="fas fa-share-alt"></i></div>
-        <img src="${BRAND_LOGO}" class="plan-bg-logo" />
-        <div class="absolute top-0 right-0 bg-teal-600 text-white text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase shadow-md">Mais Assinado</div>
-        <h3 class="text-2xl font-black mb-1 italic uppercase text-teal-600 mt-2">Mensal</h3>
-        <p class="text-stone-500 mb-6 text-sm">Ideal para validar seu negócio.</p>
-        <div class="text-4xl font-black mb-1 text-stone-900">R$ 49<span class="text-2xl">,90</span> <span class="text-sm text-stone-400 font-normal">/ mês</span></div>
-        <p class="text-[11px] text-stone-500 font-bold mb-6">Todos os recursos disponíveis em qualquer plano.</p>
-        <ul class="space-y-3 text-stone-600 text-sm font-medium">
-          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 text-[10px]">✔</span> Site online 24/7</li>
-          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 text-[10px]">✔</span> Domínio próprio (.com.br)</li>
-        </ul>
-        <div class="mt-6 text-[10px] text-stone-400 text-center uppercase tracking-widest font-bold group-hover:text-orange-500 transition-colors">Clique para ver regras</div>
-      </div>
-
-      <div class="glass-card p-8 rounded-[2rem] overflow-hidden border-orange-300 bg-white shadow-[0_20px_50px_-12px_rgba(249,115,22,0.15)] group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'annual' }, '*')">
-        <div class="card-share-btn" onclick="sharePlan('annual')" title="Compartilhar este plano"><i class="fas fa-share-alt"></i></div>
-        <img src="${BRAND_LOGO}" class="plan-bg-logo" style="opacity: 0.06;" />
-        <div class="absolute top-0 right-0 bg-gradient-to-r from-orange-500 to-orange-400 text-white text-[10px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase flex gap-1.5 items-center justify-center shadow-lg">
-          <span class="leading-none">Mais Econômico</span>
-        </div>
-        <h3 class="text-2xl font-black mb-1 italic uppercase text-orange-500 mt-2">Anual</h3>
-        <p class="text-stone-500 mb-6 text-sm">A solução definitiva e econômica.</p>
-        <div class="text-4xl font-black mb-1 text-stone-900">R$ 499 <span class="text-sm text-stone-400 font-normal">/ 1º ano</span></div>
-        <p class="text-[11px] text-orange-500 font-bold mb-6">Todos os recursos disponíveis em qualquer plano.</p>
-        <ul class="space-y-3 text-stone-600 text-sm font-medium">
-          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 text-[12px]">★</span> 2 meses grátis</li>
-          <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 text-[12px]">★</span> Apontamento de Domínio</li>
-        </ul>
-        <div class="mt-6 text-[10px] text-stone-400/80 text-center uppercase tracking-widest font-bold group-hover:text-orange-600 transition-colors">Clique para ver regras</div>
-      </div>
+      <!-- PRICING_CARDS -->
     </div>
 
     <!-- Seção de Depoimentos (Google Reviews) -->
@@ -269,17 +224,52 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
   if (!platformConfigs) return PROMO_HTML;
 
   let html = PROMO_HTML;
-  // Preços Mensal
-  if (platformConfigs.pricing?.mensal) {
-    const val = platformConfigs.pricing.mensal.toString().split('.');
-    const integer = val[0];
-    const decimal = val[1] || '00';
-    html = html.replace(/R\$ 49<span class="text-2xl">,90<\/span>/g, `R$ ${integer}<span class="text-2xl">,${decimal}</span>`);
-  }
-  // Preços Anual
-  if (platformConfigs.pricing?.anual) {
-    html = html.replace(/R\$ 499/g, `R$ ${platformConfigs.pricing.anual}`);
-  }
+  
+  // Geração de Cards de Preço Dinâmicos
+  const plans = platformConfigs.plans || [];
+  let cardsHtml = `
+    <div class="glass-card p-8 rounded-[2rem] overflow-hidden group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'free' }, '*')">
+      <div class="card-share-btn" onclick="sharePlan('free')" title="Compartilhar este plano"><i class="fas fa-share-alt"></i></div>
+      <img src="${BRAND_LOGO}" class="plan-bg-logo" />
+      <div class="absolute top-0 right-0 bg-stone-200 text-stone-700 text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase">Sem pagamento antecipado</div>
+      <h3 class="text-2xl font-black mb-1 italic uppercase text-stone-800 mt-2">Teste Grátis</h3>
+      <p class="text-stone-500 mb-6 text-sm">Veja o seu site pronto hoje mesmo.</p>
+      <div class="text-4xl font-black mb-1 text-teal-600">R$ 0 <span class="text-sm text-stone-400 font-normal">/ 7 dias</span></div>
+      <p class="text-[11px] text-teal-500 font-bold mb-6">Todos os recursos disponíveis em qualquer plano.</p>
+      <ul class="space-y-3 text-stone-600 text-sm font-medium">
+        <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-[10px]">✔</span> Geração por IA</li>
+        <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-[10px]">✔</span> Domínio gratuito (.web.app)</li>
+      </ul>
+      <div class="mt-6 text-[10px] text-stone-400 text-center uppercase tracking-widest font-bold group-hover:text-orange-500 transition-colors">Clique para ver regras</div>
+    </div>
+  `;
+
+  plans.forEach((p: any) => {
+    const isAnual = p.interval === 'year';
+    const integer = p.price.toString().split('.')[0];
+    const decimal = p.price.toString().split('.')[1] || '00';
+    
+    cardsHtml += `
+      <div class="glass-card p-8 rounded-[2rem] overflow-hidden group ${isAnual ? 'border-orange-300' : 'border-teal-200'}" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', priceId: '${p.priceId}', plan: '${p.name.toLowerCase()}' }, '*')">
+        <div class="card-share-btn" onclick="sharePlan('${p.name.toLowerCase()}')" title="Compartilhar este plano"><i class="fas fa-share-alt"></i></div>
+        <img src="${BRAND_LOGO}" class="plan-bg-logo" />
+        <div class="absolute top-0 right-0 ${isAnual ? 'bg-orange-500' : 'bg-teal-600'} text-white text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase shadow-md">
+          ${isAnual ? 'Mais Econômico' : 'Popular'}
+        </div>
+        <h3 class="text-2xl font-black mb-1 italic uppercase ${isAnual ? 'text-orange-500' : 'text-teal-600'} mt-2">${p.name}</h3>
+        <p class="text-stone-500 mb-6 text-sm">${p.description || 'Hospedagem profissional SiteZing'}</p>
+        <div class="text-4xl font-black mb-1 text-stone-900">R$ ${integer}<span class="text-2xl">,${decimal}</span> <span class="text-sm text-stone-400 font-normal">/ ${isAnual ? 'ano' : 'mês'}</span></div>
+        <ul class="space-y-3 text-stone-600 text-sm font-medium mt-6">
+          ${p.features.map((f: string) => `
+            <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full ${isAnual ? 'bg-orange-100 text-orange-500' : 'bg-teal-100 text-teal-600'} flex items-center justify-center text-[10px]">✔</span> ${f}</li>
+          `).join('')}
+        </ul>
+        <div class="mt-6 text-[10px] text-stone-400 text-center uppercase tracking-widest font-bold group-hover:text-orange-500 transition-colors">Clique para contratar</div>
+      </div>
+    `;
+  });
+
+  html = html.replace('<!-- PRICING_CARDS -->', cardsHtml);
 
   // Banner e Decorações Temáticas
   if (platformConfigs.marketing?.bannerActive) {
@@ -668,8 +658,9 @@ const App: React.FC = () => {
   const [aiContent, setAiContent] = useState<any>(null);
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [selectedPlanModal, setSelectedPlanModal] = useState<'free' | 'monthly' | 'annual' | null>(null);
-  const [checkoutDetailsModal, setCheckoutDetailsModal] = useState<{ projectId: string, planType: 'mensal' | 'anual' } | null>(null);
+  const [selectedPlanModal, setSelectedPlanModal] = useState<'free' | 'monthly' | 'annual' | any | null>(null);
+  const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
+  const [checkoutDetailsModal, setCheckoutDetailsModal] = useState<{ projectId: string, planType: string, priceId?: string } | null>(null);
   const [checkoutTermsAccepted, setCheckoutTermsAccepted] = useState(false);
   const [cancelModalProject, setCancelModalProject] = useState<string | null>(null);
   const [cancelTermsAccepted, setCancelTermsAccepted] = useState(false);
@@ -773,6 +764,8 @@ const App: React.FC = () => {
     const handleMessage = (e: MessageEvent) => {
       if (e.data?.type === 'OPEN_PLAN_MODAL') {
         setSelectedPlanModal(e.data.plan);
+        setSelectedPriceId(e.data.priceId || null);
+        setCheckoutTermsAccepted(false);
       }
     };
     window.addEventListener('message', handleMessage);
@@ -857,16 +850,7 @@ const App: React.FC = () => {
     if (!isClientSiteView) document.title = "SiteZing - Seu site pronto em um ZING !!!";
   }, [isClientSiteView]);
 
-  useEffect(() => {
-    const handleMessage = (e: MessageEvent) => {
-      if (e.data.type === 'OPEN_PLAN_MODAL') {
-        setSelectedPlanModal(e.data.plan);
-        setCheckoutTermsAccepted(false);
-      }
-    };
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  // Receptor de mensagens do iframe (Landing Page) consolidado acima
 
   useEffect(() => {
     if (aiContent) {
@@ -1391,12 +1375,17 @@ const App: React.FC = () => {
     });
   };
 
-  const handleStripeCheckout = async (projectId: string, planType: 'mensal' | 'anual') => {
+  const handleStripeCheckout = async (projectId: string, planType: string, priceId?: string) => {
     if (!projectId) return;
     setCheckoutLoading(`${projectId}-${planType}`);
     try {
       const createCheckoutFn = httpsCallable(functions, 'createStripeCheckoutSession');
-      const res: any = await createCheckoutFn({ projectId, origin: window.location.origin, planType });
+      const res: any = await createCheckoutFn({ 
+        projectId, 
+        origin: window.location.origin, 
+        planType,
+        priceId: priceId || selectedPriceId
+      });
       if (res.data?.url) { window.location.href = res.data.url; return; }
       throw new Error('URL de checkout inválida.');
     } catch (error: any) { showToast('Erro ao iniciar pagamento.', 'error'); }
@@ -2242,41 +2231,69 @@ const App: React.FC = () => {
                           ) : (
                             <div className="space-y-6">
                               <div className="grid grid-cols-1 gap-4">
-                                <div className="bg-white p-5 rounded-xl border border-teal-200 flex flex-col h-full relative overflow-hidden shadow-sm">
-                                  <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
-                                  <div className="absolute top-0 right-0 bg-teal-600 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg">Mais Assinado</div>
-                                  <h4 className="text-teal-600 font-bold mb-2 uppercase tracking-wide text-xs">Plano Mensal</h4>
-                                  <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ {platformConfigs?.pricing?.mensal || '49,90'}</span><span className="text-xs text-stone-500 font-medium pb-1">/mês</span></div>
-                                  <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
-                                    <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Domínio próprio & Suporte</li>
-                                    <li className="flex items-start gap-2 text-[10px] text-stone-500 mt-4 italic">Sem multa de cancelamento. Sem devoluções de períodos já utilizados. Ao cancelar, o site expira no último dia pago.</li>
-                                  </ul>
-                                  <button
-                                    onClick={() => setCheckoutDetailsModal({ projectId: currentProjectSlug, planType: 'mensal' })}
-                                    disabled={checkoutLoading === `${currentProjectSlug}-mensal`}
-                                    className="w-full bg-teal-600 hover:bg-teal-500 text-white py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors relative z-10 shadow-lg shadow-teal-500/20"
-                                  >
-                                    {checkoutLoading === `${currentProjectSlug}-mensal` ? <Loader2 className="animate-spin w-4 h-4 mx-auto" /> : needsPayment ? 'Reativar com Plano Mensal' : 'Assinar Mensal'}
-                                  </button>
-                                </div>
+                                {platformConfigs?.plans?.length > 0 ? (
+                                  platformConfigs.plans.map((p: any) => {
+                                    const isAnual = p.interval === 'year';
+                                    return (
+                                      <div key={p.id} className={`bg-white p-5 rounded-xl border ${isAnual ? 'border-orange-200' : 'border-teal-200'} flex flex-col h-full relative overflow-hidden shadow-sm`}>
+                                        <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
+                                        <div className={`absolute top-0 right-0 ${isAnual ? 'bg-orange-500' : 'bg-teal-600'} text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg`}>
+                                          {isAnual ? 'Mais Econômico' : 'Recomendado'}
+                                        </div>
+                                        <h4 className={`${isAnual ? 'text-orange-500' : 'text-teal-600'} font-bold mb-2 uppercase tracking-wide text-xs`}>{p.name}</h4>
+                                        <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ {p.price}</span><span className="text-xs text-stone-500 font-medium pb-1">/{p.interval === 'month' ? 'mês' : 'ano'}</span></div>
+                                        <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
+                                          {p.features?.map((f: string, i: number) => (
+                                            <li key={i} className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5" /> {f}</li>
+                                          ))}
+                                        </ul>
+                                        <button
+                                          onClick={() => setCheckoutDetailsModal({ projectId: currentProjectSlug, planType: p.name, priceId: p.priceId })}
+                                          disabled={checkoutLoading === `${currentProjectSlug}-${p.name}`}
+                                          className={`w-full ${isAnual ? 'bg-orange-500 hover:bg-orange-400 shadow-orange-500/20' : 'bg-teal-600 hover:bg-teal-500 shadow-teal-500/20'} text-white py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors relative z-10 shadow-lg`}
+                                        >
+                                          {checkoutLoading === `${currentProjectSlug}-${p.name}` ? <Loader2 className="animate-spin w-4 h-4 mx-auto" /> : (needsPayment ? `Reativar com ${p.name}` : `Assinar ${p.name}`)}
+                                        </button>
+                                      </div>
+                                    );
+                                  })
+                                ) : (
+                                  <>
+                                    <div className="bg-white p-5 rounded-xl border border-teal-200 flex flex-col h-full relative overflow-hidden shadow-sm">
+                                      <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
+                                      <div className="absolute top-0 right-0 bg-teal-600 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg">Mais Assinado</div>
+                                      <h4 className="text-teal-600 font-bold mb-2 uppercase tracking-wide text-xs">Plano Mensal</h4>
+                                      <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ {platformConfigs?.pricing?.mensal || '49,90'}</span><span className="text-xs text-stone-500 font-medium pb-1">/mês</span></div>
+                                      <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
+                                        <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Domínio próprio & Suporte</li>
+                                      </ul>
+                                      <button
+                                        onClick={() => setCheckoutDetailsModal({ projectId: currentProjectSlug, planType: 'mensal' })}
+                                        disabled={checkoutLoading === `${currentProjectSlug}-mensal`}
+                                        className="w-full bg-teal-600 hover:bg-teal-500 text-white py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors relative z-10 shadow-lg shadow-teal-500/20"
+                                      >
+                                        {checkoutLoading === `${currentProjectSlug}-mensal` ? <Loader2 className="animate-spin w-4 h-4 mx-auto" /> : needsPayment ? 'Reativar com Plano Mensal' : 'Assinar Mensal'}
+                                      </button>
+                                    </div>
 
-                                <div className="bg-white p-5 rounded-xl border border-orange-200 flex flex-col h-full relative overflow-hidden shadow-md">
-                                  <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
-                                  <div className="absolute top-0 right-0 bg-orange-500 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg">Mais Econômico</div>
-                                  <h4 className="text-orange-500 font-bold mb-2 uppercase tracking-wide text-xs">Plano Anual</h4>
-                                  <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ {platformConfigs?.pricing?.anual || '499'}</span><span className="text-xs text-stone-500 font-medium pb-1">/ano</span></div>
-                                  <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
-                                    <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5" /> 2 meses grátis equivalentes</li>
-                                    <li className="flex items-start gap-2 text-[10px] text-stone-500 mt-4 italic">Maior economia a longo prazo. Regras de cancelamento sem devolução proporcional aplicáveis. Site online pelos 12 meses inteiros.</li>
-                                  </ul>
-                                  <button
-                                    onClick={() => setCheckoutDetailsModal({ projectId: currentProjectSlug, planType: 'anual' })}
-                                    disabled={checkoutLoading === `${currentProjectSlug}-anual`}
-                                    className="w-full bg-orange-500 hover:bg-orange-400 text-white py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-colors shadow-lg shadow-orange-500/20 relative z-10"
-                                  >
-                                    {checkoutLoading === `${currentProjectSlug}-anual` ? <Loader2 className="animate-spin w-4 h-4 mx-auto" /> : needsPayment ? 'Reativar com Plano Anual' : 'Assinar Anual'}
-                                  </button>
-                                </div>
+                                    <div className="bg-white p-5 rounded-xl border border-orange-200 flex flex-col h-full relative overflow-hidden shadow-md">
+                                      <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
+                                      <div className="absolute top-0 right-0 bg-orange-500 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg">Mais Econômico</div>
+                                      <h4 className="text-orange-500 font-bold mb-2 uppercase tracking-wide text-xs">Plano Anual</h4>
+                                      <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ {platformConfigs?.pricing?.anual || '499'}</span><span className="text-xs text-stone-500 font-medium pb-1">/ano</span></div>
+                                      <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
+                                        <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5" /> 2 meses grátis equivalentes</li>
+                                      </ul>
+                                      <button
+                                        onClick={() => setCheckoutDetailsModal({ projectId: currentProjectSlug, planType: 'anual' })}
+                                        disabled={checkoutLoading === `${currentProjectSlug}-anual`}
+                                        className="w-full bg-orange-500 hover:bg-orange-400 text-white py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-colors shadow-lg shadow-orange-500/20 relative z-10"
+                                      >
+                                        {checkoutLoading === `${currentProjectSlug}-anual` ? <Loader2 className="animate-spin w-4 h-4 mx-auto" /> : needsPayment ? 'Reativar com Plano Anual' : 'Assinar Anual'}
+                                      </button>
+                                    </div>
+                                  </>
+                                )}
                               </div>
                             </div>
                           )}
@@ -2390,12 +2407,15 @@ const App: React.FC = () => {
               </button>
 
               <div className={`p-8 pb-10 text-center relative ${selectedPlanModal === 'free' ? 'bg-stone-100' :
-                  selectedPlanModal === 'monthly' ? 'bg-teal-600 text-white' : 'bg-gradient-to-r from-orange-500 to-amber-500 text-white'
+                  (platformConfigs?.plans?.find((p: any) => p.id === selectedPlanModal || p.priceId === selectedPriceId)?.interval === 'year') ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white' : 'bg-teal-600 text-white'
                 }`}>
                 {selectedPlanModal !== 'free' && <div className="absolute inset-0 opacity-10"><img src={BRAND_LOGO} className="w-full h-full object-cover filter blur-sm" alt="" /></div>}
 
                 <h2 className="text-3xl font-black uppercase tracking-tight italic relative z-10">
-                  {selectedPlanModal === 'free' ? 'Plano Turbo Teste' : selectedPlanModal === 'monthly' ? 'Plano Mensal' : 'Plano Anual Start'}
+                  {platformConfigs?.plans?.find((p: any) => p.id === selectedPlanModal || p.priceId === selectedPriceId)?.name || 
+                   (selectedPlanModal === 'free' ? 'Plano Turbo Teste' : 
+                    selectedPlanModal === 'monthly' ? 'Plano Mensal' : 
+                    selectedPlanModal === 'annual' ? 'Plano Anual Start' : selectedPlanModal)}
                 </h2>
 
                 <div className="mt-4 flex items-center justify-center gap-2 relative z-10">
@@ -2441,8 +2461,7 @@ const App: React.FC = () => {
                   }}
                   className={`w-full py-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg hover:translate-y-[-2px] ${selectedPlanModal === 'free'
                       ? 'bg-stone-900 text-white hover:bg-stone-800 shadow-stone-900/20'
-                      : selectedPlanModal === 'monthly' ? 'bg-teal-600 text-white hover:bg-teal-500 shadow-teal-500/30'
-                        : 'bg-orange-500 text-white hover:bg-orange-400 shadow-orange-500/30'
+                      : (platformConfigs?.plans?.find((p: any) => p.id === selectedPlanModal || p.priceId === selectedPriceId)?.interval === 'year') ? 'bg-orange-500 text-white hover:bg-orange-400 shadow-orange-500/30' : 'bg-teal-600 text-white hover:bg-teal-500 shadow-teal-500/30'
                     }`}
                 >
                   🚀 Criar seu site agora
@@ -2688,7 +2707,7 @@ const App: React.FC = () => {
               <div className="p-6 overflow-y-auto custom-scrollbar">
                 <div className="bg-orange-50 text-orange-800 p-4 rounded-2xl border border-orange-100 mb-6 text-center">
                   <h4 className="font-black text-lg uppercase italic mb-1">
-                    Plano {checkoutDetailsModal.planType === 'mensal' ? 'Mensal' : 'Anual'}
+                    {checkoutDetailsModal.planType || 'Plano Escolhido'}
                   </h4>
                   <p className="text-xs font-medium opacity-80">Você está a um passo de oficializar sua presença digital.</p>
                 </div>
@@ -2725,9 +2744,9 @@ const App: React.FC = () => {
               <div className="p-6 border-t border-stone-100 bg-stone-50 mt-auto">
                 <button
                   onClick={() => {
-                    const { projectId, planType } = checkoutDetailsModal;
+                    const { projectId, planType, priceId } = checkoutDetailsModal;
                     setCheckoutDetailsModal(null);
-                    handleStripeCheckout(projectId, planType);
+                    handleStripeCheckout(projectId, planType, priceId);
                   }}
                   className="w-full bg-stone-900 hover:bg-black text-white py-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-xl shadow-stone-900/20 text-xs flex items-center justify-center gap-2"
                 >

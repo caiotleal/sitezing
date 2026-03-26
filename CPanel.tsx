@@ -37,6 +37,13 @@ const CPanel: React.FC = () => {
   const [couponType, setCouponType] = useState<'percent' | 'fixed'>('percent');
   const [isCreatingCoupon, setIsCreatingCoupon] = useState(false);
 
+  const [planName, setPlanName] = useState('');
+  const [planPrice, setPlanPrice] = useState('');
+  const [planInterval, setPlanInterval] = useState<'month' | 'year'>('month');
+  const [planDescription, setPlanDescription] = useState('');
+  const [planFeatures, setPlanFeatures] = useState('');
+  const [isCreatingPlan, setIsCreatingPlan] = useState(false);
+
   const fetchPlatformConfigs = async () => {
     try {
       const getConfigs = httpsCallable(functions, 'getPlatformConfigs');
@@ -174,6 +181,42 @@ const CPanel: React.FC = () => {
     try {
       const deleteFn = httpsCallable(functions, 'deleteStripeCouponAdmin');
       await deleteFn({ couponId: coupon.id, promoId: coupon.promoId, index: projects.indexOf(coupon), code: coupon.code });
+      fetchPlatformConfigs();
+    } catch (err: any) {
+      alert("Erro ao remover: " + err.message);
+    }
+  };
+
+  const handleCreatePlan = async () => {
+    if (!planName || !planPrice) return alert("Preencha nome e preço.");
+    setIsCreatingPlan(true);
+    try {
+      const createFn = httpsCallable(functions, 'createStripePlanAdmin');
+      await createFn({ 
+        name: planName, 
+        price: planPrice, 
+        interval: planInterval, 
+        description: planDescription, 
+        features: planFeatures.split(',').map(f => f.trim()).filter(f => f)
+      });
+      alert("Plano criado e sincronizado com Stripe!");
+      setPlanName('');
+      setPlanPrice('');
+      setPlanDescription('');
+      setPlanFeatures('');
+      fetchPlatformConfigs();
+    } catch (err: any) {
+      alert("Erro ao criar plano: " + err.message);
+    } finally {
+      setIsCreatingPlan(false);
+    }
+  };
+
+  const handleDeletePlan = async (plan: any) => {
+    if (!confirm(`Deseja remover o plano ${plan.name}? Isso não cancela assinaturas existentes.`)) return;
+    try {
+      const deleteFn = httpsCallable(functions, 'deleteStripePlanAdmin');
+      await deleteFn({ productId: plan.id, priceId: plan.priceId });
       fetchPlatformConfigs();
     } catch (err: any) {
       alert("Erro ao remover: " + err.message);
@@ -519,28 +562,83 @@ const CPanel: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Vendas e Planos */}
-              <div className="bg-white rounded-[2.5rem] p-8 border border-stone-200 shadow-sm">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-3 bg-orange-50 text-orange-600 rounded-2xl"><DollarSign size={24} /></div>
-                  <h3 className="font-black italic uppercase text-lg">Vendas e Planos</h3>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Preço Mensal (BRL)</label>
-                    <input 
-                      type="number" step="0.01" value={platformConfigs.pricing.mensal} 
-                      onChange={e => setPlatformConfigs({...platformConfigs, pricing: {...platformConfigs.pricing, mensal: parseFloat(e.target.value)}})}
-                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none" 
-                    />
+              {/* Gestão Dinâmica de Planos */}
+              <div className="bg-white rounded-[2.5rem] p-8 border border-stone-200 shadow-sm md:col-span-2">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-orange-50 text-orange-600 rounded-2xl"><DollarSign size={24} /></div>
+                    <h3 className="font-black italic uppercase text-lg">Gestão de Planos (Stripe Sync)</h3>
                   </div>
-                  <div>
-                    <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Preço Anual (BRL)</label>
-                    <input 
-                      type="number" step="0.01" value={platformConfigs.pricing.anual} 
-                      onChange={e => setPlatformConfigs({...platformConfigs, pricing: {...platformConfigs.pricing, anual: parseFloat(e.target.value)}})}
-                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-orange-500 outline-none" 
-                    />
+                  <span className="text-[10px] font-black bg-stone-100 px-3 py-1 rounded-full text-stone-500 uppercase tracking-widest">
+                    {platformConfigs.plans?.length || 0} Planos Ativos
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Formulário de Criação */}
+                  <div className="lg:col-span-1 space-y-4 border-r border-stone-100 pr-0 lg:pr-8">
+                    <p className="text-[10px] font-black uppercase text-stone-400 tracking-widest mb-4">Novo Plano de Assinatura</p>
+                    <div>
+                      <label className="block text-[8px] font-black uppercase text-stone-400 mb-1 ml-1 tracking-widest">Nome do Plano</label>
+                      <input type="text" value={planName} onChange={e => setPlanName(e.target.value)} className="w-full px-5 py-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500" placeholder="Ex: Plano Diamond" />
+                    </div>
+                    <div>
+                      <label className="block text-[8px] font-black uppercase text-stone-400 mb-1 ml-1 tracking-widest">Preço Mensal/Anual (R$)</label>
+                      <input type="number" value={planPrice} onChange={e => setPlanPrice(e.target.value)} className="w-full px-5 py-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500" placeholder="49.90" />
+                    </div>
+                    <div>
+                      <label className="block text-[8px] font-black uppercase text-stone-400 mb-1 ml-1 tracking-widest">Recorrência</label>
+                      <select value={planInterval} onChange={e => setPlanInterval(e.target.value as any)} className="w-full px-5 py-3 bg-stone-50 border border-stone-100 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-orange-500">
+                        <option value="month">Mensal</option>
+                        <option value="year">Anual</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[8px] font-black uppercase text-stone-400 mb-1 ml-1 tracking-widest">Vantagens (Separadas por vírgula)</label>
+                      <textarea value={planFeatures} onChange={e => setPlanFeatures(e.target.value)} className="w-full px-5 py-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-orange-500 h-20" placeholder="Domínio grátis, IA ilimitada, Suporte VIP" />
+                    </div>
+                    <button 
+                      onClick={handleCreatePlan}
+                      disabled={isCreatingPlan || !planName || !planPrice}
+                      className="w-full bg-orange-500 text-white py-4 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-orange-600 transition-all shadow-lg disabled:opacity-50"
+                    >
+                      {isCreatingPlan ? <Loader2 className="animate-spin w-4 h-4 mx-auto" /> : 'Criar e Sincronizar'}
+                    </button>
+                  </div>
+
+                  {/* Listagem de Planos */}
+                  <div className="lg:col-span-2 space-y-4">
+                    <p className="text-[10px] font-black uppercase text-stone-400 tracking-widest mb-4">Planos Disponíveis no Site</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {platformConfigs.plans && platformConfigs.plans.length > 0 ? (
+                        platformConfigs.plans.map((p: any) => (
+                          <div key={p.id} className="p-6 bg-white border border-stone-100 rounded-[2rem] shadow-sm hover:border-orange-200 transition-all group relative">
+                            <button 
+                              onClick={() => handleDeletePlan(p)}
+                              className="absolute top-4 right-4 p-2 text-stone-300 hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                            <h4 className="text-sm font-black uppercase italic text-stone-900 mb-1">{p.name}</h4>
+                            <div className="text-xl font-black text-orange-500 mb-4">R$ {p.price} <span className="text-[10px] text-stone-400 font-normal">/ {p.interval === 'month' ? 'mês' : 'ano'}</span></div>
+                            <ul className="space-y-1.5">
+                              {p.features?.map((f: string, i: number) => (
+                                <li key={i} className="text-[9px] font-bold text-stone-500 flex items-center gap-2">
+                                  <div className="w-1 h-1 bg-orange-400 rounded-full"></div> {f}
+                                </li>
+                              ))}
+                            </ul>
+                            <div className="mt-4 pt-4 border-t border-stone-50">
+                              <p className="text-[8px] font-mono text-stone-300 truncate">ID: {p.priceId}</p>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="col-span-2 py-12 text-center bg-stone-50 rounded-[2.5rem] border border-dashed border-stone-200">
+                          <p className="text-xs text-stone-400 font-medium italic">Nenhum plano dinâmico criado.<br/>Crie o primeiro para aparecer no site.</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

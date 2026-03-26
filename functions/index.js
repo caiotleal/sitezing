@@ -406,23 +406,39 @@ function getStripeInstance(stripeConfig) {
 // ==============================================================================
 exports.createStripeCheckoutSession = onCall({ cors: true }, async (request) => {
   ensureAuthed(request);
-  const { projectId, origin, planType } = request.data || {};
+  const { projectId, origin, planType, priceId } = request.data || {};
   if (!projectId) throw new HttpsError("invalid-argument", "projectId é obrigatório.");
 
   const stripeConfig = await getStripeConfig();
   const stripe = getStripeInstance(stripeConfig);
 
   const safeOrigin = origin && /^https?:\/\//.test(origin) ? origin : "https://sitezing.com.br";
-  const isAnual = planType === 'anual';
-  const amount = isAnual ? 49900 : 4990;
+  
+  // Lógica de Preço: Se vier priceId (Dinâmico), usa ele. Senão usa o fallback (Hardcoded).
+  let lineItem;
+  if (priceId) {
+    lineItem = { price: priceId, quantity: 1 };
+  } else {
+    const isAnual = planType === 'anual';
+    const amount = isAnual ? 49900 : 4990;
+    lineItem = {
+      price_data: { 
+        currency: "brl", 
+        product_data: { 
+          name: `SiteZing - Plano ${isAnual ? 'Anual' : 'Mensal'}`, 
+          description: isAnual ? "Hospedagem e manutenção por 12 meses" : "Hospedagem e manutenção mensal" 
+        }, 
+        unit_amount: amount, 
+        recurring: { interval: isAnual ? "year" : "month" } 
+      },
+      quantity: 1
+    };
+  }
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription", payment_method_types: ["card"],
-    line_items: [{
-      price_data: { currency: "brl", product_data: { name: `SiteZing - Plano ${isAnual ? 'Anual' : 'Mensal'}`, description: isAnual ? "Hospedagem e manutenção por 12 meses" : "Hospedagem e manutenção mensal" }, unit_amount: amount, recurring: { interval: isAnual ? "year" : "month" } },
-      quantity: 1
-    }],
-    metadata: { planType: isAnual ? 'anual' : 'mensal' }, locale: "pt-BR", client_reference_id: projectId,
+    line_items: [lineItem],
+    metadata: { planType: planType || 'dinamico' }, locale: "pt-BR", client_reference_id: projectId,
     allow_promotion_codes: true, // Habilita campo de cupom no Checkout
     success_url: `${safeOrigin}?payment=success&project=${projectId}`, cancel_url: `${safeOrigin}?payment=cancelled&project=${projectId}`
   });
@@ -692,9 +708,10 @@ exports.getPlatformConfigsPublic = onCall({ cors: true }, async (request) => {
     const data = configDoc.data();
     // NÃO RETORNA STRIPE KEYS OU LEGAL EM CONFIG PÚBLICA (Segurança)
     return {
-      pricing: data.pricing || { mensal: 49.90, anual: 499.00 },
+      pricing: data.pricing || { mensal: 49.90, anual: 49.90 }, 
       marketing: data.marketing || { bannerActive: false, bannerText: "", bannerType: "info" },
-      reviews: data.reviews || []
+      reviews: data.reviews || [],
+      plans: data.plans || []
     };
   } catch (error) {
     return { pricing: { mensal: 49.90, anual: 499.00 }, marketing: { bannerActive: false } };
@@ -810,6 +827,78 @@ exports.deleteStripeCouponAdmin = onCall({ cors: true }, async (request) => {
       await db.collection("configs").doc("platform").update({ activeCoupons: updatedCoupons });
     }
 
+    return { success: true };
+  } catch (error) {
+    throw new HttpsError("internal", error.message);
+  }
+});
+
+/**
+ * GESTÃO DE PLANOS DINÂMICOS (ADMIN)
+ */
+exports.createStripePlanAdmin = onCall({ cors: true }, async (request) => {
+  if (request.auth?.token?.email !== ADMIN_EMAIL) {
+    throw new HttpsError("permission-denied", "Acesso restrito ao administrador.");
+  }
+
+  const { name, description, price, interval, features } = request.data;
+  if (!name || !price) throw new HttpsError("invalid-argument", "Nome e preço são obrigatórios.");
+
+  const stripeConfig = await getStripeConfig();
+  const stripe = getStripeInstance(stripeConfig);
+
+  try {
+    // 1. Criar Produto
+    const product = await stripe.products.create({
+      name: name,
+      description: description || "Plano de hospedagem SiteZing",
+    });
+
+    // 2. Criar Preço (Recorrente)
+    const stripePrice = await stripe.prices.create({
+      product: product.id,
+      unit_amount: Math.round(parseFloat(price) * 100),
+      currency: "brl",
+      recurring: { interval: interval || "month" },
+    });
+
+    // 3. Registrar no Firestore
+    const db = admin.firestore();
+    await db.collection("configs").doc("platform").update({
+      plans: admin.firestore.FieldValue.arrayUnion({
+        id: product.id,
+        priceId: stripePrice.id,
+        name,
+        description,
+        price,
+        interval: interval || "month",
+        features: features || [],
+        createdAt: new Date().toISOString()
+      })
+    });
+
+    return { success: true, productId: product.id, priceId: stripePrice.id };
+  } catch (error) {
+    throw new HttpsError("internal", error.message);
+  }
+});
+
+exports.deleteStripePlanAdmin = onCall({ cors: true }, async (request) => {
+  if (request.auth?.token?.email !== ADMIN_EMAIL) {
+    throw new HttpsError("permission-denied", "Acesso restrito ao administrador.");
+  }
+
+  const { productId, priceId } = request.data;
+  const db = admin.firestore();
+
+  try {
+    // Apenas removemos do Firestore para não quebrar assinaturas ativas no Stripe
+    const configDoc = await db.collection("configs").doc("platform").get();
+    if (configDoc.exists) {
+      const plans = configDoc.data().plans || [];
+      const updatedPlans = plans.filter(p => p.id !== productId);
+      await db.collection("configs").doc("platform").update({ plans: updatedPlans });
+    }
     return { success: true };
   } catch (error) {
     throw new HttpsError("internal", error.message);
