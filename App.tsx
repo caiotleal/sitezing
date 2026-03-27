@@ -136,7 +136,21 @@ const PROMO_HTML = `
       </p>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-6 relative z-10 animate-up" style="animation-delay: 0.2s;">
+    <!-- Destaque 7 dias grátis -->
+    <div class="relative z-10 animate-up flex flex-col md:flex-row items-center gap-4 bg-orange-50 border border-orange-100 p-6 rounded-3xl mb-12 max-w-6xl mx-auto md:mx-0 shadow-sm" style="animation-delay: 0.1s;">
+      <div class="w-12 h-12 bg-orange-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-orange-200">
+        <i class="fas fa-gift text-xl"></i>
+      </div>
+      <div class="text-center md:text-left flex-1">
+        <h3 class="text-lg font-black text-stone-800 uppercase italic leading-tight">Crie seu site e tenha 7 dias grátis para testar</h3>
+        <p class="text-xs text-stone-500 font-medium">Sem compromisso. Experimente todos os recursos da plataforma agora mesmo.</p>
+      </div>
+      <button onclick="document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' })" class="px-8 py-3 bg-stone-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-stone-800 transition-all shadow-lg">
+        Saiba Mais
+      </button>
+    </div>
+
+    <div id="pricing" class="grid md:grid-cols-3 gap-6 relative z-10 animate-up" style="animation-delay: 0.2s;">
       <!-- PRICING_CARDS -->
     </div>
 
@@ -227,22 +241,7 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
   
   // Geração de Cards de Preço Dinâmicos
   const plans = [...(platformConfigs.plans || [])].sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0));
-  let cardsHtml = `
-    <div class="glass-card p-8 rounded-[2rem] overflow-hidden group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'free' }, '*')">
-      <div class="card-share-btn" onclick="sharePlan('free')" title="Compartilhar este plano"><i class="fas fa-share-alt"></i></div>
-      <img src="${BRAND_LOGO}" class="plan-bg-logo" />
-      <div class="absolute top-0 right-0 bg-stone-200 text-stone-700 text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase">Sem pagamento antecipado</div>
-      <h3 class="text-2xl font-black mb-1 italic uppercase text-stone-800 mt-2">Teste Grátis</h3>
-      <p class="text-stone-500 mb-6 text-sm">Veja o seu site pronto hoje mesmo.</p>
-      <div class="text-4xl font-black mb-1 text-teal-600">R$ 0 <span class="text-sm text-stone-400 font-normal">/ 7 dias</span></div>
-      <p class="text-[11px] text-teal-500 font-bold mb-6">Todos os recursos disponíveis em qualquer plano.</p>
-      <ul class="space-y-3 text-stone-600 text-sm font-medium">
-        <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-[10px]">✔</span> Geração por IA</li>
-        <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 text-[10px]">✔</span> Domínio gratuito (.web.app)</li>
-      </ul>
-      <div class="mt-6 text-[10px] text-stone-400 text-center uppercase tracking-widest font-bold group-hover:text-orange-500 transition-colors">Clique para ver regras</div>
-    </div>
-  `;
+  let cardsHtml = ``;
 
   plans.forEach((p: any) => {
     const intervalLabel = 
