@@ -725,19 +725,45 @@ const GuidedTip: React.FC<{
   step: number;
   currentStep: number;
   text: string;
-  position?: 'top' | 'bottom' | 'left' | 'right';
-  targetRef?: React.RefObject<HTMLElement>;
-}> = ({ step, currentStep, text }) => {
-  if (step !== currentStep) return null;
+  position?: 'top' | 'bottom';
+}> = ({ step, currentStep, text, position = 'top' }) => {
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    if (step === currentStep) {
+      setVisible(true);
+      const timer = setTimeout(() => setVisible(false), 10000); // 10s auto-hide
+      
+      const handleDismiss = () => setVisible(false);
+      window.addEventListener('mousedown', handleDismiss);
+      
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('mousedown', handleDismiss);
+      };
+    }
+  }, [step, currentStep]);
+
+  if (step !== currentStep || !visible) return null;
+
+  const isBottom = position === 'bottom';
+
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.8, y: 10 }}
+      initial={{ opacity: 0, scale: 0.9, y: isBottom ? -10 : 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      className="absolute z-[100] bg-orange-600 text-white px-4 py-3 rounded-2xl shadow-xl border-2 border-orange-400 font-bold text-xs flex items-center gap-2 max-w-[200px] text-center"
-      style={{ left: '50%', transform: 'translateX(-50%)', bottom: '110%' }}
+      exit={{ opacity: 0, scale: 0.9, y: isBottom ? -10 : 10 }}
+      className={`absolute z-[200] bg-stone-800/95 backdrop-blur-md text-white/90 px-3 py-2 rounded-xl shadow-2xl border border-stone-700/50 font-medium text-[10px] flex items-center gap-2 max-w-[180px] text-center pointer-events-none whitespace-normal leading-tight`}
+      style={{ 
+        left: '50%', 
+        transform: 'translateX(-50%)', 
+        [isBottom ? 'top' : 'bottom']: 'calc(100% + 12px)' 
+      }}
     >
-      <div className="absolute bottom-[-10px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-orange-600"></div>
-      <Sparkles size={16} className="shrink-0 animate-pulse text-yellow-300" />
+      <div className={`absolute left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent ${
+        isBottom ? 'top-[-6px] border-b-[6px] border-b-stone-800/95' : 'bottom-[-6px] border-t-[6px] border-t-stone-800/95'
+      }`}></div>
+      <Sparkles size={12} className="shrink-0 text-orange-400" />
       {text}
     </motion.div>
   );
@@ -1818,7 +1844,7 @@ const App: React.FC = () => {
                   <div className="relative flex items-center gap-2 bg-white px-5 py-3 rounded-full border border-orange-200 shadow-lg group-hover:shadow-orange-500/20 transition-all group-hover:border-orange-400">
                     <Rocket size={18} className="text-orange-500" />
                     <span className="text-sm font-black uppercase tracking-widest text-orange-600">{generatedHtml ? 'Editar Site' : 'Crie seu Site'}</span>
-                    <GuidedTip step={2} currentStep={guideStep} text="Clique aqui para continuar editando seu site!" />
+                    <GuidedTip step={2} currentStep={guideStep} text="Clique aqui para continuar editando seu site!" position="top" />
                   </div>
                 </motion.div>
               </div>
@@ -1860,7 +1886,7 @@ const App: React.FC = () => {
                     <div className="w-px h-4 bg-stone-200"></div>
                     <button onClick={() => { setIsMenuOpen(false); nextGuideStep(2); }} className={`text-stone-400 hover:text-stone-800 transition-colors relative ${guideStep === 1 ? 'animate-guide-pulse bg-orange-100 rounded-full p-1' : ''}`} title="Esconder Painel">
                       <X size={18} />
-                      <GuidedTip step={1} currentStep={guideStep} text="Minimize aqui para ver como seu site ficou!" />
+                      <GuidedTip step={1} currentStep={guideStep} text="Minimize aqui para ver como seu site ficou!" position="bottom" />
                     </button>
                   </div>
                 </div>
@@ -1887,7 +1913,7 @@ const App: React.FC = () => {
                       {currentProjectSlug && (
                         <button onClick={() => setActiveTab('assinatura')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative ${activeTab === 'assinatura' ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'} ${guideStep === 4 ? 'animate-guide-pulse' : ''}`}>
                           Pagamento
-                          <GuidedTip step={4} currentStep={guideStep} text="Tudo pronto! Ative seu plano para manter seu site online." />
+                          <GuidedTip step={4} currentStep={guideStep} text="Tudo pronto! Ative seu plano para manter seu site online." position="bottom" />
                           {!isPaid && (
                             <span className="absolute top-3 right-2 flex h-2 w-2"><span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${daysLeft > 0 ? 'bg-yellow-400' : 'bg-red-400'}`}></span><span className={`relative inline-flex rounded-full h-2 w-2 ${daysLeft > 0 ? 'bg-yellow-500' : 'bg-red-500'}`}></span></span>
                           )}
@@ -2533,7 +2559,7 @@ const App: React.FC = () => {
                       >
                         {isSavingProject ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save size={14} />}
                         {currentProjectSlug ? 'Salvar Alterações' : 'Salvar Projeto'}
-                        <GuidedTip step={2} currentStep={guideStep} text="Salve seu projeto para garantir seu link oficial!" />
+                        <GuidedTip step={2} currentStep={guideStep} text="Salve seu projeto para garantir seu link oficial!" position="top" />
                       </button>
 
                       {needsPayment ? (
@@ -2555,7 +2581,7 @@ const App: React.FC = () => {
                         >
                           {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : (isPublished ? <RefreshCw size={14} /> : <Globe size={14} />)}
                           {isPublished ? 'Atualizar Publicação' : 'Publicar Site'}
-                          <GuidedTip step={3} currentStep={guideStep} text="Clique aqui para colocar seu site no ar!" />
+                          <GuidedTip step={3} currentStep={guideStep} text="Clique aqui para colocar seu site no ar!" position="top" />
                         </button>
                       )}
                     </div>
