@@ -28,10 +28,15 @@ const ensureAuthed = (request) => {
 };
 
 async function getFirebaseAccessToken() {
-  const auth = new GoogleAuth({ scopes: ["https://www.googleapis.com/auth/firebase"] });
+  const auth = new GoogleAuth({ 
+    scopes: [
+      "https://www.googleapis.com/auth/firebase",
+      "https://www.googleapis.com/auth/cloud-platform"
+    ] 
+  });
   const client = await auth.getClient();
-  const token = await client.getAccessToken();
-  return token.token || token;
+  const tokenResponse = await client.getAccessToken();
+  return tokenResponse.token || tokenResponse;
 }
 
 // ============================================================================
@@ -218,12 +223,20 @@ exports.publishUserProject = onCall({ cors: true }, async (request) => {
         const projectIdEnv = getProjectId();
         const token = await getFirebaseAccessToken();
         const apiUrl = `https://firebasehosting.googleapis.com/v1beta1/projects/${projectIdEnv}/sites/${projectIdEnv}/customDomains?customDomainId=${subdomainVal}`;
-        await fetch(apiUrl, {
+        
+        console.log(`[Publish] Registrando subdomínio ${subdomainVal} no Hosting...`);
+        
+        const response = await fetch(apiUrl, {
           method: "POST", headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify({}) 
         });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.warn(`[Publish] Aviso ao registrar subdomínio: ${response.status}`, errorText);
+        }
       } catch (apiError) {
-        console.error("Erro ao registrar subdomínio no Hosting da nuvem Firebase:", apiError);
+        console.error("Erro ao registrar subdomínio no Hosting da nuvem Firebase:", apiError.message);
       }
     }
 
@@ -297,26 +310,46 @@ exports.addCustomDomain = onCall({ cors: true, timeoutSeconds: 60 }, async (requ
 
   try {
     const projectIdEnv = getProjectId();
+    if (!projectIdEnv || projectIdEnv === '{}') {
+      console.error("ERRO: ID do Projeto não detectado nas variáveis de ambiente.");
+      throw new HttpsError("failed-precondition", "Configuração de ID do projeto ausente no ambiente Cloud.");
+    }
+
     const token = await getFirebaseAccessToken();
     const cleanDomain = domain.trim().toLowerCase();
 
     const apiUrl = `https://firebasehosting.googleapis.com/v1beta1/projects/${projectIdEnv}/sites/${projectIdEnv}/customDomains?customDomainId=${cleanDomain}`;
+    
+    console.log(`[CustomDomain] Iniciando vinculação de ${cleanDomain} para o projeto ${projectIdEnv}`);
 
     const response = await fetch(apiUrl, {
-      method: "POST", headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+      method: "POST", 
+      headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({}) 
     });
 
-    const domainData = await response.json();
+    let domainData = {};
+    const responseText = await response.text();
+    try {
+      if (responseText) domainData = JSON.parse(responseText);
+    } catch (e) {
+      console.error("[CustomDomain] Resposta não-JSON do Google:", responseText);
+    }
 
     if (!response.ok) {
-      if (domainData.error?.status === "ALREADY_EXISTS") throw new HttpsError("already-exists", "Este domínio já está em uso.");
-      throw new HttpsError("unknown", `Erro Google: ${domainData.error?.message}`);
+      console.error(`[CustomDomain] Erro Google API (${response.status}):`, domainData.error || responseText);
+      if (domainData.error?.status === "ALREADY_EXISTS") {
+        throw new HttpsError("already-exists", "Este domínio já está em uso em outro projeto Firebase.");
+      }
+      throw new HttpsError("unknown", `Erro Google: ${domainData.error?.message || "Erro desconhecido na API de Hosting"}`);
     }
+
+    console.log(`[CustomDomain] Domínio principal ${cleanDomain} ok. Vinculando www...`);
 
     const wwwUrl = `https://firebasehosting.googleapis.com/v1beta1/projects/${projectIdEnv}/sites/${projectIdEnv}/customDomains?customDomainId=www.${cleanDomain}`;
     await fetch(wwwUrl, {
-      method: "POST", headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+      method: "POST", 
+      headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ redirectTarget: cleanDomain })
     });
 
@@ -327,8 +360,16 @@ exports.addCustomDomain = onCall({ cors: true, timeoutSeconds: 60 }, async (requ
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
-    return { success: true, status: domainData.hostState || "PENDING", records: domainData.requiredDnsUpdates };
-  } catch (error) { throw new HttpsError(error.code || "unknown", error.message); }
+    return { 
+      success: true, 
+      status: domainData.hostState || "PENDING", 
+      records: domainData.requiredDnsUpdates 
+    };
+  } catch (error) { 
+    console.error("[CustomDomain] Erro Crítico:", error.message);
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError(error.code || "internal", error.message); 
+  }
 });
 
 exports.removeCustomDomain = onCall({ cors: true, timeoutSeconds: 60 }, async (request) => {
@@ -341,18 +382,35 @@ exports.removeCustomDomain = onCall({ cors: true, timeoutSeconds: 60 }, async (r
     const token = await getFirebaseAccessToken();
     const cleanDomain = domain.trim().toLowerCase();
 
-    await fetch(`https://firebasehosting.googleapis.com/v1beta1/projects/${projectIdEnv}/sites/${projectIdEnv}/customDomains/${cleanDomain}`, {
+    console.log(`[CustomDomain] Removendo domínio ${cleanDomain} do projeto ${projectIdEnv}`);
+
+    const res1 = await fetch(`https://firebasehosting.googleapis.com/v1beta1/projects/${projectIdEnv}/sites/${projectIdEnv}/customDomains/${cleanDomain}`, {
       method: "DELETE", headers: { "Authorization": `Bearer ${token}` }
     });
-    await fetch(`https://firebasehosting.googleapis.com/v1beta1/projects/${projectIdEnv}/sites/${projectIdEnv}/customDomains/www.${cleanDomain}`, {
+    
+    if (!res1.ok && res1.status !== 404) {
+       console.warn(`[CustomDomain] Aviso ao remover ${cleanDomain}: ${res1.status}`);
+    }
+
+    const res2 = await fetch(`https://firebasehosting.googleapis.com/v1beta1/projects/${projectIdEnv}/sites/${projectIdEnv}/customDomains/www.${cleanDomain}`, {
       method: "DELETE", headers: { "Authorization": `Bearer ${token}` }
     });
 
+    if (!res2.ok && res2.status !== 404) {
+       console.warn(`[CustomDomain] Aviso ao remover www.${cleanDomain}: ${res2.status}`);
+    }
+
     await admin.firestore().collection("users").doc(uid).collection("projects").doc(projectId).update({
-      officialDomain: "Pendente", domainStatus: "PENDING", domainRecords: null, updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      officialDomain: "Pendente", 
+      domainStatus: "PENDING", 
+      domainRecords: null, 
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
     });
     return { success: true };
-  } catch (error) { throw new HttpsError(error.code || "unknown", error.message); }
+  } catch (error) { 
+    console.error("[CustomDomain] Erro ao remover:", error.message);
+    throw new HttpsError(error.code || "internal", error.message); 
+  }
 });
 
 exports.verifyDomainPropagation = onCall({ cors: true, timeoutSeconds: 60 }, async (request) => {
@@ -367,9 +425,19 @@ exports.verifyDomainPropagation = onCall({ cors: true, timeoutSeconds: 60 }, asy
 
     const apiUrl = `https://firebasehosting.googleapis.com/v1beta1/projects/${projectIdEnv}/sites/${projectIdEnv}/customDomains/${cleanDomain}`;
     const response = await fetch(apiUrl, { method: "GET", headers: { "Authorization": `Bearer ${token}` } });
-    const domainData = await response.json();
+    
+    const responseText = await response.text();
+    let domainData = {};
+    try {
+      if (responseText) domainData = JSON.parse(responseText);
+    } catch (e) {
+      console.error("[CustomDomain] Resposta não-JSON na verificação:", responseText);
+    }
 
-    if (!response.ok) throw new HttpsError("unknown", `Erro Google: ${domainData.error?.message}`);
+    if (!response.ok) {
+      console.error(`[CustomDomain] Erro ao verificar domínio (${response.status}):`, domainData.error || responseText);
+      throw new HttpsError("unknown", `Erro Google: ${domainData.error?.message || "Não foi possível consultar o status do domínio"}`);
+    }
 
     const isPropagated = domainData.hostState === "HOSTING_ACTIVE" || domainData.status === "ACTIVE";
 
@@ -379,8 +447,17 @@ exports.verifyDomainPropagation = onCall({ cors: true, timeoutSeconds: 60 }, asy
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
-    return { success: true, status: domainData.hostState || domainData.status || "PENDING", isPropagated: isPropagated, records: domainData.requiredDnsUpdates };
-  } catch (error) { throw new HttpsError(error.code || "unknown", error.message); }
+    return { 
+      success: true, 
+      status: domainData.hostState || domainData.status || "PENDING", 
+      isPropagated: isPropagated, 
+      records: domainData.requiredDnsUpdates 
+    };
+  } catch (error) { 
+    console.error("[CustomDomain] Erro Crítico na Verificação:", error.message);
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError(error.code || "internal", error.message); 
+  }
 });
 
 // ==============================================================================

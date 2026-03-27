@@ -145,12 +145,16 @@ const PROMO_HTML = `
         }
       }
 
-      // Update Inputs
+      // Update Inputs (Avoid overwriting while typing)
       var nameInput = document.getElementById('hero-business-name');
-      if (nameInput && formData.businessName && !nameInput.value) nameInput.value = formData.businessName;
+      if (nameInput && formData.businessName && document.activeElement !== nameInput) {
+        nameInput.value = formData.businessName;
+      }
       
       var slugInput = document.getElementById('hero-custom-slug');
-      if (slugInput && formData.customSlug && !slugInput.value) slugInput.value = formData.customSlug;
+      if (slugInput && formData.customSlug && document.activeElement !== slugInput) {
+        slugInput.value = formData.customSlug;
+      }
 
       // Update Slug Feedback
       var sFeed = document.getElementById('slug-feedback');
@@ -226,22 +230,22 @@ const PROMO_HTML = `
     <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-200/30 blur-[150px] rounded-full pointer-events-none"></div>
     <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-orange-200/30 blur-[150px] rounded-full pointer-events-none"></div>
     
-    <div class="grid md:grid-cols-2 gap-8 items-center relative z-10 animate-up mb-12 mt-6 md:mt-2">
+    <div class="grid md:grid-cols-[1fr_340px] gap-16 items-center relative z-10 animate-up mb-12 mt-6 md:mt-10">
       <div class="text-center md:text-left">
-        <h1 class="text-[2.2rem] md:text-[4.2rem] font-black leading-[0.85] tracking-tighter mb-4 uppercase italic text-stone-900">
+        <h1 class="text-[2.8rem] md:text-[6.2rem] font-black leading-[0.8] tracking-tighter mb-6 uppercase italic text-stone-900 drop-shadow-sm w-full">
           Seu site pronto em um <span class="text-orange-500 pr-10 inline-block drop-shadow-sm">ZING!!!</span>
         </h1>
-        <p class="text-sm md:text-base text-stone-500 font-light leading-relaxed max-w-md hidden md:block">
-          A nossa inteligência artificial cria, escreve e publica o seu site automaticamente. Preencha e veja a mágica acontecer.
+        <p class="text-base md:text-xl text-stone-500 font-light leading-relaxed max-w-2xl hidden md:block mb-8">
+          A nossa inteligência artificial cria, escreve e publica o seu site automaticamente. <span class="font-bold text-stone-800 text-lg">Preencha e veja a mágica acontecer agora mesmo.</span>
         </p>
         
-        <div class="flex items-center gap-3 bg-white/50 border border-stone-200 p-2.5 rounded-2xl mt-4 max-w-fit mx-auto md:mx-0 shadow-sm">
-          <div class="w-7 h-7 bg-orange-500 rounded-lg flex items-center justify-center text-white shadow-md">
-            <i class="fas fa-gift text-xs"></i>
+        <div class="flex items-center gap-4 bg-white/60 border-2 border-orange-100 p-4 rounded-3xl mt-6 max-w-fit mx-auto md:mx-0 shadow-lg hover:border-orange-200 transition-all">
+          <div class="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center text-white shadow-xl rotate-3">
+            <i class="fas fa-gift text-lg"></i>
           </div>
           <div class="text-left">
-            <h3 class="text-[10px] font-black text-stone-800 uppercase italic leading-tight">7 dias grátis para testar</h3>
-            <p class="text-[8px] text-stone-500 font-medium">Sem compromisso. Experimente agora.</p>
+            <h3 class="text-[14px] font-black text-stone-800 uppercase italic leading-tight">7 dias grátis para testar</h3>
+            <p class="text-[10px] text-stone-500 font-bold uppercase tracking-widest">Sem compromisso • Teste Imediato</p>
           </div>
         </div>
       </div>
@@ -297,8 +301,8 @@ const PROMO_HTML = `
               <div id="slug-feedback" class="text-[9px] mt-1 text-center font-bold italic"></div>
             </div>
 
-            <button id="hero-submit-btn" class="w-full bg-[#18181b] hover:bg-black text-white py-3.5 rounded-xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl hover:translate-y-[-1px] mt-1 flex items-center justify-center gap-2">
-              Gerar My Site ✨
+            <button id="hero-submit-btn" class="w-full bg-[#18181b] hover:bg-black text-white py-4 rounded-xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl hover:translate-y-[-1px] mt-1 flex items-center justify-center gap-2">
+              INICIAR A MÁGICA ✨
             </button>
           </div>
         </div>
@@ -948,42 +952,7 @@ const App: React.FC = () => {
     setPendingGoogleData(null);
   };
 
-  useEffect(() => {
-    const handleMessage = (e: MessageEvent) => {
-      if (e.data?.type === 'OPEN_PLAN_MODAL') {
-        setSelectedPlanModal(e.data.plan);
-        setSelectedPriceId(e.data.priceId || null);
-        setCheckoutTermsAccepted(false);
-      }
-      if (e.data?.type === 'SET_BUSINESS_NAME') {
-        handleFloatNameChange(e.data.value);
-      }
-      if (e.data?.type === 'SET_CUSTOM_SLUG') {
-        handleCustomSlugChange(e.data.value);
-      }
-      if (e.data?.type === 'TRIGGER_FETCH_GOOGLE') {
-        setFormData(p => ({ ...p, googlePlaceUrl: e.data.value }));
-        setTimeout(() => fetchGoogleData(), 100);
-      }
-      if (e.data?.type === 'ACTION_CONFIRM_GOOGLE') {
-        confirmGoogleInjection();
-      }
-      if (e.data?.type === 'ACTION_RESET_GOOGLE') {
-        setPendingGoogleData(null);
-        setGoogleStatus(null);
-      }
-      if (e.data?.type === 'ACTION_START_MAGIC') {
-        if (!formData.businessName) return showToast('Digite o nome da sua empresa!', 'warning');
-        if (floatDomainStatus.available === false) return showToast('Este endereço não está disponível.', 'warning');
-        setIsMenuOpen(true);
-        // Opcional: Trigger generation automatically if desired
-      }
-    };
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [formData.businessName, floatDomainStatus.available, formData.googlePlaceUrl, fetchGoogleData, confirmGoogleInjection, setPendingGoogleData]);
-
-  // Sync state to Landing Page Iframe
+  // Receptor de mensagens do iframe (Landing Page) consolidado acima
   useEffect(() => {
     if (iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.postMessage({
@@ -1492,6 +1461,44 @@ const App: React.FC = () => {
     reader.onloadend = () => { setFormData(p => ({ ...p, logoBase64: reader.result as string })); setHasUnsavedChanges(true); };
     reader.readAsDataURL(file);
   };
+
+  useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data?.type === 'OPEN_PLAN_MODAL') {
+        setSelectedPlanModal(e.data.plan);
+        setSelectedPriceId(e.data.priceId || null);
+        setCheckoutTermsAccepted(false);
+      }
+      if (e.data?.type === 'SET_BUSINESS_NAME') {
+        handleFloatNameChange(e.data.value);
+      }
+      if (e.data?.type === 'SET_CUSTOM_SLUG') {
+        handleCustomSlugChange(e.data.value);
+      }
+      if (e.data?.type === 'TRIGGER_FETCH_GOOGLE') {
+        setFormData(p => ({ ...p, googlePlaceUrl: e.data.value }));
+        setTimeout(() => fetchGoogleData(), 100);
+      }
+      if (e.data?.type === 'ACTION_CONFIRM_GOOGLE') {
+        confirmGoogleInjection();
+      }
+      if (e.data?.type === 'ACTION_RESET_GOOGLE') {
+        setPendingGoogleData(null);
+        setGoogleStatus(null);
+      }
+      if (e.data?.type === 'ACTION_START_MAGIC') {
+        if (!formData.businessName) return showToast('Digite o nome da sua empresa!', 'warning');
+        if (floatDomainStatus.available === false) return showToast('Este endereço não está disponível.', 'warning');
+        
+        // Trigger Generation immediately
+        handleGenerate();
+        setIsMenuOpen(true);
+        setActiveTab('geral');
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [formData.businessName, floatDomainStatus.available, formData.googlePlaceUrl, handleGenerate, setIsMenuOpen, setActiveTab, fetchGoogleData, confirmGoogleInjection, setPendingGoogleData]);
 
   const slugify = (value = "") => value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48);
 
@@ -2855,12 +2862,14 @@ const App: React.FC = () => {
                     onClick={() => {
                       if (!formData.businessName || floatDomainStatus.available === false) return;
                       setFormData(p => ({ ...p, segment: "Negócios / Geral", description: `Uma empresa moderna e inovadora chamada ${p.businessName}.` }));
-                      setTimeout(() => handleGenerate(), 100);
+                      handleGenerate();
+                      setIsMenuOpen(true);
+                      setActiveTab('geral');
                     }}
                     disabled={isGenerating || !formData.businessName || floatDomainStatus.available === false}
                     className="w-full bg-[#18181b] hover:bg-black text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-xl shadow-black/10"
                   >
-                    {isGenerating ? <Loader2 className="animate-spin w-5 h-5" /> : <>✨ Começar a Mágica</>}
+                    {isGenerating ? <Loader2 className="animate-spin w-5 h-5" /> : <>✨ Iniciar a Mágica</>}
                   </button>
                 </div>
               </div>
