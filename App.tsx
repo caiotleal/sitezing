@@ -226,7 +226,7 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
   let html = PROMO_HTML;
   
   // Geração de Cards de Preço Dinâmicos
-  const plans = platformConfigs.plans || [];
+  const plans = [...(platformConfigs.plans || [])].sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0));
   let cardsHtml = `
     <div class="glass-card p-8 rounded-[2rem] overflow-hidden group" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', plan: 'free' }, '*')">
       <div class="card-share-btn" onclick="sharePlan('free')" title="Compartilhar este plano"><i class="fas fa-share-alt"></i></div>
@@ -245,6 +245,13 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
   `;
 
   plans.forEach((p: any) => {
+    const intervalLabel = 
+      p.interval === 'month' ? 'mês' : 
+      p.interval === 'bimestral' ? 'bimestre' :
+      p.interval === 'trimestral' ? 'trimestre' :
+      p.interval === 'semestral' ? 'semestre' : 
+      p.interval === 'year' ? 'ano' : 'período';
+    console.log(`[DEBUG] Rendering plan ${p.name} with interval: ${p.interval} -> ${intervalLabel}`);
     const isAnual = p.interval === 'year';
     const integer = p.price.toString().split('.')[0];
     const decimal = p.price.toString().split('.')[1] || '00';
@@ -253,12 +260,12 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
       <div class="glass-card p-8 rounded-[2rem] overflow-hidden group ${isAnual ? 'border-orange-300' : 'border-teal-200'}" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', priceId: '${p.priceId}', plan: '${p.name.toLowerCase()}' }, '*')">
         <div class="card-share-btn" onclick="sharePlan('${p.name.toLowerCase()}')" title="Compartilhar este plano"><i class="fas fa-share-alt"></i></div>
         <img src="${BRAND_LOGO}" class="plan-bg-logo" />
-        <div class="absolute top-0 right-0 ${isAnual ? 'bg-orange-500' : 'bg-teal-600'} text-white text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase shadow-md">
-          ${isAnual ? 'Mais Econômico' : 'Popular'}
+        <div class="absolute top-0 right-0 ${p.badge ? 'bg-orange-600' : (isAnual ? 'bg-orange-500' : 'bg-teal-600')} text-white text-[9px] font-black tracking-widest px-4 py-2 rounded-bl-2xl uppercase shadow-md">
+          ${p.badge || (isAnual ? 'Mais Econômico' : 'Popular')}
         </div>
         <h3 class="text-2xl font-black mb-1 italic uppercase ${isAnual ? 'text-orange-500' : 'text-teal-600'} mt-2">${p.name}</h3>
         <p class="text-stone-500 mb-6 text-sm">${p.description || 'Hospedagem profissional SiteZing'}</p>
-        <div class="text-4xl font-black mb-1 text-stone-900">R$ ${integer}<span class="text-2xl">,${decimal}</span> <span class="text-sm text-stone-400 font-normal">/ ${isAnual ? 'ano' : 'mês'}</span></div>
+        <div class="text-4xl font-black mb-1 text-stone-900">R$ ${integer}<span class="text-2xl">,${decimal}</span> <span class="text-sm text-stone-400 font-normal">/ ${intervalLabel}</span></div>
         <ul class="space-y-3 text-stone-600 text-sm font-medium mt-6">
           ${p.features.map((f: string) => `
             <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full ${isAnual ? 'bg-orange-100 text-orange-500' : 'bg-teal-100 text-teal-600'} flex items-center justify-center text-[10px]">✔</span> ${f}</li>
@@ -2241,7 +2248,15 @@ const App: React.FC = () => {
                                           {isAnual ? 'Mais Econômico' : 'Recomendado'}
                                         </div>
                                         <h4 className={`${isAnual ? 'text-orange-500' : 'text-teal-600'} font-bold mb-2 uppercase tracking-wide text-xs`}>{p.name}</h4>
-                                        <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ {p.price}</span><span className="text-xs text-stone-500 font-medium pb-1">/{p.interval === 'month' ? 'mês' : 'ano'}</span></div>
+                                        <div className="flex items-end gap-1 mb-4">
+                                          <span className="text-3xl font-black text-stone-950">R$ {p.price}</span>
+                                          <span className="text-xs text-stone-500 font-medium pb-1">/
+                                            {p.interval === 'month' ? 'mês' : 
+                                             p.interval === 'bimestral' ? 'bimestre' :
+                                             p.interval === 'trimestral' ? 'trimestre' :
+                                             p.interval === 'semestral' ? 'semestre' : 'ano'}
+                                          </span>
+                                        </div>
                                         <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
                                           {p.features?.map((f: string, i: number) => (
                                             <li key={i} className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5" /> {f}</li>

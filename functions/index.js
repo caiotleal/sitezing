@@ -435,13 +435,17 @@ exports.createStripeCheckoutSession = onCall({ cors: true }, async (request) => 
     };
   }
 
-  const session = await stripe.checkout.sessions.create({
-    mode: "subscription", payment_method_types: ["card"],
-    line_items: [lineItem],
-    metadata: { planType: planType || 'dinamico' }, locale: "pt-BR", client_reference_id: projectId,
-    allow_promotion_codes: true, // Habilita campo de cupom no Checkout
-    success_url: `${safeOrigin}?payment=success&project=${projectId}`, cancel_url: `${safeOrigin}?payment=cancelled&project=${projectId}`
-  });
+  const sessionParams = {
+    mode: 'subscription',
+    line_items: [{ price: priceId || stripeConfig.defaultPriceId, quantity: 1 }],
+    success_url: `${safeOrigin}?payment=success&project=${projectId}`,
+    cancel_url: `${safeOrigin}?payment=cancelled&project=${projectId}`,
+    metadata: { projectId, planType },
+    allow_promotion_codes: true,
+    payment_method_collection: 'always',
+  };
+
+  const session = await stripe.checkout.sessions.create(sessionParams);
 
   return { url: session.url };
 });
@@ -841,7 +845,7 @@ exports.createStripePlanAdmin = onCall({ cors: true }, async (request) => {
     throw new HttpsError("permission-denied", "Acesso restrito ao administrador.");
   }
 
-  const { name, description, price, interval, features } = request.data;
+  const { name, description, price, interval, features, badge, sortOrder } = request.data;
   if (!name || !price) throw new HttpsError("invalid-argument", "Nome e preço são obrigatórios.");
 
   const stripeConfig = await getStripeConfig();
@@ -855,12 +859,23 @@ exports.createStripePlanAdmin = onCall({ cors: true }, async (request) => {
     });
 
     // 2. Criar Preço (Recorrente)
-    const stripePrice = await stripe.prices.create({
+    const priceData = {
       product: product.id,
       unit_amount: Math.round(parseFloat(price) * 100),
       currency: "brl",
-      recurring: { interval: interval || "month" },
-    });
+    };
+
+    if (interval === 'bimestral') {
+      priceData.recurring = { interval: 'month', interval_count: 2 };
+    } else if (interval === 'trimestral') {
+      priceData.recurring = { interval: 'month', interval_count: 3 };
+    } else if (interval === 'semestral') {
+      priceData.recurring = { interval: 'month', interval_count: 6 };
+    } else {
+      priceData.recurring = { interval: interval || "month" };
+    }
+
+    const stripePrice = await stripe.prices.create(priceData);
 
     // 3. Registrar no Firestore
     const db = admin.firestore();
@@ -873,11 +888,95 @@ exports.createStripePlanAdmin = onCall({ cors: true }, async (request) => {
         price,
         interval: interval || "month",
         features: features || [],
+        badge: badge || "",
+        sortOrder: parseInt(sortOrder) || 0,
         createdAt: new Date().toISOString()
       })
     });
 
     return { success: true, productId: product.id, priceId: stripePrice.id };
+  } catch (error) {
+    throw new HttpsError("internal", error.message);
+  }
+});
+
+exports.updateStripePlanAdmin = onCall({ cors: true }, async (request) => {
+  if (request.auth?.token?.email !== ADMIN_EMAIL) {
+    throw new HttpsError("permission-denied", "Acesso restrito ao administrador.");
+  }
+
+  const { productId, name, description, features, price, interval, badge, sortOrder } = request.data;
+  if (!productId) throw new HttpsError("invalid-argument", "ID do produto é obrigatório.");
+
+  const stripeConfig = await getStripeConfig();
+  const stripe = getStripeInstance(stripeConfig);
+  const db = admin.firestore();
+
+  try {
+    // 1. Atualizar Produto no Stripe
+    await stripe.products.update(productId, {
+      name: name,
+      description: description,
+    });
+
+    // 2. Buscar planos atuais
+    const configDoc = await db.collection("configs").doc("platform").get();
+    if (!configDoc.exists) throw new Error("Configurações não encontradas.");
+    
+    const plans = configDoc.data().plans || [];
+    const planIndex = plans.findIndex(p => p.id === productId);
+    if (planIndex === -1) throw new Error("Plano não encontrado no banco.");
+
+    const existingPlan = plans[planIndex];
+    let newPriceId = existingPlan.priceId;
+
+    // 3. Se o preço ou intervalo mudou, criar novo preço no Stripe
+    // (Preços no Stripe são imutáveis em termos de valor/intervalo)
+    if (parseFloat(price) !== parseFloat(existingPlan.price) || interval !== existingPlan.interval) {
+      const priceData = {
+        product: productId,
+        unit_amount: Math.round(parseFloat(price) * 100),
+        currency: "brl",
+      };
+      
+      if (interval === 'bimestral') {
+        priceData.recurring = { interval: 'month', interval_count: 2 };
+      } else if (interval === 'trimestral') {
+        priceData.recurring = { interval: 'month', interval_count: 3 };
+      } else if (interval === 'semestral') {
+        priceData.recurring = { interval: 'month', interval_count: 6 };
+      } else {
+        priceData.recurring = { interval: interval || "month" };
+      }
+
+      const stripePrice = await stripe.prices.create(priceData);
+      newPriceId = stripePrice.id;
+
+      // Desativar preço antigo para não poluir o Stripe Dashboard
+      try {
+        await stripe.prices.update(existingPlan.priceId, { active: false });
+      } catch (e) {
+        console.error("Erro ao desativar preço antigo:", e);
+      }
+    }
+
+    // 4. Atualizar no Firestore
+    plans[planIndex] = {
+      ...existingPlan,
+      name,
+      description,
+      price,
+      interval,
+      features: features || [],
+      priceId: newPriceId,
+      badge: badge || "",
+      sortOrder: parseInt(sortOrder) || 0,
+      updatedAt: new Date().toISOString()
+    };
+
+    await db.collection("configs").doc("platform").update({ plans });
+
+    return { success: true };
   } catch (error) {
     throw new HttpsError("internal", error.message);
   }
@@ -896,8 +995,20 @@ exports.deleteStripePlanAdmin = onCall({ cors: true }, async (request) => {
     const configDoc = await db.collection("configs").doc("platform").get();
     if (configDoc.exists) {
       const plans = configDoc.data().plans || [];
+      const planToDelete = plans.find(p => p.id === productId);
       const updatedPlans = plans.filter(p => p.id !== productId);
       await db.collection("configs").doc("platform").update({ plans: updatedPlans });
+
+      // Desativar no Stripe também
+      if (planToDelete && planToDelete.priceId) {
+        const stripeConfig = await getStripeConfig();
+        const stripe = getStripeInstance(stripeConfig);
+        try {
+          await stripe.prices.update(planToDelete.priceId, { active: false });
+        } catch (e) {
+          console.error("Erro ao desativar preço na deleção:", e);
+        }
+      }
     }
     return { success: true };
   } catch (error) {

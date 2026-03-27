@@ -39,10 +39,14 @@ const CPanel: React.FC = () => {
 
   const [planName, setPlanName] = useState('');
   const [planPrice, setPlanPrice] = useState('');
-  const [planInterval, setPlanInterval] = useState<'month' | 'year'>('month');
+  const [planInterval, setPlanInterval] = useState<'month' | 'year' | 'bimestral' | 'trimestral' | 'semestral'>('month');
   const [planDescription, setPlanDescription] = useState('');
   const [planFeatures, setPlanFeatures] = useState('');
   const [isCreatingPlan, setIsCreatingPlan] = useState(false);
+  const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
+  const [planBadge, setPlanBadge] = useState('');
+  const [planSortOrder, setPlanSortOrder] = useState('0');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const fetchPlatformConfigs = async () => {
     try {
@@ -191,25 +195,60 @@ const CPanel: React.FC = () => {
     if (!planName || !planPrice) return alert("Preencha nome e preço.");
     setIsCreatingPlan(true);
     try {
-      const createFn = httpsCallable(functions, 'createStripePlanAdmin');
-      await createFn({ 
-        name: planName, 
-        price: planPrice, 
-        interval: planInterval, 
-        description: planDescription, 
-        features: planFeatures.split(',').map(f => f.trim()).filter(f => f)
-      });
-      alert("Plano criado e sincronizado com Stripe!");
-      setPlanName('');
-      setPlanPrice('');
-      setPlanDescription('');
-      setPlanFeatures('');
+      if (editingPlanId) {
+        const updateFn = httpsCallable(functions, 'updateStripePlanAdmin');
+        await updateFn({ 
+          productId: editingPlanId,
+          name: planName, 
+          price: planPrice, 
+          interval: planInterval, 
+          description: planDescription, 
+          features: planFeatures.split(',').map(f => f.trim()).filter(f => f),
+          badge: planBadge,
+          sortOrder: planSortOrder
+        });
+        alert("Plano atualizado com sucesso!");
+      } else {
+        const createFn = httpsCallable(functions, 'createStripePlanAdmin');
+        await createFn({ 
+          name: planName, 
+          price: planPrice, 
+          interval: planInterval, 
+          description: planDescription, 
+          features: planFeatures.split(',').map(f => f.trim()).filter(f => f),
+          badge: planBadge,
+          sortOrder: planSortOrder
+        });
+        alert("Plano criado e sincronizado com Stripe!");
+      }
+       
+       setPlanName(''); setPlanPrice(''); setPlanInterval('month'); setPlanDescription(''); setPlanFeatures('');
+       setPlanBadge(''); setPlanSortOrder('0');
+       setEditingPlanId(null);
       fetchPlatformConfigs();
     } catch (err: any) {
-      alert("Erro ao criar plano: " + err.message);
+      alert("Erro ao processar plano: " + err.message);
     } finally {
       setIsCreatingPlan(false);
     }
+  };
+
+  const startEditPlan = (plan: any) => {
+    setEditingPlanId(plan.id);
+    setPlanName(plan.name);
+    setPlanPrice(plan.price.toString());
+    setPlanInterval(plan.interval);
+    setPlanDescription(plan.description || '');
+    setPlanFeatures(plan.features?.join(', ') || '');
+    setPlanBadge(plan.badge || '');
+    setPlanSortOrder((plan.sortOrder || 0).toString());
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEditPlan = () => {
+    setEditingPlanId(null);
+    setPlanName(''); setPlanPrice(''); setPlanInterval('month'); setPlanDescription(''); setPlanFeatures('');
+    setPlanBadge(''); setPlanSortOrder('0');
   };
 
   const handleDeletePlan = async (plan: any) => {
@@ -341,27 +380,41 @@ const CPanel: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#FBFBFA] text-[#1C1917] flex font-[Inter]">
-      <aside className="w-72 bg-white border-r border-stone-200 h-screen sticky top-0 flex flex-col">
-        <div className="p-8 pb-4 flex items-center gap-3">
+    <div className="min-h-screen bg-[#FBFBFA] text-[#1C1917] flex flex-col md:flex-row font-[Inter]">
+      {/* Mobile Header */}
+      <div className="md:hidden flex items-center justify-between p-4 bg-white border-b border-stone-200 sticky top-0 z-[60]">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8"><img src={BRAND_LOGO} alt="Logo" className="w-full h-full object-contain" /></div>
+          <h1 className="text-sm font-black uppercase italic tracking-tighter">SiteZing <span className="text-orange-600">Admin</span></h1>
+        </div>
+        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-stone-900 border border-stone-200 rounded-lg">
+          {isSidebarOpen ? <X size={20} /> : <Layout size={20} />}
+        </button>
+      </div>
+
+      <aside className={`
+        fixed md:sticky top-0 left-0 w-72 bg-white border-r border-stone-200 h-screen z-50 flex flex-col transition-transform duration-300
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        <div className="p-8 pb-4 hidden md:flex items-center gap-3">
           <div className="w-8 h-8"><img src={BRAND_LOGO} alt="Logo" className="w-full h-full object-contain" /></div>
           <h1 className="text-lg font-black uppercase italic tracking-tighter">SiteZing <span className="text-orange-600">Admin</span></h1>
         </div>
         
         <nav className="flex-1 p-4 space-y-2">
-          <button onClick={() => setView('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'dashboard' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
+          <button onClick={() => { setView('dashboard'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'dashboard' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
             <BarChart3 size={18} /> Dashboard
           </button>
-          <button onClick={() => setView('users')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'users' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
+          <button onClick={() => { setView('users'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'users' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
             <Users size={18} /> Usuários
           </button>
-          <button onClick={() => setView('domains')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'domains' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
+          <button onClick={() => { setView('domains'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'domains' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
             <Globe size={18} /> Domínios
           </button>
-          <button onClick={() => setView('platform')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'platform' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
+          <button onClick={() => { setView('platform'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'platform' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
             <Layout size={18} /> Plataforma
           </button>
-          <button onClick={() => setView('settings')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'settings' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
+          <button onClick={() => { setView('settings'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${view === 'settings' ? 'bg-orange-50 text-orange-600' : 'text-stone-500 hover:bg-stone-50'}`}>
             <Settings size={18} /> Ajustes Admin
           </button>
         </nav>
@@ -374,8 +427,8 @@ const CPanel: React.FC = () => {
       </aside>
 
       <main className="flex-1 overflow-y-auto">
-        <header className="h-20 bg-white border-b border-stone-200 flex items-center justify-between px-8 sticky top-0 z-30">
-          <h2 className="text-xl font-black uppercase italic tracking-tight text-stone-900">
+        <header className="h-20 bg-white border-b border-stone-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-30">
+          <h2 className="text-lg md:text-xl font-black uppercase italic tracking-tight text-stone-900">
             {view === 'dashboard' ? 'Dashboard Geral' : 
              view === 'users' ? 'Gestão de Usuários' :
              view === 'domains' ? 'Gestão de Domínios' :
@@ -383,14 +436,14 @@ const CPanel: React.FC = () => {
              view === 'settings' ? 'Ajustes Admin' : `Ajuste Admin: ${editingProject?.businessName}`}
           </h2>
           <div className="flex items-center gap-4">
-            <div className="bg-stone-100 px-4 py-2 rounded-lg flex items-center gap-2">
+            <div className="bg-stone-100 px-3 md:px-4 py-2 rounded-lg flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-              <span className="text-[10px] font-black uppercase text-stone-500 tracking-widest">{user.email}</span>
+              <span className="text-[9px] md:text-[10px] font-black uppercase text-stone-500 tracking-widest hidden sm:inline">{user.email}</span>
             </div>
           </div>
         </header>
 
-        <div className="p-8">
+        <div className="p-4 md:p-8">
           <AnimatePresence mode="wait">
             {view === 'dashboard' && (
               <motion.div key="dash" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
@@ -577,7 +630,7 @@ const CPanel: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   {/* Formulário de Criação */}
                   <div className="lg:col-span-1 space-y-4 border-r border-stone-100 pr-0 lg:pr-8">
-                    <p className="text-[10px] font-black uppercase text-stone-400 tracking-widest mb-4">Novo Plano de Assinatura</p>
+                    <p className="text-[10px] font-black uppercase text-stone-400 tracking-widest mb-4">{editingPlanId ? 'Editar Plano Existente' : 'Novo Plano de Assinatura'}</p>
                     <div>
                       <label className="block text-[8px] font-black uppercase text-stone-400 mb-1 ml-1 tracking-widest">Nome do Plano</label>
                       <input type="text" value={planName} onChange={e => setPlanName(e.target.value)} className="w-full px-5 py-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500" placeholder="Ex: Plano Diamond" />
@@ -590,20 +643,41 @@ const CPanel: React.FC = () => {
                       <label className="block text-[8px] font-black uppercase text-stone-400 mb-1 ml-1 tracking-widest">Recorrência</label>
                       <select value={planInterval} onChange={e => setPlanInterval(e.target.value as any)} className="w-full px-5 py-3 bg-stone-50 border border-stone-100 rounded-xl text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-orange-500">
                         <option value="month">Mensal</option>
+                        <option value="bimestral">Bimestral (2 meses)</option>
+                        <option value="trimestral">Trimestral (3 meses)</option>
+                        <option value="semestral">Semestral (6 meses)</option>
                         <option value="year">Anual</option>
                       </select>
+                    </div>
+                    <div>
+                      <label className="block text-[8px] font-black uppercase text-stone-400 mb-1 ml-1 tracking-widest">Selo de Destaque (Badge)</label>
+                      <input type="text" value={planBadge} onChange={e => setPlanBadge(e.target.value)} className="w-full px-5 py-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500" placeholder="Ex: Mais Vendidos" />
+                    </div>
+                    <div>
+                      <label className="block text-[8px] font-black uppercase text-stone-400 mb-1 ml-1 tracking-widest">Ordem de Exibição (0 = primeiro)</label>
+                      <input type="number" value={planSortOrder} onChange={e => setPlanSortOrder(e.target.value)} className="w-full px-5 py-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500" placeholder="0" />
                     </div>
                     <div>
                       <label className="block text-[8px] font-black uppercase text-stone-400 mb-1 ml-1 tracking-widest">Vantagens (Separadas por vírgula)</label>
                       <textarea value={planFeatures} onChange={e => setPlanFeatures(e.target.value)} className="w-full px-5 py-3 bg-stone-50 border border-stone-100 rounded-xl text-xs font-medium outline-none focus:ring-2 focus:ring-orange-500 h-20" placeholder="Domínio grátis, IA ilimitada, Suporte VIP" />
                     </div>
-                    <button 
-                      onClick={handleCreatePlan}
-                      disabled={isCreatingPlan || !planName || !planPrice}
-                      className="w-full bg-orange-500 text-white py-4 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-orange-600 transition-all shadow-lg disabled:opacity-50"
-                    >
-                      {isCreatingPlan ? <Loader2 className="animate-spin w-4 h-4 mx-auto" /> : 'Criar e Sincronizar'}
-                    </button>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={handleCreatePlan}
+                        disabled={isCreatingPlan}
+                        className="flex-1 bg-orange-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20 disabled:opacity-50"
+                      >
+                        {isCreatingPlan ? <Loader2 className="animate-spin w-4 h-4 mx-auto" /> : (editingPlanId ? 'Salvar Edição' : 'Criar e Sincronizar')}
+                      </button>
+                      {editingPlanId && (
+                        <button 
+                          onClick={cancelEditPlan}
+                          className="px-4 bg-stone-100 text-stone-500 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-stone-200 transition-all"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {/* Listagem de Planos */}
@@ -611,24 +685,35 @@ const CPanel: React.FC = () => {
                     <p className="text-[10px] font-black uppercase text-stone-400 tracking-widest mb-4">Planos Disponíveis no Site</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {platformConfigs.plans && platformConfigs.plans.length > 0 ? (
-                        platformConfigs.plans.map((p: any) => (
-                          <div key={p.id} className="p-6 bg-white border border-stone-100 rounded-[2rem] shadow-sm hover:border-orange-200 transition-all group relative">
-                            <button 
-                              onClick={() => handleDeletePlan(p)}
-                              className="absolute top-4 right-4 p-2 text-stone-300 hover:text-red-500 transition-colors"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                            <h4 className="text-sm font-black uppercase italic text-stone-900 mb-1">{p.name}</h4>
-                            <div className="text-xl font-black text-orange-500 mb-4">R$ {p.price} <span className="text-[10px] text-stone-400 font-normal">/ {p.interval === 'month' ? 'mês' : 'ano'}</span></div>
-                            <ul className="space-y-1.5">
-                              {p.features?.map((f: string, i: number) => (
-                                <li key={i} className="text-[9px] font-bold text-stone-500 flex items-center gap-2">
-                                  <div className="w-1 h-1 bg-orange-400 rounded-full"></div> {f}
-                                </li>
+                        [...platformConfigs.plans].sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0)).map((p: any) => (
+                          <div key={p.id} className="p-5 bg-stone-50 rounded-2xl border border-stone-100 relative group min-h-[140px] flex flex-col justify-between">
+                            {p.badge && (
+                              <div className="absolute -top-2 -left-2 bg-orange-500 text-white text-[8px] font-black px-2 py-1 rounded-lg uppercase tracking-widest shadow-lg z-10 transition-transform group-hover:scale-110">
+                                {p.badge}
+                              </div>
+                            )}
+                            <div>
+                              <div className="flex justify-between items-start mb-2">
+                                <h4 className="font-black text-stone-800 uppercase italic text-sm">{p.name}</h4>
+                                <div className="flex gap-1">
+                                  <button onClick={() => startEditPlan(p)} className="p-2 text-stone-400 hover:text-orange-500 hover:bg-white rounded-lg transition-all" title="Editar Plano"><Edit3 size={14} /></button>
+                                  <button onClick={() => handleDeletePlan(p)} className="p-2 text-stone-400 hover:text-red-500 hover:bg-white rounded-lg transition-all" title="Remover Plano"><Trash2 size={14} /></button>
+                                </div>
+                              </div>
+                              <div className="text-xl font-black text-stone-900 leading-none mb-1">
+                                R$ {p.price} <span className="text-[9px] text-stone-400 font-bold uppercase tracking-tight">/ {
+                                  p.interval === 'month' ? 'mês' : 
+                                  p.interval === 'bimestral' ? 'bimestre' :
+                                  p.interval === 'trimestral' ? 'trimestre' :
+                                  p.interval === 'semestral' ? 'semestre' : 'ano'
+                                }</span>
+                              </div>
+                              <p className="text-[10px] text-stone-500 line-clamp-1">{p.description}</p>
+                            </div>
+                            <div className="mt-3 flex flex-wrap gap-1">
+                              {p.features?.slice(0, 3).map((f: string, i: number) => (
+                                <span key={i} className="text-[8px] bg-white border border-stone-100 px-2 py-0.5 rounded-full text-stone-400 font-bold uppercase">{f}</span>
                               ))}
-                            </ul>
-                            <div className="mt-4 pt-4 border-t border-stone-50">
                               <p className="text-[8px] font-mono text-stone-300 truncate">ID: {p.priceId}</p>
                             </div>
                           </div>
