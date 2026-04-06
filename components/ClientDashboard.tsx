@@ -153,7 +153,9 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ projects, userEmail, 
                         <button 
                           onClick={() => onUpgrade(project.id)}
                           className={`w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg
-                            ${isExpired ? 'bg-red-600 hover:bg-red-500 text-white animate-pulse' : 'bg-emerald-600 hover:bg-emerald-500 text-white'}`}
+                            ${isExpired ? 
+                              'bg-red-600 hover:bg-red-500 text-white animate-pulse' : 
+                              'bg-emerald-600 hover:bg-emerald-500 text-white'}`}
                         >
                           <CreditCard size={14} /> 
                           {isExpired ? 'Desbloquear Site Agora' : 'Ativar Plano Premium'}
