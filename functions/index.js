@@ -98,6 +98,7 @@ function sanitizeObject(obj) {
 }
 
 const geminiKey = defineSecret("GEMINI_KEY");
+const googlePlacesKey = defineSecret("GOOGLE_PLACES_API_KEY");
 
 const getProjectId = () => process.env.GCLOUD_PROJECT || JSON.parse(process.env.FIREBASE_CONFIG || '{}').projectId;
 
@@ -138,15 +139,21 @@ const toTimestampMs = (value) => {
 };
 
 async function getFirebaseAccessToken() {
-  const auth = new GoogleAuth({ 
-    scopes: [
-      "https://www.googleapis.com/auth/firebase",
-      "https://www.googleapis.com/auth/cloud-platform"
-    ] 
-  });
-  const client = await auth.getClient();
-  const tokenResponse = await client.getAccessToken();
-  return tokenResponse.token || tokenResponse;
+  try {
+    const auth = new GoogleAuth({ 
+      scopes: [
+        "https://www.googleapis.com/auth/firebase",
+        "https://www.googleapis.com/auth/cloud-platform"
+      ] 
+    });
+    const client = await auth.getClient();
+    const tokenResponse = await client.getAccessToken();
+    return tokenResponse.token || tokenResponse;
+  } catch (err) {
+    console.error("🚨 [AUTH/ADC] Erro Crítico ao obter token via GoogleAuth (Application Default Credentials):", err.message);
+    console.error("-> Verifique se a Cloud Function possui a Service Account Default anexada corretamente e se as permissões 'Token Creator' / 'Firebase Hosting Admin' estão habilitadas na IAM da GCP.");
+    throw new HttpsError("unauthenticated", "Falha interna de autorização (Firebase Hosting Token Error).");
+  }
 }
 
 // ============================================================================
@@ -978,13 +985,13 @@ exports.cleanupExpiredSites = onSchedule("every 24 hours", async (event) => {
 // ============================================================================
 // GOOGLE PLACES API: BUSCAR NEGÓCIO
 // ============================================================================
-exports.fetchGoogleBusiness = onCall({ cors: true }, async (request) => {
+exports.fetchGoogleBusiness = onCall({ cors: true, secrets: [googlePlacesKey] }, async (request) => {
   const uid = ensureAuthed(request); // Anti-bot: Exige Auth (Anônima ou Conta)
   const { query } = request.data;
   if (!query) throw new HttpsError("invalid-argument", "Busca vazia.");
   
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY || "SUA_API_KEY_AQUI"; 
-  if (apiKey === "SUA_API_KEY_AQUI") throw new HttpsError("failed-precondition", "A API Key do Google Places ainda não foi configurada no Backend.");
+  const apiKey = googlePlacesKey.value() || process.env.GOOGLE_PLACES_API_KEY;
+  if (!apiKey || apiKey === "SUA_API_KEY_AQUI") throw new HttpsError("failed-precondition", "A API Key do Google Places ainda não foi configurada via Secret Manager no Backend.");
 
   const axios = require("axios");
   
@@ -1030,8 +1037,27 @@ exports.fetchGoogleBusiness = onCall({ cors: true }, async (request) => {
       photos: parsedPhotos
     };
   } catch (err) {
-    console.error("Erro na API Places (New):", err.response?.data || err.message);
-    throw new HttpsError("internal", "Falha ao consultar o Google: " + err.message);
+    if (err.response) {
+      const status = err.response.status;
+      const responseData = typeof err.response.data === "object" ? JSON.stringify(err.response.data) : err.response.data;
+      
+      console.error(`🚨 [Places API] Falha na integração Google Places.`);
+      console.error(`-> Status: ${status}`);
+      console.error(`-> Detalhes do Payload: ${responseData}`);
+      
+      if (status === 403) {
+        throw new HttpsError("permission-denied", "Acesso Negado (403): O Google bloqueou a consulta por falta de cota, restrição de IP ou API Places não ativada na GCP.");
+      } else if (status === 402) {
+        throw new HttpsError("resource-exhausted", "Erro de Faturamento (402): Cota excedida ou falha no pagamento da GCP. (Verifique billing do Google Cloud).");
+      } else if (status === 404) {
+        throw new HttpsError("not-found", "Google Places API endpoint não encontrado (404).");
+      } else {
+        throw new HttpsError("internal", `Erro da API Google Places (${status}). Verifique os logs no Console GCP.`);
+      }
+    } else {
+      console.error("🚨 [Places API] Erro fatal (Rede/Crash):", err.message);
+      throw new HttpsError("internal", "Falha interna severa ao consultar o Google Places: " + err.message);
+    }
   }
 });
 

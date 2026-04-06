@@ -1741,6 +1741,11 @@ const App: React.FC = () => {
   }, [formData.businessName, formData.description, floatDomainStatus.available, formData.googlePlaceUrl, handleGenerate, setIsMenuOpen, setActiveTab, fetchGoogleData, confirmGoogleInjection, setPendingGoogleData]);
 
   const handlePublishSite = async () => {
+    const podePublicar = typeof generatedHtml === 'string' && generatedHtml.trim().length > 0;
+    if (!podePublicar) {
+      return showToast('O projeto está vazio! Você precisa gerar o conteúdo do site antes de publicá-lo.', 'warning');
+    }
+
     let targetSlugForPublish = currentProjectSlug;
     if (!currentProjectSlug || hasUnsavedChanges) {
        showToast('Salvando últimas alterações...', 'info');
@@ -1782,7 +1787,11 @@ const App: React.FC = () => {
       nextGuideStep(4); // Passo 4: Pagamento
     } catch (err: any) { 
       const errMsg = err.message || '';
-      if (errMsg.includes('violar nossas políticas')) {
+      console.error("[Deploy] Falha na Publicação:", err);
+      
+      if (err.code === 'unauthenticated' || errMsg.includes('Firebase Hosting Token')) {
+        showToast('O servidor negou acesso (Credencial Cloud ausente). A publicação falhou!', 'error');
+      } else if (errMsg.includes('violar nossas políticas')) {
         showToast('Ação bloqueada: O conteúdo do seu site violou as políticas de segurança.', 'error');
       } else if (err.code === 'permission-denied' || errMsg.includes('expirou') || errMsg.includes('pagamento') || errMsg.includes('congelado')) {
         showToast('Seu período de teste expirou ou o site está congelado. Escolha um plano para manter seu site online!', 'warning');
