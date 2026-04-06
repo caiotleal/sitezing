@@ -121,6 +121,22 @@ const ensureAuthed = (request) => {
   return request.auth.uid;
 };
 
+const toTimestampMs = (value) => {
+  if (!value) return null;
+  if (typeof value === "number") return value < 1e12 ? value * 1000 : value;
+  if (typeof value === "string") {
+    const parsed = Date.parse(value);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+  if (typeof value.toDate === "function") {
+    const parsed = value.toDate().getTime();
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+  if (typeof value.seconds === "number") return value.seconds * 1000;
+  if (typeof value._seconds === "number") return value._seconds * 1000;
+  return null;
+};
+
 async function getFirebaseAccessToken() {
   const auth = new GoogleAuth({ 
     scopes: [
@@ -169,9 +185,9 @@ exports.getSiteContent = onCall({ cors: true }, async (request) => {
     throw new HttpsError("permission-denied", "Este site encontra-se temporariamente suspenso.");
   }
 
-  const expiresDate = project.expiresAt?.toDate ? project.expiresAt.toDate() : null;
+  const expiresAtMs = toTimestampMs(project.expiresAt);
   const isPaidProject = project.paymentStatus === "paid";
-  if (!isPaidProject && expiresDate && expiresDate.getTime() <= Date.now()) {
+  if (!isPaidProject && expiresAtMs && expiresAtMs <= Date.now()) {
     const projectRef = projectSnap.docs[0].ref;
     await projectRef.update({
       status: "frozen",
@@ -470,8 +486,12 @@ exports.publishUserProject = onCall({ cors: true, secrets: [geminiKey] }, async 
 
     // SE O TESTE JÁ VENCEU E NÃO FOI PAGO, NÃO PODE PUBLICAR
     if (!isPaidProject && nextExpiresAt) {
-      const now = new Date();
-      if (nextExpiresAt.toDate() < now) {
+      const nextExpiresAtMs = toTimestampMs(nextExpiresAt);
+      if (!nextExpiresAtMs) {
+        throw new HttpsError("failed-precondition", "Data de expiração inválida no projeto. Salve novamente ou contate o suporte.");
+      }
+      nextExpiresAt = admin.firestore.Timestamp.fromMillis(nextExpiresAtMs);
+      if (nextExpiresAtMs < Date.now()) {
         throw new HttpsError("permission-denied", "Seu período de teste expirou. Por favor, realize o pagamento para manter seu site online.");
       }
     }
@@ -940,12 +960,15 @@ exports.resumeStripeSubscription = onCall({ cors: true }, async (request) => {
 
 exports.cleanupExpiredSites = onSchedule("every 24 hours", async (event) => {
   const db = admin.firestore();
-  const now = admin.firestore.Timestamp.now();
+  const nowMs = Date.now();
   const usersSnap = await db.collection("users").get();
   for (const userDoc of usersSnap.docs) {
-    const projectsSnap = await db.collection("users").doc(userDoc.id).collection("projects").where("expiresAt", "<=", now).get();
+    const projectsSnap = await db.collection("users").doc(userDoc.id).collection("projects").get();
     for (const doc of projectsSnap.docs) {
-      if (doc.data().status !== "frozen") {
+      const data = doc.data();
+      const expiresAtMs = toTimestampMs(data.expiresAt);
+      const isPaid = data.paymentStatus === "paid";
+      if (!isPaid && expiresAtMs && expiresAtMs <= nowMs && data.status !== "frozen") {
         await doc.ref.update({ status: "frozen", paymentStatus: "expired" });
       }
     }
