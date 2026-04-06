@@ -169,6 +169,18 @@ exports.getSiteContent = onCall({ cors: true }, async (request) => {
     throw new HttpsError("permission-denied", "Este site encontra-se temporariamente suspenso.");
   }
 
+  const expiresDate = project.expiresAt?.toDate ? project.expiresAt.toDate() : null;
+  const isPaidProject = project.paymentStatus === "paid";
+  if (!isPaidProject && expiresDate && expiresDate.getTime() <= Date.now()) {
+    const projectRef = projectSnap.docs[0].ref;
+    await projectRef.update({
+      status: "frozen",
+      paymentStatus: "expired",
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+    throw new HttpsError("permission-denied", "Este link expirou. Renove o plano para reativar o site.");
+  }
+
   let html = project.generatedHtml || "";
 
   // Injeção de CSS Manual (Zing! Instant)
@@ -242,7 +254,10 @@ exports.generateSite = onCall({ cors: true, timeoutSeconds: 120, memory: "512MiB
     ]);
 
     return { ...aiData, heroImage, aboutImage };
-  } catch (error) { throw new HttpsError("internal", error.message); }
+  } catch (error) {
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError("internal", error.message);
+  }
 });
 
 exports.generateImage = onCall({ cors: true, timeoutSeconds: 120, secrets: [geminiKey] }, async (request) => {
@@ -260,7 +275,10 @@ exports.generateImage = onCall({ cors: true, timeoutSeconds: 120, secrets: [gemi
     const base64 = `data:${data.predictions[0].mimeType || "image/jpeg"};base64,${data.predictions[0].bytesBase64Encoded}`;
     const imageUrl = await uploadBase64ToStorage(base64);
     return { imageUrl };
-  } catch (error) { throw new HttpsError("internal", error.message); }
+  } catch (error) {
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError("internal", error.message);
+  }
 });
 
 exports.saveSiteProject = onCall({ cors: true, memory: "512MiB" }, async (request) => {
@@ -469,7 +487,10 @@ exports.publishUserProject = onCall({ cors: true, secrets: [geminiKey] }, async 
     }, { merge: true });
 
     return { success: true, publishUrl: publicUrl, expiresAt: nextExpiresAt?.toDate?.()?.toISOString?.() || null };
-  } catch (error) { throw new HttpsError("internal", error.message); }
+  } catch (error) {
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError("internal", error.message);
+  }
 });
 
 exports.deleteUserProject = onCall({ cors: true }, async (request) => {

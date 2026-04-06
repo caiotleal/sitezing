@@ -8,8 +8,10 @@ interface Project {
   internalDomain: string;
   officialDomain?: string;
   createdAt: any;
+  expiresAt?: any;
   status: 'active' | 'expired' | 'pending';
   isPaid?: boolean;
+  paymentStatus?: 'paid' | 'trial' | 'expired' | 'pending';
 }
 
 interface ClientDashboardProps {
@@ -23,17 +25,31 @@ interface ClientDashboardProps {
 
 const ClientDashboard: React.FC<ClientDashboardProps> = ({ projects, userEmail, onEditProject, onUpgrade, onDeleteProject, onClose }) => {
   
-  const calculateDaysLeft = (createdAt: any) => {
-    if (!createdAt) return 0;
-    const createdDate = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
-    const expirationDate = new Date(createdDate);
-    expirationDate.setDate(expirationDate.getDate() + 5); 
-    
-    const today = new Date();
-    const diffTime = expirationDate.getTime() - today.getTime();
+  const toDate = (value: any): Date | null => {
+    if (!value) return null;
+    if (value.toDate && typeof value.toDate === 'function') return value.toDate();
+    if (typeof value === 'string' || typeof value === 'number') {
+      const parsed = new Date(value);
+      return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+    if (typeof value.seconds === 'number') return new Date(value.seconds * 1000);
+    if (typeof value._seconds === 'number') return new Date(value._seconds * 1000);
+    return null;
+  };
+
+  const calculateDaysLeft = (project: Project) => {
+    let expirationDate = toDate(project.expiresAt);
+
+    if (!expirationDate) {
+      const createdDate = toDate(project.createdAt);
+      if (!createdDate) return 0;
+      expirationDate = new Date(createdDate);
+      expirationDate.setDate(expirationDate.getDate() + 7);
+    }
+
+    const diffTime = expirationDate.getTime() - Date.now();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    return diffDays > 0 ? diffDays : 0;
+    return Math.max(diffDays, 0);
   };
 
   return (
@@ -67,8 +83,9 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ projects, userEmail, 
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects.map((project) => {
-                const daysLeft = calculateDaysLeft(project.createdAt);
-                const isExpired = !project.isPaid && daysLeft === 0;
+                const daysLeft = calculateDaysLeft(project);
+                const isPaid = Boolean(project.isPaid || project.paymentStatus === 'paid');
+                const isExpired = !isPaid && daysLeft === 0;
 
                 return (
                   <motion.div 
@@ -91,7 +108,7 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ projects, userEmail, 
                       </div>
                       
                       <div className="flex flex-wrap gap-2">
-                        {project.isPaid ? (
+                        {isPaid ? (
                           <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 border border-emerald-500/20">
                             <CheckCircle size={10} /> PREMIUM
                           </span>
@@ -113,18 +130,18 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ projects, userEmail, 
                       </div>
                     </div>
 
-                    {!project.isPaid && (
+                    {!isPaid && (
                       <div className="mt-5 mb-2">
                         <div className="flex justify-between text-[10px] text-zinc-500 mb-1.5 font-medium">
                           <span>Período de Teste</span>
                           <span className={isExpired ? 'text-red-400' : 'text-zinc-300'}>
-                            {isExpired ? 'Esgotado' : `${5 - daysLeft} de 5 dias`}
+                            {isExpired ? 'Esgotado' : `${7 - daysLeft} de 7 dias`}
                           </span>
                         </div>
                         <div className="w-full bg-zinc-950 rounded-full h-1.5 overflow-hidden">
                           <div 
                             className={`h-full rounded-full ${isExpired ? 'bg-red-500' : 'bg-yellow-500'}`}
-                            style={{ width: `${isExpired ? 100 : ((5 - daysLeft) / 5) * 100}%` }}
+                            style={{ width: `${isExpired ? 100 : ((7 - daysLeft) / 7) * 100}%` }}
                           />
                         </div>
                       </div>
@@ -149,7 +166,7 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ projects, userEmail, 
                         </a>
                       </div>
                       
-                      {!project.isPaid && (
+                      {!isPaid && (
                         <button 
                           onClick={() => onUpgrade(project.id)}
                           className={`w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg
