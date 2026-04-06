@@ -236,8 +236,8 @@ exports.generateSite = onCall({ cors: true, timeoutSeconds: 120, memory: "512MiB
   const { businessName, description, region, googleContext } = request.data;
   if (!businessName) throw new HttpsError("invalid-argument", "Nome obrigatório");
 
-  // Correção Aplicada: Alterado para gemini-2.5-flash-lite porque a v2.0 foi bloqueada para novos usuários
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite", generationConfig: { responseMimeType: "application/json" } });
+  // Correção Aplicada: Alterado para gemini-2.0-flash-lite conforme solicitado
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite", generationConfig: { responseMimeType: "application/json" } });
 
   let prompt = `Atue como um redator publicitário sênior. Empresa: "${businessName}". Descrição: "${description}". Região de atuação: "${region || "Brasil"}". 
   
@@ -417,7 +417,7 @@ exports.publishUserProject = onCall({ cors: true, secrets: [geminiKey] }, async 
     }
 
     const genAI = getGeminiClient();
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
     const modPrompt = `Analise o seguinte conteúdo de site e responda 'SAFE' ou 'UNSAFE'. 
     Marque como 'UNSAFE' se contiver: pornografia, violência explícita, apologia a crimes, drogas ilícitas ou golpes. 
     Conteúdo: ${project.generatedHtml.substring(0, 5000)}`;
