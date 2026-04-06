@@ -1,13 +1,22 @@
-- name: Deploy to Firebase
+steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22  # Isso garante a compatibilidade com o seu package.json
+
+      - name: Install Dependencies (Root)
+        run: npm install
+
+      # Opcional: Se você usa TS nas functions, o build precisa rodar aqui ou no predeploy
+      - name: Install Functions Dependencies
+        run: npm --prefix functions install
+
+      - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
-          # Atualizei o ID do projeto aqui para sitezing-4714c
           args: deploy --only hosting,functions --force --project sitezing-4714c
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
