@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { LayoutPanelLeft, Smartphone, Sparkles } from 'lucide-react';
+import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import BusinessForm from './components/BusinessForm';
 import WebsitePreview from './components/WebsitePreview';
 import { SiteFormData } from './types';
 import { PALETTES } from './constants';
+import { auth } from './firebase';
 
 type MobileTab = 'editor' | 'preview';
 
@@ -30,6 +32,21 @@ const INITIAL_FORM: SiteFormData = {
 const App: React.FC = () => {
   const [formData, setFormData] = useState<SiteFormData>(INITIAL_FORM);
   const [mobileTab, setMobileTab] = useState<MobileTab>('editor');
+  const [authReady, setAuthReady] = useState(false);
+
+  React.useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        try {
+          await signInAnonymously(auth);
+        } catch (error) {
+          console.error('Falha ao autenticar sessão anônima:', error);
+        }
+      }
+      setAuthReady(true);
+    });
+    return unsubscribe;
+  }, []);
 
   const selectedPalette = useMemo(
     () => PALETTES.find(p => p.id === formData.paletteId) || PALETTES[0],
@@ -59,7 +76,11 @@ const App: React.FC = () => {
 
         <section className={`${mobileTab === 'preview' ? 'block' : 'hidden'} md:block p-0 md:p-6 pb-24 md:pb-6`}>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full rounded-none md:rounded-2xl overflow-hidden border border-zinc-800">
-            <WebsitePreview data={formData} palette={selectedPalette} />
+            {authReady ? (
+              <WebsitePreview data={formData} palette={selectedPalette} />
+            ) : (
+              <div className="h-full flex items-center justify-center text-zinc-400 text-sm">Preparando sessão segura...</div>
+            )}
           </motion.div>
         </section>
       </main>

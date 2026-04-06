@@ -13,8 +13,8 @@ import {
   X
 } from 'lucide-react';
 
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { getApp } from 'firebase/app';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../firebase';
 
 interface WebsitePreviewProps {
   data: SiteFormData;
@@ -29,26 +29,30 @@ const WebsitePreview: React.FC<WebsitePreviewProps> = ({ data, palette }) => {
 
   useEffect(() => {
     const fetchAIContent = async () => {
-      if (!data.businessName || !data.targetAudience) return;
+      if (!data.businessName) return;
       setIsGenerating(true);
 
       try {
-        const functions = getFunctions(getApp());
-        const criarPublicarSite = httpsCallable(functions, 'criarPublicarSite');
+        const generateSite = httpsCallable(functions, 'generateSite');
 
-        const result = await criarPublicarSite({
-          prompt: `Gere apenas headline e subheadline para: Empresa ${data.businessName}, Público ${data.targetAudience}`,
-          previewOnly: true
+        const result = await generateSite({
+          businessName: data.businessName,
+          description: data.description || data.targetAudience || '',
+          region: data.address || 'Brasil',
         });
 
         const resData = result.data as any;
         setAiContent({
-          headline: resData.headline || "Título gerado por IA",
-          subheadline: resData.subheadline || "Subtítulo gerado por IA"
+          headline: resData.heroTitle || "Título gerado por IA",
+          subheadline: resData.heroSubtitle || "Subtítulo gerado por IA"
         });
 
-      } catch (err) {
+      } catch (err: any) {
         console.error("Erro no preview:", err);
+        setAiContent({
+          headline: `Transforme sua experiência com ${data.businessName || 'sua empresa'}`,
+          subheadline: "Não foi possível carregar IA agora. Continue editando e tente novamente."
+        });
       } finally {
         setIsGenerating(false);
       }
@@ -60,36 +64,57 @@ const WebsitePreview: React.FC<WebsitePreviewProps> = ({ data, palette }) => {
 
   // FUNÇÃO DE PUBLICAR CORRIGIDA
   const handlePublish = async () => {
+    if (!data.businessName) {
+      alert("Preencha ao menos o nome da empresa para publicar.");
+      return;
+    }
     setIsPublishing(true);
     try {
-      const functions = getFunctions(getApp());
-      const criarPublicarSite = httpsCallable(functions, 'criarPublicarSite');
+      const generateSite = httpsCallable(functions, 'generateSite');
+      const saveSiteProject = httpsCallable(functions, 'saveSiteProject');
+      const publishUserProject = httpsCallable(functions, 'publishUserProject');
 
       // Gera o nome seguro e único para o subdomínio do Firebase
-      const safeName = data.businessName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, '-');
-      const dominioInterno = `${safeName}-${Math.floor(Math.random() * 10000)}`;
+      const safeNameBase = data.businessName
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || `site-${Date.now()}`;
+      const dominioInterno = `${safeNameBase}-${Math.floor(Math.random() * 10000)}`;
 
-      // Chama o back-end passando os dados necessários
-      const result = await criarPublicarSite({
-        prompt: `Crie um site completo para a empresa ${data.businessName}, focada em ${data.targetAudience}. Estilo: ${data.tone}`,
-        nomeEmpresa: dominioInterno
+      const generation: any = await generateSite({
+        businessName: data.businessName,
+        description: data.description || data.targetAudience || '',
+        region: data.address || 'Brasil',
       });
 
-      // Recebe a resposta e abre o site
-      const resData = result.data as any;
-      if (resData && resData.url) {
+      const generatedData = generation.data || {};
+      const saveResult: any = await saveSiteProject({
+        businessName: data.businessName,
+        internalDomain: dominioInterno,
+        generatedHtml: generatedData.customTemplate || generatedData.generatedHtml || '',
+        formData: data,
+        aiContent: generatedData
+      });
+
+      const projectSlug = saveResult?.data?.projectSlug || dominioInterno;
+      const publishResult: any = await publishUserProject({ projectSlug });
+      const publishUrl = publishResult?.data?.publishUrl;
+
+      if (publishUrl) {
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         if (isMobile) {
-          window.location.assign(resData.url);
+          window.location.assign(publishUrl);
         } else {
-          window.open(resData.url, '_blank', 'noopener,noreferrer');
+          window.open(publishUrl, '_blank', 'noopener,noreferrer');
         }
       } else {
-        alert("Site publicado, mas a URL não foi retornada pelo servidor.");
+        alert("Site publicado, mas a URL final não foi retornada.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Erro ao publicar:", err);
-      alert("Erro ao publicar o site. Verifique o console.");
+      alert(err?.message || "Erro ao publicar o site. Verifique o console.");
     } finally {
       setIsPublishing(false);
     }
