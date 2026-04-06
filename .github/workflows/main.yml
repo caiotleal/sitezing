@@ -1,7 +1,6 @@
 - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
-          # Atualizei o ID do projeto aqui para sitezing-4714c
           args: deploy --only hosting,functions --force --project sitezing-4714c
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
