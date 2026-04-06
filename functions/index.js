@@ -163,6 +163,24 @@ const ensureAuthed = (request) => {
   return request.auth.uid;
 };
 
+const normalizeTimestamp = (value) => {
+  if (!value) return null;
+  if (value instanceof admin.firestore.Timestamp) return value;
+  if (typeof value.toDate === "function") {
+    try {
+      return admin.firestore.Timestamp.fromDate(value.toDate());
+    } catch (error) {
+      return null;
+    }
+  }
+  if (typeof value._seconds === "number") {
+    return new admin.firestore.Timestamp(value._seconds, value._nanoseconds || 0);
+  }
+  const parsed = new Date(value);
+  if (!Number.isNaN(parsed.getTime())) return admin.firestore.Timestamp.fromDate(parsed);
+  return null;
+};
+
 async function getFirebaseAccessToken() {
   const auth = new GoogleAuth({
     scopes: [
@@ -221,6 +239,23 @@ exports.getPublishedSiteContent = onRequest({ cors: true }, async (req, res) => 
     // Trava de Site Congelado
     if (project.status === "frozen") {
       res.status(403).send({ error: "Este site encontra-se temporariamente suspenso." });
+      return;
+    }
+
+    // Trava de expiração em tempo real (evita janela até o scheduler diário rodar)
+    const now = admin.firestore.Timestamp.now();
+    const expiration = normalizeTimestamp(project.assinatura?.data_expiracao) || normalizeTimestamp(project.expiresAt);
+    const isExpired = expiration && expiration.toMillis() <= now.toMillis();
+    const isPaid = project.paymentStatus === "paid" || project.assinatura?.status === "ativo";
+
+    if (isExpired && !isPaid) {
+      await projectSnap.docs[0].ref.set({
+        status: "frozen",
+        published: false,
+        paymentStatus: "expired",
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+      res.status(403).send({ error: "Este link expirou. Renove o plano para reativar o site." });
       return;
     }
 
@@ -628,19 +663,18 @@ exports.publishUserProject = onCall({ cors: true, secrets: [geminiKey] }, async 
     }
 
     const isPaidProject = project.paymentStatus === "paid";
-    let nextExpiresAt = project.expiresAt || null;
+    let nextExpiresAt = normalizeTimestamp(project.assinatura?.data_expiracao) || normalizeTimestamp(project.expiresAt);
 
     // Se NÃO for pago e NÃO tiver data de expiração, gera os 7 dias de teste
     if (!isPaidProject && !nextExpiresAt) {
-      const trialExpiration = new Date();
-      trialExpiration.setDate(trialExpiration.getDate() + 7);
+      const trialExpiration = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
       nextExpiresAt = admin.firestore.Timestamp.fromDate(trialExpiration);
     }
 
     // SE O TESTE JÁ VENCEU E NÃO FOI PAGO, NÃO PODE PUBLICAR
     if (!isPaidProject && nextExpiresAt) {
       const now = new Date();
-      if (nextExpiresAt.toDate() < now) {
+      if (nextExpiresAt.toDate() <= now) {
         throw new HttpsError("permission-denied", "Seu período de teste expirou. Por favor, realize o pagamento para manter seu site online.");
       }
     }
@@ -650,6 +684,7 @@ exports.publishUserProject = onCall({ cors: true, secrets: [geminiKey] }, async 
       publishUrl: publicUrl,
       publishedAt: admin.firestore.FieldValue.serverTimestamp(),
       ...(nextExpiresAt ? { expiresAt: nextExpiresAt } : {}),
+      ...(nextExpiresAt ? { assinatura: { data_expiracao: nextExpiresAt } } : {}),
       status: "published",
       paymentStatus: isPaidProject ? "paid" : "trial",
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -1211,13 +1246,13 @@ exports.resumeStripeSubscription = onCall({ cors: true }, async (request) => {
 exports.cleanupExpiredSites = onSchedule("every 24 hours", async (event) => {
   const db = admin.firestore();
   const now = admin.firestore.Timestamp.now();
-  const usersSnap = await db.collection("users").get();
-  for (const userDoc of usersSnap.docs) {
-    const projectsSnap = await db.collection("users").doc(userDoc.id).collection("projects").where("expiresAt", "<=", now).get();
-    for (const doc of projectsSnap.docs) {
-      if (doc.data().status !== "frozen") {
-        await doc.ref.update({ status: "frozen", paymentStatus: "expired" });
-      }
+  const projectsSnap = await db.collectionGroup("projects").get();
+  for (const doc of projectsSnap.docs) {
+    const data = doc.data() || {};
+    const expiresAt = normalizeTimestamp(data.assinatura?.data_expiracao) || normalizeTimestamp(data.expiresAt);
+    if (!expiresAt) continue;
+    if (expiresAt.toMillis() <= now.toMillis() && data.status !== "frozen" && data.paymentStatus !== "paid") {
+      await doc.ref.update({ status: "frozen", paymentStatus: "expired", published: false, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
     }
   }
 });

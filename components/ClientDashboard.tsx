@@ -8,6 +8,8 @@ interface Project {
   internalDomain: string;
   officialDomain?: string;
   createdAt: any;
+  expiresAt?: any;
+  assinatura?: { data_expiracao?: any; status?: string };
   status: 'active' | 'expired' | 'pending';
   isPaid?: boolean;
 }
@@ -23,17 +25,23 @@ interface ClientDashboardProps {
 
 const ClientDashboard: React.FC<ClientDashboardProps> = ({ projects, userEmail, onEditProject, onUpgrade, onDeleteProject, onClose }) => {
   
-  const calculateDaysLeft = (createdAt: any) => {
-    if (!createdAt) return 0;
-    const createdDate = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
-    const expirationDate = new Date(createdDate);
-    expirationDate.setDate(expirationDate.getDate() + 5); 
-    
-    const today = new Date();
-    const diffTime = expirationDate.getTime() - today.getTime();
+  const toDateSafe = (value: any): Date | null => {
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    if (typeof value?.toDate === 'function') return value.toDate();
+    if (typeof value?._seconds === 'number') return new Date(value._seconds * 1000);
+    const asDate = new Date(value);
+    return Number.isNaN(asDate.getTime()) ? null : asDate;
+  };
+
+  const calculateDaysLeft = (project: Project) => {
+    const explicitExpiration = toDateSafe(project.assinatura?.data_expiracao) || toDateSafe(project.expiresAt);
+    if (!explicitExpiration) return 0;
+
+    const now = new Date();
+    const diffTime = explicitExpiration.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    return diffDays > 0 ? diffDays : 0;
+    return Math.max(diffDays, 0);
   };
 
   return (
@@ -67,8 +75,8 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ projects, userEmail, 
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects.map((project) => {
-                const daysLeft = calculateDaysLeft(project.createdAt);
-                const isExpired = !project.isPaid && daysLeft === 0;
+                const daysLeft = calculateDaysLeft(project);
+                const isExpired = project.status === 'expired' || (!project.isPaid && daysLeft === 0);
 
                 return (
                   <motion.div 
@@ -118,13 +126,13 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ projects, userEmail, 
                         <div className="flex justify-between text-[10px] text-zinc-500 mb-1.5 font-medium">
                           <span>Período de Teste</span>
                           <span className={isExpired ? 'text-red-400' : 'text-zinc-300'}>
-                            {isExpired ? 'Esgotado' : `${5 - daysLeft} de 5 dias`}
+                            {isExpired ? 'Esgotado' : `${Math.max(7 - daysLeft, 0)} de 7 dias`}
                           </span>
                         </div>
                         <div className="w-full bg-zinc-950 rounded-full h-1.5 overflow-hidden">
                           <div 
                             className={`h-full rounded-full ${isExpired ? 'bg-red-500' : 'bg-yellow-500'}`}
-                            style={{ width: `${isExpired ? 100 : ((5 - daysLeft) / 5) * 100}%` }}
+                            style={{ width: `${isExpired ? 100 : (Math.max(7 - daysLeft, 0) / 7) * 100}%` }}
                           />
                         </div>
                       </div>

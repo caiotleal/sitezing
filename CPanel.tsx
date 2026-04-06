@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart3, Users, Globe, Settings, LogOut, ChevronRight, Eye, Edit3, 
   Search, ShieldAlert, DollarSign, ExternalLink, Loader2, RefreshCw, Save, Trash2, Star, X,
-  Layout, CreditCard, Megaphone, FileText, CheckCircle2, MessageSquare, Send, Rocket
+  Layout, CreditCard, Megaphone, FileText, CheckCircle2, MessageSquare, Send, Rocket, Menu
 } from 'lucide-react';
 import { BRAND_LOGO } from './components/brand';
 
@@ -534,10 +534,19 @@ const CPanel: React.FC = () => {
           <div className="w-8 h-8"><img src={BRAND_LOGO} alt="Logo" className="w-full h-full object-contain" /></div>
           <h1 className="text-sm font-black uppercase italic tracking-tighter">SiteZing <span className="text-orange-600">Admin</span></h1>
         </div>
-        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-stone-900 border border-stone-200 rounded-lg">
-          {isSidebarOpen ? <X size={20} /> : <Layout size={20} />}
+        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} aria-label={isSidebarOpen ? 'Fechar menu' : 'Abrir menu'} className="p-2 text-stone-900 border border-stone-200 rounded-lg">
+          {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
+
+      {isSidebarOpen && (
+        <button
+          type="button"
+          aria-label="Fechar menu"
+          className="fixed inset-0 z-40 bg-black/30 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
 
       <aside className={`
         fixed md:sticky top-0 left-0 w-72 bg-white border-r border-stone-200 h-screen z-50 flex flex-col transition-transform duration-300
@@ -594,7 +603,7 @@ const CPanel: React.FC = () => {
           </div>
         </header>
 
-        <div className="p-4 md:p-8">
+        <div className="p-4 md:p-8 pb-24 md:pb-8">
           <AnimatePresence mode="wait">
             {view === 'dashboard' && (
               <motion.div key="dash" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
@@ -1648,6 +1657,16 @@ const CPanel: React.FC = () => {
           </AnimatePresence>
         </div>
       </main>
+
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-[65] border-t border-stone-200 bg-white/95 backdrop-blur px-3 py-2">
+        <div className="grid grid-cols-5 gap-2 text-[10px] font-bold uppercase tracking-wide">
+          <button onClick={() => setView('dashboard')} className={`h-11 rounded-xl ${view === 'dashboard' ? 'bg-orange-50 text-orange-600' : 'text-stone-500'}`}>Dashboard</button>
+          <button onClick={() => setView('users')} className={`h-11 rounded-xl ${view === 'users' ? 'bg-orange-50 text-orange-600' : 'text-stone-500'}`}>Usuários</button>
+          <button onClick={() => setView('domains')} className={`h-11 rounded-xl ${view === 'domains' ? 'bg-orange-50 text-orange-600' : 'text-stone-500'}`}>Domínios</button>
+          <button onClick={() => setView('platform')} className={`h-11 rounded-xl ${view === 'platform' ? 'bg-orange-50 text-orange-600' : 'text-stone-500'}`}>Plataforma</button>
+          <button onClick={() => setView('support')} className={`h-11 rounded-xl ${view === 'support' ? 'bg-orange-50 text-orange-600' : 'text-stone-500'}`}>Suporte</button>
+        </div>
+      </nav>
     </div>
   );
 };

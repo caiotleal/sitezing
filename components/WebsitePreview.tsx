@@ -4,10 +4,13 @@ import { SiteFormData, Palette } from '../types';
 import { 
   Instagram, 
   MessageCircle,
-  ChevronRight,
   Menu,
   Sparkles,
-  Loader2
+  Loader2,
+  Eye,
+  Rocket,
+  Home,
+  X
 } from 'lucide-react';
 
 import { getFunctions, httpsCallable } from 'firebase/functions';
@@ -22,6 +25,7 @@ const WebsitePreview: React.FC<WebsitePreviewProps> = ({ data, palette }) => {
   const [aiContent, setAiContent] = useState<{ headline: string; subheadline: string } | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const fetchAIContent = async () => {
@@ -74,7 +78,12 @@ const WebsitePreview: React.FC<WebsitePreviewProps> = ({ data, palette }) => {
       // Recebe a resposta e abre o site
       const resData = result.data as any;
       if (resData && resData.url) {
-        window.open(resData.url, '_blank');
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isMobile) {
+          window.location.assign(resData.url);
+        } else {
+          window.open(resData.url, '_blank', 'noopener,noreferrer');
+        }
       } else {
         alert("Site publicado, mas a URL não foi retornada pelo servidor.");
       }
@@ -111,14 +120,50 @@ const WebsitePreview: React.FC<WebsitePreviewProps> = ({ data, palette }) => {
         )}
       </AnimatePresence>
 
-      <header className="px-6 py-4 flex items-center justify-between border-b" style={{ borderColor: `${palette.primary}20` }}>
+      <header className="px-4 md:px-6 py-4 flex items-center justify-between border-b" style={{ borderColor: `${palette.primary}20` }}>
         <div className="font-bold text-lg tracking-tight" style={{ color: palette.primary }}>
           {businessName}
         </div>
-        <Menu className="w-5 h-5 md:hidden" />
+        <button
+          type="button"
+          onClick={() => setIsMobileMenuOpen(prev => !prev)}
+          aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu"}
+          className="md:hidden p-2 rounded-xl border border-white/20 bg-black/20 text-white shadow-sm active:scale-95 transition-transform"
+        >
+          {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
       </header>
 
-      <main className="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-4xl mx-auto w-full">
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="md:hidden absolute top-[74px] right-4 z-30 w-60 rounded-2xl border border-white/20 bg-black/85 backdrop-blur-md p-3 space-y-2"
+          >
+            <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold text-white/90 hover:bg-white/10 transition-colors">
+              Editar conteúdo
+            </button>
+            <button className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold text-white/90 hover:bg-white/10 transition-colors">
+              Alterar estilo
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                handlePublish();
+              }}
+              className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-bold text-white transition-colors"
+              style={{ backgroundColor: palette.primary }}
+            >
+              Publicar agora
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <main className="flex-1 flex flex-col items-center justify-center p-6 pb-24 md:p-8 text-center max-w-4xl mx-auto w-full">
         <motion.div
           key={headline}
           initial={{ opacity: 0, y: 20 }}
@@ -158,6 +203,29 @@ const WebsitePreview: React.FC<WebsitePreviewProps> = ({ data, palette }) => {
           </div>
         </div>
       </footer>
+
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-white/10 bg-black/85 backdrop-blur-xl px-4 py-2 safe-area-inset-bottom">
+        <div className="grid grid-cols-3 gap-2">
+          <button type="button" className="h-12 rounded-xl text-white/80 flex flex-col items-center justify-center text-[11px] font-semibold active:scale-95">
+            <Home className="w-4 h-4 mb-1" />
+            Início
+          </button>
+          <button type="button" className="h-12 rounded-xl text-white/80 flex flex-col items-center justify-center text-[11px] font-semibold active:scale-95">
+            <Eye className="w-4 h-4 mb-1" />
+            Preview
+          </button>
+          <button
+            type="button"
+            onClick={handlePublish}
+            disabled={isPublishing}
+            className="h-12 rounded-xl text-white flex flex-col items-center justify-center text-[11px] font-bold disabled:opacity-60 active:scale-95"
+            style={{ backgroundColor: palette.primary }}
+          >
+            <Rocket className="w-4 h-4 mb-1" />
+            Publicar
+          </button>
+        </div>
+      </nav>
     </div>
   );
 };
