@@ -866,7 +866,7 @@ const GuidedTip: React.FC<{
 
 const getExpirationTimestampMs = (expiresAt: any): number | null => {
   if (!expiresAt) return null;
-  if (typeof expiresAt === 'number') return expiresAt < 1e12 ? expiresAt * 1000 : expiresAt;
+  if (typeof expiresAt === 'number') return expiresAt;
   if (typeof expiresAt === 'string') {
     const parsed = new Date(expiresAt).getTime();
     return Number.isNaN(parsed) ? null : parsed;
@@ -1960,7 +1960,7 @@ const App: React.FC = () => {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-stone-200 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] rounded-t-[2.5rem] flex flex-col max-h-[90vh] overflow-hidden"
+            className="fixed bottom-[84px] left-0 right-0 z-[100] bg-white border-t border-stone-200 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] rounded-t-[2.5rem] flex flex-col max-h-[calc(90vh-84px)] overflow-hidden"
           >
             {/* Header com Abas */}
             <div className="bg-stone-50/80 backdrop-blur-md border-b border-stone-100 flex-shrink-0">
