@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndP
 import { auth, functions, db } from './firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, Info, Sparkles, ChevronRight, Gift, Menu, HelpCircle, Palette, Check, Instagram
+  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, Info, Sparkles, ChevronRight, Gift, Menu, HelpCircle, Palette, Check, Instagram, Edit3
 } from 'lucide-react';
 import { TEMPLATES } from './components/templates';
 const LoginPage = lazy(() => import('./components/LoginPage'));
@@ -862,6 +862,19 @@ const GuidedTip: React.FC<{
       {text}
     </motion.div>
   );
+};
+
+const getExpirationTimestampMs = (expiresAt: any): number | null => {
+  if (!expiresAt) return null;
+  if (typeof expiresAt === 'number') return expiresAt;
+  if (typeof expiresAt === 'string') {
+    const parsed = new Date(expiresAt).getTime();
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+  if (expiresAt.toDate && typeof expiresAt.toDate === 'function') return expiresAt.toDate().getTime();
+  if (typeof expiresAt.seconds === 'number') return expiresAt.seconds * 1000;
+  if (typeof expiresAt._seconds === 'number') return expiresAt._seconds * 1000;
+  return null;
 };
 
 // DOMÍNIOS DA PLATAFORMA QUE CARREGAM O EDITOR
@@ -2149,12 +2162,12 @@ const App: React.FC = () => {
                       Voltar
                     </button>
                   )}
-                  <button 
+                  <button
                     onClick={() => {
                       if (mobileWizardStep < steps.length) {
                         setMobileWizardStep(prev => prev + 1);
                       } else {
-                        handleSaveOrUpdateSite();
+                        handlePublishSite();
                       }
                     }}
                     className={`flex-[2] bg-stone-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-stone-900/20 active:scale-95 transition-all`}
@@ -2216,13 +2229,54 @@ const App: React.FC = () => {
     );
   };
 
+  const renderMobileBottomNav = () => {
+    if (!isMobile || !generatedHtml) return null;
+
+    return (
+      <div className="fixed bottom-0 left-0 right-0 z-[120] border-t border-stone-200 bg-white/95 backdrop-blur-md px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)]">
+        <div className="grid grid-cols-4 gap-2">
+          <button
+            onClick={() => { setMobileActiveTab('editar'); setIsMobileWizardOpen(true); }}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
+          >
+            <Edit3 size={16} />
+            <span className="text-[10px] font-bold mt-1">Editar</span>
+          </button>
+          <button
+            onClick={() => { setMobileActiveTab('plano'); setIsMobileWizardOpen(true); }}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
+          >
+            <CreditCard size={16} />
+            <span className="text-[10px] font-bold mt-1">Plano</span>
+          </button>
+          <button
+            onClick={handlePublishSite}
+            disabled={isPublishing || isSavingProject}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-200 disabled:opacity-50 active:scale-95 transition-all"
+          >
+            <Globe size={16} />
+            <span className="text-[10px] font-black mt-1">Publicar</span>
+          </button>
+          <button
+            onClick={() => setIsMobileWizardOpen(prev => !prev)}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
+          >
+            <Menu size={16} />
+            <span className="text-[10px] font-bold mt-1">{isMobileWizardOpen ? 'Preview' : 'Menu'}</span>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   const getStatusBadge = (project: any) => {
     if (!project) return null;
     if (project.status === 'frozen') return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">CONGELADO</span>;
 
     if (project.expiresAt) {
-      const expirationDate = project.expiresAt._seconds ? project.expiresAt._seconds * 1000 : project.expiresAt.seconds * 1000;
-      const daysLeft = Math.ceil((new Date(expirationDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
+      const expirationDate = getExpirationTimestampMs(project.expiresAt);
+      if (!expirationDate) return <span className="text-[9px] bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold ml-2">RASCUNHO</span>;
+      const daysLeft = Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24));
 
       if (daysLeft <= 0) return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">VENCIDO</span>;
 
@@ -2442,22 +2496,7 @@ const App: React.FC = () => {
           </AnimatePresence>
 
           {renderMobileWizard()}
-
-          {/* Botão Flutuante Permanente para Mobile (Sempre visível se fechado) */}
-          <AnimatePresence>
-            {isMobile && !isMobileWizardOpen && generatedHtml && (
-              <motion.button
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                onClick={() => setIsMobileWizardOpen(true)}
-                className="fixed bottom-6 left-6 z-[100] w-14 h-14 bg-stone-900 text-white rounded-full shadow-2xl flex flex-col items-center justify-center active:scale-90 transition-all border-4 border-white group"
-              >
-                <Menu size={22} className="group-active:rotate-90 transition-transform" />
-                <span className="text-[7px] font-black uppercase tracking-tighter mt-0.5">Menu</span>
-              </motion.button>
-            )}
-          </AnimatePresence>
+          {renderMobileBottomNav()}
         </div>
 
         <Suspense fallback={null}>
