@@ -2230,7 +2230,8 @@ const App: React.FC = () => {
   };
 
   const renderMobileBottomNav = () => {
-    if (!isMobile || !generatedHtml) return null;
+    if (!isMobile) return null;
+    const canPublish = Boolean(generatedHtml);
 
     return (
       <div className="fixed bottom-0 left-0 right-0 z-[120] border-t border-stone-200 bg-white/95 backdrop-blur-md px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)]">
@@ -2250,7 +2251,15 @@ const App: React.FC = () => {
             <span className="text-[10px] font-bold mt-1">Plano</span>
           </button>
           <button
-            onClick={handlePublishSite}
+            onClick={() => {
+              if (!canPublish) {
+                showToast('Gere o site antes de publicar.', 'info');
+                setIsMobileWizardOpen(true);
+                setMobileActiveTab('editar');
+                return;
+              }
+              handlePublishSite();
+            }}
             disabled={isPublishing || isSavingProject}
             className="h-14 rounded-2xl flex flex-col items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-200 disabled:opacity-50 active:scale-95 transition-all"
           >
@@ -3724,7 +3733,7 @@ const App: React.FC = () => {
                   let daysLeft = 7;
                   if (currentProject?.expiresAt) {
                     const expDate = getExpirationTimestampMs(currentProject.expiresAt);
-                    if (expDate && !isNaN(expDate)) {
+                    if (typeof expDate === 'number' && !Number.isNaN(expDate)) {
                       daysLeft = Math.ceil((expDate - Date.now()) / (1000 * 3600 * 24));
                     }
                   }
