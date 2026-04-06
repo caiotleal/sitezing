@@ -1,0 +1,128 @@
+{
+  "generatedAt": "2026-04-06T20:55:21.469Z",
+  "summary": {
+    "frontendEnvAllPresent": true,
+    "callableCountUsed": 20,
+    "callableCountExported": 38,
+    "missingBackendFunctions": [],
+    "apiChecksRun": 4
+  },
+  "frontendEnvStatus": [
+    {
+      "key": "VITE_FIREBASE_API_KEY",
+      "present": true
+    },
+    {
+      "key": "VITE_FIREBASE_AUTH_DOMAIN",
+      "present": true
+    },
+    {
+      "key": "VITE_FIREBASE_PROJECT_ID",
+      "present": true
+    },
+    {
+      "key": "VITE_FIREBASE_STORAGE_BUCKET",
+      "present": true
+    },
+    {
+      "key": "VITE_FIREBASE_MESSAGING_SENDER_ID",
+      "present": true
+    },
+    {
+      "key": "VITE_FIREBASE_APP_ID",
+      "present": true
+    }
+  ],
+  "callableUsed": [
+    "addCustomDomain",
+    "cancelStripeSubscription",
+    "checkDomainAvailability",
+    "createStripeCheckoutSession",
+    "deleteUserProject",
+    "fetchGoogleBusiness",
+    "generateSite",
+    "getPlatformConfigsPublic",
+    "getSiteContent",
+    "getUserProfile",
+    "listUserProjects",
+    "publishUserProject",
+    "removeCustomDomain",
+    "resumeStripeSubscription",
+    "saveSiteProject",
+    "submitSupportTicket",
+    "updatePlatformConfigs",
+    "updateSiteProject",
+    "updateUserProfile",
+    "verifyDomainPropagation"
+  ],
+  "callableExported": [
+    "addCustomDomain",
+    "cancelStripeSubscription",
+    "checkDomainAvailability",
+    "cleanupExpiredSites",
+    "createStripeCheckoutSession",
+    "createStripeCouponAdmin",
+    "createStripePlanAdmin",
+    "deleteProjectAdmin",
+    "deleteStripeCouponAdmin",
+    "deleteStripePlanAdmin",
+    "deleteUserProject",
+    "fetchGoogleBusiness",
+    "generateImage",
+    "generateSite",
+    "getPlatformConfigs",
+    "getPlatformConfigsPublic",
+    "getSiteContent",
+    "getUserProfile",
+    "listAllProjectsAdmin",
+    "listRecentEmailLogsAdmin",
+    "listSupportTicketsAdmin",
+    "listUserProjects",
+    "publishUserProject",
+    "removeCustomDomain",
+    "replySupportTicket",
+    "resumeStripeSubscription",
+    "saveSiteProject",
+    "sendRecoveryEmails",
+    "stripeWebhook",
+    "submitSupportTicket",
+    "testSmtpConfig",
+    "triggerRecoveryManual",
+    "updatePlatformConfigs",
+    "updateProjectAdminManual",
+    "updateSiteProject",
+    "updateStripePlanAdmin",
+    "updateUserProfile",
+    "verifyDomainPropagation"
+  ],
+  "apiChecks": [
+    {
+      "label": "Firebase Identity Toolkit API key validation",
+      "ok": false,
+      "status": null,
+      "url": "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=***REDACTED***",
+      "error": "TypeError: fetch failed"
+    },
+    {
+      "label": "Google Generative Language endpoint reachability",
+      "ok": false,
+      "status": null,
+      "url": "https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=***REDACTED***",
+      "error": "TypeError: fetch failed"
+    },
+    {
+      "label": "Firebase Hosting endpoint",
+      "ok": false,
+      "status": null,
+      "url": "https://sitezing-4714c.web.app",
+      "error": "TypeError: fetch failed"
+    },
+    {
+      "label": "Callable function endpoint (HTTP reachability)",
+      "ok": false,
+      "status": null,
+      "url": "https://us-central1-sitezing-4714c.cloudfunctions.net/getSiteContent",
+      "error": "TypeError: fetch failed"
+    }
+  ]
+}
