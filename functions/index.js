@@ -175,6 +175,91 @@ async function getFirebaseAccessToken() {
   return tokenResponse.token || tokenResponse;
 }
 
+function normalizeTimestamp(value) {
+  if (!value) return null;
+  if (value instanceof admin.firestore.Timestamp) return value;
+  if (typeof value.toDate === "function") return admin.firestore.Timestamp.fromDate(value.toDate());
+  if (value._seconds) return new admin.firestore.Timestamp(value._seconds, value._nanoseconds || 0);
+  if (typeof value === "string" || typeof value === "number") {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) return admin.firestore.Timestamp.fromDate(parsed);
+  }
+  return null;
+}
+
+function isProjectExpired(project, nowTs = admin.firestore.Timestamp.now()) {
+  const rawExpiration = project?.assinatura?.data_expiracao || project?.expiresAt || null;
+  const expTs = normalizeTimestamp(rawExpiration);
+  if (!expTs) return false;
+  return expTs.toMillis() <= nowTs.toMillis();
+}
+
+function injectMobileEnhancements(rawHtml = "") {
+  if (!rawHtml || typeof rawHtml !== "string") return rawHtml;
+
+  const alreadyInjected = rawHtml.includes("id=\"sitezing-mobile-nav\"");
+  if (alreadyInjected) return rawHtml;
+
+  const mobileEnhancements = `
+<style id="sitezing-mobile-enhancements">
+@media (max-width: 767px) {
+  body { padding-bottom: 88px !important; }
+  #sitezing-mobile-nav {
+    position: fixed; bottom: 12px; left: 12px; right: 12px; z-index: 9999;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px; background: rgba(10,10,10,0.92); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px; padding: 8px; backdrop-filter: blur(8px);
+  }
+  #sitezing-mobile-nav a {
+    text-decoration: none; color: #fff; text-align: center; font-size: 12px; font-weight: 700;
+    border-radius: 10px; padding: 10px 8px; background: rgba(255,255,255,0.06);
+  }
+  #sitezing-mobile-nav a:active { transform: scale(0.98); }
+  .sitezing-mobile-menu-btn {
+    display: inline-flex !important; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(0,0,0,0.25); color: inherit;
+  }
+  .sitezing-mobile-collapsible {
+    display: none !important;
+    position: absolute; right: 16px; top: 58px;
+    background: rgba(20,20,20,0.96); border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px; padding: 10px; min-width: 180px; z-index: 9998;
+  }
+  .sitezing-mobile-collapsible a { display: block; color: #fff; padding: 9px 8px; text-decoration: none; }
+  .sitezing-mobile-collapsible.sitezing-open { display: block !important; }
+}
+</style>
+<nav id="sitezing-mobile-nav" aria-label="Navegação rápida">
+  <a href="#top">Início</a>
+  <a href="#sobre">Sobre</a>
+  <a href="#contato">Contato</a>
+</nav>
+<script id="sitezing-mobile-script">
+(() => {
+  const header = document.querySelector('header');
+  if (!header) return;
+  if (!header.querySelector('.sitezing-mobile-menu-btn')) {
+    const btn = document.createElement('button');
+    btn.className = 'sitezing-mobile-menu-btn';
+    btn.type = 'button';
+    btn.innerHTML = '☰';
+    btn.setAttribute('aria-label', 'Abrir menu');
+    header.appendChild(btn);
+
+    const desktopNav = header.querySelector('nav');
+    if (desktopNav) {
+      desktopNav.classList.add('sitezing-mobile-collapsible');
+      btn.addEventListener('click', () => desktopNav.classList.toggle('sitezing-open'), { passive: true });
+    }
+  }
+})();
+</script>`;
+
+  if (rawHtml.includes("</body>")) return rawHtml.replace("</body>", `${mobileEnhancements}</body>`);
+  return `${rawHtml}${mobileEnhancements}`;
+}
+
 // ============================================================================
 // NOVO MOTOR DE ENTREGA RÁPIDA REACT (WILDCARD)
 // ============================================================================
@@ -183,6 +268,7 @@ exports.getPublishedSiteContent = onRequest({ cors: true }, async (req, res) => 
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.set("Cache-Control", "no-store, max-age=0");
 
   if (req.method === 'OPTIONS') {
     res.status(204).send('');
@@ -218,8 +304,18 @@ exports.getPublishedSiteContent = onRequest({ cors: true }, async (req, res) => 
 
     const project = projectSnap.docs[0].data();
 
-    // Trava de Site Congelado
-    if (project.status === "frozen") {
+    const nowTs = admin.firestore.Timestamp.now();
+    const expired = isProjectExpired(project, nowTs);
+
+    // Trava de Site Congelado/Expirado
+    if (project.status === "frozen" || expired) {
+      if (expired && project.status !== "frozen") {
+        await projectSnap.docs[0].ref.update({
+          status: "frozen",
+          paymentStatus: "expired",
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }
       res.status(403).send({ error: "Este site encontra-se temporariamente suspenso." });
       return;
     }
@@ -235,6 +331,8 @@ exports.getPublishedSiteContent = onRequest({ cors: true }, async (req, res) => 
         html = styleTag + html;
       }
     }
+
+    html = injectMobileEnhancements(html);
 
     res.status(200).send({ data: { html } });
   } catch (err) {
@@ -628,7 +726,7 @@ exports.publishUserProject = onCall({ cors: true, secrets: [geminiKey] }, async 
     }
 
     const isPaidProject = project.paymentStatus === "paid";
-    let nextExpiresAt = project.expiresAt || null;
+    let nextExpiresAt = normalizeTimestamp(project.expiresAt);
 
     // Se NÃO for pago e NÃO tiver data de expiração, gera os 7 dias de teste
     if (!isPaidProject && !nextExpiresAt) {
@@ -639,8 +737,8 @@ exports.publishUserProject = onCall({ cors: true, secrets: [geminiKey] }, async 
 
     // SE O TESTE JÁ VENCEU E NÃO FOI PAGO, NÃO PODE PUBLICAR
     if (!isPaidProject && nextExpiresAt) {
-      const now = new Date();
-      if (nextExpiresAt.toDate() < now) {
+      const nowTs = admin.firestore.Timestamp.now();
+      if (nextExpiresAt.toMillis() <= nowTs.toMillis()) {
         throw new HttpsError("permission-denied", "Seu período de teste expirou. Por favor, realize o pagamento para manter seu site online.");
       }
     }
@@ -656,7 +754,10 @@ exports.publishUserProject = onCall({ cors: true, secrets: [geminiKey] }, async 
     }, { merge: true });
 
     return { success: true, publishUrl: publicUrl, expiresAt: nextExpiresAt?.toDate?.()?.toISOString?.() || null };
-  } catch (error) { throw new HttpsError("internal", error.message); }
+  } catch (error) {
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError("internal", error.message);
+  }
 });
 
 exports.deleteUserProject = onCall({ cors: true }, async (request) => {
@@ -1216,7 +1317,12 @@ exports.cleanupExpiredSites = onSchedule("every 24 hours", async (event) => {
     const projectsSnap = await db.collection("users").doc(userDoc.id).collection("projects").where("expiresAt", "<=", now).get();
     for (const doc of projectsSnap.docs) {
       if (doc.data().status !== "frozen") {
-        await doc.ref.update({ status: "frozen", paymentStatus: "expired" });
+        await doc.ref.update({
+          status: "frozen",
+          paymentStatus: "expired",
+          published: false,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
       }
     }
   }
