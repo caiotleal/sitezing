@@ -40,13 +40,13 @@ export const useIframeEditor = ({ setGeneratedHtml, setHasUnsavedChanges }: UseI
     };
 
     const handleIframeMessage = async (event: MessageEvent) => {
-      
+
       // 1. Textos e Cores
       if (event.data?.type === 'CONTENT_EDITED') {
         setGeneratedHtml(event.data.html);
         setHasUnsavedChanges(true);
       }
-      
+
       // 2. Upload de Foto do Computador
       if (event.data?.type === 'REQUEST_UPLOAD') {
         const input = document.createElement('input');
@@ -62,7 +62,7 @@ export const useIframeEditor = ({ setGeneratedHtml, setHasUnsavedChanges }: UseI
             reader.onload = async () => {
               // Comprime a imagem antes do upload para economizar espaço e banda
               const compressedBase64 = await compressImage(reader.result as string);
-              
+
               // Converte base64 de volta para Blob para o upload
               const response = await fetch(compressedBase64);
               const blob = await response.blob();
@@ -81,7 +81,7 @@ export const useIframeEditor = ({ setGeneratedHtml, setHasUnsavedChanges }: UseI
                 targetId: event.data.targetId, 
                 url: downloadUrl 
               }, '*');
-              
+
               setHasUnsavedChanges(true);
             };
             reader.readAsDataURL(file);
@@ -126,7 +126,7 @@ export const useIframeEditor = ({ setGeneratedHtml, setHasUnsavedChanges }: UseI
         try {
           const generateImageFn = httpsCallable(functions, 'generateImage');
           const result: any = await generateImageFn({ prompt: promptText });
-          
+
           if (result.data?.imageUrl) {
             let optimizedUrl = result.data.imageUrl;
             // Compress only if it's a data URI (base64) returned from the function
@@ -140,7 +140,7 @@ export const useIframeEditor = ({ setGeneratedHtml, setHasUnsavedChanges }: UseI
         } catch (error: any) {
           console.error("Erro ao gerar imagem AI:", error);
           alert("Falha ao gerar imagem com IA: " + error.message);
-          
+
           // Reverte o estado de carregamento
           const iframe = document.querySelector('iframe');
           if (iframe && iframe.contentDocument) {
@@ -153,9 +153,9 @@ export const useIframeEditor = ({ setGeneratedHtml, setHasUnsavedChanges }: UseI
       }
 
     };
-    
+
     window.addEventListener('message', handleIframeMessage);
     return () => window.removeEventListener('message', handleIframeMessage);
-    
+
   }, [setGeneratedHtml, setHasUnsavedChanges]); 
 };

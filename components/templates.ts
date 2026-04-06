@@ -1,582 +1,424 @@
-export const TEMPLATES: Record<string, string> = {
-  // ---------------------------------------------------------
-  // 1. CENTRO IMPONENTE
-  // ---------------------------------------------------------
-  layout_modern_center: `
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>{{BUSINESS_NAME}}</title>
-      <script src="https://cdn.tailwindcss.com"></script>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
-      <style>
-        body { font-family: 'Inter', sans-serif; background-color: {{COLOR_1}}; color: {{COLOR_4}}; }
-        .glass { background: {{COLOR_2}}; backdrop-filter: blur(10px); border: 1px solid {{COLOR_3}}; }
-        
-        /* HEADER GLASS NATIVO */
-        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
-        
-        .glass-container-premium { display: flex; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
-        .glass-container-premium.logo_left_icons_right { flex-direction: row; justify-content: space-between; }
-        .glass-container-premium.logo_right_icons_left { flex-direction: row-reverse; justify-content: space-between; }
-        .glass-container-premium.logo_center_icons_right { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
-        .glass-container-premium.logo_center_icons_right .glass-logo-premium { grid-column: 2; justify-self: center; }
-        .glass-container-premium.logo_center_icons_right .glass-actions-premium { grid-column: 3; justify-self: end; }
-        .glass-container-premium.logo_center_icons_left { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
-        .glass-container-premium.logo_center_icons_left .glass-logo-premium { grid-column: 2; justify-self: center; }
-        .glass-container-premium.logo_center_icons_left .glass-actions-premium { grid-column: 1; justify-self: start; }
+// Arquivo: src/components/templates.ts
 
-        .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: {{COLOR_4}}; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; flex-shrink: 0; }
-        .glass-logo-premium img { max-height: 36px; width: auto; display: block; }
-        .glass-actions-premium { display: flex; align-items: center; gap: 15px; flex-wrap: nowrap; }
-        .glass-social-links-premium { display: flex; gap: 12px; align-items: center; }
-        .glass-social-link { font-size: 1.3rem; transition: transform 0.2s ease; display: flex; align-items: center; justify-content: center; text-decoration: none; }
-        .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
-        .btn-contact-premium { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .btn-contact-premium:hover { transform: scale(1.05); opacity: 0.9; }
-        
-        @media (max-width: 768px) {
-            .glass-container-premium { 
-                display: flex !important; 
-                flex-direction: column !important; 
-                justify-content: center !important;
-                align-items: center !important;
-                padding: 10px !important;
-                gap: 5px !important;
-            }
-            .glass-logo-premium { justify-content: center !important; margin-bottom: 2px !important; }
-            .glass-actions-premium { justify-content: center !important; width: 100% !important; gap: 10px !important; }
-            .glass-social-links-premium { gap: 10px !important; }
-            .glass-social-link { font-size: 1.1rem !important; }
-            .glass-logo-premium img { max-height: 28px !important; }
-        }
-
-      </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>
-    <body class="antialiased flex flex-col min-h-screen">
-      
-      <header class="glass-header-premium" id="glassHeaderPremium">
-          <div class="glass-container-premium [[HEADER_LAYOUT_CLASS]]">
-              <a href="#" class="glass-logo-premium">[[LOGO_AREA]]</a>
-              <div class="glass-actions-premium">
-                  [[SOCIAL_LINKS_CONTAINER]]
-                  
-              </div>
-          </div>
+export const TEMPLATES = {
+  default: `
+    <div class="template-default">
+      <header class="p-6 flex justify-between items-center bg-white border-b">
+        [[LOGO_AREA]]
+        <nav class="space-x-4">
+          <a href="#sobre" class="text-gray-600 hover:text-gray-900 transition-colors">Sobre</a>
+          <a href="#contato" class="text-gray-600 hover:text-gray-900 transition-colors">Contato</a>
+        </nav>
       </header>
 
-      
+      <main>
+        <section class="py-20 px-6 max-w-6xl mx-auto text-center">
+          <h1 class="text-5xl font-bold mb-6 text-gray-900 tracking-tight">{{HERO_TITLE}}</h1>
+          <p class="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">{{HERO_SUBTITLE}}</p>
+          <a href="#contato" class="inline-block px-8 py-4 bg-primary text-white font-semibold rounded-lg shadow-lg transition-all transform hover:scale-105" style="background-color: {{COLOR_7}}">Conheça mais</a>
+        </section>
 
-      <section class="pt-40 pb-20 px-6 flex-1 flex flex-col items-center justify-center text-center relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-b from-[{{COLOR_2}}] to-transparent opacity-50"></div>
-        <div class="relative z-10 max-w-4xl w-full">
-          <h1 class="text-5xl md:text-7xl font-black tracking-tight mb-6 leading-tight">{{HERO_TITLE}}</h1>
-          <p class="text-xl md:text-2xl opacity-80 mb-10 font-light max-w-2xl mx-auto">{{HERO_SUBTITLE}}</p>
-          <a href="#sobre" class="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold text-lg transition-all hover:scale-105" style="background-color: {{COLOR_4}}; color: {{COLOR_1}};">
-            Conheça mais <i class="fas fa-arrow-down"></i>
-          </a>
-          <div class="mt-16 w-full animate-fade-in-up">
+        <section id="sobre" class="py-20 px-6 bg-gray-50">
+          <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold mb-12 text-center text-gray-900">{{ABOUT_TITLE}}</h2>
+            <div class="prose prose-lg max-w-none text-gray-600 leading-relaxed shadow-sm p-8 bg-white rounded-xl">
+              {{ABOUT_TEXT}}
+            </div>
+          </div>
+        </section>
+
+        <section id="contato" class="py-20 px-6">
+          <div class="max-w-xl mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-8 text-gray-900">Vamos conversar?</h2>
+            <p class="text-gray-600 mb-12">Estamos prontos para atender você. Entre em contato pelos canais abaixo ou nos faça uma visita.</p>
+            <div class="space-y-6 text-lg">
+              <p class="flex items-center justify-center space-x-3 text-gray-700">
+                <span class="font-semibold">Telefone:</span>
+                <span>{{PHONE}}</span>
+              </p>
+              <p class="flex items-center justify-center space-x-3 text-gray-700">
+                <span class="font-semibold">E-mail:</span>
+                <span>{{EMAIL}}</span>
+              </p>
+              <p class="flex items-center justify-center space-x-3 text-gray-700">
+                <span class="font-semibold">Endereço:</span>
+                <span>{{ADDRESS}}</span>
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="py-12 px-6 bg-white border-t">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0 text-gray-500 text-sm">
+          [[LOGO_AREA]]
+          <p>© ${new Date().getFullYear()} {{BUSINESS_NAME}}. Todos os direitos reservados.</p>
+        </div>
+      </footer>
+    </div>
+  `,
+  layout_modern_center: `
+    <div class="template-layout-modern-center" style="background-color: {{COLOR_1}}; color: {{COLOR_4}}">
+      <header class="p-6 flex justify-between items-center border-b border-opacity-10" style="border-color: {{COLOR_3}}">
+        [[LOGO_AREA]]
+        <div class="flex items-center gap-6">
+          <nav class="hidden md:flex items-center gap-6">
+            <a href="#sobre" class="hover:opacity-70 transition-opacity">Sobre</a>
+            <a href="#contato" class="hover:opacity-70 transition-opacity">Contato</a>
+          </nav>
+          [[SOCIAL_LINKS_CONTAINER]]
+        </div>
+      </header>
+
+      <main>
+        <section class="py-32 px-6 text-center">
+          <div class="max-w-4xl mx-auto">
+            <h1 class="text-6xl md:text-8xl font-black mb-8 leading-tight animate-fade-up">{{HERO_TITLE}}</h1>
+            <p class="text-xl md:text-2xl opacity-80 mb-12 max-w-2xl mx-auto leading-relaxed">{{HERO_SUBTITLE}}</p>
+            <a href="#contato" class="inline-block px-10 py-5 rounded-full font-bold text-lg shadow-2xl transition-all transform hover:scale-105 active:scale-95" style="background-color: {{COLOR_7}}; color: {{COLOR_1}}">{{CONTACT_CALL}}</a>
+          </div>
+        </section>
+
+        <section id="sobre" class="py-24 px-6" style="background-color: {{COLOR_2}}">
+          <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+            <div class="aspect-video rounded-3xl overflow-hidden shadow-2xl">
+              [[ABOUT_IMAGE]]
+            </div>
+            <div>
+              <h2 class="text-4xl font-black mb-8">{{ABOUT_TITLE}}</h2>
+              <div class="text-lg leading-relaxed opacity-90">{{ABOUT_TEXT}}</div>
+            </div>
+          </div>
+        </section>
+
+        [[REVIEWS_AREA]]
+
+        <section id="contato" class="py-24 px-6">
+          <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-4xl font-black mb-12">Entre em Contato</h2>
+            <div class="grid md:grid-cols-3 gap-8 mb-16">
+              <div class="p-8 rounded-3xl" style="background-color: {{COLOR_3}}">
+                <i class="fas fa-phone-alt text-2xl mb-4" style="color: {{COLOR_7}}"></i>
+                <h4 class="font-bold mb-2">Telefone</h4>
+                <p class="opacity-80">{{PHONE}}</p>
+              </div>
+              <div class="p-8 rounded-3xl" style="background-color: {{COLOR_3}}">
+                <i class="fas fa-envelope text-2xl mb-4" style="color: {{COLOR_7}}"></i>
+                <h4 class="font-bold mb-2">Email</h4>
+                <p class="opacity-80">{{EMAIL}}</p>
+              </div>
+              <div class="p-8 rounded-3xl" style="background-color: {{COLOR_3}}">
+                <i class="fas fa-map-marker-alt text-2xl mb-4" style="color: {{COLOR_7}}"></i>
+                <h4 class="font-bold mb-2">Localização</h4>
+                <p class="opacity-80">{{ADDRESS}}</p>
+              </div>
+            </div>
+            [[MAP_AREA]]
+          </div>
+        </section>
+      </main>
+
+      <footer class="py-12 px-6 border-t border-opacity-10" style="border-color: {{COLOR_3}}">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+          [[LOGO_AREA]]
+          <p class="opacity-50 tracking-wider">© ${new Date().getFullYear()} {{BUSINESS_NAME}}</p>
+          [[SOCIAL_LINKS_CONTAINER]]
+        </div>
+      </footer>
+    </div>
+    <style>
+      @keyframes fade-up { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+      .animate-fade-up { animation: fade-up 1s ease-out forwards; }
+    </style>
+  `,
+  layout_modern_split: `
+    <div class="template-layout-modern-split" style="background-color: {{COLOR_LIGHT}}; color: {{COLOR_DARK}}">
+      <header class="p-6 flex justify-between items-center sticky top-0 bg-white bg-opacity-90 backdrop-blur-md z-50">
+        [[LOGO_AREA]]
+        <nav class="flex items-center gap-8">
+          <a href="#sobre" class="font-bold hover:text-{{COLOR_7}} transition-colors">História</a>
+          <a href="#contato" class="font-bold hover:text-{{COLOR_7}} transition-colors">Falar Agora</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="min-h-screen flex flex-col md:flex-row">
+          <div class="md:w-1/2 p-12 md:p-24 flex flex-col justify-center order-2 md:order-1">
+            <h1 class="text-5xl md:text-7xl font-black mb-8 leading-tight">{{HERO_TITLE}}</h1>
+            <p class="text-xl opacity-70 mb-12 leading-relaxed">{{HERO_SUBTITLE}}</p>
+            <div>
+              <a href="#contato" class="inline-block px-12 py-5 rounded-xl font-bold text-lg shadow-lg transition-transform hover:-translate-y-1" style="background-color: {{COLOR_7}}; color: white">Começar Jornada</a>
+            </div>
+          </div>
+          <div class="md:w-1/2 order-1 md:order-2">
             [[HERO_IMAGE]]
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section id="sobre" class="py-24 px-6 bg-[{{COLOR_2}}]">
-        <div class="max-w-7xl mx-auto text-center">
-          <h2 class="text-4xl font-black mb-8">{{ABOUT_TITLE}}</h2>
-          <p class="text-lg opacity-80 leading-relaxed max-w-3xl mx-auto mb-12">{{ABOUT_TEXT}}</p>
-          <div class="w-full max-w-5xl mx-auto">
-            [[ABOUT_IMAGE]]
-          </div>
-        </div>
-      </section>
-
-      [[REVIEWS_AREA]]
-
-      <section id="contato" class="py-24 px-6">
-        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-          <div>
-            <h2 class="text-5xl font-black mb-6">Vamos conversar?</h2>
-            <p class="text-xl opacity-80 mb-12">Estamos prontos para atender você. Entre em contato pelos canais abaixo ou nos faça uma visita.</p>
-            <div class="space-y-6 text-lg">
-              <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-full flex items-center justify-center glass"><i class="fas fa-phone"></i></div> {{PHONE}}</div>
-              <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-full flex items-center justify-center glass"><i class="fas fa-envelope"></i></div> {{EMAIL}}</div>
-              <div class="flex items-center gap-4"><div class="w-12 h-12 rounded-full flex items-center justify-center glass"><i class="fas fa-map-marker-alt"></i></div> {{ADDRESS}}</div>
+        <section id="sobre" class="py-32 px-6">
+          <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-20">
+            <div class="md:w-1/2">
+              <h2 class="text-4xl font-black mb-10 italic border-l-8 pl-8" style="border-color: {{COLOR_7}}">O que nos move</h2>
+              <div class="text-lg opacity-80 leading-loose">{{ABOUT_TEXT}}</div>
             </div>
-            [[MAP_AREA]]
+            <div class="md:w-1/2 relative">
+               <div class="absolute -top-4 -left-4 w-24 h-24 rounded-full opacity-20" style="background-color: {{COLOR_7}}"></div>
+               [[ABOUT_IMAGE]]
+            </div>
           </div>
-          <div class="glass p-8 md:p-12 rounded-[2rem]">
-            [[CONTACT_FORM]]
-          </div>
-        </div>
-      </section>
-
-      
-    </body>
-    </html>
-  `,
-
-  // ---------------------------------------------------------
-  // 2. SPLIT DINÂMICO
-  // ---------------------------------------------------------
-  layout_modern_split: `
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>{{BUSINESS_NAME}}</title>
-      <script src="https://cdn.tailwindcss.com"></script>
-      <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
-      <style>
-        body { font-family: 'Space Grotesk', sans-serif; background-color: {{COLOR_1}}; color: {{COLOR_4}}; }
-        
-        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
-        
-        .glass-container-premium { display: flex; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
-        .glass-container-premium.logo_left_icons_right { flex-direction: row; justify-content: space-between; }
-        .glass-container-premium.logo_right_icons_left { flex-direction: row-reverse; justify-content: space-between; }
-        .glass-container-premium.logo_center_icons_right { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
-        .glass-container-premium.logo_center_icons_right .glass-logo-premium { grid-column: 2; justify-self: center; }
-        .glass-container-premium.logo_center_icons_right .glass-actions-premium { grid-column: 3; justify-self: end; }
-        .glass-container-premium.logo_center_icons_left { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
-        .glass-container-premium.logo_center_icons_left .glass-logo-premium { grid-column: 2; justify-self: center; }
-        .glass-container-premium.logo_center_icons_left .glass-actions-premium { grid-column: 1; justify-self: start; }
-
-        .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: {{COLOR_4}}; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; flex-shrink: 0; }
-        .glass-logo-premium img { max-height: 36px; width: auto; display: block; }
-        .glass-actions-premium { display: flex; align-items: center; gap: 15px; flex-wrap: nowrap; }
-        .glass-social-links-premium { display: flex; gap: 12px; align-items: center; }
-        .glass-social-link { font-size: 1.3rem; transition: transform 0.2s ease; display: flex; align-items: center; justify-content: center; text-decoration: none; }
-        .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
-        .btn-contact-premium { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .btn-contact-premium:hover { transform: scale(1.05); opacity: 0.9; }
-        
-        @media (max-width: 768px) {
-            .glass-container-premium { 
-                display: flex !important; 
-                flex-direction: column !important; 
-                justify-content: center !important;
-                align-items: center !important;
-                padding: 10px !important;
-                gap: 5px !important;
-            }
-            .glass-logo-premium { justify-content: center !important; margin-bottom: 2px !important; }
-            .glass-actions-premium { justify-content: center !important; width: 100% !important; gap: 10px !important; }
-            .glass-social-links-premium { gap: 10px !important; }
-            .glass-social-link { font-size: 1.1rem !important; }
-            .glass-logo-premium img { max-height: 28px !important; }
-        }
-
-      </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>
-    <body class="antialiased flex flex-col min-h-screen">
-      
-      <header class="glass-header-premium" id="glassHeaderPremium">
-          <div class="glass-container-premium [[HEADER_LAYOUT_CLASS]]">
-              <a href="#" class="glass-logo-premium">[[LOGO_AREA]]</a>
-              <div class="glass-actions-premium">
-                  [[SOCIAL_LINKS_CONTAINER]]
-                  
-              </div>
-          </div>
-      </header>
-
-      
-
-      <section class="pt-32 pb-20 px-6 max-w-7xl mx-auto w-full flex-1 flex flex-col md:flex-row items-center gap-12">
-        <div class="flex-1 w-full text-center md:text-left">
-          <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">{{HERO_TITLE}}</h1>
-          <p class="text-xl opacity-70 mb-8 max-w-lg mx-auto md:mx-0">{{HERO_SUBTITLE}}</p>
-          <a href="#sobre" class="inline-block px-8 py-4 bg-[{{COLOR_4}}] text-[{{COLOR_1}}] font-bold rounded-lg hover:scale-105 transition-transform">Saber mais</a>
-        </div>
-        <div class="flex-1 w-full">
-          [[HERO_IMAGE]]
-        </div>
-      </section>
-
-      <section id="sobre" class="py-24 px-6 bg-[{{COLOR_2}}]">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
-          <div class="flex-1 w-full order-2 md:order-1">
-            [[ABOUT_IMAGE]]
-          </div>
-          <div class="flex-1 w-full order-1 md:order-2 text-center md:text-left">
-            <h2 class="text-4xl font-bold mb-6">{{ABOUT_TITLE}}</h2>
-            <p class="text-lg opacity-80 leading-relaxed">{{ABOUT_TEXT}}</p>
-          </div>
-        </div>
-      </section>
-
-      [[REVIEWS_AREA]]
-
-      <section id="contato" class="py-24 px-6 max-w-7xl mx-auto w-full text-center">
-        <h2 class="text-4xl font-bold mb-16">Fale Conosco</h2>
-        <div class="grid md:grid-cols-3 gap-8 mb-16">
-          <div class="p-8 bg-[{{COLOR_2}}] rounded-2xl border border-[{{COLOR_3}}]"><i class="fas fa-phone text-3xl mb-4 text-[{{COLOR_5}}]"></i><div class="font-bold">{{PHONE}}</div></div>
-          <div class="p-8 bg-[{{COLOR_2}}] rounded-2xl border border-[{{COLOR_3}}]"><i class="fas fa-envelope text-3xl mb-4 text-[{{COLOR_5}}]"></i><div class="font-bold break-words">{{EMAIL}}</div></div>
-          <div class="p-8 bg-[{{COLOR_2}}] rounded-2xl border border-[{{COLOR_3}}]"><i class="fas fa-map-marker-alt text-3xl mb-4 text-[{{COLOR_5}}]"></i><div class="font-bold">{{ADDRESS}}</div></div>
-        </div>
-        <div class="max-w-3xl mx-auto text-left">
-          [[CONTACT_FORM]]
-        </div>
-        [[MAP_AREA]]
-      </section>
-
-      
-    </body>
-    </html>
-  `,
-
-  // ---------------------------------------------------------
-  // 3. GRID EM VIDRO
-  // ---------------------------------------------------------
-  layout_glass_grid: `
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>{{BUSINESS_NAME}}</title>
-      <script src="https://cdn.tailwindcss.com"></script>
-      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
-      <style>
-        body { font-family: 'Outfit', sans-serif; background-color: {{COLOR_1}}; color: {{COLOR_4}}; }
-        .glass-panel { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 2rem; backdrop-filter: blur(20px); }
-        
-        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
-        
-        .glass-container-premium { display: flex; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
-        .glass-container-premium.logo_left_icons_right { flex-direction: row; justify-content: space-between; }
-        .glass-container-premium.logo_right_icons_left { flex-direction: row-reverse; justify-content: space-between; }
-        .glass-container-premium.logo_center_icons_right { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
-        .glass-container-premium.logo_center_icons_right .glass-logo-premium { grid-column: 2; justify-self: center; }
-        .glass-container-premium.logo_center_icons_right .glass-actions-premium { grid-column: 3; justify-self: end; }
-        .glass-container-premium.logo_center_icons_left { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
-        .glass-container-premium.logo_center_icons_left .glass-logo-premium { grid-column: 2; justify-self: center; }
-        .glass-container-premium.logo_center_icons_left .glass-actions-premium { grid-column: 1; justify-self: start; }
-
-        .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: {{COLOR_4}}; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; flex-shrink: 0; }
-        .glass-logo-premium img { max-height: 36px; width: auto; display: block; }
-        .glass-actions-premium { display: flex; align-items: center; gap: 15px; flex-wrap: nowrap; }
-        .glass-social-links-premium { display: flex; gap: 12px; align-items: center; }
-        .glass-social-link { font-size: 1.3rem; transition: transform 0.2s ease; display: flex; align-items: center; justify-content: center; text-decoration: none; }
-        .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
-        .btn-contact-premium { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .btn-contact-premium:hover { transform: scale(1.05); opacity: 0.9; }
-        
-        @media (max-width: 768px) {
-            .glass-container-premium { 
-                display: flex !important; 
-                flex-direction: column !important; 
-                justify-content: center !important;
-                align-items: center !important;
-                padding: 10px !important;
-                gap: 5px !important;
-            }
-            .glass-logo-premium { justify-content: center !important; margin-bottom: 2px !important; }
-            .glass-actions-premium { justify-content: center !important; width: 100% !important; gap: 10px !important; }
-            .glass-social-links-premium { gap: 10px !important; }
-            .glass-social-link { font-size: 1.1rem !important; }
-            .glass-logo-premium img { max-height: 28px !important; }
-        }
-
-      </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>
-    <body class="antialiased p-4 md:p-8 min-h-screen flex flex-col relative">
-      
-      <header class="glass-header-premium" id="glassHeaderPremium">
-          <div class="glass-container-premium [[HEADER_LAYOUT_CLASS]]">
-              <a href="#" class="glass-logo-premium">[[LOGO_AREA]]</a>
-              <div class="glass-actions-premium">
-                  [[SOCIAL_LINKS_CONTAINER]]
-                  
-              </div>
-          </div>
-      </header>
-
-      <div class="fixed top-0 left-0 w-96 h-96 bg-[{{COLOR_5}}] rounded-full mix-blend-multiply filter blur-[128px] opacity-20 z-0"></div>
-      <div class="fixed bottom-0 right-0 w-96 h-96 bg-[{{COLOR_7}}] rounded-full mix-blend-multiply filter blur-[128px] opacity-20 z-0"></div>
-
-      <div class="max-w-7xl mx-auto w-full z-10 flex-1 flex flex-col gap-6 pt-32">
-        
-        <div class="grid md:grid-cols-3 gap-6">
-          
-          
-          <div class="glass-panel p-10 md:col-span-2 flex flex-col justify-center">
-            <h1 class="text-4xl md:text-6xl font-extrabold mb-4">{{HERO_TITLE}}</h1>
-            <p class="text-xl opacity-70">{{HERO_SUBTITLE}}</p>
-          </div>
-          
-          <div class="glass-panel p-6 flex items-center justify-center min-h-[300px]">
-             <div class="w-full">[[HERO_IMAGE]]</div>
-          </div>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-6">
-           <div class="glass-panel p-6 flex items-center justify-center min-h-[300px]">
-             <div class="w-full">[[ABOUT_IMAGE]]</div>
-          </div>
-          <div class="glass-panel p-10 flex flex-col justify-center">
-            <h2 class="text-3xl font-bold mb-4">{{ABOUT_TITLE}}</h2>
-            <p class="text-lg opacity-80 leading-relaxed">{{ABOUT_TEXT}}</p>
-          </div>
-        </div>
+        </section>
 
         [[REVIEWS_AREA]]
 
-        <div id="contato" class="glass-panel p-10">
-          <h2 class="text-3xl font-bold mb-8 text-center border-b border-white/10 pb-6">Contato & Localização</h2>
-          <div class="grid md:grid-cols-2 gap-12">
+        <section id="contato" class="py-32 text-white" style="background-color: {{COLOR_DARK}}">
+          <div class="max-w-4xl mx-auto px-6 grid md:grid-cols-2 gap-20">
             <div>
-              <div class="space-y-6 mb-8 text-lg">
-                <p><strong class="block text-sm text-[{{COLOR_5}}] uppercase tracking-wider mb-1">Telefone</strong> {{PHONE}}</p>
-                <p><strong class="block text-sm text-[{{COLOR_5}}] uppercase tracking-wider mb-1">E-mail</strong> {{EMAIL}}</p>
-                <p><strong class="block text-sm text-[{{COLOR_5}}] uppercase tracking-wider mb-1">Endereço</strong> {{ADDRESS}}</p>
+              <h2 class="text-5xl font-black mb-8">Vamos Criar<br/>Algo Novo?</h2>
+              <p class="text-lg opacity-70 mb-12">Estamos ansiosos para ouvir sua idéia e transformar em realidade.</p>
+              <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                  <span class="w-12 h-12 flex items-center justify-center rounded-full bg-white bg-opacity-10"><i class="fab fa-whatsapp"></i></span>
+                  <span>{{PHONE}}</span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span class="w-12 h-12 flex items-center justify-center rounded-full bg-white bg-opacity-10"><i class="fas fa-map-pin"></i></span>
+                  <span>{{ADDRESS}}</span>
+                </div>
               </div>
+            </div>
+            <div class="bg-white p-10 rounded-[2rem]">
               [[MAP_AREA]]
             </div>
-            <div>
-              [[CONTACT_FORM]]
-            </div>
           </div>
-        </div>
+        </section>
+      </main>
 
-      </div>
-
-      
-    </body>
-    </html>
+      <footer class="py-12 px-6 bg-white flex flex-col md:flex-row justify-between items-center gap-4 border-t">
+        [[LOGO_AREA]]
+        <div class="flex gap-4">[[SOCIAL_LINKS]]</div>
+        <p class="font-bold opacity-30 text-sm">© ${new Date().getFullYear()} {{BUSINESS_NAME}}</p>
+      </footer>
+    </div>
   `,
-
-  // ---------------------------------------------------------
-  // 4. ELEGÂNCIA MINIMALISTA
-  // ---------------------------------------------------------
-  layout_minimal_elegance: `
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>{{BUSINESS_NAME}}</title>
-      <script src="https://cdn.tailwindcss.com"></script>
-      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
-      <style>
-        body { font-family: 'Lato', sans-serif; background-color: {{COLOR_1}}; color: {{COLOR_4}}; }
-        h1, h2, h3, .logo-text { font-family: 'Playfair Display', serif; }
-        
-        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
-        
-        .glass-container-premium { display: flex; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
-        .glass-container-premium.logo_left_icons_right { flex-direction: row; justify-content: space-between; }
-        .glass-container-premium.logo_right_icons_left { flex-direction: row-reverse; justify-content: space-between; }
-        .glass-container-premium.logo_center_icons_right { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
-        .glass-container-premium.logo_center_icons_right .glass-logo-premium { grid-column: 2; justify-self: center; }
-        .glass-container-premium.logo_center_icons_right .glass-actions-premium { grid-column: 3; justify-self: end; }
-        .glass-container-premium.logo_center_icons_left { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
-        .glass-container-premium.logo_center_icons_left .glass-logo-premium { grid-column: 2; justify-self: center; }
-        .glass-container-premium.logo_center_icons_left .glass-actions-premium { grid-column: 1; justify-self: start; }
-
-        .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: {{COLOR_4}}; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; flex-shrink: 0; }
-        .glass-logo-premium img { max-height: 36px; width: auto; display: block; }
-        .glass-actions-premium { display: flex; align-items: center; gap: 15px; flex-wrap: nowrap; }
-        .glass-social-links-premium { display: flex; gap: 12px; align-items: center; }
-        .glass-social-link { font-size: 1.3rem; transition: transform 0.2s ease; display: flex; align-items: center; justify-content: center; text-decoration: none; }
-        .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
-        .btn-contact-premium { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .btn-contact-premium:hover { transform: scale(1.05); opacity: 0.9; }
-        
-        @media (max-width: 768px) {
-            .glass-container-premium { 
-                display: flex !important; 
-                flex-direction: column !important; 
-                justify-content: center !important;
-                align-items: center !important;
-                padding: 10px !important;
-                gap: 5px !important;
-            }
-            .glass-logo-premium { justify-content: center !important; margin-bottom: 2px !important; }
-            .glass-actions-premium { justify-content: center !important; width: 100% !important; gap: 10px !important; }
-            .glass-social-links-premium { gap: 10px !important; }
-            .glass-social-link { font-size: 1.1rem !important; }
-            .glass-logo-premium img { max-height: 28px !important; }
-        }
-
-      </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>
-    <body class="antialiased flex flex-col min-h-screen">
-      
-      <header class="glass-header-premium" id="glassHeaderPremium">
-          <div class="glass-container-premium [[HEADER_LAYOUT_CLASS]]">
-              <a href="#" class="glass-logo-premium">[[LOGO_AREA]]</a>
-              <div class="glass-actions-premium">
-                  [[SOCIAL_LINKS_CONTAINER]]
-                  
-              </div>
-          </div>
+  layout_glass_grid: `
+    <div class="template-layout-glass-grid" style="background-color: {{COLOR_1}}; color: {{COLOR_4}}; font-family: 'Inter', sans-serif;">
+      <header class="p-8 flex justify-between items-center sticky top-0 z-50">
+        <div class="backdrop-blur-xl bg-white bg-opacity-5 border border-white border-opacity-10 px-8 py-3 rounded-full flex items-center gap-8 shadow-2xl">
+          [[LOGO_AREA]]
+          <nav class="hidden md:flex items-center gap-8 text-sm font-medium tracking-widest uppercase">
+            <a href="#sobre" class="hover:text-{{COLOR_7}} transition-colors">Negócio</a>
+            <a href="#contato" class="hover:text-{{COLOR_7}} transition-colors">Falar</a>
+          </nav>
+        </div>
+        [[SOCIAL_LINKS_CONTAINER]]
       </header>
 
-      
+      <main class="max-w-7xl mx-auto px-6 py-12">
+        <div class="grid md:grid-cols-12 gap-8">
+          <!-- Hero Section -->
+          <div class="md:col-span-8 p-12 md:p-24 rounded-[3rem] shadow-inner border border-white border-opacity-5 flex flex-col justify-center relative overflow-hidden" style="background-color: {{COLOR_2}}">
+            <div class="absolute top-0 right-0 w-64 h-64 blur-[100px] opacity-20 rounded-full" style="background-color: {{COLOR_7}}"></div>
+            <h1 class="text-6xl md:text-7xl font-black mb-8 leading-tight relative z-10">{{HERO_TITLE}}</h1>
+            <p class="text-xl md:text-2xl opacity-60 mb-12 max-w-xl leading-relaxed relative z-10">{{HERO_SUBTITLE}}</p>
+            <div class="relative z-10">
+              <a href="#contato" class="inline-flex items-center gap-4 px-12 py-5 rounded-full font-black text-lg transition-all hover:bg-white hover:text-black hover:scale-105" style="background-color: {{COLOR_7}}; color: {{COLOR_1}}">
+                {{CONTACT_CALL}} <i class="fas fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
 
-      <main class="flex-1 max-w-4xl mx-auto w-full px-6">
-        
-        <section class="pt-40 pb-24 text-center">
-          <h1 class="text-5xl md:text-7xl mb-6">{{HERO_TITLE}}</h1>
-          <p class="text-xl uppercase tracking-widest opacity-60 mb-12">{{HERO_SUBTITLE}}</p>
-          <div class="w-full mb-12">[[HERO_IMAGE]]</div>
-        </section>
+          <!-- Side Image -->
+          <div class="md:col-span-4 rounded-[3rem] overflow-hidden group shadow-2xl">
+            [[HERO_IMAGE]]
+          </div>
 
-        <div class="w-24 h-px bg-[{{COLOR_3}}] mx-auto my-12"></div>
-
-        <section class="py-24 text-center">
-          <h2 class="text-4xl mb-8 italic">{{ABOUT_TITLE}}</h2>
-          <p class="text-lg leading-loose opacity-80 mb-12">{{ABOUT_TEXT}}</p>
-          <div class="w-full">[[ABOUT_IMAGE]]</div>
-        </section>
-
-        <div class="w-24 h-px bg-[{{COLOR_3}}] mx-auto my-12"></div>
+          <div class="md:col-span-4 rounded-[3rem] overflow-hidden group shadow-2xl h-[400px]">
+             [[ABOUT_IMAGE]]
+          </div>
+          <div class="md:col-span-8 p-12 md:p-20 rounded-[3rem] backdrop-blur-3xl border border-white border-opacity-5 flex flex-col justify-center" style="background-color: {{COLOR_3}}">
+            <h2 class="text-3xl md:text-5xl font-black mb-8">{{ABOUT_TITLE}}</h2>
+            <div class="text-lg md:text-xl opacity-70 leading-loose">{{ABOUT_TEXT}}</div>
+          </div>
+        </div>
 
         [[REVIEWS_AREA]]
 
-        <section id="contato" class="py-24 text-center">
-          <h2 class="text-4xl mb-16">Contato</h2>
-          <div class="flex flex-col md:flex-row justify-center gap-12 text-lg mb-16">
-            <div><span class="block text-sm uppercase opacity-50 mb-2">Telefone</span> {{PHONE}}</div>
-            <div><span class="block text-sm uppercase opacity-50 mb-2">E-mail</span> {{EMAIL}}</div>
-            <div><span class="block text-sm uppercase opacity-50 mb-2">Endereço</span> {{ADDRESS}}</div>
-          </div>
-          <div class="max-w-2xl mx-auto text-left mb-16">
-            [[CONTACT_FORM]]
-          </div>
-          <div class="max-w-3xl mx-auto">
-            [[MAP_AREA]]
+        <div class="mt-8 p-12 md:p-24 rounded-[4rem] text-center relative overflow-hidden" id="contato" style="background-color: {{COLOR_2}}">
+           <h2 class="text-5xl md:text-7xl font-black mb-16 italic">Entre no Loop</h2>
+           <div class="grid md:grid-cols-3 gap-12 relative z-10">
+             <div class="space-y-4">
+               <span class="text-xs uppercase tracking-[0.3em] opacity-40 font-black">Conectar</span>
+               <p class="text-2xl font-bold">{{PHONE}}</p>
+             </div>
+             <div class="space-y-4">
+               <span class="text-xs uppercase tracking-[0.3em] opacity-40 font-black">Email</span>
+               <p class="text-2xl font-bold">{{EMAIL}}</p>
+             </div>
+             <div class="space-y-4">
+               <span class="text-xs uppercase tracking-[0.3em] opacity-40 font-black">Onde estamos</span>
+               <p class="text-2xl font-bold">{{ADDRESS}}</p>
+             </div>
+           </div>
+           <div class="mt-20 rounded-[3rem] overflow-hidden border border-white border-opacity-10">
+             [[MAP_AREA]]
+           </div>
+        </div>
+      </main>
+
+      <footer class="p-12 text-center">
+         <p class="text-sm opacity-20 font-black uppercase tracking-[1em]">© ${new Date().getFullYear()} {{BUSINESS_NAME}}</p>
+      </footer>
+    </div>
+  `,
+  layout_minimal_elegance: `
+    <div class="template-layout-minimal-elegance" style="background-color: white; color: #111; font-family: 'Playfair Display', serif;">
+      <header class="p-10 flex flex-col items-center gap-10">
+        [[LOGO_AREA]]
+        <nav class="flex gap-12 text-sm font-light tracking-[0.2em] uppercase border-y py-4 px-10 border-black border-opacity-10">
+          <a href="#sobre" class="hover:opacity-50 transition-opacity">Nossa Essência</a>
+          <a href="#contato" class="hover:opacity-50 transition-opacity">Atendimento</a>
+        </nav>
+      </header>
+
+      <main class="max-w-5xl mx-auto px-6">
+        <section class="py-32 text-center">
+          <h1 class="text-5xl md:text-8xl font-light mb-12 tracking-tight italic">{{HERO_TITLE}}</h1>
+          <p class="text-lg md:text-xl font-light opacity-60 mb-16 max-w-2xl mx-auto leading-relaxed">{{HERO_SUBTITLE}}</p>
+          <a href="#contato" class="inline-block border border-black px-16 py-5 hover:bg-black hover:text-white transition-all duration-500 uppercase text-xs tracking-widest font-black">{{CONTACT_CALL}}</a>
+        </section>
+
+        <section class="py-12">
+          <div class="aspect-[16/6] overflow-hidden rounded-sm grayscale hover:grayscale-0 transition-all duration-1000">
+            [[HERO_IMAGE]]
           </div>
         </section>
 
-      </main>
-      <footer class="text-center py-8 border-t border-[{{COLOR_3}}] opacity-50 text-sm uppercase tracking-widest">
-        © {{BUSINESS_NAME}}
-      </footer>
-
-      
-    </body>
-    </html>
-  `,
-
-  // ---------------------------------------------------------
-  // 5. FLUXO CONTÍNUO
-  // ---------------------------------------------------------
-  layout_dynamic_flow: `
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>{{BUSINESS_NAME}}</title>
-      <script src="https://cdn.tailwindcss.com"></script>
-      <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-      <style>
-        body { font-family: 'Montserrat', sans-serif; background-color: {{COLOR_1}}; color: {{COLOR_4}}; overflow-x: hidden; }
-        .section-curve { border-bottom-left-radius: 5rem; border-bottom-right-radius: 5rem; }
-        
-        .glass-header-premium { position: fixed; top: 0; left: 0; width: 100%; z-index: 9998; background: color-mix(in srgb, {{COLOR_2}} 85%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid color-mix(in srgb, {{COLOR_3}} 30%, transparent); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
-        
-        .glass-container-premium { display: flex; align-items: center; max-width: 1200px; margin: 0 auto; padding: 12px 20px; gap: 10px; }
-        .glass-container-premium.logo_left_icons_right { flex-direction: row; justify-content: space-between; }
-        .glass-container-premium.logo_right_icons_left { flex-direction: row-reverse; justify-content: space-between; }
-        .glass-container-premium.logo_center_icons_right { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
-        .glass-container-premium.logo_center_icons_right .glass-logo-premium { grid-column: 2; justify-self: center; }
-        .glass-container-premium.logo_center_icons_right .glass-actions-premium { grid-column: 3; justify-self: end; }
-        .glass-container-premium.logo_center_icons_left { display: grid; grid-template-columns: 1fr auto 1fr; justify-content: stretch; }
-        .glass-container-premium.logo_center_icons_left .glass-logo-premium { grid-column: 2; justify-self: center; }
-        .glass-container-premium.logo_center_icons_left .glass-actions-premium { grid-column: 1; justify-self: start; }
-
-        .glass-logo-premium { display: flex; align-items: center; text-decoration: none; color: {{COLOR_4}}; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; flex-shrink: 0; }
-        .glass-logo-premium img { max-height: 36px; width: auto; display: block; }
-        .glass-actions-premium { display: flex; align-items: center; gap: 15px; flex-wrap: nowrap; }
-        .glass-social-links-premium { display: flex; gap: 12px; align-items: center; }
-        .glass-social-link { font-size: 1.3rem; transition: transform 0.2s ease; display: flex; align-items: center; justify-content: center; text-decoration: none; }
-        .glass-social-link:hover { transform: scale(1.15); opacity: 0.8; }
-        .btn-contact-premium { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 25px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: transform 0.2s ease; text-transform: uppercase; letter-spacing: 1px; background-color: {{COLOR_4}}; color: {{COLOR_1}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .btn-contact-premium:hover { transform: scale(1.05); opacity: 0.9; }
-        
-        @media (max-width: 768px) {
-            .glass-container-premium { 
-                display: flex !important; 
-                flex-direction: column !important; 
-                justify-content: center !important;
-                align-items: center !important;
-                padding: 10px !important;
-                gap: 5px !important;
-            }
-            .glass-logo-premium { justify-content: center !important; margin-bottom: 2px !important; }
-            .glass-actions-premium { justify-content: center !important; width: 100% !important; gap: 10px !important; }
-            .glass-social-links-premium { gap: 10px !important; }
-            .glass-social-link { font-size: 1.1rem !important; }
-            .glass-logo-premium img { max-height: 28px !important; }
-        }
-
-      </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"></head>
-    <body class="antialiased">
-      
-      <header class="glass-header-premium" id="glassHeaderPremium">
-          <div class="glass-container-premium [[HEADER_LAYOUT_CLASS]]">
-              <a href="#" class="glass-logo-premium">[[LOGO_AREA]]</a>
-              <div class="glass-actions-premium">
-                  [[SOCIAL_LINKS_CONTAINER]]
-                  
-              </div>
+        <section id="sobre" class="py-32 grid md:grid-cols-2 gap-24 items-center">
+          <div class="order-2 md:order-1">
+            <h2 class="text-3xl font-light mb-12 tracking-widest uppercase border-b pb-4">{{ABOUT_TITLE}}</h2>
+            <div class="text-xl font-light leading-relaxed opacity-80">{{ABOUT_TEXT}}</div>
           </div>
+          <div class="order-1 md:order-2 aspect-square overflow-hidden bg-gray-100">
+             [[ABOUT_IMAGE]]
+          </div>
+        </section>
+
+        [[REVIEWS_AREA]]
+
+        <section id="contato" class="py-32 border-t border-black border-opacity-5">
+           <div class="text-center max-w-2xl mx-auto">
+             <h2 class="text-xs uppercase tracking-[0.5em] font-black mb-16 opacity-30 text-center">Contact Details</h2>
+             <div class="space-y-12">
+                <div>
+                  <h4 class="font-black italic mb-2">Social</h4>
+                  <p class="text-2xl font-light">{{PHONE}}</p>
+                </div>
+                <div>
+                  <h4 class="font-black italic mb-2">Location</h4>
+                  <p class="text-2xl font-light">{{ADDRESS}}</p>
+                </div>
+             </div>
+             <div class="mt-20 grayscale border border-black border-opacity-5 p-2">
+               [[MAP_AREA]]
+             </div>
+           </div>
+        </section>
+      </main>
+
+      <footer class="p-20 text-center border-t border-black border-opacity-5">
+          [[LOGO_AREA]]
+          <p class="mt-10 text-[10px] uppercase tracking-[0.3em] opacity-40">© ${new Date().getFullYear()} {{BUSINESS_NAME}} — Designed for Elegance</p>
+      </footer>
+    </div>
+  `,
+  layout_dynamic_flow: `
+    <div class="template-layout-dynamic-flow" style="background-color: {{COLOR_1}}; color: {{COLOR_4}}">
+      <header class="p-6 flex justify-between items-center relative z-20">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full overflow-hidden" style="background-color: {{COLOR_7}}">[[LOGO_AREA]]</div>
+          <span class="font-black tracking-tighter text-xl">{{BUSINESS_NAME}}</span>
+        </div>
+        [[SOCIAL_LINKS_CONTAINER]]
       </header>
 
-      <section class="bg-[{{COLOR_2}}] section-curve pt-32 pb-32 px-6 relative z-20 shadow-2xl">
-        
-        
-        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <h1 class="text-5xl md:text-7xl font-black mb-6 leading-none">{{HERO_TITLE}}</h1>
-            <p class="text-xl md:text-2xl opacity-80 font-medium">{{HERO_SUBTITLE}}</p>
+      <main class="overflow-x-hidden">
+        <!-- Floating Hero -->
+        <section class="min-h-screen flex items-center justify-center p-6 relative">
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-br opacity-5" style="background-image: linear-gradient(to bottom right, {{COLOR_7}}, transparent)"></div>
+          <div class="max-w-5xl mx-auto text-center relative z-10 translate-y-10 opacity-0 animate-reveal">
+            <span class="inline-block px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest mb-8" style="background-color: {{COLOR_7}}; color: {{COLOR_1}}">Novo Lançamento</span>
+            <h1 class="text-6xl md:text-9xl font-black mb-10 tracking-tighter leading-none">{{HERO_TITLE}}</h1>
+            <p class="text-xl md:text-2xl opacity-70 mb-16 max-w-2xl mx-auto leading-tight">{{HERO_SUBTITLE}}</p>
+            <a href="#contato" class="group relative inline-flex items-center gap-4 text-2xl font-black">
+               {{CONTACT_CALL}}
+               <span class="w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-2" style="background-color: {{COLOR_7}}; color: {{COLOR_1}}"><i class="fas fa-chevron-right"></i></span>
+            </a>
           </div>
-          <div class="w-full">[[HERO_IMAGE]]</div>
-        </div>
-      </section>
+        </section>
 
-      <section class="pt-32 pb-32 px-6 relative z-10 -mt-16">
-        <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-           <div class="order-2 md:order-1 w-full">[[ABOUT_IMAGE]]</div>
-          <div class="order-1 md:order-2 text-right">
-            <h2 class="text-4xl md:text-5xl font-black mb-6 text-[{{COLOR_5}}]">{{ABOUT_TITLE}}</h2>
-            <p class="text-lg opacity-80 leading-relaxed font-medium">{{ABOUT_TEXT}}</p>
+        <!-- Zig Zag 1 -->
+        <section id="sobre" class="py-32 px-6">
+          <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-24">
+            <div class="md:w-1/2 relative">
+               <div class="absolute -bottom-8 -right-8 w-full h-full rounded-[4rem] z-0" style="background-color: {{COLOR_3}}"></div>
+               [[ABOUT_IMAGE]]
+            </div>
+            <div class="md:w-1/2">
+              <h2 class="text-5xl font-black mb-10 leading-tight">{{ABOUT_TITLE}}</h2>
+              <div class="text-lg opacity-80 leading-relaxed space-y-6">{{ABOUT_TEXT}}</div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      [[REVIEWS_AREA]]
+        [[REVIEWS_AREA]]
 
-      <section id="contato" class="bg-[{{COLOR_2}}] rounded-t-[5rem] pt-32 pb-24 px-6 relative z-20">
-        <div class="max-w-7xl mx-auto">
-          <div class="text-center mb-16">
-            <h2 class="text-4xl font-black mb-4">Informações de Contato</h2>
-            <div class="w-20 h-2 bg-[{{COLOR_5}}] mx-auto rounded-full"></div>
+        <!-- Zig Zag 2 -->
+        <section class="py-32 px-6" style="background-color: {{COLOR_2}}">
+          <div class="max-w-6xl mx-auto flex flex-col md:flex-row-reverse items-center gap-24">
+            <div class="md:w-1/2">
+               [[HERO_IMAGE]]
+            </div>
+            <div class="md:w-1/2">
+              <h2 class="text-5xl font-black mb-10 leading-tight">Excelência <br/>em Movimento</h2>
+              <p class="text-xl opacity-70 leading-relaxed italic">"Nós não apenas entregamos resultados, nós criamos experiências que definem o futuro do seu negócio."</p>
+            </div>
           </div>
-          
-          <div class="grid md:grid-cols-3 gap-8 mb-16 text-center">
-            <div><div class="w-16 h-16 mx-auto bg-[{{COLOR_1}}] rounded-full flex items-center justify-center text-2xl text-[{{COLOR_5}}] mb-4 shadow-lg"><i class="fas fa-phone"></i></div><p class="font-bold">{{PHONE}}</p></div>
-            <div><div class="w-16 h-16 mx-auto bg-[{{COLOR_1}}] rounded-full flex items-center justify-center text-2xl text-[{{COLOR_5}}] mb-4 shadow-lg"><i class="fas fa-envelope"></i></div><p class="font-bold break-words">{{EMAIL}}</p></div>
-            <div><div class="w-16 h-16 mx-auto bg-[{{COLOR_1}}] rounded-full flex items-center justify-center text-2xl text-[{{COLOR_5}}] mb-4 shadow-lg"><i class="fas fa-map-marker-alt"></i></div><p class="font-bold">{{ADDRESS}}</p></div>
-          </div>
+        </section>
 
-          <div class="grid md:grid-cols-2 gap-12 bg-[{{COLOR_1}}] p-8 md:p-12 rounded-3xl shadow-xl">
-            <div>[[CONTACT_FORM]]</div>
-            <div>[[MAP_AREA]]</div>
-          </div>
-        </div>
-      </section>
+        <section id="contato" class="py-32 px-6 relative overflow-hidden">
+           <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 relative z-10">
+              <div class="p-12 rounded-[4rem] flex flex-col justify-between" style="background-color: {{COLOR_3}}">
+                <h2 class="text-5xl font-black mb-12 italic">Fale Conosco</h2>
+                <div class="space-y-8">
+                   <div>
+                     <span class="block text-xs font-black uppercase opacity-40 mb-2">Direct Line</span>
+                     <p class="text-3xl font-black tracking-tighter">{{PHONE}}</p>
+                   </div>
+                   <div>
+                     <span class="block text-xs font-black uppercase opacity-40 mb-2">Location</span>
+                     <p class="text-3xl font-black tracking-tighter">{{ADDRESS}}</p>
+                   </div>
+                </div>
+              </div>
+              <div class="rounded-[4rem] overflow-hidden shadow-2xl border-8 border-opacity-10 border-white">
+                [[MAP_AREA]]
+              </div>
+           </div>
+        </section>
+      </main>
 
-      
-    </body>
-    </html>
+      <footer class="p-12 flex flex-col md:flex-row justify-between items-center gap-8 bg-black bg-opacity-20">
+         [[LOGO_AREA]]
+         <div class="flex gap-6 items-center">
+           [[SOCIAL_LINKS]]
+           [[SOCIAL_LINKS_CONTAINER]]
+         </div>
+         <p class="text-[10px] font-black uppercase opacity-20 tracking-tighter">© ${new Date().getFullYear()} {{BUSINESS_NAME}}. Powered by SiteZing Dynamic Flow.</p>
+      </footer>
+    </div>
+    <style>
+      @keyframes reveal { to { opacity: 1; transform: translateY(0); } }
+      .animate-reveal { animation: reveal 1s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+    </style>
   `
 };

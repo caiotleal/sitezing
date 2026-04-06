@@ -28,9 +28,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ isOpen, onClose, onSubmit }) => {
       await onSubmit(email, password);
       setEmail('');
       setPassword('');
-      // O App.tsx fecha o modal automaticamente ao detectar o login
+      // O App.tsx gerencia o fechamento e o sucesso/erro detalhado
     } catch (err: any) {
-      setError('Erro ao fazer login. Verifique suas credenciais.');
+      // Deixamos o erro propagar para o App.tsx mostrar o Toast diagnóstico
+      // mas mantemos o loading false
     } finally {
       setLoading(false);
     }

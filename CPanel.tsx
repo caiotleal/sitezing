@@ -62,6 +62,10 @@ const CPanel: React.FC = () => {
   const [isTriggeringRecovery, setIsTriggeringRecovery] = useState(false);
   const [emailLogs, setEmailLogs] = useState<any[]>([]);
 
+  const [showKeys, setShowKeys] = useState(false);
+  const [isTestingStripe, setIsTestingStripe] = useState(false);
+  const [isTestingGemini, setIsTestingGemini] = useState(false);
+
   const fetchPlatformConfigs = async () => {
     try {
       const getConfigs = httpsCallable(functions, 'getPlatformConfigs');
@@ -986,53 +990,121 @@ const CPanel: React.FC = () => {
               </div>
 
               {/* Integração Stripe */}
-              <div className="bg-white rounded-[2.5rem] p-8 border border-stone-200 shadow-sm">
+              <div className="bg-white rounded-[2.5rem] p-8 border border-stone-200 shadow-sm relative overflow-hidden group">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl"><CreditCard size={24} /></div>
                     <h3 className="font-black italic uppercase text-lg">Gateway Stripe</h3>
                   </div>
-                  <select 
-                    value={platformConfigs.stripe.mode} 
-                    onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, mode: e.target.value}})}
-                    className="text-[10px] font-black uppercase tracking-widest bg-stone-100 px-3 py-1.5 rounded-full outline-none border-none cursor-pointer"
-                  >
-                    <option value="test">Teste</option>
-                    <option value="prod">Produção</option>
-                  </select>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => setShowKeys(!showKeys)} 
+                      className="p-2 text-stone-400 hover:text-orange-500 hover:bg-stone-50 rounded-xl transition-all"
+                      title={showKeys ? "Ocultar Chaves" : "Mostrar Chaves Sensiveis"}
+                    >
+                      {showKeys ? <X size={18} /> : <Eye size={18} />}
+                    </button>
+                    <select 
+                      value={platformConfigs.stripe.mode || 'test'} 
+                      onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, mode: e.target.value}})}
+                      className="text-[10px] font-black uppercase tracking-widest bg-stone-100 px-3 py-2 rounded-xl outline-none border-none cursor-pointer hover:bg-stone-200 transition-all"
+                    >
+                      <option value="test">🧪 MODO TESTE</option>
+                      <option value="prod">🚀 MODO PRODUÇÃO</option>
+                    </select>
+                  </div>
                 </div>
-                <div className="space-y-4">
-                  {platformConfigs.stripe.mode === 'test' ? (
-                    <>
-                      <div>
-                        <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Test Public Key</label>
-                        <input type="password" value={platformConfigs.stripe.testPublicKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, testPublicKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
-                      </div>
-                      <div>
-                        <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Test Secret Key</label>
-                        <input type="password" value={platformConfigs.stripe.testSecretKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, testSecretKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
-                      </div>
-                      <div>
-                        <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Test Webhook Secret</label>
-                        <input type="password" value={platformConfigs.stripe.testWebhookSecret || ''} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, testWebhookSecret: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" placeholder="whsec_..." />
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div>
-                        <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Production Public Key</label>
-                        <input type="password" value={platformConfigs.stripe.prodPublicKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, prodPublicKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
-                      </div>
-                      <div>
-                        <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Production Secret Key</label>
-                        <input type="password" value={platformConfigs.stripe.prodSecretKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, prodSecretKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
-                      </div>
-                      <div>
-                        <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Production Webhook Secret</label>
-                        <input type="password" value={platformConfigs.stripe.prodWebhookSecret || ''} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, prodWebhookSecret: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" placeholder="whsec_..." />
-                      </div>
-                    </>
-                  )}
+
+                <div className="space-y-5">
+                  <div className="bg-stone-50/50 p-4 rounded-3xl border border-stone-100 space-y-4">
+                    <div className="flex justify-between items-center px-1">
+                      <label className="text-[9px] font-black uppercase text-stone-400 tracking-widest">Secret Key ({platformConfigs.stripe.mode === 'prod' ? 'Produção' : 'Teste'})</label>
+                    </div>
+                    <div className="relative group">
+                      <input 
+                        type={showKeys ? "text" : "password"} 
+                        value={platformConfigs.stripe.mode === 'prod' ? (platformConfigs.stripe.prodSecretKey || '') : (platformConfigs.stripe.testSecretKey || '')} 
+                        onChange={e => {
+                          const field = platformConfigs.stripe.mode === 'prod' ? 'prodSecretKey' : 'testSecretKey';
+                          setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, [field]: e.target.value}});
+                        }} 
+                        className="w-full px-6 py-4 bg-white border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none shadow-sm pr-24"
+                        placeholder={platformConfigs.stripe.mode === 'prod' ? "sk_live_..." : "sk_test_..."}
+                      />
+                      <button 
+                        onClick={async () => {
+                          try {
+                            setIsTestingStripe(true);
+                            const testFn = httpsCallable(functions, 'testStripeConfig');
+                            const res: any = await testFn({
+                              mode: platformConfigs.stripe.mode,
+                              prodSecretKey: platformConfigs.stripe.prodSecretKey,
+                              testSecretKey: platformConfigs.stripe.testSecretKey
+                            });
+                            if (res.data.success) alert("✅ " + res.data.message);
+                            else alert("❌ " + res.data.message);
+                          } catch (err: any) {
+                            alert("🚫 Falha no teste: " + err.message);
+                          } finally {
+                            setIsTestingStripe(false);
+                          }
+                        }}
+                        disabled={isTestingStripe}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-orange-50 hover:bg-orange-100 text-orange-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-tighter transition-all disabled:opacity-50"
+                      >
+                        {isTestingStripe ? <Loader2 size={12} className="animate-spin" /> : "Testar Conexão"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[9px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Webhook Secret ({platformConfigs.stripe.mode === 'prod' ? 'Produção' : 'Teste'})</label>
+                    <input 
+                      type={showKeys ? "text" : "password"} 
+                      value={platformConfigs.stripe.mode === 'prod' ? (platformConfigs.stripe.prodWebhookSecret || '') : (platformConfigs.stripe.testWebhookSecret || '')} 
+                      onChange={e => {
+                        const field = platformConfigs.stripe.mode === 'prod' ? 'prodWebhookSecret' : 'testWebhookSecret';
+                        setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, [field]: e.target.value}});
+                      }} 
+                      className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" 
+                      placeholder="whsec_..." 
+                    />
+                  </div>
+
+                  <div className="h-px bg-stone-100 mx-2"></div>
+
+                  {/* GEMINI KEY (NOVO NO CP) */}
+                  <div className="space-y-3">
+                    <label className="block text-[9px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Google Gemini API Key (IA Override)</label>
+                    <div className="relative">
+                      <input 
+                        type={showKeys ? "text" : "password"} 
+                        value={platformConfigs?.gemini?.apiKey || ''} 
+                        onChange={e => setPlatformConfigs({...platformConfigs, gemini: {...(platformConfigs.gemini || {}), apiKey: e.target.value}})} 
+                        className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none pr-24" 
+                        placeholder="Sua chave própria (opcional)" 
+                      />
+                      <button 
+                        onClick={async () => {
+                          try {
+                            setIsTestingGemini(true);
+                            const testFn = httpsCallable(functions, 'testGeminiConfig');
+                            const res: any = await testFn({ customKey: platformConfigs?.gemini?.apiKey });
+                            if (res.data.success) alert("✅ " + res.data.message);
+                            else alert("❌ " + res.data.message);
+                          } catch (err: any) {
+                            alert("🚫 Falha no teste AI: " + err.message);
+                          } finally {
+                            setIsTestingGemini(false);
+                          }
+                        }}
+                        disabled={isTestingGemini}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-teal-50 hover:bg-teal-100 text-teal-600 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-tighter transition-all disabled:opacity-50"
+                      >
+                        {isTestingGemini ? <Loader2 size={12} className="animate-spin" /> : "Validar AI"}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
