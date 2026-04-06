@@ -1,27 +1,7 @@
-name: Deploy to Firebase
-
-on:
-  push:
-    branches:
-      - main  # Ou a sua branch principal (master)
-
-jobs:
-  build_and_deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+- name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
         with:
-          node-version: 22
-
-      - name: Install Dependencies (Root)
-        run: npm install
-
-      - name: Install Functions Dependencies
-        run: npm --prefix functions install
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
