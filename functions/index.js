@@ -103,8 +103,15 @@ const googlePlacesKey = defineSecret("GOOGLE_PLACES_API_KEY");
 const getProjectId = () => process.env.GCLOUD_PROJECT || JSON.parse(process.env.FIREBASE_CONFIG || '{}').projectId;
 
 const getGeminiClient = () => {
-  const apiKey = geminiKey.value();
-  if (!apiKey) throw new HttpsError("failed-precondition", "Secret GEMINI_KEY ausente.");
+  const apiKey = geminiKey.value() || process.env.GEMINI_KEY;
+  if (!apiKey || apiKey === "SUA_API_KEY_AQUI") {
+    console.error("🚨 [GEMINI INIT] Chave de API ausente! O Secret Manager (GEMINI_KEY) não retornou um Bearer válido.");
+    throw new HttpsError("failed-precondition", "Secret GEMINI_KEY ausente no servidor. O Admin Cloud deve setar essa variável.");
+  }
+  
+  const maskedKey = apiKey.length > 8 ? `${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}` : "INVÁLIDA/CURTA";
+  console.log(`[GEMINI INIT] Instanciando cliente GenAI. Chave lida: ${maskedKey}`);
+  
   return new GoogleGenerativeAI(apiKey);
 };
 
@@ -414,7 +421,7 @@ exports.listUserProjects = onCall({ cors: true }, async (request) => {
   return { projects };
 });
 
-exports.publishUserProject = onCall({ cors: true, secrets: [geminiKey] }, async (request) => {
+exports.publishUserProject = onCall({ cors: true, secrets: [geminiKey, googlePlacesKey] }, async (request) => {
   try {
     const uid = ensureAuthed(request);
     const targetId = request.data.targetId || request.data.projectId || request.data.projectSlug;
@@ -474,10 +481,13 @@ exports.publishUserProject = onCall({ cors: true, secrets: [geminiKey] }, async 
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.warn(`[Publish] Aviso ao registrar subdomínio: ${response.status}`, errorText);
+          console.error(`🚨 [Publish IAM/Network] Falha ao registrar subdomínio (${response.status}):`, errorText);
+          if (errorText.includes('setIamPolicy') || errorText.includes('permission denied')) {
+            console.error("-> ATENÇÃO: A Service Account Default não possui a Role 'Firebase Hosting Admin' ou a Cloud API está inativa.");
+          }
         }
       } catch (apiError) {
-        console.error("Erro ao registrar subdomínio no Hosting da nuvem Firebase:", apiError.message);
+        console.error("🚨 [Publish Crash] Erro de rede ou indisponibilidade ao registrar subdomínio no Hosting:", apiError.message);
       }
     }
 
