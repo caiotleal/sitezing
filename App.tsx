@@ -74,7 +74,7 @@ const PROMO_HTML = `
     .plan-bg-logo { position: absolute; bottom: -15%; right: -10%; width: 70%; height: auto; opacity: 0.03; pointer-events: none; filter: grayscale(100%); }
     
     @keyframes zingPulse { 0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(249, 115, 22, 0); } 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); } }
-    .share-float-btn { position: fixed; bottom: 100px; right: 40px; z-index: 100; background: #f97316; color: white; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(249,115,22,0.4); cursor: pointer; animation: zingPulse 2s infinite; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .share-float-btn { display: none !important; }
     .share-float-btn:hover { transform: scale(1.1) rotate(15deg); background: #ea580c; }
     .card-share-btn { position: absolute; bottom: 20px; right: 20px; width: 32px; height: 32px; background: #f5f5f4; color: #78716c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; z-index: 20; }
     .glass-card:hover .card-share-btn { opacity: 1; transform: translateY(0); }
@@ -256,9 +256,7 @@ const PROMO_HTML = `
   </script>
 </head>
 <body class="antialiased selection:bg-orange-500 selection:text-white">
-  <div class="share-float-btn" onclick="zingShare()" title="Compartilhar SiteZing">
-    <i class="fas fa-share-alt text-2xl"></i>
-  </div>
+  
 
   <header class="fixed top-0 left-0 w-full z-[80] bg-[#FAFAF9]/80 backdrop-blur-md border-b border-stone-200/60 h-20 flex items-center px-6 md:px-20 transition-all">
     <div class="w-full mx-auto flex items-center justify-between">
@@ -276,7 +274,22 @@ const PROMO_HTML = `
     
     <div class="grid md:grid-cols-[1fr_340px] gap-16 items-center relative z-10 animate-up mb-12 mt-6 md:mt-10">
       <div class="text-center md:text-left">
-        <h1 class="text-[2.8rem] md:text-[6.2rem] font-black leading-[0.8] tracking-tighter mb-6 uppercase italic text-stone-900 drop-shadow-sm w-full">
+        
+        <div class="flex flex-wrap items-center gap-2 mb-6 justify-center md:justify-start">
+          <div class="react-vite-badge">
+            <i class="fab fa-react text-[#61DAFB] text-sm"></i>
+            React 19
+          </div>
+          <div class="react-vite-badge">
+            <i class="fas fa-bolt text-yellow-500 text-sm"></i>
+            Vite 6 + Tailwind
+          </div>
+          <div class="react-vite-badge">
+            <i class="fas fa-robot text-teal-500 text-sm"></i>
+            Gemini Powered
+          </div>
+        </div>
+  \n<h1 class="text-[2.8rem] md:text-[6.2rem] font-black leading-[0.8] tracking-tighter mb-6 uppercase italic text-stone-900 drop-shadow-sm w-full">
           Seu site pronto em um <span class="text-orange-500 pr-10 inline-block drop-shadow-sm">ZING!!!</span>
         </h1>
         <p class="text-base md:text-xl text-stone-500 font-light leading-relaxed max-w-2xl hidden md:block mb-8">
@@ -934,7 +947,7 @@ const App: React.FC = () => {
 
   const [loggedUserEmail, setLoggedUserEmail] = useState<string | null>(auth.currentUser?.email || null);
   const [savedProjects, setSavedProjects] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'geral' | 'dominio' | 'assinatura' | 'plataforma'>('geral');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'geral' | 'dominio' | 'assinatura' | 'plataforma'>('geral');
   const [currentProjectSlug, setCurrentProjectSlug] = useState<string | null>(null);
   const [isSavingProject, setIsSavingProject] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -959,6 +972,7 @@ const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [mobileWizardStep, setMobileWizardStep] = useState(1);
   const [isMobileWizardOpen, setIsMobileWizardOpen] = useState(true);
+  const [activeMobileSheet, setActiveMobileSheet] = useState<number | null>(null);
   const [mobileActiveTab, setMobileActiveTab] = useState<'editar' | 'plano'>('editar');
 
   useEffect(() => {
@@ -969,6 +983,7 @@ const App: React.FC = () => {
 
   const [formData, setFormData] = useState({
     businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '',
+    youtube: '', x: '', rappi: '', zeDelivery: '', directLink: '',
     ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true,
     showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa',
     logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [] as any[], editorialSummary: '',
@@ -1268,7 +1283,7 @@ const App: React.FC = () => {
         return renderTemplate(aiContent, formData, extractedImages);
       });
     }
-  }, [formData.layoutStyle, formData.headerLayout, formData.colorId, formData.logoBase64, formData.logoSize, formData.whatsapp, formData.instagram, formData.facebook, formData.linkedin, formData.tiktok, formData.ifood, formData.noveNove, formData.keeta, formData.showForm, formData.showFloatingContact, formData.showMap, formData.address, formData.phone, formData.email, formData.region]);
+  }, [formData.layoutStyle, formData.headerLayout, formData.colorId, formData.logoBase64, formData.logoSize, formData.whatsapp, formData.instagram, formData.facebook, formData.linkedin, formData.tiktok, formData.youtube, formData.x, formData.rappi, formData.zeDelivery, formData.directLink, formData.ifood, formData.noveNove, formData.keeta, formData.showForm, formData.showFloatingContact, formData.showMap, formData.address, formData.phone, formData.email, formData.region]);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -1442,6 +1457,12 @@ const App: React.FC = () => {
     if (data.ifood) addSocialBtn(data.ifood.startsWith('http') ? data.ifood : `https://${data.ifood}`, '#EA1D2C', 'iFood', '<img src="https://cdn.simpleicons.org/ifood/EA1D2C" alt="iFood" style="width: 20px; height: 20px; object-fit: contain;"/>');
     if (data.noveNove) addSocialBtn(data.noveNove.startsWith('http') ? data.noveNove : `https://${data.noveNove}`, '#FFC700', '99', '<span style="font-size: 15px; font-weight: 900; line-height: 1;">99</span>');
     if (data.keeta) addSocialBtn(data.keeta.startsWith('http') ? data.keeta : `https://${data.keeta}`, '#19B84A', 'Keeta', '<span style="font-size: 15px; font-weight: 900; line-height: 1;">Keeta</span>');
+    if (data.youtube) addSocialBtn(data.youtube.startsWith('http') ? data.youtube : `https://${data.youtube}`, '#FF0000', 'YouTube', '<i class="fab fa-youtube"></i>');
+    if (data.x) addSocialBtn(data.x.startsWith('http') ? data.x : `https://${data.x}`, '#000000', 'X / Twitter', '<i class="fab fa-x-twitter"></i>');
+    if (data.rappi) addSocialBtn(data.rappi.startsWith('http') ? data.rappi : `https://${data.rappi}`, '#FF441F', 'Rappi', '<span style="font-size: 15px; font-weight: 900; line-height: 1;">Rappi</span>');
+    if (data.zeDelivery) addSocialBtn(data.zeDelivery.startsWith('http') ? data.zeDelivery : `https://${data.zeDelivery}`, '#FCCC24', 'Zé Delivery', '<span style="font-size: 15px; font-weight: 900; line-height: 1; color: black;">Zé</span>');
+    if (data.directLink) addSocialBtn(data.directLink.startsWith('http') ? data.directLink : `https://${data.directLink}`, colors.c1, 'Comprar', '<i class="fas fa-external-link-alt"></i>');
+ font-weight: 900; line-height: 1;">Keeta</span>');
 
     const shareBtnHtml = `<div class="glass-social-links-premium">[[SOCIAL_LINKS]]<div class="glass-social-link" onclick="zingShareSite()" title="Compartilhar Site" style="cursor:pointer; color: ${colors.c4};"><i class="fas fa-arrow-up-from-bracket"></i></div></div>`;
     replaceAll('[[SOCIAL_LINKS_CONTAINER]]', shareBtnHtml);
@@ -1945,21 +1966,19 @@ const App: React.FC = () => {
     }
   };
 
-  const renderMobileWizard = () => {
-    if (!isMobile || !generatedHtml) return null;
-    
-    const steps = [
-      { id: 1, title: '🏷️ Identidade', icon: <Briefcase size={16} /> },
-      { id: 2, title: '🧱 Modelo', icon: <Settings size={16} /> },
-      { id: 3, title: '🌈 Cores', icon: <Palette size={16} /> },
-      { id: 4, title: '📝 Conteúdo', icon: <FileText size={16} /> },
-      { id: 5, title: '📱 Contatos', icon: <Phone size={16} /> },
-      { id: 6, title: '🌐 Redes Sociais', icon: <Globe size={16} /> },
-      { id: 7, title: '🖼️ Logotipo', icon: <Upload size={16} /> },
-      { id: 8, title: '📍 Extras', icon: <MapPin size={16} /> },
-    ];
 
-    const currentStepData = steps.find(s => s.id === mobileWizardStep);
+  const renderMobileMenu = () => {
+    if (!isMobile || !generatedHtml) return null;
+    const steps = [
+      { id: 1, title: 'Identidade', icon: <Briefcase size={16} /> },
+      { id: 2, title: 'Modelo', icon: <Settings size={16} /> },
+      { id: 3, title: 'Cores', icon: <Palette size={16} /> },
+      { id: 4, title: 'Conteúdo', icon: <FileText size={16} /> },
+      { id: 5, title: 'Contatos', icon: <Phone size={16} /> },
+      { id: 6, title: 'Sociais', icon: <Globe size={16} /> },
+      { id: 7, title: 'Logotipo', icon: <Upload size={16} /> },
+      { id: 8, title: 'Extras', icon: <MapPin size={16} /> },
+    ];
 
     return (
       <AnimatePresence>
@@ -1969,72 +1988,79 @@ const App: React.FC = () => {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-[84px] left-0 right-0 z-[100] bg-white border-t border-stone-200 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] rounded-t-[2.5rem] flex flex-col max-h-[calc(90vh-84px)] overflow-hidden"
+            className="fixed bottom-[84px] left-0 right-0 z-[100] bg-white border-t border-stone-200 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] rounded-t-[2.5rem] flex flex-col max-h-[30vh] overflow-hidden"
           >
-            {/* Header com Abas */}
-            <div className="bg-stone-50/80 backdrop-blur-md border-b border-stone-100 flex-shrink-0">
-               <div className="px-6 py-4 flex items-center justify-between">
-                  <div className="flex bg-stone-200/50 p-1 rounded-xl w-full max-w-[240px]">
-                    <button 
-                      onClick={() => setMobileActiveTab('editar')}
-                      className={`flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${mobileActiveTab === 'editar' ? 'bg-white text-teal-600 shadow-sm' : 'text-stone-500 hover:text-stone-700'}`}
-                    >
-                      Editar Site
-                    </button>
-                    <button 
-                      onClick={() => setMobileActiveTab('plano')}
-                      className={`flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${mobileActiveTab === 'plano' ? 'bg-white text-orange-600 shadow-sm' : 'text-stone-500 hover:text-stone-700'}`}
-                    >
-                      Meu Plano
-                    </button>
-                  </div>
-                  <button onClick={() => setIsMobileWizardOpen(false)} className="bg-stone-200/50 p-2 ml-4 rounded-full text-stone-500">
-                    <X size={18} />
-                  </button>
-               </div>
-            </div>
+           <div className="p-4 bg-stone-50/80 backdrop-blur-md border-b border-stone-100 flex justify-between items-center">
+              <span className="text-[10px] font-black uppercase text-stone-500 tracking-widest pl-2">Configurações Rápidas</span>
+              <button onClick={() => setIsMobileWizardOpen(false)} className="bg-stone-200/50 p-1.5 rounded-full text-stone-500">
+                  <X size={16} />
+              </button>
+           </div>
+           
+           <div className="p-4 pb-0 flex-1 overflow-y-auto">
+             <div className="grid grid-cols-4 gap-3">
+               {steps.map(s => (
+                 <button 
+                   key={s.id} 
+                   onClick={() => setActiveMobileSheet(s.id)}
+                   className="flex flex-col items-center justify-center gap-2 p-3 bg-stone-50 border border-stone-100 rounded-2xl active:scale-95 transition-all text-stone-600 hover:bg-stone-100"
+                 >
+                   {s.icon}
+                   <span className="text-[9px] font-bold text-center leading-tight">{s.title}</span>
+                 </button>
+               ))}
+             </div>
+           </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  };
 
-            {mobileActiveTab === 'editar' ? (
-              <>
-                {/* Header do Wizard */}
-                <div className="px-6 py-4 border-b border-stone-50 flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="text-[9px] font-black uppercase text-stone-400 tracking-widest mb-0.5">Passo {mobileWizardStep} de {steps.length}</span>
-                    <h3 className="text-sm font-black text-stone-900 flex items-center gap-2">
-                       {currentStepData?.title}
-                    </h3>
-                  </div>
-                </div>
-
-                {/* Barra de Progresso */}
-                <div className="h-1 w-full bg-stone-100 relative">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${(mobileWizardStep / steps.length) * 100}%` }}
-                    className="absolute top-0 left-0 h-full bg-teal-500"
-                  />
-                </div>
-
-                {/* Área de Scroll do Formulário */}
-                <div className="p-6 overflow-y-auto flex-1 space-y-6 pb-24">
-                  {mobileWizardStep === 1 && (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Nome do Seu Negócio</label>
-                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm font-bold text-stone-800 focus:border-teal-500 outline-none" placeholder="Ex: Pizzaria do Zé" value={formData.businessName} onChange={e => handleFloatNameChange(e.target.value)} />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Seu Endereço Web Temporário</label>
-                        <div className="flex bg-stone-50 border border-stone-200 rounded-xl overflow-hidden focus-within:border-teal-500 transition-all">
-                          <input className="flex-1 bg-transparent px-3 py-4 text-sm font-mono font-bold text-teal-600 outline-none w-full text-right" placeholder="meu-site" value={formData.customSlug} onChange={e => handleCustomSlugChange(e.target.value)} />
-                          <span className="bg-stone-100 border-l border-stone-200 px-3 py-4 text-[10px] font-bold text-stone-400 flex items-center select-none shadow-inner">.sitezing.com.br</span>
+  const renderMobileBottomSheet = () => {
+    if (!activeMobileSheet) return null;
+    
+    return (
+      <AnimatePresence>
+        {activeMobileSheet && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setActiveMobileSheet(null)}
+              className="fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-[150]" 
+            />
+            <motion.div
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed bottom-0 left-0 right-0 z-[160] bg-white rounded-t-[2.5rem] max-h-[85vh] flex flex-col shadow-2xl"
+            >
+              <div className="px-6 py-4 flex items-center justify-between border-b border-stone-100">
+                 <h3 className="text-sm font-black text-stone-900">Configuração</h3>
+                 <button onClick={() => { setActiveMobileSheet(null); sendCleanHtml(); }} className="bg-stone-100 p-2 rounded-full text-stone-600">
+                   <ChevronDown size={18} />
+                 </button>
+              </div>
+              <div className="p-5 overflow-y-auto pb-10 space-y-6 flex-1">
+                 {/* ID 1 */}
+                 {activeMobileSheet === 1 && (
+                     <div className="space-y-4">
+                        <div>
+                          <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Nome do Seu Negócio</label>
+                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm font-bold text-stone-800 focus:border-teal-500 outline-none" placeholder="Ex: Pizzaria do Zé" value={formData.businessName} onChange={e => handleFloatNameChange(e.target.value)} />
                         </div>
-                        {floatDomainStatus.available === false && <p className="text-[9px] text-red-500 font-bold mt-1">✗ Este link já está em uso.</p>}
-                      </div>
-                    </div>
-                  )}
+                        <div>
+                          <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Seu Endereço Web Temporário</label>
+                          <div className="flex bg-stone-50 border border-stone-200 rounded-xl overflow-hidden focus-within:border-teal-500 transition-all">
+                            <input className="flex-1 bg-transparent px-3 py-4 text-sm font-mono font-bold text-teal-600 outline-none w-full text-right" placeholder="meu-site" value={formData.customSlug} onChange={e => handleCustomSlugChange(e.target.value)} />
+                            <span className="bg-stone-100 border-l border-stone-200 px-3 py-4 text-[10px] font-bold text-stone-400 flex items-center select-none shadow-inner">.sitezing.com.br</span>
+                          </div>
+                          {floatDomainStatus.available === false && <p className="text-[9px] text-red-500 font-bold mt-1">✗ Este link já está em uso.</p>}
+                        </div>
+                     </div>
+                 )}
 
-                  {mobileWizardStep === 2 && (
+                 {/* ID 2 */}
+                 {activeMobileSheet === 2 && (
                     <div className="space-y-6">
                       <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-3 block">Escolha o Modelo Visual</label>
                       <div className="relative group">
@@ -2043,25 +2069,17 @@ const App: React.FC = () => {
                           onChange={(e) => { setFormData({ ...formData, layoutStyle: e.target.value }); setHasUnsavedChanges(true); }}
                           className="w-full bg-stone-50 border border-stone-200 rounded-2xl p-4 pr-12 text-sm font-bold text-stone-800 appearance-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 outline-none transition-all cursor-pointer shadow-sm"
                         >
-                          {LAYOUT_STYLES.map(s => (
-                            <option key={s.id} value={s.id}>{s.label}</option>
-                          ))}
+                          {LAYOUT_STYLES.map(s => (<option key={s.id} value={s.id}>{s.label}</option>))}
                         </select>
                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400 group-focus-within:text-teal-500 transition-colors">
                           <Settings size={18} className="animate-spin-slow" />
                         </div>
                       </div>
-                      <div className="bg-teal-50/50 border border-teal-100 p-4 rounded-xl flex items-start gap-3">
-                        <Info size={16} className="text-teal-600 mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-[11px] font-bold text-teal-900 leading-tight">Dica de Design</p>
-                          <p className="text-[10px] text-teal-700 mt-1 leading-relaxed">{LAYOUT_STYLES.find(s => s.id === formData.layoutStyle)?.desc || 'Cada modelo altera radicalmente a forma como seu conteúdo é apresentado.'}</p>
-                        </div>
-                      </div>
                     </div>
-                  )}
+                 )}
 
-                  {mobileWizardStep === 3 && (
+                 {/* ID 3 */}
+                 {activeMobileSheet === 3 && (
                     <div className="space-y-6">
                       <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-3 block">Paleta de Cores do Site</label>
                       <div className="grid grid-cols-5 gap-3">
@@ -2071,62 +2089,90 @@ const App: React.FC = () => {
                           </button>
                         ))}
                       </div>
-                      <p className="text-[10px] text-stone-400 text-center font-medium italic">Selecione a cor que melhor combina com sua marca.</p>
                     </div>
-                  )}
+                 )}
 
-                  {mobileWizardStep === 4 && (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">O Que Vocês Fazem? (Foco em Vendas)</label>
-                        <textarea className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm text-stone-800 h-40 outline-none focus:border-teal-500 resize-none font-medium leading-relaxed" placeholder="Ex: Somos uma pizzaria artesanal focada em ingredientes frescos e entrega rápida..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} />
-                      </div>
-                    </div>
-                  )}
+                 {/* ID 4 */}
+                 {activeMobileSheet === 4 && (
+                     <div className="space-y-4">
+                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">O Que Vocês Fazem?</label>
+                        <textarea className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm text-stone-800 h-40 outline-none focus:border-teal-500 resize-none font-medium leading-relaxed" placeholder="Ex: Somos uma pizzaria..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} />
+                     </div>
+                 )}
 
-                  {mobileWizardStep === 5 && (
+                 {/* ID 5 Contacts + Delivery */}
+                 {activeMobileSheet === 5 && (
                     <div className="space-y-4">
                       <div>
                         <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">WhatsApp Para Pedidos</label>
-                        <div className="relative">
-                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 pl-12 text-sm font-bold text-stone-800 outline-none focus:border-teal-500" placeholder="DDD + Número" value={formData.whatsapp} onChange={e => { setFormData({ ...formData, whatsapp: e.target.value }); setHasUnsavedChanges(true) }} />
-                          <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-500" />
-                        </div>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-emerald-500" placeholder="DDD + Número" value={formData.whatsapp} onChange={e => { setFormData({ ...formData, whatsapp: e.target.value }); setHasUnsavedChanges(true) }} />
                       </div>
                       <div>
-                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Telefone de Contato (Opcional)</label>
+                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Telefone</label>
                         <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Fixo ou Celular" value={formData.phone} onChange={e => { setFormData({ ...formData, phone: e.target.value }); setHasUnsavedChanges(true) }} />
                       </div>
+                      <div className="pt-2 border-t border-stone-100">
+                        <label className="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-2 block">iFood</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-orange-500" placeholder="Link da loja no iFood" value={formData.ifood} onChange={e => { setFormData({ ...formData, ifood: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-2 block">Rappi</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-orange-600" placeholder="Link do Rappi" value={formData.rappi} onChange={e => { setFormData({ ...formData, rappi: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-2 block">Zé Delivery</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-yellow-500" placeholder="Link do Zé Delivery" value={formData.zeDelivery} onChange={e => { setFormData({ ...formData, zeDelivery: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2 block">Outro Link de Compra / Delivery</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-500" placeholder="Cardápio Digital, Site Externo, etc" value={formData.directLink} onChange={e => { setFormData({ ...formData, directLink: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
                     </div>
-                  )}
+                 )}
 
-                  {mobileWizardStep === 6 && (
+                 {/* ID 6 Social */}
+                 {activeMobileSheet === 6 && (
                     <div className="space-y-4">
                       <div>
-                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Instagram do Negócio</label>
-                        <div className="relative">
-                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 pl-12 text-sm font-bold text-stone-800 outline-none focus:border-pink-500" placeholder="@usuario" value={formData.instagram} onChange={e => { setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true) }} />
-                          <Instagram size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-pink-500" />
-                        </div>
+                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">Instagram</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-pink-500" placeholder="@usuario ou Link" value={formData.instagram} onChange={e => { setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true) }} />
                       </div>
-                      <p className="text-[10px] text-stone-400 leading-relaxed">Conectar suas redes sociais aumenta a confiança dos seus clientes.</p>
+                      <div>
+                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">Facebook</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-600" placeholder="Link da Página" value={formData.facebook} onChange={e => { setFormData({ ...formData, facebook: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">TikTok</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-black" placeholder="@usuario ou Link" value={formData.tiktok} onChange={e => { setFormData({ ...formData, tiktok: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">X (Twitter)</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-stone-800" placeholder="@usuario ou Link" value={formData.x} onChange={e => { setFormData({ ...formData, x: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">LinkedIn</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-700" placeholder="Link do Perfil/Página" value={formData.linkedin} onChange={e => { setFormData({ ...formData, linkedin: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">YouTube</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-red-600" placeholder="Link do Canal" value={formData.youtube} onChange={e => { setFormData({ ...formData, youtube: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
                     </div>
-                  )}
+                 )}
 
-                  {mobileWizardStep === 7 && (
-                    <div className="space-y-6 text-center">
-                       <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block text-left">Sua Logomarca</label>
+                 {/* ID 7 */}
+                 {activeMobileSheet === 7 && (
+                     <div className="space-y-6 text-center">
+                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block text-left">Sua Logomarca</label>
                         {!formData.logoBase64 ? (
-                          <label className="cursor-pointer w-full border-2 border-dashed border-stone-200 hover:border-teal-400 rounded-2xl p-12 flex flex-col items-center gap-3 text-stone-500 transition-colors bg-stone-50">
-                            <div className="bg-white p-4 rounded-2xl shadow-sm"><Upload size={24} className="text-teal-500" /></div>
+                          <label className="cursor-pointer w-full border-2 border-dashed border-stone-200 rounded-2xl p-12 flex flex-col items-center gap-3 bg-stone-50">
+                            <Upload size={24} className="text-teal-500" />
                             <span className="text-[10px] font-black uppercase tracking-widest">Enviar Logotipo</span>
                             <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
                           </label>
                         ) : (
                           <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200 relative">
-                             <div className="bg-white p-4 rounded-xl mb-4 flex items-center justify-center">
-                               <img src={formData.logoBase64} style={{ maxHeight: `${formData.logoSize || 40}px` }} className="block object-contain" />
-                             </div>
+                             <img src={formData.logoBase64} style={{ maxHeight: `${formData.logoSize || 40}px` }} className="block object-contain mx-auto mb-4" />
                              <button onClick={() => { setFormData(p => ({ ...p, logoBase64: '', logoSize: 40 })); setHasUnsavedChanges(true); }} className="text-red-500 text-[10px] font-black uppercase mb-6 block w-full hover:underline">Remover Logotipo</button>
                              <div className="space-y-3 text-left bg-white p-4 rounded-xl border border-stone-100">
                                <label className="flex justify-between text-[9px] font-black text-stone-400 uppercase tracking-tighter">Ajustar Tamanho no Site <span>{formData.logoSize}px</span></label>
@@ -2134,109 +2180,33 @@ const App: React.FC = () => {
                              </div>
                           </div>
                         )}
-                    </div>
-                  )}
-
-                  {mobileWizardStep === 8 && (
-                    <div className="space-y-6">
-                      <div>
-                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Endereço Físico (Opcional)</label>
-                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Rua, Número, Bairro - Cidade" value={formData.address} onChange={e => { setFormData({ ...formData, address: e.target.value }); setHasUnsavedChanges(true) }} />
-                      </div>
-                      <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 flex items-center justify-between">
-                         <div className="flex flex-col">
-                            <span className="text-[11px] font-black text-stone-800 uppercase">Exibir Mapa</span>
-                            <span className="text-[9px] text-stone-400">Mostra sua localização no site</span>
-                         </div>
-                         <div onClick={() => { setFormData({ ...formData, showMap: !formData.showMap }); setHasUnsavedChanges(true); }} className={`w-12 h-6 rounded-full relative transition-all cursor-pointer ${formData.showMap ? 'bg-teal-500' : 'bg-stone-300'}`}>
-                            <motion.div animate={{ x: formData.showMap ? 24 : 4 }} className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
-                         </div>
-                      </div>
-                      <div className="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl text-center">
-                        <Rocket size={24} className="text-emerald-500 mx-auto mb-3" />
-                        <h4 className="text-xs font-black text-emerald-800 uppercase italic">Tudo Pronto!</h4>
-                        <p className="text-[10px] text-emerald-600 mt-1 font-medium">Suas alterações foram preparadas com sucesso.</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Footer de Navegação */}
-                <div className="p-6 border-t border-stone-100 bg-white/80 backdrop-blur-md absolute bottom-0 left-0 right-0 z-20 flex gap-3">
-                  {mobileWizardStep > 1 && (
-                    <button 
-                      onClick={() => setMobileWizardStep(prev => prev - 1)}
-                      className="flex-1 bg-stone-100 ring-1 ring-stone-200 text-stone-600 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest"
-                    >
-                      Voltar
-                    </button>
-                  )}
-                  <button
-                    onClick={() => {
-                      if (mobileWizardStep < steps.length) {
-                        setMobileWizardStep(prev => prev + 1);
-                      } else {
-                        handlePublishSite();
-                      }
-                    }}
-                    className={`flex-[2] bg-stone-900 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-stone-900/20 active:scale-95 transition-all`}
-                  >
-                    {mobileWizardStep < steps.length ? <>Próximo <ChevronRight size={14} /></> : <>Publicar Mudanças 🚀</>}
-                  </button>
-                </div>
-              </>
-            ) : (
-              /* ABA DO PLANO */
-              <div className="p-6 overflow-y-auto flex-1 space-y-6 pb-24">
-                <div className="bg-orange-50 border border-orange-100 p-6 rounded-[2rem] text-center">
-                  <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4 border border-orange-100">
-                    <Globe size={32} className="text-orange-500 animate-pulse" />
-                  </div>
-                  <h3 className="text-lg font-black text-orange-900 uppercase">Seu Domínio Profissional</h3>
-                  <p className="text-stone-500 text-xs mt-2 leading-relaxed">Coloque seu negócio no ar com um endereço exclusivo como <strong>seunegocio.com.br</strong></p>
-                </div>
-
-                {currentProjectSlug ? (
-                  <div className="space-y-4">
-                     <div className="bg-white border border-stone-200 rounded-2xl p-5 flex items-center justify-between shadow-sm">
-                        <div className="flex flex-col">
-                           <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Status da Publicação</span>
-                           <span className="text-xs font-bold text-stone-800">{officialDomain && officialDomain !== 'Pendente' ? officialDomain : 'Domínio Próprio Indisponível'}</span>
-                        </div>
-                        {getStatusBadge(savedProjects.find(p => p.id === currentProjectSlug))}
                      </div>
+                 )}
 
-                     <div className="bg-teal-50 border border-teal-100 p-6 rounded-2xl">
-                        <h4 className="text-sm font-black text-teal-900 uppercase mb-3">Ativar Plano Premium</h4>
-                        <div className="space-y-3 mb-6">
-                           <div className="flex items-center gap-2 text-xs text-teal-700 font-bold"><Check size={14} /> Site no ar 24h por dia</div>
-                           <div className="flex items-center gap-2 text-xs text-teal-700 font-bold"><Check size={14} /> E-mail profissional grátis</div>
-                           <div className="flex items-center gap-2 text-xs text-teal-700 font-bold"><Check size={14} /> Suporte Prioritário VIP</div>
-                        </div>
-                        <button 
-                          onClick={() => setActiveTab('assinatura')} 
-                          className="w-full bg-teal-600 hover:bg-teal-500 text-white font-black uppercase text-[11px] tracking-widest py-4 rounded-xl shadow-lg shadow-teal-500/20 transition-all"
-                        >
-                          Conhecer Planos
-                        </button>
+                 {/* ID 8 */}
+                 {activeMobileSheet === 8 && (
+                     <div className="space-y-6">
+                       <div>
+                         <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Endereço Físico (Opcional)</label>
+                         <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Rua, Número, Bairro - Cidade" value={formData.address} onChange={e => { setFormData({ ...formData, address: e.target.value }); setHasUnsavedChanges(true) }} />
+                       </div>
+                       <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 flex items-center justify-between">
+                          <div className="flex flex-col">
+                             <span className="text-[11px] font-black text-stone-800 uppercase">Exibir Mapa</span>
+                          </div>
+                          <div onClick={() => { setFormData({ ...formData, showMap: !formData.showMap }); setHasUnsavedChanges(true); }} className={`w-12 h-6 rounded-full relative transition-all cursor-pointer ${formData.showMap ? 'bg-teal-500' : 'bg-stone-300'}`}>
+                             <motion.div animate={{ x: formData.showMap ? 24 : 4 }} className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
+                          </div>
+                       </div>
                      </div>
-                  </div>
-                ) : (
-                  <div className="bg-stone-50 border border-dashed border-stone-300 p-8 rounded-[2rem] text-center">
-                    <Rocket size={32} className="text-stone-300 mx-auto mb-4" />
-                    <p className="text-stone-500 text-xs font-medium">Salve seu projeto primeiro para ver as opções de publicação e planos.</p>
-                    <button onClick={() => setMobileActiveTab('editar')} className="mt-4 text-teal-600 text-xs font-black uppercase hover:underline">Voltar para Edição</button>
-                  </div>
-                )}
+                 )}
               </div>
-            )}
-          </motion.div>
+            </motion.div>
+          </>
         )}
-
-        {/* O Float Button foi movido para o bloco principal de return para persistência */}
       </AnimatePresence>
-    );
-  };
+    )
+  }
 
   const renderMobileBottomNav = () => {
     if (!isMobile) return null;
@@ -2291,6 +2261,10 @@ const App: React.FC = () => {
     if (!project) return null;
     if (project.status === 'frozen') return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">CONGELADO</span>;
 
+    if (project.paymentStatus === 'paid' || project.status === 'published') {
+      return <span className="text-[9px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-emerald-200">ATIVO / PUBLICADO</span>;
+    }
+
     if (project.expiresAt) {
       const expirationDate = getExpirationTimestampMs(project.expiresAt);
       if (!expirationDate) return <span className="text-[9px] bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold ml-2">RASCUNHO</span>;
@@ -2298,11 +2272,7 @@ const App: React.FC = () => {
 
       if (daysLeft <= 0) return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">VENCIDO</span>;
 
-      if (project.paymentStatus === 'paid') {
-        return <span className="text-[9px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-emerald-200" title="Plano Ativo">ATIVO ({daysLeft} dias restantes)</span>;
-      } else {
-        return <span className="text-[9px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-orange-200 animate-pulse" title="Período de Teste">TRIAL ({daysLeft} dias restantes)</span>;
-      }
+      return <span className="text-[9px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-orange-200 animate-pulse" title="Período de Teste">TRIAL ({daysLeft} dias restantes)</span>;
     }
     return <span className="text-[9px] bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold ml-2">RASCUNHO</span>;
   };
@@ -2513,7 +2483,8 @@ const App: React.FC = () => {
             )}
           </AnimatePresence>
 
-          {renderMobileWizard()}
+          {renderMobileMenu()}
+          {renderMobileBottomSheet()}
           {renderMobileBottomNav()}
         </div>
 
@@ -2772,10 +2743,13 @@ const App: React.FC = () => {
                               <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="Instagram (@usuario)" value={formData.instagram} onChange={e => { setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true) }} />
                               <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="Facebook (Link)" value={formData.facebook} onChange={e => { setFormData({ ...formData, facebook: e.target.value }); setHasUnsavedChanges(true) }} />
                               <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="LinkedIn (Link)" value={formData.linkedin} onChange={e => { setFormData({ ...formData, linkedin: e.target.value }); setHasUnsavedChanges(true) }} />
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="TikTok (Link ou @)" value={formData.tiktok} onChange={e => { setFormData({ ...formData, tiktok: e.target.value }); setHasUnsavedChanges(true) }} />
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="iFood (Link)" value={formData.ifood} onChange={e => { setFormData({ ...formData, ifood: e.target.value }); setHasUnsavedChanges(true) }} />
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="99 Food (Link)" value={formData.noveNove} onChange={e => { setFormData({ ...formData, noveNove: e.target.value }); setHasUnsavedChanges(true) }} />
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="Keeta (Link)" value={formData.keeta} onChange={e => { setFormData({ ...formData, keeta: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-stone-800 outline-none" placeholder="TikTok (Link ou @)" value={formData.tiktok} onChange={e => { setFormData({ ...formData, tiktok: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-stone-800 outline-none" placeholder="X / Twitter (Link)" value={formData.x} onChange={e => { setFormData({ ...formData, x: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-red-600 outline-none" placeholder="YouTube (Link do Canal)" value={formData.youtube} onChange={e => { setFormData({ ...formData, youtube: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-orange-500 outline-none" placeholder="iFood (Link)" value={formData.ifood} onChange={e => { setFormData({ ...formData, ifood: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-orange-600 outline-none" placeholder="Rappi (Link)" value={formData.rappi} onChange={e => { setFormData({ ...formData, rappi: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-yellow-500 outline-none" placeholder="Zé Delivery (Link)" value={formData.zeDelivery} onChange={e => { setFormData({ ...formData, zeDelivery: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none sm:col-span-2" placeholder="Outro Link de Compra/Cardápio Digital" value={formData.directLink} onChange={e => { setFormData({ ...formData, directLink: e.target.value }); setHasUnsavedChanges(true) }} />
                             </div>
                           </div>
 
@@ -2799,6 +2773,58 @@ const App: React.FC = () => {
                         </div>
                       )}
                     </>
+                  )}
+
+                  
+                  {activeTab === 'dashboard' && (
+                    <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                      <div className="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-100 blur-[50px] rounded-full pointer-events-none"></div>
+                        <h3 className="text-lg font-black text-stone-950 mb-1 flex items-center gap-2 relative z-10"><LayoutDashboard size={18} className="text-indigo-500" /> Meus Sites</h3>
+                        <p className="text-xs text-stone-500 font-medium mb-6 relative z-10">Gerencie todos os seus projetos salvos na plataforma.</p>
+                        
+                        {!loggedUserEmail ? (
+                          <div className="text-center py-10 bg-stone-50 rounded-xl border border-stone-100">
+                            <p className="text-sm text-stone-600 font-bold mb-4">Você precisa estar logado para ver seus sites.</p>
+                            <button onClick={() => setIsLoginOpen(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase text-xs px-6 py-3 rounded-xl transition-all shadow-md">Fazer Login</button>
+                          </div>
+                        ) : (
+                          <div className="space-y-3 relative z-10">
+                            {savedProjects.length === 0 ? <p className="text-xs text-stone-400 italic text-center py-8">Nenhum projeto ainda. Comece a criar o seu primeiro site!</p> : (
+                              savedProjects.map((p) => (
+                                <div key={p.id} className={`flex flex-col sm:flex-row gap-3 bg-white border border-stone-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-400' : ''}`}>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                                      <span className="font-black text-sm text-stone-800 truncate">{p.businessName || 'Projeto sem nome'}</span>
+                                      {getStatusBadge(p)}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px] sm:text-xs text-stone-500 font-mono truncate">
+                                      <Globe size={12} className="shrink-0" /> <span className="truncate">{p.publishUrl?.replace('https://', '') || 'Sem link público'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px] text-stone-400 mt-1">
+                                      <Clock size={10} className="shrink-0" /> Atualizado em {new Date(p.updatedAt).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                  <div className="flex sm:flex-col justify-end gap-2 shrink-0 border-t sm:border-t-0 sm:border-l border-stone-100 pt-3 sm:pt-0 sm:pl-3 mt-1 sm:mt-0">
+                                    <button onClick={() => handleLoadProject(p)} className="flex-1 sm:flex-none py-2 px-4 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                                      <Edit3 size={12} /> Editar
+                                    </button>
+                                    <button onClick={() => handleDeleteSite(p.id)} className="flex-1 sm:flex-none py-2 px-4 bg-red-50 text-red-600 hover:bg-red-100 font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                                      <Trash2 size={12} /> Excluir
+                                    </button>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        )}
+                        {loggedUserEmail && (
+                           <div className="mt-6 text-center border-t border-stone-100 pt-6">
+                              <button onClick={() => { setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', youtube: '', x: '', rappi: '', zeDelivery: '', directLink: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' }); setCurrentProjectSlug(null); setGeneratedHtml(null); setOfficialDomain(''); setPublishModalUrl(null); setActiveTab('geral'); setConfirmDialog({ title: 'Novo Site', message: 'Deseja iniciar um projeto em branco?', onConfirm: () => { window.location.reload(); } }) }} className="text-xs font-black text-indigo-600 hover:underline uppercase tracking-widest">+ Criar Novo Site</button>
+                           </div>
+                        )}
+                      </div>
+                    </div>
                   )}
 
                   {activeTab === 'dominio' && generatedHtml && (
@@ -3218,21 +3244,7 @@ const App: React.FC = () => {
                     );
                   })()}
 
-                  {loggedUserEmail && (
-                    <div className="mt-8 border-t border-stone-200 pt-6 space-y-4">
-                      <div className="flex items-center justify-between"><p className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-2"><LayoutDashboard size={14} className="text-emerald-600" />Meus Projetos</p><button onClick={handleLogout} className="text-[10px] font-bold text-red-500 hover:text-red-600 uppercase bg-red-50 px-2.5 py-1 rounded-lg">Sair</button></div>
-                      <div className="max-h-52 overflow-y-auto space-y-2">
-                        {savedProjects.length === 0 ? <p className="text-xs text-stone-400 italic text-center py-4">Nenhum projeto ainda.</p> : (
-                          savedProjects.map((p: any) => (
-                            <div key={p.id} className="flex gap-1 sm:gap-1.5 bg-white border border-stone-200 rounded-xl p-2 sm:p-2.5 shadow-sm max-w-full overflow-hidden">
-                              <button onClick={() => handleLoadProject(p)} className={`flex-1 text-left bg-stone-50 hover:bg-stone-100 rounded-lg p-2 sm:p-3 flex items-center transition-all min-w-0 ${currentProjectSlug === p.id ? 'ring-1 ring-teal-400' : ''}`}><div className="flex flex-col min-w-0 w-full pr-1.5"><div className="flex items-center gap-1.5 w-full"><span className="font-bold text-[10px] sm:text-xs text-stone-800 truncate leading-tight">{p.businessName || 'Sem Nome'}</span>{getStatusBadge(p)}</div><span className="text-[8px] sm:text-[9px] text-stone-400 font-mono mt-0.5 truncate w-full block">{p.publishUrl?.replace('https://', '') || 'Sem link público'}</span></div></button>
-                              <button onClick={() => handleDeleteSite(p.id)} className="w-8 sm:w-10 flex-shrink-0 bg-stone-50 hover:bg-red-50 text-stone-400 hover:text-red-500 rounded-lg flex items-center justify-center transition-all min-h-full"><Trash2 size={14} /></button>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  )}
+                  
                 </div>
 
                 {generatedHtml && (() => {
