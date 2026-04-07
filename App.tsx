@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndP
 import { auth, functions, db } from './firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, Info, Sparkles, ChevronRight, ChevronDown, ChevronUp, Gift, Menu, HelpCircle, Palette, Check, Instagram, Edit3, Clock
+  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, Info, Sparkles, ChevronRight, ChevronDown, ChevronUp, Gift, Menu, HelpCircle, Palette, Check, Instagram, Edit3
 } from 'lucide-react';
 import { TEMPLATES } from './components/templates';
 const LoginPage = lazy(() => import('./components/LoginPage'));
@@ -14,7 +14,6 @@ import { useIframeEditor } from './components/useIframeEditor';
 import { BRAND_LOGO } from './components/brand';
 import ProfileForm from './components/ProfileForm';
 import SupportModal from './components/SupportModal';
-import MobileBottomNav from './components/MobileBottomNav';
 
 const LAYOUT_STYLES = [
   { id: 'layout_modern_center', label: 'Centro Imponente', desc: 'Hero centralizado, animações verticais' },
@@ -313,6 +312,7 @@ const PROMO_HTML = `
         </div>
       </div>
 
+      <!-- Formulário de Criação (Zing Style Compacto) -->
       <div class="w-full max-w-[340px] bg-white border border-stone-200 shadow-2xl rounded-[2.5rem] overflow-hidden relative mx-auto md:ml-auto md:mr-0 animate-up" style="animation-delay: 0.1s;">
         <div class="bg-gradient-to-r from-teal-600 to-indigo-600 p-3 pt-4 relative text-center">
           <div class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-1.5 backdrop-blur-md border border-white/20">
@@ -323,6 +323,7 @@ const PROMO_HTML = `
         
         <div class="p-5 pb-6">
           <div class="space-y-3">
+            <!-- Passo 1: Google -->
             <div class="bg-blue-50/40 p-3 border border-blue-100 rounded-2xl relative overflow-hidden">
               <label class="text-[8px] uppercase tracking-widest font-black text-blue-800 mb-2 flex items-center justify-center gap-1.5"><i class="fas fa-map-marker-alt"></i> Importar do Google</label>
               <div class="flex flex-col gap-1.5 relative z-10">
@@ -333,6 +334,7 @@ const PROMO_HTML = `
                 </div>
                 <div id="google-feedback" class="text-[8px] mt-1 text-center font-bold hidden"></div>
                 
+                <!-- Confirmation Box (Zing Style) -->
                 <div id="google-confirm-box" class="mt-2 hidden animate-up">
                   <div class="bg-white p-2.5 rounded-xl shadow-sm border border-emerald-100 flex flex-col items-center text-center">
                     <i class="fas fa-check-circle text-emerald-500 mb-1 text-xs"></i>
@@ -347,6 +349,7 @@ const PROMO_HTML = `
               </div>
             </div>
 
+            <!-- Manual Inputs -->
             <div>
               <input type="text" id="hero-business-name" placeholder="Qual o Nome do Seu Negócio?" 
                      class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-center text-[11px] focus:border-teal-500 focus:ring-1 focus:ring-teal-500/20 outline-none text-stone-800 font-bold" />
@@ -374,10 +377,10 @@ const PROMO_HTML = `
     </div>
 
     <div class="grid md:grid-cols-3 gap-6 relative z-10 animate-up" style="animation-delay: 0.2s;">
-      __PRICING_CARDS__
+      <!-- PRICING_CARDS -->
     </div>
 
-    
+    <!-- Seção de Depoimentos (Google Reviews) -->
     <div id="google-reviews-section" class="mt-20 relative z-10 animate-up opacity-0" style="animation-delay: 0.4s;">
       <div class="text-center mb-10">
         <h2 class="text-3xl font-black text-stone-900 uppercase italic">O que dizem sobre nós</h2>
@@ -391,7 +394,7 @@ const PROMO_HTML = `
         </div>
       </div>
       <div id="reviews-grid" class="grid md:grid-cols-3 gap-6">
-        __REVIEWS_START__
+        <!-- REVIEWS_START -->
         <div class="glass-card p-6 rounded-2xl border-stone-200/40 text-left">
           <div class="flex items-center gap-3 mb-4">
             <div class="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center text-stone-400"><i class="fas fa-user"></i></div>
@@ -422,7 +425,7 @@ const PROMO_HTML = `
           </div>
           <p class="text-xs text-stone-500 leading-relaxed italic">"O suporte é excelente e a plataforma é muito intuitiva. Recomendo para todos os meus parceiros."</p>
         </div>
-        __REVIEWS_END__
+        <!-- REVIEWS_END -->
       </div>
     </div>
   </main>
@@ -503,7 +506,7 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
     `;
   });
 
-  html = html.replace('__PRICING_CARDS__', cardsHtml);
+  html = html.replace('<!-- PRICING_CARDS -->', cardsHtml);
 
   // Banner e Decorações Temáticas
   if (platformConfigs.marketing?.bannerActive) {
@@ -515,6 +518,7 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
     if (type === 'christmas') {
       // Cordão de luzes e chapéu no logo
       decoHtml = `
+        <!-- Luzes Penduradas -->
         <div style="position: fixed; top: 90px; left: 0; width: 100%; height: 40px; z-index: 85; pointer-events: none; overflow: hidden;">
           <svg width="100%" height="100%" viewBox="0 0 1200 40" preserveAspectRatio="none">
             <path d="M0,10 Q150,40 300,10 T600,10 T900,10 T1200,10" fill="none" stroke="#064e3b" stroke-width="2"/>
@@ -523,6 +527,7 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
             `).join('')}
           </svg>
         </div>
+        <!-- Texto no Vão -->
         <div style="position: fixed; top: 96px; left: 0; width: 100%; height: 32px; display: flex; align-items: center; justify-content: center; z-index: 70; pointer-events: none;">
           <span style="background: rgba(239, 68, 68, 0.9); color: white; padding: 4px 16px; border-radius: 20px; font-size: 11px; font-weight: 900; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.3); text-transform: uppercase;">
              <i class="fas fa-snowflake mr-2"></i> ${text}
@@ -592,7 +597,7 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
     `).join('');
 
     html = html.replace(/<div id="google-reviews-section"[^>]*class="[^"]*opacity-0[^"]*"/i, (match) => match.replace('opacity-0', 'opacity-100'));
-    html = html.replace(/__REVIEWS_START__([\s\S]*?)__REVIEWS_END__/i, `__REVIEWS_START__${reviewsHtml}__REVIEWS_END__`);
+    html = html.replace(/<!-- REVIEWS_START -->([\s\S]*?)<!-- REVIEWS_END -->/i, `<!-- REVIEWS_START -->${reviewsHtml}<!-- REVIEWS_END -->`);
   }
 
   return html;
@@ -993,7 +998,6 @@ const App: React.FC = () => {
   const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
   const [isPlansBannerOpen, setIsPlansBannerOpen] = useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
-  const handledStripeReturnRef = React.useRef(false);
 
   const handleSupportSubmit = async (subject: string, message: string) => {
     try {
@@ -1046,26 +1050,6 @@ const App: React.FC = () => {
     window.addEventListener('hashchange', handleHash);
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
-
-  useEffect(() => {
-    if (handledStripeReturnRef.current || savedProjects.length === 0) return;
-    const params = new URLSearchParams(window.location.search);
-    const payment = params.get('payment');
-    const tab = params.get('tab');
-    const projectId = params.get('project');
-
-    if (payment !== 'success' || tab !== 'status' || !projectId) return;
-
-    const matchedProject = savedProjects.find((p: any) => p.id === projectId || p.projectSlug === projectId);
-    if (!matchedProject) return;
-
-    handledStripeReturnRef.current = true;
-    handleLoadProject(matchedProject);
-    setActiveTab('assinatura');
-    setIsMenuOpen(true);
-    showToast('Pagamento confirmado! Abrimos o status do seu site.', 'success');
-    window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
-  }, [savedProjects]);
 
   const [floatDomainStatus, setFloatDomainStatus] = useState<{ loading: boolean; available?: boolean; slug?: string; alternatives?: string[] }>({ loading: false });
   const floatCheckTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -1852,7 +1836,7 @@ const App: React.FC = () => {
           showToast("Site excluído com sucesso.", "success");
           if (projectId === currentProjectSlug) {
             setGeneratedHtml(null); setCurrentProjectSlug(null); setHasUnsavedChanges(false); setActiveTab('geral');
-            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', youtube: '', x: '', rappi: '', zeDelivery: '', directLink: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' });
+            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' });
           }
 
           const listFn = httpsCallable(functions, 'listUserProjects');
@@ -2004,7 +1988,7 @@ const App: React.FC = () => {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-[84px] left-0 right-0 z-[240] bg-white/80 border-t border-stone-200/70 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] rounded-t-[2.5rem] flex flex-col max-h-[30vh] overflow-hidden backdrop-blur-xl"
+            className="fixed bottom-[84px] left-0 right-0 z-[100] bg-white border-t border-stone-200 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] rounded-t-[2.5rem] flex flex-col max-h-[30vh] overflow-hidden"
           >
            <div className="p-4 bg-stone-50/80 backdrop-blur-md border-b border-stone-100 flex justify-between items-center">
               <span className="text-[10px] font-black uppercase text-stone-500 tracking-widest pl-2">Configurações Rápidas</span>
@@ -2088,19 +2072,12 @@ const App: React.FC = () => {
                             <p className="text-[10px] text-stone-400 italic text-center py-6">Nenhum site encontrado.</p>
                           ) : (
                             savedProjects.map(p => (
-                              <div
-                                key={p.id}
-                                role="button"
-                                tabIndex={0}
-                                onClick={() => { handleLoadProject(p); setActiveMobileSheet(null); }}
-                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { handleLoadProject(p); setActiveMobileSheet(null); } }}
-                                className={`flex items-center gap-3 bg-stone-50 border border-stone-200 p-3 rounded-2xl cursor-pointer ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-500' : ''}`}
-                              >
+                              <div key={p.id} className={`flex items-center gap-3 bg-stone-50 border border-stone-200 p-3 rounded-2xl ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-500' : ''}`}>
                                 <div className="flex-1 min-w-0">
                                    <p className="text-xs font-bold text-stone-800 truncate">{p.businessName || 'Sem título'}</p>
                                    <p className="text-[9px] font-mono text-stone-400 truncate">{p.publishUrl?.replace('https://', '') || 'Rascunho'}</p>
                                 </div>
-                                <ChevronRight size={14} className="text-stone-400" />
+                                <button onClick={() => { handleLoadProject(p); setActiveMobileSheet(null); }} className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase">Editar</button>
                               </div>
                             ))
                           )}
@@ -2279,19 +2256,54 @@ const App: React.FC = () => {
     )
   }
 
-  const renderMobileBottomNav = () => (
-    <MobileBottomNav
-      isMobile={isMobile}
-      canPublish={Boolean(generatedHtml)}
-      isPublishing={isPublishing}
-      isSavingProject={isSavingProject}
-      isMobileWizardOpen={isMobileWizardOpen}
-      setIsMobileWizardOpen={setIsMobileWizardOpen}
-      setMobileActiveTab={setMobileActiveTab}
-      onPublish={handlePublishSite}
-      onWarnMissingSite={() => showToast('Gere o site antes de publicar.', 'info')}
-    />
-  );
+  const renderMobileBottomNav = () => {
+    if (!isMobile) return null;
+    const canPublish = Boolean(generatedHtml);
+
+    return (
+      <div className="fixed bottom-0 left-0 right-0 z-[120] border-t border-stone-200 bg-white/95 backdrop-blur-md px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)]">
+        <div className="grid grid-cols-4 gap-2">
+          <button
+            onClick={() => { setMobileActiveTab('editar'); setIsMobileWizardOpen(true); }}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
+          >
+            <Edit3 size={16} />
+            <span className="text-[10px] font-bold mt-1">Editar</span>
+          </button>
+          <button
+            onClick={() => { setMobileActiveTab('plano'); setIsMobileWizardOpen(true); }}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
+          >
+            <CreditCard size={16} />
+            <span className="text-[10px] font-bold mt-1">Plano</span>
+          </button>
+          <button
+            onClick={() => {
+              if (!canPublish) {
+                showToast('Gere o site antes de publicar.', 'info');
+                setIsMobileWizardOpen(true);
+                setMobileActiveTab('editar');
+                return;
+              }
+              handlePublishSite();
+            }}
+            disabled={isPublishing || isSavingProject}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-200 disabled:opacity-50 active:scale-95 transition-all"
+          >
+            <Globe size={16} />
+            <span className="text-[10px] font-black mt-1">Publicar</span>
+          </button>
+          <button
+            onClick={() => setIsMobileWizardOpen(prev => !prev)}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
+          >
+            <Menu size={16} />
+            <span className="text-[10px] font-bold mt-1">{isMobileWizardOpen ? 'Preview' : 'Menu'}</span>
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   const getStatusBadge = (project: any) => {
     if (!project) return null;
@@ -2577,21 +2589,21 @@ const App: React.FC = () => {
                     isPaid = currentProject.paymentStatus === 'paid';
                   }
                   return (
-                    <div className="flex border-b border-stone-200/70 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider flex-shrink-0 bg-white/70 backdrop-blur-md">
-                      <button onClick={() => setActiveTab('dashboard')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors flex items-center justify-center gap-1.5 ${activeTab === 'dashboard' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
-                        <LayoutDashboard size={12} /> Meus Sites
+                    <div className="flex border-b border-stone-200 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider flex-shrink-0 bg-white">
+                      <button onClick={() => setActiveTab('dashboard')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors ${activeTab === 'dashboard' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
+                        Meus Sites
                       </button>
                       {generatedHtml && (
                         <>
-                          <button onClick={() => setActiveTab('geral')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors flex items-center justify-center gap-1.5 ${activeTab === 'geral' ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
-                            <Edit3 size={12} /> Visual
+                          <button onClick={() => setActiveTab('geral')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors ${activeTab === 'geral' ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
+                            Visual
                           </button>
-                          <button onClick={() => setActiveTab('dominio')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative flex items-center justify-center gap-1.5 ${activeTab === 'dominio' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
-                            <Globe size={12} /> Domínio
+                          <button onClick={() => setActiveTab('dominio')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative ${activeTab === 'dominio' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
+                            Domínio
                           </button>
                           {currentProjectSlug && (
-                            <button onClick={() => setActiveTab('assinatura')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative flex items-center justify-center gap-1.5 ${activeTab === 'assinatura' ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
-                              <CreditCard size={12} /> Plano
+                            <button onClick={() => setActiveTab('assinatura')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative ${activeTab === 'assinatura' ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
+                              Plano
                             </button>
                           )}
                         </>
@@ -2823,14 +2835,7 @@ const App: React.FC = () => {
                           <div className="space-y-3 relative z-10">
                             {savedProjects.length === 0 ? <p className="text-xs text-stone-400 italic text-center py-8">Nenhum projeto ainda. Comece a criar o seu primeiro site!</p> : (
                               savedProjects.map((p) => (
-                                <div
-                                  key={p.id}
-                                  role="button"
-                                  tabIndex={0}
-                                  onClick={() => handleLoadProject(p)}
-                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleLoadProject(p); }}
-                                  className={`flex flex-col sm:flex-row gap-3 bg-white border border-stone-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-400' : ''}`}
-                                >
+                                <div key={p.id} className={`flex flex-col sm:flex-row gap-3 bg-white border border-stone-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-400' : ''}`}>
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                                       <span className="font-black text-sm text-stone-800 truncate">{p.businessName || 'Projeto sem nome'}</span>
@@ -2844,7 +2849,10 @@ const App: React.FC = () => {
                                     </div>
                                   </div>
                                   <div className="flex sm:flex-col justify-end gap-2 shrink-0 border-t sm:border-t-0 sm:border-l border-stone-100 pt-3 sm:pt-0 sm:pl-3 mt-1 sm:mt-0">
-                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteSite(p.id); }} className="flex-1 sm:flex-none py-2 px-4 bg-red-50 text-red-600 hover:bg-red-100 font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                                    <button onClick={() => handleLoadProject(p)} className="flex-1 sm:flex-none py-2 px-4 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                                      <Edit3 size={12} /> Editar
+                                    </button>
+                                    <button onClick={() => handleDeleteSite(p.id)} className="flex-1 sm:flex-none py-2 px-4 bg-red-50 text-red-600 hover:bg-red-100 font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5">
                                       <Trash2 size={12} /> Excluir
                                     </button>
                                   </div>
@@ -3442,66 +3450,6 @@ const App: React.FC = () => {
                           {isFree ? 'Sem cartão de crédito' : 'Acesso imediato após confirmação'}
                         </p>
                       </div>
-                    );
-                  })()}
-
-                  
-                </div>
-
-                {generatedHtml && (() => {
-                  const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
-                  const isPublished = Boolean(currentProject?.publishUrl || currentProject?.status === 'active' || currentProject?.status === 'published');
-
-                  let isExpired = false;
-                  if (currentProject?.expiresAt) {
-                    const expDate = getExpirationTimestampMs(currentProject.expiresAt);
-                    if (expDate && expDate < Date.now() && currentProject.paymentStatus !== 'paid') {
-                      isExpired = true;
-                    }
-                  }
-
-                  const needsPayment = currentProject?.status === 'frozen' || isExpired;
-
-                  return (
-                    <div className="p-4 border-t border-stone-200 bg-white flex flex-col sm:flex-row items-center gap-3 flex-shrink-0">
-                      <button
-                        onClick={handleSaveOrUpdateSite}
-                        disabled={isSavingProject || (!hasUnsavedChanges && currentProjectSlug !== null)}
-                        className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 relative ${hasUnsavedChanges || !currentProjectSlug ? (guideStep === 2 ? 'bg-orange-500 animate-guide-pulse text-white shadow-lg' : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md') : 'bg-stone-100 text-stone-400 cursor-not-allowed'}`}
-                      >
-                        {isSavingProject ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save size={14} />}
-                        {currentProjectSlug ? 'Salvar Alterações' : 'Salvar Projeto'}
-                        <GuidedTip step={2} currentStep={guideStep} text="Salve seu projeto para garantir seu link oficial!" position="top" />
-                      </button>
-
-                      {needsPayment ? (
-                        <button
-                          onClick={() => {
-                            setActiveTab('assinatura');
-                            showToast('Seu site expirou. Ative um plano para reativá-lo e poder publicar as alterações!', 'warning');
-                          }}
-                          className="w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20"
-                        >
-                          <Zap size={14} />
-                          Reativar Assinatura
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => {
-                            if (hasUnsavedChanges || !currentProjectSlug) {
-                              setIsSaveReminderOpen(true);
-                            } else {
-                              handlePublishSite();
-                            }
-                          }}
-                          disabled={isPublishing}
-                          className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 relative ${!hasUnsavedChanges && currentProjectSlug ? (guideStep === 3 ? 'bg-orange-500 animate-guide-pulse text-white shadow-lg' : (isPublished ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20' : 'bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-500/20')) : 'bg-stone-200 text-stone-600 hover:bg-stone-300'}`}
-                        >
-                          {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : (isPublished ? <RefreshCw size={14} /> : <Globe size={14} />)}
-                          {isPublished ? 'Atualizar Publicação' : 'Publicar Site'}
-                          <GuidedTip step={3} currentStep={guideStep} text="Clique aqui para colocar seu site no ar!" position="top" />
-                        </button>
-                      )}
                     </div>
                   </>
                 );
@@ -3909,6 +3857,27 @@ const App: React.FC = () => {
         )}
       </AnimatePresence>
 
+      {/* MODAL DE COLETA DE DADOS (KYC / Profile) */}
+      <AnimatePresence>
+        {isProfileModalOpen && (
+          <ProfileForm 
+            initialData={userProfile} 
+            onClose={() => setIsProfileModalOpen(false)} 
+            onSubmit={handleProfileSubmit} 
+          />
+        )}
+      </AnimatePresence>
+
+      {/* MODAL SUPORTE (MENSAGENS P/ ADMIN) */}
+      <AnimatePresence>
+        {isSupportModalOpen && (
+          <SupportModal 
+            onClose={() => setIsSupportModalOpen(false)} 
+            onSubmit={handleSupportSubmit} 
+          />
+        )}
+      </AnimatePresence>
+
       {/* MODAL LEMBRETE PARA SALVAR PÓS-CRIAÇÃO */}
       <AnimatePresence>
         {isSaveReminderOpen && (
@@ -4118,16 +4087,6 @@ const App: React.FC = () => {
               </div>
             </motion.div>
           </div>
-        )}
-      </AnimatePresence>
-
-      {/* MODAL SUPORTE (MENSAGENS P/ ADMIN) */}
-      <AnimatePresence>
-        {isSupportModalOpen && (
-          <SupportModal
-            onClose={() => setIsSupportModalOpen(false)}
-            onSubmit={handleSupportSubmit}
-          />
         )}
       </AnimatePresence>
 
