@@ -14,6 +14,7 @@ import { useIframeEditor } from './components/useIframeEditor';
 import { BRAND_LOGO } from './components/brand';
 import ProfileForm from './components/ProfileForm';
 import SupportModal from './components/SupportModal';
+import MobileBottomNav from './components/MobileBottomNav';
 
 const LAYOUT_STYLES = [
   { id: 'layout_modern_center', label: 'Centro Imponente', desc: 'Hero centralizado, animações verticais' },
@@ -2278,56 +2279,6 @@ const App: React.FC = () => {
     )
   }
 
-  // Mantido fora do JSX principal para evitar erro de parse no Vite/esbuild.
-  function renderMobileBottomNav() {
-    if (!isMobile) return null;
-    const canPublish = Boolean(generatedHtml);
-
-    return (
-      <div className="fixed bottom-0 left-0 right-0 z-[260] border-t border-stone-200 bg-white/90 backdrop-blur-xl px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] pointer-events-auto">
-        <div className="grid grid-cols-4 gap-2">
-          <button
-            onClick={() => { setMobileActiveTab('editar'); setIsMobileWizardOpen(true); }}
-            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all touch-manipulation relative z-20"
-          >
-            <Edit3 size={16} />
-            <span className="text-[10px] font-bold mt-1">Editar</span>
-          </button>
-          <button
-            onClick={() => { setMobileActiveTab('plano'); setIsMobileWizardOpen(true); }}
-            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all touch-manipulation relative z-20"
-          >
-            <CreditCard size={16} />
-            <span className="text-[10px] font-bold mt-1">Plano</span>
-          </button>
-          <button
-            onClick={() => {
-              if (!canPublish) {
-                showToast('Gere o site antes de publicar.', 'info');
-                setIsMobileWizardOpen(true);
-                setMobileActiveTab('editar');
-                return;
-  }
-              handlePublishSite();
-            }}
-            disabled={isPublishing || isSavingProject}
-            className="h-14 rounded-2xl flex flex-col items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-200 disabled:opacity-50 active:scale-95 transition-all"
-          >
-            <Globe size={16} />
-            <span className="text-[10px] font-black mt-1">Publicar</span>
-          </button>
-          <button
-            onClick={() => setIsMobileWizardOpen(prev => !prev)}
-            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
-          >
-            <Menu size={16} />
-            <span className="text-[10px] font-bold mt-1">{isMobileWizardOpen ? 'Preview' : 'Menu'}</span>
-          </button>
-        </div>
-      </div>
-    );
-  };
-
   const getStatusBadge = (project: any) => {
     if (!project) return null;
     if (project.status === 'frozen') return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">CONGELADO</span>;
@@ -2556,7 +2507,17 @@ const App: React.FC = () => {
 
           {renderMobileMenu()}
           {renderMobileBottomSheet()}
-          {renderMobileBottomNav()}
+          <MobileBottomNav
+            isMobile={isMobile}
+            canPublish={Boolean(generatedHtml)}
+            isPublishing={isPublishing}
+            isSavingProject={isSavingProject}
+            isMobileWizardOpen={isMobileWizardOpen}
+            setIsMobileWizardOpen={setIsMobileWizardOpen}
+            setMobileActiveTab={setMobileActiveTab}
+            onPublish={handlePublishSite}
+            onWarnMissingSite={() => showToast('Gere o site antes de publicar.', 'info')}
+          />
         </div>
 
         <Suspense fallback={null}>
