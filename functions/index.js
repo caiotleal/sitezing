@@ -832,6 +832,20 @@ exports.stripeWebhook = onRequest({ cors: true }, async (req, res) => {
 
   console.log("[StripeWebhook] Evento recebido:", event.type, "id:", event.id);
 
+  // LOG DE DEPURAÇÃO (Ferramenta solicitada pelo usuário)
+  try {
+    const db = admin.firestore();
+    await db.collection("_webhook_logs").add({
+      type: event.type,
+      eventId: event.id,
+      receivedAt: admin.firestore.FieldValue.serverTimestamp(),
+      payload: event.data.object,
+      fullEvent: JSON.parse(JSON.stringify(event)) // Garante serialização limpa
+    });
+  } catch (e) {
+    console.error("[StripeWebhook] Falha ao gravar log no Firestore:", e.message);
+  }
+
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
     const projectId = session.client_reference_id;
@@ -908,6 +922,53 @@ exports.stripeWebhook = onRequest({ cors: true }, async (req, res) => {
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       }
+    }
+  } else if (event.type === "invoice.paid") {
+    const invoice = event.data.object;
+    const subscriptionId = invoice.subscription;
+    console.log("[StripeWebhook] invoice.paid payload:", JSON.stringify({
+      id: invoice.id,
+      subscription: subscriptionId,
+      customer: invoice.customer,
+      amount: invoice.amount_paid,
+    }));
+
+    if (subscriptionId) {
+      try {
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const projectId = subscription.metadata?.projectId || invoice.metadata?.projectId;
+        if (projectId) {
+          const projectDoc = await findProjectDocById(projectId);
+          if (projectDoc) {
+            await applyStripeSubscriptionToProject(projectDoc.ref, {
+              subscription,
+              session: null,
+              planType: subscription.metadata?.planType || "mensal",
+            });
+          }
+        }
+      } catch (err) {
+        console.error("[StripeWebhook] Erro ao processar invoice.paid:", err);
+      }
+    }
+  } else if (event.type === "invoice.payment_failed") {
+    const invoice = event.data.object;
+    const subscriptionId = invoice.subscription;
+    if (subscriptionId) {
+      try {
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const projectId = subscription.metadata?.projectId;
+        if (projectId) {
+          const projectDoc = await findProjectDocById(projectId);
+          if (projectDoc) {
+            await projectDoc.ref.update({
+              paymentStatus: "past_due",
+              subscriptionStatus: "past_due",
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+          }
+        }
+      } catch (err) { }
     }
   }
   res.status(200).send({ received: true });
