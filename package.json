@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run check:tsx-comments && vite build",
+    "build": "node scripts/fix-build-artifacts.mjs && npm run check:tsx-comments && vite build",
     "preview": "vite preview",
     "validate:site": "node scripts/validate-site.mjs",
     "check:tsx-comments": "node scripts/check-tsx-comments.mjs"

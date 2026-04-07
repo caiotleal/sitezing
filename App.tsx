@@ -6364,6 +6364,462 @@ const App: React.FC = () => {
                         </div>
                         <div><label className="text-[11px] font-black text-stone-500 uppercase flex items-center gap-1.5 mb-1.5"><FileText size={12} /> Ideia Principal</label><textarea className="w-full h-20 bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-[12px] resize-none focus:border-teal-500 outline-none transition-colors text-stone-800" placeholder="Descreva os serviços..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} /></div>
                       </div>
+                      <div>
+                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">X (Twitter)</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-stone-800" placeholder="@usuario ou Link" value={formData.x} onChange={e => { setFormData({ ...formData, x: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">LinkedIn</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-700" placeholder="Link do Perfil/Página" value={formData.linkedin} onChange={e => { setFormData({ ...formData, linkedin: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">YouTube</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-red-600" placeholder="Link do Canal" value={formData.youtube} onChange={e => { setFormData({ ...formData, youtube: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                    </div>
+                 )}
+
+                 {/* ID 7 */}
+                 {activeMobileSheet === 7 && (
+                     <div className="space-y-6 text-center">
+                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block text-left">Sua Logomarca</label>
+                        {!formData.logoBase64 ? (
+                          <label className="cursor-pointer w-full border-2 border-dashed border-stone-200 rounded-2xl p-12 flex flex-col items-center gap-3 bg-stone-50">
+                            <Upload size={24} className="text-teal-500" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Enviar Logotipo</span>
+                            <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                          </label>
+                        ) : (
+                          <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200 relative">
+                             <img src={formData.logoBase64} style={{ maxHeight: `${formData.logoSize || 40}px` }} className="block object-contain mx-auto mb-4" />
+                             <button onClick={() => { setFormData(p => ({ ...p, logoBase64: '', logoSize: 40 })); setHasUnsavedChanges(true); }} className="text-red-500 text-[10px] font-black uppercase mb-6 block w-full hover:underline">Remover Logotipo</button>
+                             <div className="space-y-3 text-left bg-white p-4 rounded-xl border border-stone-100">
+                               <label className="flex justify-between text-[9px] font-black text-stone-400 uppercase tracking-tighter">Ajustar Tamanho no Site <span>{formData.logoSize}px</span></label>
+                               <input type="range" min="20" max="100" value={formData.logoSize} onChange={e => { setFormData({ ...formData, logoSize: parseInt(e.target.value) }); setHasUnsavedChanges(true) }} className="w-full h-1.5 bg-stone-100 rounded-lg appearance-none cursor-pointer accent-teal-500" />
+                             </div>
+                          </div>
+                        )}
+                     </div>
+                 )}
+
+                 {/* ID 8 */}
+                 {activeMobileSheet === 8 && (
+                     <div className="space-y-6">
+                       <div>
+                         <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Endereço Físico (Opcional)</label>
+                         <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Rua, Número, Bairro - Cidade" value={formData.address} onChange={e => { setFormData({ ...formData, address: e.target.value }); setHasUnsavedChanges(true) }} />
+                       </div>
+                       <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 flex items-center justify-between">
+                          <div className="flex flex-col">
+                             <span className="text-[11px] font-black text-stone-800 uppercase">Exibir Mapa</span>
+                          </div>
+                          <div onClick={() => { setFormData({ ...formData, showMap: !formData.showMap }); setHasUnsavedChanges(true); }} className={`w-12 h-6 rounded-full relative transition-all cursor-pointer ${formData.showMap ? 'bg-teal-500' : 'bg-stone-300'}`}>
+                             <motion.div animate={{ x: formData.showMap ? 24 : 4 }} className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
+                          </div>
+                       </div>
+                     </div>
+                 )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    )
+  }
+
+  const getStatusBadge = (project: any) => {
+    if (!project) return null;
+    if (project.status === 'frozen') return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">CONGELADO</span>;
+
+    if (project.paymentStatus === 'paid' || project.status === 'published') {
+      return <span className="text-[9px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-emerald-200">ATIVO / PUBLICADO</span>;
+    }
+
+    if (project.expiresAt) {
+      const expirationDate = getExpirationTimestampMs(project.expiresAt);
+      if (!expirationDate) return <span className="text-[9px] bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold ml-2">RASCUNHO</span>;
+      const daysLeft = Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24));
+
+      if (daysLeft <= 0) return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">VENCIDO</span>;
+
+      return <span className="text-[9px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-orange-200 animate-pulse" title="Período de Teste">TRIAL ({daysLeft} dias restantes)</span>;
+    }
+    return <span className="text-[9px] bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold ml-2">RASCUNHO</span>;
+  };
+
+  return (
+    <>
+      <style>{`
+        ::-webkit-scrollbar { display: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+
+      {/* Toast Notification (Substitui os alerts nativos) */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl font-bold text-sm border backdrop-blur-md"
+            style={{
+              backgroundColor: toast.type === 'error' ? 'rgba(254, 242, 242, 0.95)' : toast.type === 'success' ? 'rgba(240, 253, 244, 0.95)' : toast.type === 'warning' ? 'rgba(255, 251, 235, 0.95)' : 'rgba(248, 250, 252, 0.95)',
+              color: toast.type === 'error' ? '#991B1B' : toast.type === 'success' ? '#166534' : toast.type === 'warning' ? '#92400E' : '#334155',
+              borderColor: toast.type === 'error' ? '#FCA5A5' : toast.type === 'success' ? '#86EFAC' : toast.type === 'warning' ? '#FCD34D' : '#E2E8F0'
+            }}
+          >
+            {toast.type === 'error' ? <AlertCircle size={18} /> : toast.type === 'success' ? <CheckCircle size={18} /> : toast.type === 'warning' ? <AlertCircle size={18} /> : <Info size={18} />}
+            {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirm Modal (Substitui o window.confirm) */}
+      <AnimatePresence>
+        {confirmDialog && (
+          <div className="fixed inset-0 z-[300] bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl"
+            >
+              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100">
+                <AlertCircle size={32} />
+              </div>
+              <h2 className="text-xl font-black text-stone-900 mb-2 uppercase">{confirmDialog.title}</h2>
+              <p className="text-sm text-stone-500 mb-6 leading-relaxed">{confirmDialog.message}</p>
+              <div className="flex gap-3">
+                <button onClick={() => setConfirmDialog(null)} className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 py-3.5 rounded-xl font-bold text-xs transition-colors">Cancelar</button>
+                <button onClick={confirmDialog.onConfirm} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3.5 rounded-xl font-bold text-xs shadow-lg shadow-red-500/20 transition-colors">Confirmar</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL AMPLO DE INSTRUÇÕES DNS */}
+      <AnimatePresence>
+        {isDnsModalOpen && currentProjectSlug && (() => {
+          const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
+          const domainRecords = currentProject?.domainRecords || [];
+          return (
+            <div className="fixed inset-0 z-[200] bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-white border border-stone-200 p-8 rounded-3xl shadow-2xl max-w-3xl w-full relative overflow-hidden"
+              >
+                <button onClick={() => setIsDnsModalOpen(false)} className="absolute top-6 right-6 text-stone-400 hover:text-stone-800 transition-colors bg-stone-100 p-2 rounded-full z-20">
+                  <X size={18} />
+                </button>
+
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="bg-orange-100 p-3 rounded-xl"><Settings className="text-orange-600 w-6 h-6" /></div>
+                  <div>
+                    <h2 className="text-2xl font-black text-stone-900 uppercase">Apontamentos DNS</h2>
+                    <p className="text-sm text-stone-500">Configure o domínio <span className="font-bold text-teal-600">{currentProject.officialDomain}</span></p>
+                  </div>
+                </div>
+
+                <div className="bg-orange-50 border border-orange-200 rounded-2xl p-6 mb-6">
+                  <p className="text-sm text-orange-800 leading-relaxed font-medium mb-4">
+                    Acesse o painel do seu provedor de domínio (ex: Registro.br, HostGator, Locaweb) e procure pela opção <strong>"Editar Zona DNS"</strong>. Em seguida, adicione as linhas abaixo <strong>exatamente</strong> como são apresentadas.
+                    <br /><span className="text-xs text-orange-600 italic block mt-1">* Dica de Ouro: Se o painel já possuir apontamentos do tipo "A" ou "CNAME" conflitantes, exclua os antigos primeiro.</span>
+                  </p>
+
+                  <div className="border border-stone-300 rounded-xl overflow-hidden bg-white shadow-sm">
+                    {/* Cabeçalho da Tabela */}
+                    <div className="bg-stone-100 text-xs font-black text-stone-500 p-4 grid grid-cols-12 gap-3 uppercase tracking-widest border-b border-stone-200">
+                      <div className="col-span-4">Nome (Host)</div>
+                      <div className="col-span-2">Tipo</div>
+                      <div className="col-span-6">Dados (Valor/Destino)</div>
+                    </div>
+
+                    {/* Linha 1: TIPO A */}
+                    <div className="p-4 grid grid-cols-12 gap-3 border-b border-stone-100 text-sm items-center hover:bg-stone-50 transition-colors">
+                      <div className="col-span-4 text-stone-500 font-medium">@ <span className="text-[11px] text-stone-400 italic">(Ou deixe em branco)</span></div>
+                      <div className="col-span-2 font-black text-stone-800">A</div>
+                      <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
+                        <span className="font-mono text-teal-700 font-bold select-all">199.36.158.100</span>
+                        <button onClick={() => { navigator.clipboard.writeText('199.36.158.100'); showToast('IP copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100"><Copy size={14} /> Copiar</button>
+                      </div>
+                    </div>
+
+                    {/* Linha 2: CNAME (WWW) */}
+                    <div className="p-4 grid grid-cols-12 gap-3 border-b border-stone-100 text-sm items-center hover:bg-stone-50 transition-colors">
+                      <div className="col-span-4 font-mono text-stone-800 font-bold">www</div>
+                      <div className="col-span-2 font-black text-stone-800">CNAME</div>
+                      <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
+                        <span className="font-mono text-teal-700 font-bold select-all truncate">sitezing.com.br</span>
+                        <button onClick={() => { navigator.clipboard.writeText(`sitezing.com.br`); showToast('Destino copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100 shrink-0 ml-2"><Copy size={14} /> Copiar</button>
+                      </div>
+                    </div>
+
+                    {/* Linha 3: TXT (Se houver) */}
+                    {domainRecords && domainRecords.length > 0 && (
+                      <div className="p-4 grid grid-cols-12 gap-3 text-sm items-center hover:bg-stone-50 transition-colors">
+                        <div className="col-span-4 text-stone-500 font-medium">@ <span className="text-[11px] text-stone-400 italic">(Ou deixe em branco)</span></div>
+                        <div className="col-span-2 font-black text-stone-800">TXT</div>
+                        <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
+                          <span className="font-mono text-xs text-teal-700 font-bold select-all truncate" title={domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}>
+                            {domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}
+                          </span>
+                          <button onClick={() => { navigator.clipboard.writeText(domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`); showToast('TXT copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100 shrink-0 ml-2"><Copy size={14} /> Copiar</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <button onClick={() => setIsDnsModalOpen(false)} className="w-full bg-stone-900 hover:bg-stone-800 text-white py-4 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors">
+                  Pronto, entendi como configurar
+                </button>
+              </motion.div>
+            </div>
+          );
+        })()}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isGenerating && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-stone-900/95 backdrop-blur-xl flex flex-col items-center justify-center overflow-hidden"
+          >
+            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="flex flex-col items-center">
+              <div className="w-24 h-24 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl mb-8 relative">
+                <Rocket className="w-12 h-12 text-orange-500 animate-bounce relative z-10" />
+                <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-orange-500/40 to-transparent blur-xl rounded-full animate-pulse"></div>
+              </div>
+              <img src={BRAND_LOGO} alt="SiteZing" className="h-8 mb-4 opacity-50 block" />
+              <h2 className="text-3xl font-black text-white px-6 text-center tracking-tight">Criando sua Mágica...</h2>
+              <p className="text-stone-400 mt-3 text-sm font-medium animate-pulse text-center max-w-sm px-6">A Inteligência Artificial está escrevendo e montando o layout do seu novo site profissional em segundos.</p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isPublishing && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-stone-900/95 backdrop-blur-xl flex flex-col items-center justify-center overflow-hidden"
+          >
+            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="flex flex-col items-center">
+              <div className="w-24 h-24 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl mb-8 relative">
+                <Globe className="w-12 h-12 text-emerald-400 animate-pulse relative z-10" />
+                <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-emerald-500/40 to-transparent blur-xl rounded-full animate-bounce"></div>
+              </div>
+              <img src={BRAND_LOGO} alt="SiteZing" className="h-8 mb-4 opacity-50 block" />
+              <h2 className="text-3xl font-black text-white px-6 text-center tracking-tight">Publicando Site...</h2>
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={publishMsgIndex}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-emerald-400 mt-3 text-sm font-medium text-center max-w-sm px-6 h-10"
+                >
+                  {publishMsgs[publishMsgIndex]}
+                </motion.p>
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="w-full h-screen bg-[#FAFAF9] overflow-hidden font-sans text-stone-900 flex flex-col md:flex-row">
+
+        <div className="flex-1 relative h-full overflow-hidden bg-[#FAFAF9]">
+          <iframe
+            ref={iframeRef}
+            srcDoc={generatedHtml ? getPreviewHtml(generatedHtml) : getDynamicPromoHtml(platformConfigs)}
+            className="w-full h-full border-none bg-transparent"
+            title="Visão Principal"
+          />
+
+          <AnimatePresence>
+            {!isMenuOpen && !isMobile && (
+              <div
+                className={`absolute top-6 right-6 z-[90] flex items-center cursor-pointer group`}
+                onClick={() => setIsMenuOpen(true)}
+              >
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="relative flex items-center justify-center">
+                  <div className="relative flex items-center justify-center bg-white w-12 h-12 rounded-full border border-stone-200 shadow-lg group-hover:shadow-xl transition-all group-hover:border-stone-300 text-stone-600 group-hover:text-stone-900">
+                    <Menu size={20} />
+                    <GuidedTip step={2} currentStep={guideStep} text="Clique aqui para continuar editando seu site!" position="top" />
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
+          {renderMobileMenu()}
+          {renderMobileBottomSheet()}
+          <MobileBottomNav
+            isMobile={isMobile}
+            canPublish={Boolean(generatedHtml)}
+            isPublishing={isPublishing}
+            isSavingProject={isSavingProject}
+            isMobileWizardOpen={isMobileWizardOpen}
+            setIsMobileWizardOpen={setIsMobileWizardOpen}
+            setMobileActiveTab={setMobileActiveTab}
+            onPublish={handlePublishSite}
+            onWarnMissingSite={() => showToast('Gere o site antes de publicar.', 'info')}
+          />
+        </div>
+
+        <Suspense fallback={null}>
+          <LoginPage isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onSubmit={handleLoginSubmit} />
+        </Suspense>
+
+        <AnimatePresence initial={false}>
+          {isMenuOpen && !isMobile && (
+            <motion.div
+              initial={{ width: 0, paddingLeft: 0, paddingRight: 0 }}
+              animate={{ width: 420, paddingLeft: 16, paddingRight: 16 }}
+              exit={{ width: 0, paddingLeft: 0, paddingRight: 0 }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+              className="flex-shrink-0 h-full flex flex-col justify-center overflow-hidden relative z-50 bg-[#FAFAF9] w-full md:w-[420px] py-4"
+            >
+              <motion.div
+                initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 20, opacity: 0 }} transition={{ delay: 0.1 }}
+                className="w-full h-full lg:aspect-[16/9] lg:max-h-[min(90vh,900px)] lg:mx-auto lg:my-auto bg-[#F8FAFC] border border-stone-200 lg:rounded-[2rem] rounded-none shadow-xl flex flex-col overflow-hidden relative"
+              >
+                <div className="flex justify-between items-center px-6 py-5 border-b border-stone-200 flex-shrink-0 bg-white">
+                  <div className="flex items-center gap-3 select-none">
+                    <img src={BRAND_LOGO} alt="SiteZing" className="h-10 w-auto object-contain" />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <button onClick={() => setIsSupportModalOpen(true)} className="text-stone-400 hover:text-indigo-500 transition-colors p-2 rounded-full hover:bg-indigo-50" title="Central de Ajuda (Falar com Suporte)">
+                      <HelpCircle size={18} />
+                    </button>
+                    <button onClick={sharePlatform} className="text-stone-400 hover:text-orange-500 transition-colors p-2 rounded-full hover:bg-orange-50" title="Compartilhar SiteZing">
+                      <ExternalLink size={18} />
+                    </button>
+                    <div className="w-px h-4 bg-stone-200"></div>
+                    {loggedUserEmail ? (
+                      <button className="text-stone-400 hover:text-teal-500 transition-colors" title={`Logado como: ${loggedUserEmail}`}><User size={18} /></button>
+                    ) : (
+                      <button onClick={() => setIsLoginOpen(true)} className="text-xs font-bold text-teal-600 hover:text-teal-500 transition-colors flex items-center gap-1.5"><LogIn size={16} /> Login</button>
+                    )}
+                    <div className="w-px h-4 bg-stone-200"></div>
+                    <button onClick={() => { setIsMenuOpen(false); nextGuideStep(2); }} className={`text-stone-400 hover:text-stone-800 transition-colors relative ${guideStep === 1 ? 'animate-guide-pulse bg-orange-100 rounded-full p-1' : ''}`} title="Esconder Painel">
+                      <X size={18} />
+                      <GuidedTip step={1} currentStep={guideStep} text="Minimize aqui para ver como seu site ficou!" position="bottom" />
+                    </button>
+                  </div>
+                </div>
+
+                {(() => {
+                  const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
+                  let daysLeft = 0; let isPaid = false;
+                  if (currentProject?.expiresAt) {
+                    const expirationDate = getExpirationTimestampMs(currentProject.expiresAt);
+                    if (expirationDate) {
+                      daysLeft = Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24));
+                    }
+                    isPaid = currentProject.paymentStatus === 'paid';
+                  }
+                  return (
+                    <div className="flex border-b border-stone-200/70 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider flex-shrink-0 bg-white/70 backdrop-blur-md">
+                      <button onClick={() => setActiveTab('dashboard')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors flex items-center justify-center gap-1.5 ${activeTab === 'dashboard' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
+                        <LayoutDashboard size={12} /> Meus Sites
+                      </button>
+                      {generatedHtml && (
+                        <>
+                          <button onClick={() => setActiveTab('geral')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors flex items-center justify-center gap-1.5 ${activeTab === 'geral' ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
+                            <Edit3 size={12} /> Visual
+                          </button>
+                          <button onClick={() => setActiveTab('dominio')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative flex items-center justify-center gap-1.5 ${activeTab === 'dominio' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
+                            <Globe size={12} /> Domínio
+                          </button>
+                          {currentProjectSlug && (
+                            <button onClick={() => setActiveTab('assinatura')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative flex items-center justify-center gap-1.5 ${activeTab === 'assinatura' ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
+                              <CreditCard size={12} /> Plano
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-6 pb-6 bg-white">
+                  {activeTab === 'geral' && (
+                    <>
+                      {currentProjectSlug && (
+                        <div className="group relative flex items-center justify-between bg-stone-50 p-3.5 rounded-xl border border-stone-200 -mt-2">
+                          <div className="flex items-center gap-2 cursor-help">
+                            <Info size={14} className="text-stone-400" />
+                            <span className="text-xs text-stone-600 font-bold uppercase tracking-wider">Status do Site</span>
+                          </div>
+                          {getStatusBadge(savedProjects.find(p => p.id === currentProjectSlug) || {})}
+                        </div>
+                      )}
+
+                      <div className="space-y-4">
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl relative overflow-hidden group">
+                          <label className="block text-xs font-black text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4" /> Importação Mágica (Google)
+                          </label>
+                          <div className="flex flex-col gap-2 relative z-10 w-full shrink-0">
+                            <input
+                              type="text"
+                              placeholder="Link do Maps ou Nome do Local..."
+                              className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2.5 text-[11px] font-medium focus:outline-none focus:border-emerald-500 transition-all placeholder:text-stone-400 text-stone-800 min-w-0"
+                              value={formData.googlePlaceUrl || ''}
+                              onChange={(e) => { setFormData({ ...formData, googlePlaceUrl: e.target.value }); setHasUnsavedChanges(true) }}
+                            />
+                            <button
+                              type="button"
+                              onClick={fetchGoogleData}
+                              disabled={isFetchingGoogle || !formData.googlePlaceUrl}
+                              className="w-full shrink-0 bg-emerald-600 hover:bg-emerald-500 border border-emerald-700 disabled:opacity-50 text-white font-black text-[10px] uppercase tracking-widest py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+                            >
+                              {isFetchingGoogle ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Puxar Dados'}
+                            </button>
+                          </div>
+                          {pendingGoogleData && (
+                            <div className="mt-3 bg-white border border-emerald-200 p-3.5 rounded-xl shadow-[0_4px_20px_-4px_rgba(16,185,129,0.3)] text-center relative z-20 overflow-hidden before:absolute before:inset-0 before:bg-emerald-500/5">
+                              <p className="text-[11px] font-black justify-center text-emerald-800 uppercase flex items-center gap-1.5 mb-1.5"><CheckCircle size={14} /> É esta a empresa?</p>
+                              <p className="text-[10px] text-stone-600 mb-3 font-medium px-2 leading-relaxed h-10 line-clamp-2"><span className="font-bold">{pendingGoogleData.name}</span> - {pendingGoogleData.address}</p>
+                              <div className="flex gap-2 relative z-10">
+                                <button type="button" onClick={() => setPendingGoogleData(null)} className="flex-1 py-2.5 bg-stone-100 text-stone-500 rounded-lg text-[9px] uppercase font-black tracking-wider hover:bg-stone-200 transition-colors">Voltar</button>
+                                <button type="button" onClick={confirmGoogleInjection} className="flex-[2] py-2.5 px-3 bg-emerald-600 text-white rounded-lg text-[10px] uppercase font-black tracking-widest hover:bg-emerald-500 shadow-md transition-all flex items-center justify-center gap-1.5"><Rocket size={12} /> Confirmar</button>
+                              </div>
+                            </div>
+                          )}
+                          {!pendingGoogleData && googleStatus && (
+                            <div className={`mt-3 text-[10px] uppercase font-black tracking-widest text-center ${googleStatus.type === 'success' ? 'text-emerald-600' : 'text-red-500'}`}>
+                              {googleStatus.msg}
+                            </div>
+                          )}
+                        </motion.div>
+
+                        <div className="relative">
+                          <label className="text-[11px] font-black text-stone-500 uppercase flex items-center gap-1.5 mb-1.5"><Briefcase size={12} /> Nome do Negócio</label>
+                          <input className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-[12px] font-bold text-stone-800 focus:border-teal-500 outline-none transition-colors mb-3" placeholder="Ex: Eletricista Silva" value={formData.businessName} onChange={e => handleFloatNameChange(e.target.value)} />
+
+                          <label className="text-[11px] font-black text-stone-500 uppercase flex items-center gap-1.5 mb-1.5"><Globe size={12} /> Seu Link Oficial</label>
+                          <div className="flex bg-stone-50 border border-stone-200 rounded-xl overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
+                            <input className="flex-1 bg-transparent px-3 py-2.5 text-[12px] font-mono font-bold text-blue-600 outline-none w-full text-right" placeholder="meu-site" value={formData.customSlug} onChange={e => handleCustomSlugChange(e.target.value)} />
+                            <span className="bg-stone-100 border-l border-stone-200 px-3 py-2.5 text-[11px] font-bold text-stone-400 flex items-center select-none shadow-inner">.sitezing.com.br</span>
+                          </div>
+
+                          <div className="mt-1.5 min-h-[16px]">
+                            {floatDomainStatus.loading && (
+                              <div className="text-[10px] text-stone-400 flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin" /> Validando domínio...</div>
+                            )}
+                            {!floatDomainStatus.loading && formData.customSlug.length >= 3 && floatDomainStatus.available === false && (
+                              <div className="text-[10px] text-red-500 font-bold flex items-center gap-1"><AlertCircle size={10} /> "{floatDomainStatus.slug}" já está em uso! Tente modificar.</div>
+                            )}
+                            {!floatDomainStatus.loading && formData.customSlug.length >= 3 && floatDomainStatus.available && floatDomainStatus.slug && (
+                              <div className="text-[10px] text-emerald-600 font-bold flex items-center gap-1"><CheckCircle size={10} /> Liberado!</div>
+                            )}
+                          </div>
+                        </div>
+                        <div><label className="text-[11px] font-black text-stone-500 uppercase flex items-center gap-1.5 mb-1.5"><FileText size={12} /> Ideia Principal</label><textarea className="w-full h-20 bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-[12px] resize-none focus:border-teal-500 outline-none transition-colors text-stone-800" placeholder="Descreva os serviços..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} /></div>
+                      </div>
 
                       <button onClick={() => handleGenerate()} disabled={isGenerating} className="w-full bg-stone-900 hover:bg-stone-800 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 border border-stone-700 transition-colors shadow-md">
                         {isGenerating ? <Loader2 className="animate-spin" /> : <RefreshCw size={18} />} {generatedHtml ? 'Recriar Site c/ IA' : 'Gerar Meu Site'}
