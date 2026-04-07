@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndP
 import { auth, functions, db } from './firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, Info, Sparkles, ChevronRight, ChevronDown, ChevronUp, Gift, Menu, HelpCircle, Palette, Check, Instagram, Edit3
+  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, Info, Sparkles, ChevronRight, ChevronDown, ChevronUp, Gift, Menu, HelpCircle, Palette, Check, Instagram, Edit3, Clock
 } from 'lucide-react';
 import { TEMPLATES } from './components/templates';
 const LoginPage = lazy(() => import('./components/LoginPage'));
@@ -974,6 +974,7 @@ const App: React.FC = () => {
   const [isMobileWizardOpen, setIsMobileWizardOpen] = useState(true);
   const [activeMobileSheet, setActiveMobileSheet] = useState<number | null>(null);
   const [mobileActiveTab, setMobileActiveTab] = useState<'editar' | 'plano'>('editar');
+  const hasHandledStripeReturn = React.useRef(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -1050,6 +1051,31 @@ const App: React.FC = () => {
     window.addEventListener('hashchange', handleHash);
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
+
+  useEffect(() => {
+    if (hasHandledStripeReturn.current) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get('payment');
+    const projectFromReturn = params.get('project');
+    const tabFromReturn = params.get('tab');
+    if (!payment && !projectFromReturn && !tabFromReturn) return;
+    if (!loggedUserEmail) return;
+
+    const shouldOpenStatus = tabFromReturn === 'assinatura' || payment === 'success';
+    if (projectFromReturn && savedProjects.length > 0) {
+      const targetProject = savedProjects.find((p: any) => p.id === projectFromReturn || p.projectSlug === projectFromReturn);
+      if (targetProject) handleLoadProject(targetProject);
+    }
+
+    if (shouldOpenStatus) setActiveTab('assinatura');
+    if (payment === 'success') showToast('Pagamento confirmado! Verifique abaixo o Status do Site.', 'success');
+    if (payment === 'cancelled') showToast('Pagamento cancelado. Você pode tentar novamente quando quiser.', 'info');
+
+    hasHandledStripeReturn.current = true;
+    const cleanedUrl = `${window.location.origin}${window.location.pathname}${window.location.hash || ''}`;
+    window.history.replaceState({}, document.title, cleanedUrl);
+  }, [loggedUserEmail, savedProjects]);
 
   const [floatDomainStatus, setFloatDomainStatus] = useState<{ loading: boolean; available?: boolean; slug?: string; alternatives?: string[] }>({ loading: false });
   const floatCheckTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -1836,7 +1862,7 @@ const App: React.FC = () => {
           showToast("Site excluído com sucesso.", "success");
           if (projectId === currentProjectSlug) {
             setGeneratedHtml(null); setCurrentProjectSlug(null); setHasUnsavedChanges(false); setActiveTab('geral');
-            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' });
+            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', youtube: '', x: '', rappi: '', zeDelivery: '', directLink: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' });
           }
 
           const listFn = httpsCallable(functions, 'listUserProjects');
@@ -2072,13 +2098,18 @@ const App: React.FC = () => {
                             <p className="text-[10px] text-stone-400 italic text-center py-6">Nenhum site encontrado.</p>
                           ) : (
                             savedProjects.map(p => (
-                              <div key={p.id} className={`flex items-center gap-3 bg-stone-50 border border-stone-200 p-3 rounded-2xl ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-500' : ''}`}>
+                              <button
+                                key={p.id}
+                                type="button"
+                                onClick={() => { handleLoadProject(p); setActiveMobileSheet(null); }}
+                                className={`w-full text-left flex items-center gap-3 bg-stone-50 border border-stone-200 p-3 rounded-2xl transition-all hover:border-indigo-300 ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-500' : ''}`}
+                              >
                                 <div className="flex-1 min-w-0">
                                    <p className="text-xs font-bold text-stone-800 truncate">{p.businessName || 'Sem título'}</p>
                                    <p className="text-[9px] font-mono text-stone-400 truncate">{p.publishUrl?.replace('https://', '') || 'Rascunho'}</p>
                                 </div>
-                                <button onClick={() => { handleLoadProject(p); setActiveMobileSheet(null); }} className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase">Editar</button>
-                              </div>
+                                <span className="text-[9px] font-black uppercase text-indigo-600">Abrir</span>
+                              </button>
                             ))
                           )}
                           <div className="pt-4 border-t border-stone-100 text-center">
@@ -2261,23 +2292,26 @@ const App: React.FC = () => {
     const canPublish = Boolean(generatedHtml);
 
     return (
-      <div className="fixed bottom-0 left-0 right-0 z-[120] border-t border-stone-200 bg-white/95 backdrop-blur-md px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)]">
+      <div className="fixed bottom-0 left-0 right-0 z-[220] pointer-events-auto border-t border-white/20 bg-[rgba(255,255,255,0.7)] backdrop-blur-xl px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(15,23,42,0.12)] supports-[backdrop-filter]:bg-[rgba(255,255,255,0.55)]">
         <div className="grid grid-cols-4 gap-2">
           <button
+            type="button"
             onClick={() => { setMobileActiveTab('editar'); setIsMobileWizardOpen(true); }}
-            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all touch-manipulation"
           >
-            <Edit3 size={16} />
+            <Edit3 size={14} />
             <span className="text-[10px] font-bold mt-1">Editar</span>
           </button>
           <button
+            type="button"
             onClick={() => { setMobileActiveTab('plano'); setIsMobileWizardOpen(true); }}
-            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all touch-manipulation"
           >
-            <CreditCard size={16} />
+            <CreditCard size={14} />
             <span className="text-[10px] font-bold mt-1">Plano</span>
           </button>
           <button
+            type="button"
             onClick={() => {
               if (!canPublish) {
                 showToast('Gere o site antes de publicar.', 'info');
@@ -2288,16 +2322,17 @@ const App: React.FC = () => {
               handlePublishSite();
             }}
             disabled={isPublishing || isSavingProject}
-            className="h-14 rounded-2xl flex flex-col items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-200 disabled:opacity-50 active:scale-95 transition-all"
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-emerald-700 bg-emerald-50/80 border border-emerald-200 disabled:opacity-50 active:scale-95 transition-all touch-manipulation"
           >
-            <Globe size={16} />
+            <Globe size={14} />
             <span className="text-[10px] font-black mt-1">Publicar</span>
           </button>
           <button
+            type="button"
             onClick={() => setIsMobileWizardOpen(prev => !prev)}
-            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
+            className={`h-14 rounded-2xl flex flex-col items-center justify-center active:scale-95 transition-all touch-manipulation ${isMobileWizardOpen ? 'bg-stone-900/90 text-white' : 'text-stone-600'}`}
           >
-            <Menu size={16} />
+            {isMobileWizardOpen ? <X size={14} /> : <Menu size={14} />}
             <span className="text-[10px] font-bold mt-1">{isMobileWizardOpen ? 'Preview' : 'Menu'}</span>
           </button>
         </div>
@@ -2835,7 +2870,14 @@ const App: React.FC = () => {
                           <div className="space-y-3 relative z-10">
                             {savedProjects.length === 0 ? <p className="text-xs text-stone-400 italic text-center py-8">Nenhum projeto ainda. Comece a criar o seu primeiro site!</p> : (
                               savedProjects.map((p) => (
-                                <div key={p.id} className={`flex flex-col sm:flex-row gap-3 bg-white border border-stone-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-400' : ''}`}>
+                                <div
+                                  key={p.id}
+                                  onClick={() => handleLoadProject(p)}
+                                  role="button"
+                                  tabIndex={0}
+                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleLoadProject(p); }}
+                                  className={`flex flex-col sm:flex-row gap-3 bg-white border border-stone-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-400' : ''}`}
+                                >
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                                       <span className="font-black text-sm text-stone-800 truncate">{p.businessName || 'Projeto sem nome'}</span>
@@ -2849,10 +2891,7 @@ const App: React.FC = () => {
                                     </div>
                                   </div>
                                   <div className="flex sm:flex-col justify-end gap-2 shrink-0 border-t sm:border-t-0 sm:border-l border-stone-100 pt-3 sm:pt-0 sm:pl-3 mt-1 sm:mt-0">
-                                    <button onClick={() => handleLoadProject(p)} className="flex-1 sm:flex-none py-2 px-4 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5">
-                                      <Edit3 size={12} /> Editar
-                                    </button>
-                                    <button onClick={() => handleDeleteSite(p.id)} className="flex-1 sm:flex-none py-2 px-4 bg-red-50 text-red-600 hover:bg-red-100 font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteSite(p.id); }} className="flex-1 sm:flex-none py-2 px-4 bg-red-50 text-red-600 hover:bg-red-100 font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5">
                                       <Trash2 size={12} /> Excluir
                                     </button>
                                   </div>

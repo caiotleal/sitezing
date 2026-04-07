@@ -680,6 +680,59 @@ function getStripeInstance(stripeConfig) {
   return new Stripe(key);
 }
 
+async function findProjectRefByProjectId(projectId) {
+  const db = admin.firestore();
+  const usersSnap = await db.collection("users").get();
+  for (const userDoc of usersSnap.docs) {
+    const projectRef = db.collection("users").doc(userDoc.id).collection("projects").doc(projectId);
+    const projectSnap = await projectRef.get();
+    if (projectSnap.exists) return { projectRef, projectData: projectSnap.data(), uid: userDoc.id };
+  }
+  return null;
+}
+
+function getPlanTypeFromStripeSubscription(subscription, fallback = "mensal") {
+  const interval = subscription?.items?.data?.[0]?.price?.recurring?.interval;
+  if (interval === "year") return "anual";
+  if (interval === "month") return "mensal";
+  return fallback;
+}
+
+async function applyStripeSubscriptionToProject({ projectRef, projectData, subscription, planType }) {
+  const now = admin.firestore.FieldValue.serverTimestamp();
+  const stripeStatus = subscription?.status || "incomplete";
+  const currentPeriodEndSec = subscription?.current_period_end || null;
+  const expiresAt = currentPeriodEndSec
+    ? admin.firestore.Timestamp.fromMillis(currentPeriodEndSec * 1000)
+    : null;
+
+  const isActiveSubscription = ["active", "trialing", "past_due"].includes(stripeStatus);
+
+  const updateData = {
+    stripeSubscriptionId: subscription?.id || projectData?.stripeSubscriptionId || null,
+    subscriptionStatus: stripeStatus,
+    cancelAtPeriodEnd: Boolean(subscription?.cancel_at_period_end),
+    planSelected: planType,
+    paymentStatus: isActiveSubscription ? "paid" : "expired",
+    status: isActiveSubscription ? "published" : "frozen",
+    updatedAt: now,
+  };
+
+  if (expiresAt) updateData.expiresAt = expiresAt;
+
+  await projectRef.update(updateData);
+
+  console.log("[Stripe->Firebase] Projeto atualizado", {
+    projectId: projectRef.id,
+    subscriptionId: subscription?.id || null,
+    subscriptionStatus: stripeStatus,
+    current_period_end: currentPeriodEndSec,
+    planType,
+    paymentStatus: updateData.paymentStatus,
+    status: updateData.status,
+  });
+}
+
 // ==============================================================================
 // STRIPE CHECKOUT E MENSALIDADE
 // ==============================================================================
@@ -716,9 +769,10 @@ exports.createStripeCheckoutSession = onCall({ cors: true }, async (request) => 
   const sessionParams = {
     mode: 'subscription',
     line_items: [lineItem],
-    success_url: `${safeOrigin}?payment=success&project=${projectId}`,
-    cancel_url: `${safeOrigin}?payment=cancelled&project=${projectId}`,
+    success_url: `${safeOrigin}?payment=success&project=${projectId}&tab=assinatura`,
+    cancel_url: `${safeOrigin}?payment=cancelled&project=${projectId}&tab=assinatura`,
     metadata: { projectId, planType },
+    subscription_data: { metadata: { projectId, planType } },
     client_reference_id: projectId,
     allow_promotion_codes: true,
     payment_method_collection: 'always',
@@ -768,6 +822,15 @@ exports.createStripeCheckoutSession = onCall({ cors: true }, async (request) => 
   }
 
   const session = await stripe.checkout.sessions.create(sessionParams);
+  console.log("[Stripe Checkout Session] criada", {
+    sessionId: session.id,
+    projectId,
+    planType,
+    mode: session.mode,
+    subscription: session.subscription || null,
+    successUrl: sessionParams.success_url,
+    cancelUrl: sessionParams.cancel_url,
+  });
   return { url: session.url };
 });
 
@@ -786,38 +849,97 @@ exports.stripeWebhook = onRequest({ cors: true }, async (req, res) => {
   try { event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret); }
   catch (err) { return res.status(400).send(`Webhook Error: ${err.message}`); }
 
+  console.log("[Stripe Webhook] Evento recebido", {
+    id: event.id,
+    type: event.type,
+    created: event.created,
+    livemode: event.livemode,
+  });
+
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
-    const projectId = session.client_reference_id;
-    const planType = session.metadata?.planType || 'anual';
+    const projectId = session.client_reference_id || session.metadata?.projectId || null;
+    const fallbackPlanType = session.metadata?.planType || "mensal";
+    console.log("[Stripe Webhook] checkout.session.completed payload", {
+      sessionId: session.id,
+      mode: session.mode,
+      projectId,
+      subscription: session.subscription || null,
+      payment_status: session.payment_status,
+      metadata: session.metadata || {},
+    });
 
     if (projectId) {
       try {
-        const db = admin.firestore();
-        const usersSnap = await db.collection("users").get();
+        const projectBundle = await findProjectRefByProjectId(projectId);
+        if (!projectBundle) {
+          console.warn("[Stripe Webhook] Projeto não encontrado para checkout.session.completed", { projectId });
+        } else if (session.mode === "subscription" && session.subscription) {
+          const subscription = await stripe.subscriptions.retrieve(String(session.subscription));
+          const planType = getPlanTypeFromStripeSubscription(subscription, fallbackPlanType);
 
-        for (const userDoc of usersSnap.docs) {
-          const projectRef = db.collection("users").doc(userDoc.id).collection("projects").doc(projectId);
-          const pDoc = await projectRef.get();
-
-          if (pDoc.exists) {
-            const projectData = pDoc.data();
-
-            if (session.mode === 'subscription' && projectData.stripeSubscriptionId && session.subscription && projectData.stripeSubscriptionId !== session.subscription) {
-              try { await stripe.subscriptions.cancel(projectData.stripeSubscriptionId); } catch (err) { }
-            }
-
-            const newExpiration = new Date();
-            planType === 'anual' ? newExpiration.setFullYear(newExpiration.getFullYear() + 1) : newExpiration.setMonth(newExpiration.getMonth() + 1);
-
-            await projectRef.update({
-              status: "published", paymentStatus: "paid", planSelected: planType, stripeSubscriptionId: session.subscription || null,
-              expiresAt: admin.firestore.Timestamp.fromDate(newExpiration), updatedAt: admin.firestore.FieldValue.serverTimestamp()
-            });
-            break;
+          if (
+            projectBundle.projectData?.stripeSubscriptionId &&
+            projectBundle.projectData.stripeSubscriptionId !== subscription.id
+          ) {
+            try { await stripe.subscriptions.cancel(projectBundle.projectData.stripeSubscriptionId); } catch (_) { }
           }
+
+          await applyStripeSubscriptionToProject({
+            projectRef: projectBundle.projectRef,
+            projectData: projectBundle.projectData,
+            subscription,
+            planType,
+          });
+        } else {
+          // Fluxo de pagamento único (sem subscription): mantém ativação mínima.
+          const newExpiration = new Date();
+          fallbackPlanType === "anual"
+            ? newExpiration.setFullYear(newExpiration.getFullYear() + 1)
+            : newExpiration.setMonth(newExpiration.getMonth() + 1);
+          await projectBundle.projectRef.update({
+            status: "published",
+            paymentStatus: "paid",
+            planSelected: fallbackPlanType,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            expiresAt: admin.firestore.Timestamp.fromDate(newExpiration),
+          });
         }
-      } catch (error) { console.error(`❌ Erro no banco:`, error); }
+      } catch (error) {
+        console.error("❌ Erro ao processar checkout.session.completed:", error);
+      }
+    }
+  }
+
+  if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.deleted") {
+    const subscription = event.data.object;
+    const projectId = subscription?.metadata?.projectId || null;
+    const planType = getPlanTypeFromStripeSubscription(subscription, subscription?.metadata?.planType || "mensal");
+
+    console.log("[Stripe Webhook] subscription payload", {
+      eventType: event.type,
+      subscriptionId: subscription?.id || null,
+      projectId,
+      status: subscription?.status || null,
+      current_period_end: subscription?.current_period_end || null,
+      cancel_at_period_end: subscription?.cancel_at_period_end || false,
+      metadata: subscription?.metadata || {},
+    });
+
+    if (projectId) {
+      try {
+        const projectBundle = await findProjectRefByProjectId(projectId);
+        if (projectBundle) {
+          await applyStripeSubscriptionToProject({
+            projectRef: projectBundle.projectRef,
+            projectData: projectBundle.projectData,
+            subscription,
+            planType,
+          });
+        }
+      } catch (error) {
+        console.error("❌ Erro ao sincronizar customer.subscription.*:", error);
+      }
     }
   }
   res.status(200).send({ received: true });
