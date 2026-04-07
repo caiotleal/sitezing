@@ -3548,10 +3548,6 @@ const App: React.FC = () => {
         )}
       </AnimatePresence>
 
-  const renderMobileBottomNav = () => {
-    if (!isMobile) return null;
-    const canPublish = Boolean(generatedHtml);
-
     return (
       <div className="fixed bottom-0 left-0 right-0 z-[120] border-t border-stone-200 bg-white/95 backdrop-blur-md px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)]">
         <div className="grid grid-cols-4 gap-2">
