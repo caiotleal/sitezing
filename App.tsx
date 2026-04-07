@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndP
 import { auth, functions, db } from './firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, Info, Sparkles, ChevronRight, ChevronDown, ChevronUp, Gift, Menu, HelpCircle, Palette, Check, Instagram, Edit3
+  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, Info, Sparkles, ChevronRight, ChevronDown, ChevronUp, Gift, Menu, HelpCircle, Palette, Check, Instagram, Edit3, Clock
 } from 'lucide-react';
 import { TEMPLATES } from './components/templates';
 const LoginPage = lazy(() => import('./components/LoginPage'));
@@ -974,6 +974,7 @@ const App: React.FC = () => {
   const [isMobileWizardOpen, setIsMobileWizardOpen] = useState(true);
   const [activeMobileSheet, setActiveMobileSheet] = useState<number | null>(null);
   const [mobileActiveTab, setMobileActiveTab] = useState<'editar' | 'plano'>('editar');
+  const stripeReturnHandledRef = React.useRef(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -1376,6 +1377,34 @@ const App: React.FC = () => {
     };
     fetchProjects();
   }, [loggedUserEmail]);
+
+  useEffect(() => {
+    if (!loggedUserEmail || stripeReturnHandledRef.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get('payment');
+    const projectId = params.get('project');
+    const tab = params.get('tab');
+    if (!payment || !projectId) return;
+    if (!savedProjects.length) return;
+
+    const matchedProject = savedProjects.find((p) => (p.id === projectId || p.projectSlug === projectId));
+    if (!matchedProject) return;
+
+    stripeReturnHandledRef.current = true;
+    handleLoadProject(matchedProject);
+    setActiveTab(tab === 'assinatura' ? 'assinatura' : 'geral');
+    setIsMenuOpen(true);
+    setMobileActiveTab('plano');
+
+    if (payment === 'success') {
+      showToast('Pagamento confirmado! Você já está na tela de status do seu site.', 'success');
+    } else if (payment === 'cancelled') {
+      showToast('Pagamento cancelado. Você voltou para o status do site para tentar novamente.', 'warning');
+    }
+
+    const cleanedUrl = `${window.location.origin}${window.location.pathname}${window.location.hash || ''}`;
+    window.history.replaceState({}, document.title, cleanedUrl);
+  }, [loggedUserEmail, savedProjects]);
 
   const renderTemplate = (content: any, data: typeof formData, customImages: Record<string, string> = {}) => {
     let html = TEMPLATES[data.layoutStyle] || TEMPLATES['layout_modern_center'];
@@ -1836,7 +1865,7 @@ const App: React.FC = () => {
           showToast("Site excluído com sucesso.", "success");
           if (projectId === currentProjectSlug) {
             setGeneratedHtml(null); setCurrentProjectSlug(null); setHasUnsavedChanges(false); setActiveTab('geral');
-            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' });
+            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', youtube: '', x: '', rappi: '', zeDelivery: '', directLink: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' });
           }
 
           const listFn = httpsCallable(functions, 'listUserProjects');
@@ -2261,20 +2290,20 @@ const App: React.FC = () => {
     const canPublish = Boolean(generatedHtml);
 
     return (
-      <div className="fixed bottom-0 left-0 right-0 z-[120] border-t border-stone-200 bg-white/95 backdrop-blur-md px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)]">
+      <div className="fixed bottom-0 left-0 right-0 z-[220] border-t border-white/40 bg-[rgba(250,250,249,0.72)] backdrop-blur-xl supports-[backdrop-filter]:bg-[rgba(250,250,249,0.62)] px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] pointer-events-auto">
         <div className="grid grid-cols-4 gap-2">
           <button
             onClick={() => { setMobileActiveTab('editar'); setIsMobileWizardOpen(true); }}
             className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
           >
-            <Edit3 size={16} />
+            <Edit3 size={14} />
             <span className="text-[10px] font-bold mt-1">Editar</span>
           </button>
           <button
             onClick={() => { setMobileActiveTab('plano'); setIsMobileWizardOpen(true); }}
             className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
           >
-            <CreditCard size={16} />
+            <CreditCard size={14} />
             <span className="text-[10px] font-bold mt-1">Plano</span>
           </button>
           <button
@@ -2290,14 +2319,14 @@ const App: React.FC = () => {
             disabled={isPublishing || isSavingProject}
             className="h-14 rounded-2xl flex flex-col items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-200 disabled:opacity-50 active:scale-95 transition-all"
           >
-            <Globe size={16} />
+            <Globe size={14} />
             <span className="text-[10px] font-black mt-1">Publicar</span>
           </button>
           <button
             onClick={() => setIsMobileWizardOpen(prev => !prev)}
             className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
           >
-            <Menu size={16} />
+            <Menu size={14} />
             <span className="text-[10px] font-bold mt-1">{isMobileWizardOpen ? 'Preview' : 'Menu'}</span>
           </button>
         </div>
@@ -2835,7 +2864,14 @@ const App: React.FC = () => {
                           <div className="space-y-3 relative z-10">
                             {savedProjects.length === 0 ? <p className="text-xs text-stone-400 italic text-center py-8">Nenhum projeto ainda. Comece a criar o seu primeiro site!</p> : (
                               savedProjects.map((p) => (
-                                <div key={p.id} className={`flex flex-col sm:flex-row gap-3 bg-white border border-stone-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-400' : ''}`}>
+                                <div
+                                  key={p.id}
+                                  onClick={() => handleLoadProject(p)}
+                                  role="button"
+                                  tabIndex={0}
+                                  onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleLoadProject(p)}
+                                  className={`flex flex-col sm:flex-row gap-3 bg-white border border-stone-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-400' : ''}`}
+                                >
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                                       <span className="font-black text-sm text-stone-800 truncate">{p.businessName || 'Projeto sem nome'}</span>
@@ -2849,10 +2885,10 @@ const App: React.FC = () => {
                                     </div>
                                   </div>
                                   <div className="flex sm:flex-col justify-end gap-2 shrink-0 border-t sm:border-t-0 sm:border-l border-stone-100 pt-3 sm:pt-0 sm:pl-3 mt-1 sm:mt-0">
-                                    <button onClick={() => handleLoadProject(p)} className="flex-1 sm:flex-none py-2 px-4 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5">
-                                      <Edit3 size={12} /> Editar
-                                    </button>
-                                    <button onClick={() => handleDeleteSite(p.id)} className="flex-1 sm:flex-none py-2 px-4 bg-red-50 text-red-600 hover:bg-red-100 font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                                    <button
+                                      onClick={(e) => { e.stopPropagation(); handleDeleteSite(p.id); }}
+                                      className="flex-1 sm:flex-none py-2 px-4 bg-red-50 text-red-600 hover:bg-red-100 font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5"
+                                    >
                                       <Trash2 size={12} /> Excluir
                                     </button>
                                   </div>
