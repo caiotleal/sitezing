@@ -959,6 +959,7 @@ const App: React.FC = () => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [platformConfigs, setPlatformConfigs] = useState<any>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isDnsModalOpen, setIsDnsModalOpen] = useState(false);
 
   const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' | 'info' | 'warning' } | null>(null);
@@ -2601,212 +2602,137 @@ const App: React.FC = () => {
                 })()}
 
                 <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-6 pb-6 bg-white">
-                  {activeTab === 'geral' && (
-                    <>
-                      {currentProjectSlug && (
-                        <div className="group relative flex items-center justify-between bg-stone-50 p-3.5 rounded-xl border border-stone-200 -mt-2">
-                          <div className="flex items-center gap-2 cursor-help">
-                            <Info size={14} className="text-stone-400" />
-                            <span className="text-xs text-stone-600 font-bold uppercase tracking-wider">Status do Site</span>
-                          </div>
-                          {getStatusBadge(savedProjects.find(p => p.id === currentProjectSlug) || {})}
-                        </div>
-                      )}
-
-                      <div className="space-y-4">
-                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl relative overflow-hidden group">
-                          <label className="block text-xs font-black text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4" /> Importação Mágica (Google)
-                          </label>
-                          <div className="flex flex-col gap-2 relative z-10 w-full shrink-0">
-                            <input
-                              type="text"
-                              placeholder="Link do Maps ou Nome do Local..."
-                              className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2.5 text-[11px] font-medium focus:outline-none focus:border-emerald-500 transition-all placeholder:text-stone-400 text-stone-800 min-w-0"
-                              value={formData.googlePlaceUrl || ''}
-                              onChange={(e) => { setFormData({ ...formData, googlePlaceUrl: e.target.value }); setHasUnsavedChanges(true) }}
-                            />
-                            <button
-                              type="button"
-                              onClick={fetchGoogleData}
-                              disabled={isFetchingGoogle || !formData.googlePlaceUrl}
-                              className="w-full shrink-0 bg-emerald-600 hover:bg-emerald-500 border border-emerald-700 disabled:opacity-50 text-white font-black text-[10px] uppercase tracking-widest py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
-                            >
-                              {isFetchingGoogle ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Puxar Dados'}
-                            </button>
-                          </div>
-                          {pendingGoogleData && (
-                            <div className="mt-3 bg-white border border-emerald-200 p-3.5 rounded-xl shadow-[0_4px_20px_-4px_rgba(16,185,129,0.3)] text-center relative z-20 overflow-hidden before:absolute before:inset-0 before:bg-emerald-500/5">
-                              <p className="text-[11px] font-black justify-center text-emerald-800 uppercase flex items-center gap-1.5 mb-1.5"><CheckCircle size={14} /> É esta a empresa?</p>
-                              <p className="text-[10px] text-stone-600 mb-3 font-medium px-2 leading-relaxed h-10 line-clamp-2"><span className="font-bold">{pendingGoogleData.name}</span> - {pendingGoogleData.address}</p>
-                              <div className="flex gap-2 relative z-10">
-                                <button type="button" onClick={() => setPendingGoogleData(null)} className="flex-1 py-2.5 bg-stone-100 text-stone-500 rounded-lg text-[9px] uppercase font-black tracking-wider hover:bg-stone-200 transition-colors">Voltar</button>
-                                <button type="button" onClick={confirmGoogleInjection} className="flex-[2] py-2.5 px-3 bg-emerald-600 text-white rounded-lg text-[10px] uppercase font-black tracking-widest hover:bg-emerald-500 shadow-md transition-all flex items-center justify-center gap-1.5"><Rocket size={12} /> Confirmar</button>
-                              </div>
-                            </div>
-                          )}
-                          {!pendingGoogleData && googleStatus && (
-                            <div className={`mt-3 text-[10px] uppercase font-black tracking-widest text-center ${googleStatus.type === 'success' ? 'text-emerald-600' : 'text-red-500'}`}>
-                              {googleStatus.msg}
-                            </div>
-                          )}
-                        </motion.div>
-
-                        <div className="relative">
-                          <label className="text-[11px] font-black text-stone-500 uppercase flex items-center gap-1.5 mb-1.5"><Briefcase size={12} /> Nome do Negócio</label>
-                          <input className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-[12px] font-bold text-stone-800 focus:border-teal-500 outline-none transition-colors mb-3" placeholder="Ex: Eletricista Silva" value={formData.businessName} onChange={e => handleFloatNameChange(e.target.value)} />
-
-                          <label className="text-[11px] font-black text-stone-500 uppercase flex items-center gap-1.5 mb-1.5"><Globe size={12} /> Seu Link Oficial</label>
-                          <div className="flex bg-stone-50 border border-stone-200 rounded-xl overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
-                            <input className="flex-1 bg-transparent px-3 py-2.5 text-[12px] font-mono font-bold text-blue-600 outline-none w-full text-right" placeholder="meu-site" value={formData.customSlug} onChange={e => handleCustomSlugChange(e.target.value)} />
-                            <span className="bg-stone-100 border-l border-stone-200 px-3 py-2.5 text-[11px] font-bold text-stone-400 flex items-center select-none shadow-inner">.sitezing.com.br</span>
-                          </div>
-
-                          <div className="mt-1.5 min-h-[16px]">
-                            {floatDomainStatus.loading && (
-                              <div className="text-[10px] text-stone-400 flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin" /> Validando domínio...</div>
-                            )}
-                            {!floatDomainStatus.loading && formData.customSlug.length >= 3 && floatDomainStatus.available === false && (
-                              <div className="text-[10px] text-red-500 font-bold flex items-center gap-1"><AlertCircle size={10} /> "{floatDomainStatus.slug}" já está em uso! Tente modificar.</div>
-                            )}
-                            {!floatDomainStatus.loading && formData.customSlug.length >= 3 && floatDomainStatus.available && floatDomainStatus.slug && (
-                              <div className="text-[10px] text-emerald-600 font-bold flex items-center gap-1"><CheckCircle size={10} /> Liberado!</div>
-                            )}
-                          </div>
-                        </div>
-                        <div><label className="text-[11px] font-black text-stone-500 uppercase flex items-center gap-1.5 mb-1.5"><FileText size={12} /> Ideia Principal</label><textarea className="w-full h-20 bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-[12px] resize-none focus:border-teal-500 outline-none transition-colors text-stone-800" placeholder="Descreva os serviços..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} /></div>
+                                    {activeTab === 'geral' && (
+                    <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                      {/* CATEGORIAS SUPERIORES - ÍCONES MENORES */}
+                      <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide px-1">
+                        <button 
+                          onClick={() => setActiveCategory(activeCategory === 'visual' ? null : 'visual')}
+                          className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${activeCategory === 'visual' ? 'bg-indigo-600 text-white border-indigo-700 shadow-lg shadow-indigo-500/30' : 'bg-white text-stone-600 border-stone-200 hover:border-indigo-300'}`}
+                        >
+                          <Palette size={14} /> Visual
+                        </button>
+                        <button 
+                          onClick={() => setActiveCategory(activeCategory === 'social' ? null : 'social')}
+                          className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${activeCategory === 'social' ? 'bg-pink-600 text-white border-pink-700 shadow-lg shadow-pink-500/30' : 'bg-white text-stone-600 border-stone-200 hover:border-pink-300'}`}
+                        >
+                          <Instagram size={14} /> Redes
+                        </button>
+                        <button 
+                          onClick={() => setActiveCategory(activeCategory === 'delivery' ? null : 'delivery')}
+                          className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${activeCategory === 'delivery' ? 'bg-red-600 text-white border-red-700 shadow-lg shadow-red-500/30' : 'bg-white text-stone-600 border-stone-200 hover:border-red-300'}`}
+                        >
+                          <Rocket size={14} /> Delivery
+                        </button>
+                        <button 
+                          onClick={() => setActiveCategory(activeCategory === 'contato' ? null : 'contato')}
+                          className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${activeCategory === 'contato' ? 'bg-emerald-600 text-white border-emerald-700 shadow-lg shadow-emerald-500/30' : 'bg-white text-stone-600 border-stone-200 hover:border-emerald-300'}`}
+                        >
+                          <Phone size={14} /> Contato
+                        </button>
                       </div>
 
-                      <button onClick={() => handleGenerate()} disabled={isGenerating} className="w-full bg-stone-900 hover:bg-stone-800 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 border border-stone-700 transition-colors shadow-md">
-                        {isGenerating ? <Loader2 className="animate-spin" /> : <RefreshCw size={18} />} {generatedHtml ? 'Recriar Site c/ IA' : 'Gerar Meu Site'}
-                      </button>
-
-                      {generatedHtml && (
-                        <div className="pt-6 border-t border-stone-100 space-y-6">
-                          <div className="space-y-4">
-                            <div className="space-y-2.5">
-                              <label className="text-xs font-bold text-stone-500 uppercase">Estilo do Site</label>
-                              <select className="w-full bg-white border border-stone-200 rounded-xl p-3 text-sm outline-none" value={formData.layoutStyle} onChange={e => { setFormData({ ...formData, layoutStyle: e.target.value }); setHasUnsavedChanges(true) }}>{LAYOUT_STYLES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}</select>
-                            </div>
-
-                            <div className="space-y-2.5">
-                              <label className="text-xs font-bold text-stone-500 uppercase">Layout do Cabeçalho</label>
-                              <select className="w-full bg-white border border-stone-200 rounded-xl p-3 text-sm outline-none font-medium" value={formData.headerLayout} onChange={e => { setFormData({ ...formData, headerLayout: e.target.value }); setHasUnsavedChanges(true) }}>
-                                <option value="logo_left_icons_right">Logo Esquerda / Ícones Direita</option>
-                                <option value="logo_right_icons_left">Logo Direita / Ícones Esquerda</option>
-                                <option value="logo_center_icons_right">Logo Centro / Ícones Direita</option>
-                                <option value="logo_center_icons_left">Logo Centro / Ícones Esquerda</option>
-                              </select>
-                            </div>
-                          </div>
-
-                          <div className="space-y-4">
-                            <label className="text-xs font-bold text-stone-500 uppercase block border-b border-stone-100 pb-2">Temas (Cores)</label>
-
-                            <div className="space-y-2">
-                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">1. Essenciais da Marca</span>
-                              <div className="grid grid-cols-5 gap-3">
-                                {COLORS.filter(c => !c.id.includes('_')).map(c => (
-                                  <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
-                                ))}
+                      {/* CONTEÚDO DINÂMICO POR CATEGORIA */}
+                      <div className="space-y-6">
+                        {(!activeCategory || activeCategory === 'visual') && (
+                          <div className="space-y-4 animate-in fade-in duration-500">
+                            <label className="text-[11px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2 mb-2"><Palette size={12} /> Design & Identidade</label>
+                            
+                            <div className="grid grid-cols-1 gap-4">
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold text-stone-500 uppercase px-1">Nome do Negócio</label>
+                                <input className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-[13px] font-bold text-stone-800 focus:border-indigo-500 outline-none transition-all" placeholder="Ex: Studio da Beleza" value={formData.businessName} onChange={e => handleFloatNameChange(e.target.value)} />
                               </div>
-                            </div>
 
-                            <div className="space-y-2">
-                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">2. Paleta Celeste</span>
-                              <div className="grid grid-cols-5 gap-3">
-                                {COLORS.filter(c => c.id.startsWith('celeste_')).map(c => (
-                                  <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
-                                ))}
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold text-stone-500 uppercase px-1">Frase de Destaque</label>
+                                <textarea className="w-full h-20 bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-[13px] resize-none focus:border-indigo-500 outline-none transition-all text-stone-800" placeholder="Descreva seu diferencial..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} />
                               </div>
-                            </div>
 
-                            <div className="space-y-2">
-                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">3. Paleta Marinha</span>
-                              <div className="grid grid-cols-5 gap-3">
-                                {COLORS.filter(c => c.id.startsWith('marinha_')).map(c => (
-                                  <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">4. Mediterrânea</span>
-                              <div className="grid grid-cols-5 gap-3">
-                                {COLORS.filter(c => c.id.startsWith('med_')).map(c => (
-                                  <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">5. Caribe</span>
-                              <div className="grid grid-cols-5 gap-3">
-                                {COLORS.filter(c => c.id.startsWith('caribe_')).map(c => (
-                                  <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2.5">
-                            <label className="text-xs font-bold text-stone-500 uppercase flex justify-between items-center"><span>Sua Logomarca</span>{formData.logoBase64 && <button onClick={() => { setFormData(p => ({ ...p, logoBase64: '', logoSize: 40 })); setHasUnsavedChanges(true); }} className="text-red-500 hover:text-red-600 text-[10px] font-bold">X Remover</button>}</label>
-                            {!formData.logoBase64 ? (
-                              <div className="space-y-2"><label className="cursor-pointer w-full border border-dashed border-stone-300 hover:border-teal-400 rounded-xl p-4 flex justify-center items-center gap-2 text-xs text-stone-500 transition-colors bg-stone-50"><Upload size={14} /> Fazer Upload da Marca<input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" /></label></div>
-                            ) : (
-                              <div className="space-y-3 bg-stone-50 border border-stone-200 rounded-xl p-4">
-                                <div className="h-16 flex items-center justify-center overflow-hidden bg-white rounded-lg border border-stone-200 relative">
-                                  <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)', backgroundSize: '10px 10px', backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px' }}></div>
-                                  <img src={formData.logoBase64} style={{ maxHeight: `${formData.logoSize || 40}px` }} className="w-auto object-contain relative z-10 transition-all" alt="Logo" />
+                              <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1.5 text-left">
+                                  <label className="text-[10px] font-bold text-stone-500 uppercase px-1">Estilo</label>
+                                  <select className="w-full bg-white border border-stone-200 rounded-xl px-3 py-3 text-xs outline-none focus:border-indigo-500" value={formData.layoutStyle} onChange={e => { setFormData({ ...formData, layoutStyle: e.target.value }); setHasUnsavedChanges(true) }}>{LAYOUT_STYLES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}</select>
                                 </div>
-                                <div className="space-y-1 mt-2">
-                                  <label className="flex justify-between text-[10px] font-bold text-stone-500 uppercase"><span>Tamanho da Logo</span><span>{formData.logoSize || 40}px</span></label>
-                                  <input type="range" min="20" max="100" value={formData.logoSize || 40} onChange={e => { setFormData({ ...formData, logoSize: parseInt(e.target.value) }); setHasUnsavedChanges(true) }} className="w-full accent-teal-500" />
+                                <div className="space-y-1.5 text-left">
+                                  <label className="text-[10px] font-bold text-stone-500 uppercase px-1">Topo</label>
+                                  <select className="w-full bg-white border border-stone-200 rounded-xl px-3 py-3 text-xs outline-none focus:border-indigo-500" value={formData.headerLayout} onChange={e => { setFormData({ ...formData, headerLayout: e.target.value }); setHasUnsavedChanges(true) }}>
+                                    <option value="logo_left_icons_right">Logo Esquerda</option>
+                                    <option value="logo_right_icons_left">Logo Direita</option>
+                                    <option value="logo_center_icons_right">Logo Centro</option>
+                                  </select>
                                 </div>
                               </div>
-                            )}
-                          </div>
 
-                          <div className="space-y-3 pt-5 border-t border-stone-100">
-                            <label className="text-xs font-bold text-stone-500 uppercase flex gap-1.5"><Globe size={14} /> Redes Sociais & Delivery</label>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="WhatsApp (só números)" value={formData.whatsapp} onChange={e => { setFormData({ ...formData, whatsapp: e.target.value }); setHasUnsavedChanges(true) }} />
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="Instagram (@usuario)" value={formData.instagram} onChange={e => { setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true) }} />
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="Facebook (Link)" value={formData.facebook} onChange={e => { setFormData({ ...formData, facebook: e.target.value }); setHasUnsavedChanges(true) }} />
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="LinkedIn (Link)" value={formData.linkedin} onChange={e => { setFormData({ ...formData, linkedin: e.target.value }); setHasUnsavedChanges(true) }} />
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-stone-800 outline-none" placeholder="TikTok (Link ou @)" value={formData.tiktok} onChange={e => { setFormData({ ...formData, tiktok: e.target.value }); setHasUnsavedChanges(true) }} />
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-stone-800 outline-none" placeholder="X / Twitter (Link)" value={formData.x} onChange={e => { setFormData({ ...formData, x: e.target.value }); setHasUnsavedChanges(true) }} />
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-red-600 outline-none" placeholder="YouTube (Link do Canal)" value={formData.youtube} onChange={e => { setFormData({ ...formData, youtube: e.target.value }); setHasUnsavedChanges(true) }} />
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-orange-500 outline-none" placeholder="iFood (Link)" value={formData.ifood} onChange={e => { setFormData({ ...formData, ifood: e.target.value }); setHasUnsavedChanges(true) }} />
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-orange-600 outline-none" placeholder="Rappi (Link)" value={formData.rappi} onChange={e => { setFormData({ ...formData, rappi: e.target.value }); setHasUnsavedChanges(true) }} />
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-yellow-500 outline-none" placeholder="Zé Delivery (Link)" value={formData.zeDelivery} onChange={e => { setFormData({ ...formData, zeDelivery: e.target.value }); setHasUnsavedChanges(true) }} />
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none sm:col-span-2" placeholder="Outro Link de Compra/Cardápio Digital" value={formData.directLink} onChange={e => { setFormData({ ...formData, directLink: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <div className="space-y-3 p-4 bg-stone-50 rounded-2xl border border-stone-200">
+                                <label className="text-[10px] font-bold text-stone-500 uppercase flex justify-between items-center"><span>Sua Logomarca</span>{formData.logoBase64 && <button onClick={() => { setFormData(p => ({ ...p, logoBase64: '', logoSize: 40 })); setHasUnsavedChanges(true); }} className="text-red-500 hover:text-red-600 text-[9px] font-black uppercase">X Remover</button>}</label>
+                                {!formData.logoBase64 ? (
+                                  <label className="cursor-pointer w-full border border-dashed border-stone-300 hover:border-indigo-400 rounded-xl py-6 flex flex-col justify-center items-center gap-2 text-[10px] text-stone-500 transition-all bg-white"><Upload size={18} /><span>Subir Marca</span><input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" /></label>
+                                ) : (
+                                  <div className="flex items-center gap-4">
+                                    <div className="w-16 h-16 bg-white rounded-lg border border-stone-200 flex items-center justify-center p-1"><img src={formData.logoBase64} className="max-w-full max-h-full object-contain" alt="Logo" /></div>
+                                    <div className="flex-1 space-y-1">
+                                      <div className="flex justify-between text-[9px] font-bold text-stone-400 uppercase"><span>Tamanho</span><span>{formData.logoSize}px</span></div>
+                                      <input type="range" min="20" max="100" value={formData.logoSize} onChange={e => { setFormData({ ...formData, logoSize: parseInt(e.target.value) }); setHasUnsavedChanges(true) }} className="w-full accent-indigo-500" />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
+                        )}
 
-                          <div className="space-y-3 pt-5 border-t border-stone-100">
-                            <label className="text-xs font-bold text-stone-500 uppercase flex gap-1.5"><MapPin size={14} /> Contato e Localização</label>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="Telefone" value={formData.phone} onChange={e => { setFormData({ ...formData, phone: e.target.value }); setHasUnsavedChanges(true) }} />
-                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="E-mail" value={formData.email} onChange={e => { setFormData({ ...formData, email: e.target.value }); setHasUnsavedChanges(true) }} />
+                        {activeCategory === 'social' && (
+                          <div className="space-y-4 animate-in slide-in-from-bottom-2 duration-300">
+                            <label className="text-[11px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2 mb-2"><Instagram size={12} className="text-pink-500" /> Redes Sociais</label>
+                            <div className="grid grid-cols-1 gap-3">
+                              <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#25D366]"><Phone size={14} /></span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#25D366] outline-none font-bold" placeholder="WhatsApp (DDD + Número)" value={formData.whatsapp} onChange={e => { setFormData({ ...formData, whatsapp: e.target.value }); setHasUnsavedChanges(true) }} /></div>
+                              <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#E1306C]"><Instagram size={14} /></span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#E1306C] outline-none font-bold" placeholder="Instagram (@usuario ou Link)" value={formData.instagram} onChange={e => { setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true) }} /></div>
+                              <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1877F2]"><Edit3 size={14} /></span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#1877F2] outline-none font-bold" placeholder="Facebook (Link)" value={formData.facebook} onChange={e => { setFormData({ ...formData, facebook: e.target.value }); setHasUnsavedChanges(true) }} /></div>
+                              <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-black"><Star size={14} /></span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-black outline-none font-bold" placeholder="TikTok (Link)" value={formData.tiktok} onChange={e => { setFormData({ ...formData, tiktok: e.target.value }); setHasUnsavedChanges(true) }} /></div>
                             </div>
-                            <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="Endereço Físico" value={formData.address} onChange={e => { setFormData({ ...formData, address: e.target.value }); setHasUnsavedChanges(true) }} />
-
-                            <label className="flex items-center justify-between bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs text-stone-600"><span>Exibir Mapa do Google</span><input type="checkbox" checked={formData.showMap} onChange={e => { setFormData({ ...formData, showMap: e.target.checked }); setHasUnsavedChanges(true) }} className="accent-teal-500" /></label>
-                            <label className="flex items-center justify-between bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs text-stone-600"><span>Exibir formulário de contato</span><input type="checkbox" checked={formData.showForm} onChange={e => { setFormData({ ...formData, showForm: e.target.checked }); setHasUnsavedChanges(true) }} className="accent-teal-500" /></label>
-                            {formData.reviews && formData.reviews.length > 0 && (
-                              <label className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs text-stone-600 font-bold mt-2">
-                                <span className="flex items-center gap-1.5"><Star className="w-3 h-3 text-emerald-500" /> Exibir Galeria de Avaliações Google</span>
-                                <input type="checkbox" checked={formData.showReviews} onChange={e => { setFormData({ ...formData, showReviews: e.target.checked }); setHasUnsavedChanges(true) }} className="accent-emerald-500" />
-                              </label>
-                            )}
                           </div>
-                        </div>
-                      )}
-                    </>
+                        )}
+
+                        {activeCategory === 'delivery' && (
+                          <div className="space-y-4 animate-in slide-in-from-bottom-2 duration-300">
+                            <label className="text-[11px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2 mb-2"><Rocket size={12} className="text-red-500" /> Canais de Venda</label>
+                            <div className="grid grid-cols-1 gap-3">
+                              <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#EA1D2C] font-black text-[10px]">IF</span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#EA1D2C] outline-none font-bold" placeholder="iFood (Link da Loja)" value={formData.ifood} onChange={e => { setFormData({ ...formData, ifood: e.target.value }); setHasUnsavedChanges(true) }} /></div>
+                              <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#FF441F] font-black text-[10px]">RP</span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#FF441F] outline-none font-bold" placeholder="Rappi (Link da Loja)" value={formData.rappi} onChange={e => { setFormData({ ...formData, rappi: e.target.value }); setHasUnsavedChanges(true) }} /></div>
+                              <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#FCCC24] font-black text-[10px]">ZE</span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#FCCC24] outline-none font-bold" placeholder="Zé Delivery (Link)" value={formData.zeDelivery} onChange={e => { setFormData({ ...formData, zeDelivery: e.target.value }); setHasUnsavedChanges(true) }} /></div>
+                            </div>
+                          </div>
+                        )}
+
+                        {activeCategory === 'contato' && (
+                          <div className="space-y-4 animate-in slide-in-from-bottom-2 duration-300">
+                            <label className="text-[11px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2 mb-2"><MapPin size={12} className="text-emerald-500" /> Localização</label>
+                            <div className="grid grid-cols-1 gap-3">
+                              <input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 px-4 text-xs focus:border-emerald-500 outline-none font-bold" placeholder="E-mail de Contato" value={formData.email} onChange={e => { setFormData({ ...formData, email: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 px-4 text-xs focus:border-emerald-500 outline-none font-bold" placeholder="Endereço Completo" value={formData.address} onChange={e => { setFormData({ ...formData, address: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <div className="flex flex-col gap-2 p-3 bg-stone-50 rounded-xl border border-stone-200">
+                                <label className="flex items-center justify-between text-[10px] font-bold text-stone-600 uppercase"><span>Exibir Mapa</span><input type="checkbox" checked={formData.showMap} onChange={e => { setFormData({ ...formData, showMap: e.target.checked }); setHasUnsavedChanges(true) }} className="accent-emerald-500" /></label>
+                                <label className="flex items-center justify-between text-[10px] font-bold text-stone-600 uppercase"><span>Formulário</span><input type="checkbox" checked={formData.showForm} onChange={e => { setFormData({ ...formData, showForm: e.target.checked }); setHasUnsavedChanges(true) }} className="accent-emerald-500" /></label>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="pt-8 mt-6 border-t border-stone-100">
+                        <button 
+                          onClick={() => handleGenerate()} 
+                          disabled={isGenerating} 
+                          className="w-full bg-stone-900 hover:bg-black text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-2 transition-all shadow-xl shadow-stone-900/10"
+                        >
+                          {isGenerating ? <Loader2 className="animate-spin" /> : <Sparkles size={16} className="text-orange-400" />} {generatedHtml ? "Atualizar Site c/ IA" : "Gerar Meu Site"}
+                        </button>
+                      </div>
+                    </div>
                   )}
 
-                  
+
                   {activeTab === 'dashboard' && (
                     <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
                       <div className="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm relative overflow-hidden">
