@@ -680,6 +680,49 @@ function getStripeInstance(stripeConfig) {
   return new Stripe(key);
 }
 
+async function findProjectDocById(projectId) {
+  if (!projectId) return null;
+  const db = admin.firestore();
+  const snap = await db.collectionGroup("projects")
+    .where(admin.firestore.FieldPath.documentId(), "==", projectId)
+    .limit(1)
+    .get();
+  if (snap.empty) return null;
+  return snap.docs[0];
+}
+
+async function applyStripeSubscriptionToProject(projectRef, { subscription, session, planType }) {
+  const subscriptionStatus = subscription?.status || "active";
+  const stripePeriodEnd = subscription?.current_period_end || null;
+  const expiresAt = stripePeriodEnd ?
+    admin.firestore.Timestamp.fromMillis(stripePeriodEnd * 1000) :
+    null;
+
+  console.log("[StripeSync] subscription payload:", JSON.stringify({
+    id: subscription?.id || null,
+    status: subscriptionStatus,
+    current_period_end: stripePeriodEnd,
+    cancel_at_period_end: Boolean(subscription?.cancel_at_period_end),
+    customer: subscription?.customer || session?.customer || null,
+    projectId: session?.client_reference_id || null,
+  }));
+
+  const isPaidLike = ["active", "trialing", "past_due", "unpaid"].includes(subscriptionStatus);
+  const updatePayload = {
+    status: "published",
+    paymentStatus: isPaidLike ? "paid" : "pending",
+    planSelected: planType || "mensal",
+    stripeSubscriptionId: subscription?.id || session?.subscription || null,
+    stripeCustomerId: subscription?.customer || session?.customer || null,
+    subscriptionStatus,
+    cancelAtPeriodEnd: Boolean(subscription?.cancel_at_period_end),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  if (expiresAt) updatePayload.expiresAt = expiresAt;
+  await projectRef.update(updatePayload);
+}
+
 // ==============================================================================
 // STRIPE CHECKOUT E MENSALIDADE
 // ==============================================================================
@@ -716,9 +759,10 @@ exports.createStripeCheckoutSession = onCall({ cors: true }, async (request) => 
   const sessionParams = {
     mode: 'subscription',
     line_items: [lineItem],
-    success_url: `${safeOrigin}?payment=success&project=${projectId}`,
+    success_url: `${safeOrigin}?payment=success&tab=status&project=${projectId}`,
     cancel_url: `${safeOrigin}?payment=cancelled&project=${projectId}`,
     metadata: { projectId, planType },
+    subscription_data: { metadata: { projectId, planType } },
     client_reference_id: projectId,
     allow_promotion_codes: true,
     payment_method_collection: 'always',
@@ -786,38 +830,84 @@ exports.stripeWebhook = onRequest({ cors: true }, async (req, res) => {
   try { event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret); }
   catch (err) { return res.status(400).send(`Webhook Error: ${err.message}`); }
 
+  console.log("[StripeWebhook] Evento recebido:", event.type, "id:", event.id);
+
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
     const projectId = session.client_reference_id;
     const planType = session.metadata?.planType || 'anual';
+    console.log("[StripeWebhook] checkout.session.completed payload:", JSON.stringify({
+      id: session.id,
+      mode: session.mode,
+      client_reference_id: session.client_reference_id,
+      subscription: session.subscription,
+      customer: session.customer,
+      metadata: session.metadata || {},
+    }));
 
     if (projectId) {
       try {
-        const db = admin.firestore();
-        const usersSnap = await db.collection("users").get();
-
-        for (const userDoc of usersSnap.docs) {
-          const projectRef = db.collection("users").doc(userDoc.id).collection("projects").doc(projectId);
-          const pDoc = await projectRef.get();
-
-          if (pDoc.exists) {
-            const projectData = pDoc.data();
-
-            if (session.mode === 'subscription' && projectData.stripeSubscriptionId && session.subscription && projectData.stripeSubscriptionId !== session.subscription) {
-              try { await stripe.subscriptions.cancel(projectData.stripeSubscriptionId); } catch (err) { }
-            }
-
-            const newExpiration = new Date();
-            planType === 'anual' ? newExpiration.setFullYear(newExpiration.getFullYear() + 1) : newExpiration.setMonth(newExpiration.getMonth() + 1);
-
-            await projectRef.update({
-              status: "published", paymentStatus: "paid", planSelected: planType, stripeSubscriptionId: session.subscription || null,
-              expiresAt: admin.firestore.Timestamp.fromDate(newExpiration), updatedAt: admin.firestore.FieldValue.serverTimestamp()
-            });
-            break;
-          }
+        const projectDoc = await findProjectDocById(projectId);
+        if (!projectDoc) {
+          console.warn(`[StripeWebhook] Projeto não encontrado para projectId=${projectId}`);
+        } else if (session.mode === "subscription" && session.subscription) {
+          const subscription = await stripe.subscriptions.retrieve(session.subscription);
+          await applyStripeSubscriptionToProject(projectDoc.ref, { subscription, session, planType });
+        } else {
+          const fallbackExpiration = new Date();
+          planType === "anual" ?
+            fallbackExpiration.setFullYear(fallbackExpiration.getFullYear() + 1) :
+            fallbackExpiration.setMonth(fallbackExpiration.getMonth() + 1);
+          await projectDoc.ref.update({
+            status: "published",
+            paymentStatus: "paid",
+            planSelected: planType,
+            stripeCustomerId: session.customer || null,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            expiresAt: admin.firestore.Timestamp.fromDate(fallbackExpiration),
+          });
         }
       } catch (error) { console.error(`❌ Erro no banco:`, error); }
+    }
+  } else if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.created") {
+    const subscription = event.data.object;
+    const projectId = subscription?.metadata?.projectId || null;
+    console.log(`[StripeWebhook] ${event.type} payload:`, JSON.stringify({
+      id: subscription?.id,
+      status: subscription?.status,
+      current_period_end: subscription?.current_period_end,
+      customer: subscription?.customer,
+      projectId,
+    }));
+    if (projectId) {
+      const projectDoc = await findProjectDocById(projectId);
+      if (projectDoc) {
+        await applyStripeSubscriptionToProject(projectDoc.ref, {
+          subscription,
+          session: null,
+          planType: subscription?.metadata?.planType,
+        });
+      }
+    }
+  } else if (event.type === "customer.subscription.deleted") {
+    const subscription = event.data.object;
+    const projectId = subscription?.metadata?.projectId || null;
+    console.log("[StripeWebhook] customer.subscription.deleted payload:", JSON.stringify({
+      id: subscription?.id,
+      status: subscription?.status,
+      current_period_end: subscription?.current_period_end,
+      projectId,
+    }));
+    if (projectId) {
+      const projectDoc = await findProjectDocById(projectId);
+      if (projectDoc) {
+        await projectDoc.ref.update({
+          subscriptionStatus: "canceled",
+          paymentStatus: "expired",
+          cancelAtPeriodEnd: true,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }
     }
   }
   res.status(200).send({ received: true });
