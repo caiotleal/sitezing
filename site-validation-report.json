@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-04-06T20:55:21.469Z",
+  "generatedAt": "2026-04-07T01:31:36.380Z",
   "summary": {
     "frontendEnvAllPresent": true,
     "callableCountUsed": 20,
-    "callableCountExported": 38,
+    "callableCountExported": 36,
     "missingBackendFunctions": [],
     "apiChecksRun": 4
   },
@@ -83,11 +83,9 @@
     "replySupportTicket",
     "resumeStripeSubscription",
     "saveSiteProject",
-    "sendRecoveryEmails",
     "stripeWebhook",
     "submitSupportTicket",
     "testSmtpConfig",
-    "triggerRecoveryManual",
     "updatePlatformConfigs",
     "updateProjectAdminManual",
     "updateSiteProject",
