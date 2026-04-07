@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/fix-build-artifacts.mjs && npm run check:tsx-comments && npm run check:app-structure && vite build",
     "preview": "vite preview",
-    "validate:site": "node scripts/validate-site.mjs"
+    "validate:site": "node scripts/validate-site.mjs",
+    "check:tsx-comments": "node scripts/check-tsx-comments.mjs",
+    "check:app-structure": "node scripts/check-app-structure.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
