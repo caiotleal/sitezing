@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndP
 import { auth, functions, db } from './firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, Info, Sparkles, ChevronRight, Gift, Menu, HelpCircle, Palette, Check, Instagram, Edit3
+  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, Info, Sparkles, ChevronRight, ChevronDown, ChevronUp, Gift, Menu, HelpCircle, Palette, Check, Instagram, Edit3
 } from 'lucide-react';
 import { TEMPLATES } from './components/templates';
 const LoginPage = lazy(() => import('./components/LoginPage'));
@@ -2049,9 +2049,9 @@ const App: React.FC = () => {
             >
               <div className="px-6 py-4 flex items-center justify-between border-b border-stone-100">
                  <h3 className="text-sm font-black text-stone-900">Configuração</h3>
-                 <button onClick={() => { setActiveMobileSheet(null); sendCleanHtml(); }} className="bg-stone-100 p-2 rounded-full text-stone-600">
-                   <ChevronDown size={18} />
-                 </button>
+                  <button onClick={() => { setActiveMobileSheet(null); }} className="bg-stone-100 p-2 rounded-full text-stone-600">
+                    <ChevronDown size={18} />
+                  </button>
               </div>
               <div className="p-5 overflow-y-auto pb-10 space-y-6 flex-1">
                  {/* ID 9: Dashboard Mobile */}
