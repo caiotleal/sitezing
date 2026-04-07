@@ -391,7 +391,7 @@ const PROMO_HTML = `
         </div>
       </div>
       <div id="reviews-grid" class="grid md:grid-cols-3 gap-6">
-        __REVIEWS_START__
+       
         <div class="glass-card p-6 rounded-2xl border-stone-200/40 text-left">
           <div class="flex items-center gap-3 mb-4">
             <div class="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center text-stone-400"><i class="fas fa-user"></i></div>
@@ -422,7 +422,6 @@ const PROMO_HTML = `
           </div>
           <p class="text-xs text-stone-500 leading-relaxed italic">"O suporte é excelente e a plataforma é muito intuitiva. Recomendo para todos os meus parceiros."</p>
         </div>
-        __REVIEWS_END__
       </div>
     </div>
   </main>
@@ -461,23 +460,23 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
   if (!platformConfigs) return PROMO_HTML;
 
   let html = PROMO_HTML;
-  
+
   // 1. Render Pricing Cards (Core Conversion)
   const plans = [...(platformConfigs.plans || [])].sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0));
   let cardsHtml = ``;
 
   plans.forEach((p: any) => {
-    const intervalLabel = 
-      p.interval === 'month' ? 'mês' : 
-      p.interval === 'bimestral' ? 'bimestre' :
-      p.interval === 'trimestral' ? 'trimestre' :
-      p.interval === 'semestral' ? 'semestre' : 
-      p.interval === 'year' ? 'ano' : 'período';
-    
+    const intervalLabel =
+      p.interval === 'month' ? 'mês' :
+        p.interval === 'bimestral' ? 'bimestre' :
+          p.interval === 'trimestral' ? 'trimestre' :
+            p.interval === 'semestral' ? 'semestre' :
+              p.interval === 'year' ? 'ano' : 'período';
+
     const isAnual = p.interval === 'year';
     const integer = p.price.toString().split('.')[0];
     const decimal = p.price.toString().split('.')[1] || '00';
-    
+
     cardsHtml += `
       <div class="glass-card p-6 rounded-[1.5rem] overflow-hidden group ${isAnual ? 'border-orange-300' : 'border-teal-200'}" onclick="window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', priceId: '${p.priceId}', plan: '${p.name.toLowerCase()}' }, '*')">
         <div class="card-share-btn" onclick="sharePlan('${p.name.toLowerCase()}')" title="Compartilhar este plano"><i class="fas fa-share-alt"></i></div>
@@ -769,10 +768,10 @@ const GuidedTip: React.FC<{
     if (step === currentStep) {
       setVisible(true);
       const timer = setTimeout(() => setVisible(false), 10000); // 10s auto-hide
-      
+
       const handleDismiss = () => setVisible(false);
       window.addEventListener('mousedown', handleDismiss);
-      
+
       return () => {
         clearTimeout(timer);
         window.removeEventListener('mousedown', handleDismiss);
@@ -790,15 +789,14 @@ const GuidedTip: React.FC<{
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9, y: isBottom ? -10 : 10 }}
       className={`absolute z-[200] bg-stone-800/95 backdrop-blur-md text-white/90 px-3 py-2 rounded-xl shadow-2xl border border-stone-700/50 font-medium text-[10px] flex items-center gap-2 max-w-[180px] text-center pointer-events-none whitespace-normal leading-tight`}
-      style={{ 
-        left: '50%', 
-        transform: 'translateX(-50%)', 
-        [isBottom ? 'top' : 'bottom']: 'calc(100% + 12px)' 
+      style={{
+        left: '50%',
+        transform: 'translateX(-50%)',
+        [isBottom ? 'top' : 'bottom']: 'calc(100% + 12px)'
       }}
     >
-      <div className={`absolute left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent ${
-        isBottom ? 'top-[-6px] border-b-[6px] border-b-stone-800/95' : 'bottom-[-6px] border-t-[6px] border-t-stone-800/95'
-      }`}></div>
+      <div className={`absolute left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent ${isBottom ? 'top-[-6px] border-b-[6px] border-b-stone-800/95' : 'bottom-[-6px] border-t-[6px] border-t-stone-800/95'
+        }`}></div>
       <Sparkles size={12} className="shrink-0 text-orange-400" />
       {text}
     </motion.div>
@@ -1256,7 +1254,7 @@ const App: React.FC = () => {
           const getProfileFn = httpsCallable(functions, 'getUserProfile');
           const res: any = await getProfileFn();
           setUserProfile(res.data);
-          
+
           const { doc, setDoc, serverTimestamp } = await import('firebase/firestore');
           await setDoc(doc(db, 'users', user.uid), {
             email: user.email,
@@ -1317,7 +1315,7 @@ const App: React.FC = () => {
     } catch (err) { console.log('Erro ao compartilhar:', err); }
   };
 
-   // showToast was here, moved higher
+  // showToast was here, moved higher
 
   // ==============================================================================
   // CORREÇÃO: BUSCA DE PROJETOS E SINCRONIA DO AUTH
@@ -1648,7 +1646,7 @@ const App: React.FC = () => {
       console.log("Resultado da IA recebido:", result.data ? "Sucesso (HTML presente)" : "Falha (Sem dados)");
       setAiContent(result.data);
       const extractedImages = extractCustomImages(generatedHtml);
-      
+
       // Mesclar imagens geradas pela IA caso o usuário não tenha enviado as dele manualmente
       const mergedImages: Record<string, string> = { ...extractedImages };
       if (result.data.heroImage && !mergedImages['hero-img']) mergedImages['hero-img'] = result.data.heroImage;
@@ -1713,7 +1711,7 @@ const App: React.FC = () => {
       if (e.data?.type === 'ACTION_START_MAGIC') {
         if (!formData.businessName) return showToast('Digite o nome da sua empresa!', 'warning');
         if (floatDomainStatus.available === false) return showToast('Este endereço não está disponível.', 'warning');
-        
+
         const desc = formData.description || `Uma empresa moderna e inovadora chamada ${formData.businessName}.`;
         handleGenerate(desc);
         setIsMenuOpen(true);
@@ -1732,10 +1730,10 @@ const App: React.FC = () => {
 
     let targetSlugForPublish = currentProjectSlug;
     if (!currentProjectSlug || hasUnsavedChanges) {
-       showToast('Salvando últimas alterações...', 'info');
-       const savedSlug = await handleSaveOrUpdateSite();
-       if (!savedSlug) return; // Aborta publicação se falhar
-       if (typeof savedSlug === 'string') targetSlugForPublish = savedSlug;
+      showToast('Salvando últimas alterações...', 'info');
+      const savedSlug = await handleSaveOrUpdateSite();
+      if (!savedSlug) return; // Aborta publicação se falhar
+      if (typeof savedSlug === 'string') targetSlugForPublish = savedSlug;
     }
 
     if (!targetSlugForPublish) {
@@ -1769,10 +1767,10 @@ const App: React.FC = () => {
       setPublishModalUrl(publicUrl);
       showToast(isAlreadyPublished ? 'Atualização no ar! Seu site foi atualizado com sucesso.' : 'Site Publicado! Acesse: ' + publicUrl, 'success');
       nextGuideStep(4); // Passo 4: Pagamento
-    } catch (err: any) { 
+    } catch (err: any) {
       const errMsg = err.message || '';
       console.error("[Deploy] Falha na Publicação:", err);
-      
+
       if (err.code === 'unauthenticated' || errMsg.includes('Firebase Hosting Token')) {
         showToast('O servidor negou acesso (Credencial Cloud ausente). A publicação falhou!', 'error');
       } else if (errMsg.includes('violar nossas políticas')) {
@@ -1782,9 +1780,9 @@ const App: React.FC = () => {
         setActiveTab('assinatura');
         setIsMenuOpen(true);
       } else {
-        showToast('Erro ao publicar: ' + errMsg, 'error'); 
+        showToast('Erro ao publicar: ' + errMsg, 'error');
       }
-    } 
+    }
     finally { setIsPublishing(false); }
   };
 
@@ -1816,9 +1814,9 @@ const App: React.FC = () => {
     setCheckoutLoading(`${projectId}-${planType}`);
     try {
       const createCheckoutFn = httpsCallable(functions, 'createStripeCheckoutSession');
-      const res: any = await createCheckoutFn({ 
-        projectId, 
-        origin: window.location.origin, 
+      const res: any = await createCheckoutFn({
+        projectId,
+        origin: window.location.origin,
         planType,
         priceId: priceId || selectedPriceId
       });
@@ -1871,7 +1869,7 @@ const App: React.FC = () => {
     setRegisterLater(project.officialDomain === 'Pendente');
     setHasUnsavedChanges(false);
     setActiveTab('geral');
-    
+
     if (window.innerWidth < 768) {
       setIsMenuOpen(false); // Se for celular, já fecha o menu para mostrar o site carregado
     }
@@ -1915,14 +1913,14 @@ const App: React.FC = () => {
       await updateProfileFn(data);
       setUserProfile((prev: any) => ({ ...prev, ...data, kycCompleted: true }));
       setIsProfileModalOpen(false);
-      
+
       // Auto-resume publication if we have a currentProjectSlug context
       if (currentProjectSlug) {
-         showToast('Identidade verificada! Retomando publicação...', 'success');
-         // Use setTimeout to allow React state to flush
-         setTimeout(() => handlePublishSite(), 500);
+        showToast('Identidade verificada! Retomando publicação...', 'success');
+        // Use setTimeout to allow React state to flush
+        setTimeout(() => handlePublishSite(), 500);
       } else {
-         showToast('Perfil atualizado com sucesso!', 'success');
+        showToast('Perfil atualizado com sucesso!', 'success');
       }
     } catch (error: any) {
       throw error;
@@ -1949,40 +1947,40 @@ const App: React.FC = () => {
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed bottom-[84px] left-0 right-0 z-[240] bg-white/80 border-t border-stone-200/70 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] rounded-t-[2.5rem] flex flex-col max-h-[30vh] overflow-hidden backdrop-blur-xl"
           >
-           <div className="p-4 bg-stone-50/80 backdrop-blur-md border-b border-stone-100 flex justify-between items-center">
+            <div className="p-4 bg-stone-50/80 backdrop-blur-md border-b border-stone-100 flex justify-between items-center">
               <span className="text-[10px] font-black uppercase text-stone-500 tracking-widest pl-2">Configurações Rápidas</span>
               <button onClick={() => setIsMobileWizardOpen(false)} className="bg-stone-200/50 p-1.5 rounded-full text-stone-500">
-                  <X size={16} />
+                <X size={16} />
               </button>
-           </div>
-           
-           <div className="p-4 pb-0 flex-1 overflow-y-auto">
-             <div className="grid grid-cols-5 gap-2">
-               <button 
+            </div>
+
+            <div className="p-4 pb-0 flex-1 overflow-y-auto">
+              <div className="grid grid-cols-5 gap-2">
+                <button
                   onClick={() => setActiveMobileSheet('dashboard')}
                   className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl active:scale-95 transition-all text-center ${activeMobileSheet === 'dashboard' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-indigo-50 border border-indigo-100 text-indigo-600'}`}
-               >
-                 <LayoutDashboard size={16} />
-                 <span className="text-[9px] font-bold leading-tight">Painel</span>
-               </button>
-               {categories.map(c => (
-                 <button 
-                   key={c.id} 
-                   onClick={() => {
-                     if (!generatedHtml) {
-                       showToast('Gere um site ou selecione um existente primeiro.', 'info');
-                       return;
-                     }
-                     setActiveMobileSheet(c.id);
-                   }}
-                   className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl active:scale-95 transition-all text-center ${activeMobileSheet === c.id ? 'bg-stone-900 text-white' : 'bg-stone-50 border border-stone-100 text-stone-600'} ${!generatedHtml ? 'opacity-50 grayscale' : ''}`}
-                 >
-                   {c.icon}
-                   <span className="text-[9px] font-bold leading-tight">{c.title}</span>
-                 </button>
-               ))}
-             </div>
-           </div>
+                >
+                  <LayoutDashboard size={16} />
+                  <span className="text-[9px] font-bold leading-tight">Painel</span>
+                </button>
+                {categories.map(c => (
+                  <button
+                    key={c.id}
+                    onClick={() => {
+                      if (!generatedHtml) {
+                        showToast('Gere um site ou selecione um existente primeiro.', 'info');
+                        return;
+                      }
+                      setActiveMobileSheet(c.id);
+                    }}
+                    className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl active:scale-95 transition-all text-center ${activeMobileSheet === c.id ? 'bg-stone-900 text-white' : 'bg-stone-50 border border-stone-100 text-stone-600'} ${!generatedHtml ? 'opacity-50 grayscale' : ''}`}
+                  >
+                    {c.icon}
+                    <span className="text-[9px] font-bold leading-tight">{c.title}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1991,246 +1989,284 @@ const App: React.FC = () => {
 
   const renderMobileBottomSheet = () => {
     if (!activeMobileSheet) return null;
+
+    const sheetCategories = [
+      { id: 'dashboard', title: 'Painel', icon: <LayoutDashboard size={14} /> },
+      { id: 'visual', title: 'Visual', icon: <Palette size={14} /> },
+      { id: 'social', title: 'Redes', icon: <Instagram size={14} /> },
+      { id: 'delivery', title: 'Delivery', icon: <Rocket size={14} /> },
+      { id: 'contato', title: 'Contato', icon: <Phone size={14} /> },
+      { id: 'plano', title: 'Plano', icon: <CreditCard size={14} /> },
+    ];
+
     return (
       <AnimatePresence>
         {activeMobileSheet && (
           <>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setActiveMobileSheet(null)}
-              className="fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-[150]" 
+              className="fixed inset-0 bg-stone-900/60 backdrop-blur-md z-[150]"
             />
             <motion.div
               initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed bottom-0 left-0 right-0 z-[160] bg-white rounded-t-[2.5rem] max-h-[85vh] flex flex-col shadow-2xl"
+              className="fixed bottom-0 left-0 right-0 z-[160] bg-white rounded-t-[2.5rem] max-h-[88vh] flex flex-col shadow-[0_-20px_50px_rgba(0,0,0,0.15)] ring-1 ring-stone-200"
             >
-              <div className="px-6 py-4 flex items-center justify-between border-b border-stone-100">
-                 <h3 className="text-sm font-black text-stone-900">Configuração</h3>
-                  <button onClick={() => { setActiveMobileSheet(null); }} className="bg-stone-100 p-2 rounded-full text-stone-600">
-                    <ChevronDown size={18} />
-                  </button>
+              {/* Handle Bar */}
+              <div className="w-full flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing" onClick={() => setActiveMobileSheet(null)}>
+                <div className="w-12 h-1.5 bg-stone-200 rounded-full" />
               </div>
-              <div className="p-5 overflow-y-auto pb-10 space-y-6 flex-1">
-                  {/* ID: dashboard */}
-                  {activeMobileSheet === 'dashboard' && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Seus Projetos</h4>
-                        {loggedUserEmail && <button onClick={handleLogout} className="text-[10px] font-bold text-red-500">Sair da Conta</button>}
+
+              {/* Title & Navigation Chips */}
+              <div className="px-6 py-2">
+                <div className="flex items-center justify-between mb-3 pt-1">
+                  <h3 className="text-xs font-black text-stone-950 uppercase tracking-tight italic">Configuração do Site</h3>
+                  <button onClick={() => setActiveMobileSheet(null)} className="text-stone-400 p-1">
+                    <X size={16} />
+                  </button>
+                </div>
+
+                {/* Navigation Chips (Google Style) */}
+                <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide -mx-2 px-2 mask-linear-right">
+                  {sheetCategories.map(c => {
+                    const isActive = activeMobileSheet === c.id;
+                    const isDisabled = !generatedHtml && c.id !== 'dashboard';
+                    return (
+                      <button
+                        key={c.id}
+                        onClick={() => !isDisabled && setActiveMobileSheet(c.id)}
+                        className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${isActive ? 'bg-orange-500 text-white border-orange-600 shadow-lg shadow-orange-500/20' : 'bg-stone-50 text-stone-500 border-stone-100 hover:border-stone-300'} ${isDisabled ? 'opacity-30 cursor-not-allowed' : ''}`}
+                      >
+                        {c.icon}
+                        {c.title}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Scrollable Content Container */}
+              <div className="p-6 overflow-y-auto pb-32 space-y-8 flex-1">
+                {/* ID: dashboard */}
+                {activeMobileSheet === 'dashboard' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Seus Projetos</h4>
+                      {loggedUserEmail && <button onClick={handleLogout} className="text-[10px] font-bold text-red-500">Sair da Conta</button>}
+                    </div>
+                    {!loggedUserEmail ? (
+                      <div className="bg-stone-50 rounded-2xl p-8 border border-stone-100 text-center">
+                        <p className="text-xs text-stone-500 font-bold mb-4">Faça login para ver seus sites.</p>
+                        <button onClick={() => { setIsLoginOpen(true); setActiveMobileSheet(null); }} className="w-full bg-indigo-600 text-white py-3 rounded-xl font-black text-[10px] uppercase">Fazer Login</button>
                       </div>
-                      {!loggedUserEmail ? (
-                         <div className="bg-stone-50 rounded-2xl p-8 border border-stone-100 text-center">
-                           <p className="text-xs text-stone-500 font-bold mb-4">Faça login para ver seus sites.</p>
-                           <button onClick={() => { setIsLoginOpen(true); setActiveMobileSheet(null); }} className="w-full bg-indigo-600 text-white py-3 rounded-xl font-black text-[10px] uppercase">Fazer Login</button>
-                         </div>
-                      ) : (
-                         <div className="space-y-3">
-                           {savedProjects.length === 0 ? (
-                             <p className="text-[10px] text-stone-400 italic text-center py-6">Nenhum site encontrado.</p>
-                           ) : (
-                             savedProjects.map(p => (
-                               <div
-                                 key={p.id}
-                                 role="button"
-                                 tabIndex={0}
-                                 onClick={() => { handleLoadProject(p); setActiveMobileSheet(null); }}
-                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { handleLoadProject(p); setActiveMobileSheet(null); } }}
-                                 className={`flex items-center gap-3 bg-stone-50 border border-stone-200 p-3 rounded-2xl cursor-pointer ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-500' : ''}`}
-                               >
-                                 <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-bold text-stone-800 truncate">{p.businessName || 'Sem título'}</p>
-                                    <p className="text-[9px] font-mono text-stone-400 truncate">{p.publishUrl?.replace('https://', '') || 'Rascunho'}</p>
-                                 </div>
-                                 <ChevronRight size={14} className="text-stone-400" />
-                               </div>
-                             ))
-                           )}
-                           <div className="pt-4 border-t border-stone-100 text-center">
-                             <button onClick={() => { window.location.reload(); }} className="text-[10px] font-black text-indigo-600 uppercase">+ Criar Novo</button>
-                           </div>
-                         </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {savedProjects.length === 0 ? (
+                          <p className="text-[10px] text-stone-400 italic text-center py-6">Nenhum site encontrado.</p>
+                        ) : (
+                          savedProjects.map(p => (
+                            <div
+                              key={p.id}
+                              role="button"
+                              tabIndex={0}
+                              onClick={() => { handleLoadProject(p); setActiveMobileSheet(null); }}
+                              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { handleLoadProject(p); setActiveMobileSheet(null); } }}
+                              className={`flex items-center gap-3 bg-stone-50 border border-stone-200 p-3 rounded-2xl cursor-pointer ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-500' : ''}`}
+                            >
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-bold text-stone-800 truncate">{p.businessName || 'Sem título'}</p>
+                                <p className="text-[9px] font-mono text-stone-400 truncate">{p.publishUrl?.replace('https://', '') || 'Rascunho'}</p>
+                              </div>
+                              <ChevronRight size={14} className="text-stone-400" />
+                            </div>
+                          ))
+                        )}
+                        <div className="pt-4 border-t border-stone-100 text-center">
+                          <button onClick={() => { window.location.reload(); }} className="text-[10px] font-black text-indigo-600 uppercase">+ Criar Novo</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* ID: visual */}
+                {activeMobileSheet === 'visual' && (
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Nome do Seu Negócio</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm font-bold text-stone-800 outline-none" placeholder="Ex: Pizzaria do Zé" value={formData.businessName} onChange={e => handleFloatNameChange(e.target.value)} />
+                    </div>
+                    <div className="space-y-4">
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">O Que Vocês Fazem?</label>
+                      <textarea className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm text-stone-800 h-24 outline-none resize-none font-medium leading-relaxed" placeholder="Ex: Somos uma pizzaria..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Modelo</label>
+                        <select value={formData.layoutStyle} onChange={(e) => { setFormData({ ...formData, layoutStyle: e.target.value }); setHasUnsavedChanges(true); }} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs font-bold text-stone-800 appearance-none outline-none">
+                          {LAYOUT_STYLES.map(s => (<option key={s.id} value={s.id}>{s.label}</option>))}
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Logo</label>
+                        <label className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs font-bold text-stone-600 flex items-center justify-center gap-2 cursor-pointer">
+                          {formData.logoBase64 ? <Check size={14} className="text-teal-500" /> : <Upload size={14} />}
+                          {formData.logoBase64 ? 'Alterar' : 'Subir'}
+                          <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                        </label>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Cores do Site</label>
+                      <div className="grid grid-cols-5 gap-2">
+                        {COLORS.slice(0, 10).map(c => (
+                          <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-full aspect-square rounded-xl border-2 transition-all flex items-center justify-center ${formData.colorId === c.id ? 'border-teal-500 scale-110 shadow-lg' : 'border-transparent bg-stone-50'}`} style={{ backgroundColor: c.c1 }}>
+                            {formData.colorId === c.id && <Check size={14} className="text-white drop-shadow-md" />}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-2 pt-4 border-t border-stone-100">
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Domínio Temporário</label>
+                      <div className="flex bg-stone-50 border border-stone-200 rounded-xl overflow-hidden">
+                        <input className="flex-1 bg-transparent px-3 py-3 text-sm font-mono font-bold text-teal-600 outline-none w-full text-right" placeholder="meu-site" value={formData.customSlug} onChange={e => handleCustomSlugChange(e.target.value)} />
+                        <span className="bg-stone-100 px-3 py-3 text-[9px] font-bold text-stone-400 flex items-center">.sitezing.com.br</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ID: social */}
+                {activeMobileSheet === 'social' && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Instagram</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-pink-500" placeholder="@usuario ou Link" value={formData.instagram} onChange={e => { setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Facebook</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-600" placeholder="Link da Página" value={formData.facebook} onChange={e => { setFormData({ ...formData, facebook: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">TikTok</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-black" placeholder="@usuario ou Link" value={formData.tiktok} onChange={e => { setFormData({ ...formData, tiktok: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">YouTube</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-red-600" placeholder="Link do Canal" value={formData.youtube} onChange={e => { setFormData({ ...formData, youtube: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                  </div>
+                )}
+
+                {/* ID: delivery */}
+                {activeMobileSheet === 'delivery' && (
+                  <div className="space-y-4">
+                    <div className="p-4 bg-orange-50 border border-orange-100 rounded-2xl mb-2">
+                      <p className="text-[11px] text-orange-800 font-medium">Configure seus canais de venda direta. Os botões aparecerão automaticamente em seu site.</p>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-2 block">iFood</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-orange-500" placeholder="Link da loja no iFood" value={formData.ifood} onChange={e => { setFormData({ ...formData, ifood: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-2 block">Rappi</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-orange-600" placeholder="Link do Rappi" value={formData.rappi} onChange={e => { setFormData({ ...formData, rappi: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-2 block">Zé Delivery</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-yellow-500" placeholder="Link do Zé Delivery" value={formData.zeDelivery} onChange={e => { setFormData({ ...formData, zeDelivery: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2 block">Menu / Link Direto</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-500" placeholder="Cardápio Digital ou Outro Site" value={formData.directLink} onChange={e => { setFormData({ ...formData, directLink: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                  </div>
+                )}
+
+                {/* ID: contato */}
+                {activeMobileSheet === 'contato' && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">WhatsApp de Atendimento</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-emerald-500" placeholder="DDD + Número" value={formData.whatsapp} onChange={e => { setFormData({ ...formData, whatsapp: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Telefone / Fixo</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Número de contato" value={formData.phone} onChange={e => { setFormData({ ...formData, phone: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">E-mail</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Ex: contato@suaempresa.com" value={formData.email} onChange={e => { setFormData({ ...formData, email: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                    <div className="pt-4 border-t border-stone-100">
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Endereço Físico</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Rua, Número, Bairro - Cidade" value={formData.address} onChange={e => { setFormData({ ...formData, address: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                    <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 flex items-center justify-between">
+                      <span className="text-[11px] font-black text-stone-800 uppercase">Exibir Mapa no Site</span>
+                      <div onClick={() => { setFormData({ ...formData, showMap: !formData.showMap }); setHasUnsavedChanges(true); }} className={`w-12 h-6 rounded-full relative transition-all cursor-pointer ${formData.showMap ? 'bg-teal-500' : 'bg-stone-300'}`}>
+                        <motion.div animate={{ x: formData.showMap ? 24 : 4 }} className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ID: plano */}
+                {activeMobileSheet === 'plano' && (
+                  <div className="space-y-6">
+                    <div className="flex flex-col items-center text-center space-y-2 mb-6">
+                      <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 mb-2">
+                        <CreditCard size={24} />
+                      </div>
+                      <h4 className="text-sm font-black text-stone-900 uppercase">Escolha seu Plano</h4>
+                      <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest">Ativação imediata após o pagamento</p>
+                    </div>
+
+                    <div className="space-y-4">
+                      {platformConfigs?.plans?.map((p: any) => {
+                        const isAnual = p.interval === 'year';
+                        return (
+                          <button
+                            key={p.priceId}
+                            onClick={() => {
+                              window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', priceId: p.priceId, plan: p.name.toLowerCase() }, '*');
+                              setActiveMobileSheet(null);
+                              setIsMobileWizardOpen(false);
+                            }}
+                            className={`w-full text-left p-4 rounded-2xl border-2 transition-all active:scale-95 ${isAnual ? 'border-orange-500 bg-orange-50/30' : 'border-stone-100 bg-stone-50'}`}
+                          >
+                            <div className="flex justify-between items-center mb-1">
+                              <span className={`text-[10px] font-black uppercase tracking-widest ${isAnual ? 'text-orange-600' : 'text-stone-400'}`}>{p.name}</span>
+                              {isAnual && <span className="bg-orange-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase">Melhor Oferta</span>}
+                            </div>
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-lg font-black text-stone-900">R$ {p.price}</span>
+                              <span className="text-[9px] text-stone-400 font-bold">/ {p.interval === 'month' ? 'mês' : (p.interval === 'year' ? 'ano' : p.interval)}</span>
+                            </div>
+                            <p className="text-[9px] text-stone-400 mt-2 font-medium">{p.description || 'Hospedagem profissional SiteZing'}</p>
+                          </button>
+                        );
+                      })}
+
+                      {(!platformConfigs?.plans || platformConfigs.plans.length === 0) && (
+                        <div className="p-8 text-center bg-stone-50 rounded-2xl border border-dashed border-stone-200">
+                          <p className="text-[10px] text-stone-400 font-bold italic">Carregando opções de planos...</p>
+                        </div>
                       )}
                     </div>
-                  )}
 
-                  {/* ID: visual */}
-                  {activeMobileSheet === 'visual' && (
-                      <div className="space-y-6">
-                         <div className="space-y-4">
-                           <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Nome do Seu Negócio</label>
-                           <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm font-bold text-stone-800 outline-none" placeholder="Ex: Pizzaria do Zé" value={formData.businessName} onChange={e => handleFloatNameChange(e.target.value)} />
-                         </div>
-                         <div className="space-y-4">
-                           <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">O Que Vocês Fazem?</label>
-                           <textarea className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm text-stone-800 h-24 outline-none resize-none font-medium leading-relaxed" placeholder="Ex: Somos uma pizzaria..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} />
-                         </div>
-                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                               <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Modelo</label>
-                               <select value={formData.layoutStyle} onChange={(e) => { setFormData({ ...formData, layoutStyle: e.target.value }); setHasUnsavedChanges(true); }} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs font-bold text-stone-800 appearance-none outline-none">
-                                  {LAYOUT_STYLES.map(s => (<option key={s.id} value={s.id}>{s.label}</option>))}
-                               </select>
-                            </div>
-                            <div className="space-y-2">
-                               <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Logo</label>
-                               <label className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs font-bold text-stone-600 flex items-center justify-center gap-2 cursor-pointer">
-                                  {formData.logoBase64 ? <Check size={14} className="text-teal-500" /> : <Upload size={14} />}
-                                  {formData.logoBase64 ? 'Alterar' : 'Subir'}
-                                  <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
-                               </label>
-                            </div>
-                         </div>
-                         <div className="space-y-4">
-                           <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Cores do Site</label>
-                           <div className="grid grid-cols-5 gap-2">
-                             {COLORS.slice(0, 10).map(c => (
-                               <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-full aspect-square rounded-xl border-2 transition-all flex items-center justify-center ${formData.colorId === c.id ? 'border-teal-500 scale-110 shadow-lg' : 'border-transparent bg-stone-50'}`} style={{ backgroundColor: c.c1 }}>
-                                  {formData.colorId === c.id && <Check size={14} className="text-white drop-shadow-md" />}
-                               </button>
-                             ))}
-                           </div>
-                         </div>
-                         <div className="space-y-2 pt-4 border-t border-stone-100">
-                           <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Domínio Temporário</label>
-                           <div className="flex bg-stone-50 border border-stone-200 rounded-xl overflow-hidden">
-                             <input className="flex-1 bg-transparent px-3 py-3 text-sm font-mono font-bold text-teal-600 outline-none w-full text-right" placeholder="meu-site" value={formData.customSlug} onChange={e => handleCustomSlugChange(e.target.value)} />
-                             <span className="bg-stone-100 px-3 py-3 text-[9px] font-bold text-stone-400 flex items-center">.sitezing.com.br</span>
-                           </div>
-                         </div>
-                      </div>
-                  )}
-
-                  {/* ID: social */}
-                  {activeMobileSheet === 'social' && (
-                     <div className="space-y-4">
-                       <div>
-                         <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Instagram</label>
-                         <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-pink-500" placeholder="@usuario ou Link" value={formData.instagram} onChange={e => { setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true) }} />
-                       </div>
-                       <div>
-                         <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Facebook</label>
-                         <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-600" placeholder="Link da Página" value={formData.facebook} onChange={e => { setFormData({ ...formData, facebook: e.target.value }); setHasUnsavedChanges(true) }} />
-                       </div>
-                       <div>
-                         <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">TikTok</label>
-                         <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-black" placeholder="@usuario ou Link" value={formData.tiktok} onChange={e => { setFormData({ ...formData, tiktok: e.target.value }); setHasUnsavedChanges(true) }} />
-                       </div>
-                       <div>
-                         <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">YouTube</label>
-                         <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-red-600" placeholder="Link do Canal" value={formData.youtube} onChange={e => { setFormData({ ...formData, youtube: e.target.value }); setHasUnsavedChanges(true) }} />
-                       </div>
-                     </div>
-                  )}
-
-                  {/* ID: delivery */}
-                  {activeMobileSheet === 'delivery' && (
-                     <div className="space-y-4">
-                        <div className="p-4 bg-orange-50 border border-orange-100 rounded-2xl mb-2">
-                           <p className="text-[11px] text-orange-800 font-medium">Configure seus canais de venda direta. Os botões aparecerão automaticamente em seu site.</p>
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-2 block">iFood</label>
-                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-orange-500" placeholder="Link da loja no iFood" value={formData.ifood} onChange={e => { setFormData({ ...formData, ifood: e.target.value }); setHasUnsavedChanges(true) }} />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-2 block">Rappi</label>
-                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-orange-600" placeholder="Link do Rappi" value={formData.rappi} onChange={e => { setFormData({ ...formData, rappi: e.target.value }); setHasUnsavedChanges(true) }} />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-2 block">Zé Delivery</label>
-                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-yellow-500" placeholder="Link do Zé Delivery" value={formData.zeDelivery} onChange={e => { setFormData({ ...formData, zeDelivery: e.target.value }); setHasUnsavedChanges(true) }} />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2 block">Menu / Link Direto</label>
-                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-500" placeholder="Cardápio Digital ou Outro Site" value={formData.directLink} onChange={e => { setFormData({ ...formData, directLink: e.target.value }); setHasUnsavedChanges(true) }} />
-                        </div>
-                     </div>
-                  )}
-
-                  {/* ID: contato */}
-                  {activeMobileSheet === 'contato' && (
-                     <div className="space-y-4">
-                        <div>
-                          <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">WhatsApp de Atendimento</label>
-                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-emerald-500" placeholder="DDD + Número" value={formData.whatsapp} onChange={e => { setFormData({ ...formData, whatsapp: e.target.value }); setHasUnsavedChanges(true) }} />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Telefone / Fixo</label>
-                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Número de contato" value={formData.phone} onChange={e => { setFormData({ ...formData, phone: e.target.value }); setHasUnsavedChanges(true) }} />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">E-mail</label>
-                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Ex: contato@suaempresa.com" value={formData.email} onChange={e => { setFormData({ ...formData, email: e.target.value }); setHasUnsavedChanges(true) }} />
-                        </div>
-                        <div className="pt-4 border-t border-stone-100">
-                          <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Endereço Físico</label>
-                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Rua, Número, Bairro - Cidade" value={formData.address} onChange={e => { setFormData({ ...formData, address: e.target.value }); setHasUnsavedChanges(true) }} />
-                        </div>
-                        <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 flex items-center justify-between">
-                           <span className="text-[11px] font-black text-stone-800 uppercase">Exibir Mapa no Site</span>
-                           <div onClick={() => { setFormData({ ...formData, showMap: !formData.showMap }); setHasUnsavedChanges(true); }} className={`w-12 h-6 rounded-full relative transition-all cursor-pointer ${formData.showMap ? 'bg-teal-500' : 'bg-stone-300'}`}>
-                              <motion.div animate={{ x: formData.showMap ? 24 : 4 }} className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
-                           </div>
-                        </div>
-                     </div>
-                  )}
-
-                  {/* ID: plano */}
-                  {activeMobileSheet === 'plano' && (
-                    <div className="space-y-6">
-                      <div className="flex flex-col items-center text-center space-y-2 mb-6">
-                        <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 mb-2">
-                           <CreditCard size={24} />
-                        </div>
-                        <h4 className="text-sm font-black text-stone-900 uppercase">Escolha seu Plano</h4>
-                        <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest">Ativação imediata após o pagamento</p>
-                      </div>
-
-                      <div className="space-y-4">
-                        {platformConfigs?.plans?.map((p: any) => {
-                          const isAnual = p.interval === 'year';
-                          return (
-                            <button 
-                              key={p.priceId}
-                              onClick={() => {
-                                 window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', priceId: p.priceId, plan: p.name.toLowerCase() }, '*');
-                                 setActiveMobileSheet(null);
-                                 setIsMobileWizardOpen(false);
-                              }}
-                              className={`w-full text-left p-4 rounded-2xl border-2 transition-all active:scale-95 ${isAnual ? 'border-orange-500 bg-orange-50/30' : 'border-stone-100 bg-stone-50'}`}
-                            >
-                               <div className="flex justify-between items-center mb-1">
-                                  <span className={`text-[10px] font-black uppercase tracking-widest ${isAnual ? 'text-orange-600' : 'text-stone-400'}`}>{p.name}</span>
-                                  {isAnual && <span className="bg-orange-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase">Melhor Oferta</span>}
-                               </div>
-                               <div className="flex items-baseline gap-1">
-                                  <span className="text-lg font-black text-stone-900">R$ {p.price}</span>
-                                  <span className="text-[9px] text-stone-400 font-bold">/ {p.interval === 'month' ? 'mês' : (p.interval === 'year' ? 'ano' : p.interval)}</span>
-                               </div>
-                               <p className="text-[9px] text-stone-400 mt-2 font-medium">{p.description || 'Hospedagem profissional SiteZing'}</p>
-                            </button>
-                          );
-                        })}
-                        
-                        {(!platformConfigs?.plans || platformConfigs.plans.length === 0) && (
-                           <div className="p-8 text-center bg-stone-50 rounded-2xl border border-dashed border-stone-200">
-                             <p className="text-[10px] text-stone-400 font-bold italic">Carregando opções de planos...</p>
-                           </div>
-                        )}
-                      </div>
-
-                      <div className="pt-6 border-t border-stone-100">
-                        <div className="bg-teal-50 rounded-xl p-4 flex items-center gap-3">
-                           <ShieldCheck size={20} className="text-teal-600" />
-                           <div className="flex-1">
-                              <p className="text-[10px] font-black text-teal-800 uppercase">Pagamento Seguro</p>
-                              <p className="text-[9px] text-teal-600 font-medium">Processado via Stripe com proteção total.</p>
-                           </div>
+                    <div className="pt-6 border-t border-stone-100">
+                      <div className="bg-teal-50 rounded-xl p-4 flex items-center gap-3">
+                        <ShieldCheck size={20} className="text-teal-600" />
+                        <div className="flex-1">
+                          <p className="text-[10px] font-black text-teal-800 uppercase">Pagamento Seguro</p>
+                          <p className="text-[9px] text-teal-600 font-medium">Processado via Stripe com proteção total.</p>
                         </div>
                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
 
               </div>
             </motion.div>
@@ -2577,29 +2613,29 @@ const App: React.FC = () => {
                 })()}
 
                 <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-6 pb-6 bg-white">
-                                    {activeTab === 'geral' && (
+                  {activeTab === 'geral' && (
                     <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                       {/* CATEGORIAS SUPERIORES - ÍCONES MENORES */}
                       <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide px-1">
-                        <button 
+                        <button
                           onClick={() => setActiveCategory(activeCategory === 'visual' ? null : 'visual')}
                           className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${activeCategory === 'visual' ? 'bg-indigo-600 text-white border-indigo-700 shadow-lg shadow-indigo-500/30' : 'bg-white text-stone-600 border-stone-200 hover:border-indigo-300'}`}
                         >
                           <Palette size={14} /> Visual
                         </button>
-                        <button 
+                        <button
                           onClick={() => setActiveCategory(activeCategory === 'social' ? null : 'social')}
                           className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${activeCategory === 'social' ? 'bg-pink-600 text-white border-pink-700 shadow-lg shadow-pink-500/30' : 'bg-white text-stone-600 border-stone-200 hover:border-pink-300'}`}
                         >
                           <Instagram size={14} /> Redes
                         </button>
-                        <button 
+                        <button
                           onClick={() => setActiveCategory(activeCategory === 'delivery' ? null : 'delivery')}
                           className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${activeCategory === 'delivery' ? 'bg-red-600 text-white border-red-700 shadow-lg shadow-red-500/30' : 'bg-white text-stone-600 border-stone-200 hover:border-red-300'}`}
                         >
                           <Rocket size={14} /> Delivery
                         </button>
-                        <button 
+                        <button
                           onClick={() => setActiveCategory(activeCategory === 'contato' ? null : 'contato')}
                           className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${activeCategory === 'contato' ? 'bg-emerald-600 text-white border-emerald-700 shadow-lg shadow-emerald-500/30' : 'bg-white text-stone-600 border-stone-200 hover:border-emerald-300'}`}
                         >
@@ -2612,7 +2648,7 @@ const App: React.FC = () => {
                         {(!activeCategory || activeCategory === 'visual') && (
                           <div className="space-y-4 animate-in fade-in duration-500">
                             <label className="text-[11px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2 mb-2"><Palette size={12} /> Design & Identidade</label>
-                            
+
                             <div className="grid grid-cols-1 gap-4">
                               <div className="space-y-1.5">
                                 <label className="text-[10px] font-bold text-stone-500 uppercase px-1">Nome do Negócio</label>
@@ -2696,9 +2732,9 @@ const App: React.FC = () => {
                       </div>
 
                       <div className="pt-8 mt-6 border-t border-stone-100">
-                        <button 
-                          onClick={() => handleGenerate()} 
-                          disabled={isGenerating} 
+                        <button
+                          onClick={() => handleGenerate()}
+                          disabled={isGenerating}
                           className="w-full bg-stone-900 hover:bg-black text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-2 transition-all shadow-xl shadow-stone-900/10"
                         >
                           {isGenerating ? <Loader2 className="animate-spin" /> : <Sparkles size={16} className="text-orange-400" />} {generatedHtml ? "Atualizar Site c/ IA" : "Gerar Meu Site"}
@@ -2714,7 +2750,7 @@ const App: React.FC = () => {
                         <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-100 blur-[50px] rounded-full pointer-events-none"></div>
                         <h3 className="text-lg font-black text-stone-950 mb-1 flex items-center gap-2 relative z-10"><LayoutDashboard size={18} className="text-indigo-500" /> Meus Sites</h3>
                         <p className="text-xs text-stone-500 font-medium mb-6 relative z-10">Gerencie todos os seus projetos salvos na plataforma.</p>
-                        
+
                         {!loggedUserEmail ? (
                           <div className="text-center py-10 bg-stone-50 rounded-xl border border-stone-100">
                             <p className="text-sm text-stone-600 font-bold mb-4">Você precisa estar logado para ver seus sites.</p>
@@ -2755,9 +2791,9 @@ const App: React.FC = () => {
                           </div>
                         )}
                         {loggedUserEmail && (
-                           <div className="mt-6 text-center border-t border-stone-100 pt-6">
-                              <button onClick={() => { setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', youtube: '', x: '', rappi: '', zeDelivery: '', directLink: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' }); setCurrentProjectSlug(null); setGeneratedHtml(null); setOfficialDomain(''); setPublishModalUrl(null); setActiveTab('geral'); setConfirmDialog({ title: 'Novo Site', message: 'Deseja iniciar um projeto em branco?', onConfirm: () => { window.location.reload(); } }) }} className="text-xs font-black text-indigo-600 hover:underline uppercase tracking-widest">+ Criar Novo Site</button>
-                           </div>
+                          <div className="mt-6 text-center border-t border-stone-100 pt-6">
+                            <button onClick={() => { setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', youtube: '', x: '', rappi: '', zeDelivery: '', directLink: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' }); setCurrentProjectSlug(null); setGeneratedHtml(null); setOfficialDomain(''); setPublishModalUrl(null); setActiveTab('geral'); setConfirmDialog({ title: 'Novo Site', message: 'Deseja iniciar um projeto em branco?', onConfirm: () => { window.location.reload(); } }) }} className="text-xs font-black text-indigo-600 hover:underline uppercase tracking-widest">+ Criar Novo Site</button>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -3071,10 +3107,10 @@ const App: React.FC = () => {
                                         <div className="flex items-end gap-1 mb-1">
                                           <span className="text-3xl font-black text-stone-950">R$ {p.price}</span>
                                           <span className="text-xs text-stone-500 font-medium pb-1">/
-                                            {p.interval === 'month' ? 'mês' : 
-                                             p.interval === 'bimestral' ? 'bimestre' :
-                                             p.interval === 'trimestral' ? 'trimestre' :
-                                             p.interval === 'semestral' ? 'semestre' : 'ano'}
+                                            {p.interval === 'month' ? 'mês' :
+                                              p.interval === 'bimestral' ? 'bimestre' :
+                                                p.interval === 'trimestral' ? 'trimestre' :
+                                                  p.interval === 'semestral' ? 'semestre' : 'ano'}
                                           </span>
                                         </div>
                                         {p.allowInstallments && (
@@ -3180,7 +3216,7 @@ const App: React.FC = () => {
                     );
                   })()}
 
-                  
+
                 </div>
 
                 {generatedHtml && (() => {
@@ -3261,18 +3297,18 @@ const App: React.FC = () => {
                 const plan = platformConfigs?.plans?.find((p: any) => p.id === selectedPlanModal || p.priceId === selectedPriceId);
                 const isAnual = plan?.interval === 'year';
                 const isFree = selectedPlanModal === 'free';
-                
+
                 return (
                   <>
                     <div className={`p-10 pb-12 text-center relative overflow-hidden ${isFree ? 'bg-stone-50' :
-                        isAnual ? 'bg-gradient-to-br from-orange-500 to-amber-600 text-white' : 'bg-gradient-to-br from-teal-600 to-emerald-700 text-white'
+                      isAnual ? 'bg-gradient-to-br from-orange-500 to-amber-600 text-white' : 'bg-gradient-to-br from-teal-600 to-emerald-700 text-white'
                       }`}>
                       {!isFree && (
                         <div className="absolute inset-0 opacity-10 mix-blend-overlay">
                           <img src={BRAND_LOGO} className="w-full h-full object-cover scale-150 rotate-12" alt="" />
                         </div>
                       )}
-                      
+
                       <div className="relative z-10 space-y-4">
                         <div className="inline-block px-4 py-1 rounded-full border border-current opacity-70 text-[10px] font-black uppercase tracking-[0.2em]">
                           {isFree ? 'Experimente Agora' : (isAnual ? 'Melhor Custo-Benefício' : 'Plano Flexível')}
@@ -3285,7 +3321,7 @@ const App: React.FC = () => {
                             <div className="flex items-end gap-1">
                               <span className="text-4xl font-black">R$ {plan.price}</span>
                               <span className="text-xs font-bold opacity-80 mb-1">
-                                /{plan.interval === 'month' ? 'mês' : 
+                                /{plan.interval === 'month' ? 'mês' :
                                   plan.interval === 'year' ? 'ano' : plan.interval}
                               </span>
                             </div>
@@ -3333,8 +3369,8 @@ const App: React.FC = () => {
                             setIsMenuOpen(true);
                           }}
                           className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.15em] transition-all shadow-xl hover:translate-y-[-2px] text-xs ${isFree
-                              ? 'bg-stone-900 text-white hover:bg-stone-800 shadow-stone-900/20'
-                              : isAnual ? 'bg-orange-500 text-white hover:bg-orange-400 shadow-orange-500/30' : 'bg-teal-600 text-white hover:bg-teal-500 shadow-teal-500/30'
+                            ? 'bg-stone-900 text-white hover:bg-stone-800 shadow-stone-900/20'
+                            : isAnual ? 'bg-orange-500 text-white hover:bg-orange-400 shadow-orange-500/30' : 'bg-teal-600 text-white hover:bg-teal-500 shadow-teal-500/30'
                             }`}
                         >
                           {isFree ? '🚀 Começar Teste Grátis' : '🚀 Criar meu site agora'}
@@ -3371,53 +3407,53 @@ const App: React.FC = () => {
               </div>
               <div className="p-6 md:p-8 overflow-y-auto w-full">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                   {(() => {
-                     const currentProjectData = savedProjects.find((px: any) => px.projectSlug === currentProjectSlug);
-                     return platformConfigs?.plans?.length > 0 ? (
-                       [...platformConfigs.plans]
-                         .filter((p: any) => p.name !== currentProjectData?.planSelected)
-                         .sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0))
-                         .map((p: any) => {
-                      const isAnual = p.interval === 'year';
-                      return (
-                        <div key={p.id} className={`bg-white p-6 rounded-2xl border ${isAnual ? 'border-orange-200 shadow-orange-500/10' : 'border-stone-200'} flex flex-col h-full relative overflow-hidden shadow-xl hover:-translate-y-1 transition-transform`}>
-                          <div className={`absolute top-0 right-0 ${isAnual ? 'bg-orange-500' : 'bg-stone-800'} text-white text-[10px] font-black uppercase px-3 py-1.5 rounded-bl-xl tracking-wider`}>
-                            {p.badge || (isAnual ? 'Mais Econômico' : 'Recomendado')}
-                          </div>
-                          <h4 className={`${isAnual ? 'text-orange-500' : 'text-stone-800'} font-black text-lg mb-2 uppercase tracking-tight`}>{p.name}</h4>
-                          <div className="flex items-end gap-1 mb-6">
-                            <span className="text-4xl font-black text-stone-950">R$ {p.price}</span>
-                            <span className="text-sm text-stone-500 font-bold pb-1">/{p.interval === 'month' ? 'mês' : p.interval === 'year' ? 'ano' : p.interval}</span>
-                          </div>
-                          <ul className="space-y-3 mb-8 flex-1">
-                            {p.features?.map((f: string, i: number) => (
-                              <li key={i} className="flex items-start gap-2 text-xs font-bold text-stone-600">
-                                <CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" />
-                                {f}
-                              </li>
-                            ))}
-                          </ul>
-                          <button
-                            onClick={() => {
-                              if (currentProjectSlug) {
-                                handleStripeCheckout(currentProjectSlug, p.name, p.priceId);
-                                setIsPlansBannerOpen(false);
-                              } else {
-                                setIsPlansBannerOpen(false);
-                                setTimeout(() => { window.location.hash = '#criarsite'; }, 50);
-                              }
-                            }}
-                            className={`w-full py-4 rounded-xl cursor-pointer font-black uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-2 text-xs ${isAnual ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/30' : 'bg-stone-900 text-white hover:bg-black shadow-lg shadow-black/20'}`}
-                          >
-                            <Rocket size={16} /> {currentProjectSlug ? `Assinar ${p.name}` : 'Criar meu site'}
-                          </button>
-                        </div>
-                      );
+                  {(() => {
+                    const currentProjectData = savedProjects.find((px: any) => px.projectSlug === currentProjectSlug);
+                    return platformConfigs?.plans?.length > 0 ? (
+                      [...platformConfigs.plans]
+                        .filter((p: any) => p.name !== currentProjectData?.planSelected)
+                        .sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0))
+                        .map((p: any) => {
+                          const isAnual = p.interval === 'year';
+                          return (
+                            <div key={p.id} className={`bg-white p-6 rounded-2xl border ${isAnual ? 'border-orange-200 shadow-orange-500/10' : 'border-stone-200'} flex flex-col h-full relative overflow-hidden shadow-xl hover:-translate-y-1 transition-transform`}>
+                              <div className={`absolute top-0 right-0 ${isAnual ? 'bg-orange-500' : 'bg-stone-800'} text-white text-[10px] font-black uppercase px-3 py-1.5 rounded-bl-xl tracking-wider`}>
+                                {p.badge || (isAnual ? 'Mais Econômico' : 'Recomendado')}
+                              </div>
+                              <h4 className={`${isAnual ? 'text-orange-500' : 'text-stone-800'} font-black text-lg mb-2 uppercase tracking-tight`}>{p.name}</h4>
+                              <div className="flex items-end gap-1 mb-6">
+                                <span className="text-4xl font-black text-stone-950">R$ {p.price}</span>
+                                <span className="text-sm text-stone-500 font-bold pb-1">/{p.interval === 'month' ? 'mês' : p.interval === 'year' ? 'ano' : p.interval}</span>
+                              </div>
+                              <ul className="space-y-3 mb-8 flex-1">
+                                {p.features?.map((f: string, i: number) => (
+                                  <li key={i} className="flex items-start gap-2 text-xs font-bold text-stone-600">
+                                    <CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                                    {f}
+                                  </li>
+                                ))}
+                              </ul>
+                              <button
+                                onClick={() => {
+                                  if (currentProjectSlug) {
+                                    handleStripeCheckout(currentProjectSlug, p.name, p.priceId);
+                                    setIsPlansBannerOpen(false);
+                                  } else {
+                                    setIsPlansBannerOpen(false);
+                                    setTimeout(() => { window.location.hash = '#criarsite'; }, 50);
+                                  }
+                                }}
+                                className={`w-full py-4 rounded-xl cursor-pointer font-black uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-2 text-xs ${isAnual ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/30' : 'bg-stone-900 text-white hover:bg-black shadow-lg shadow-black/20'}`}
+                              >
+                                <Rocket size={16} /> {currentProjectSlug ? `Assinar ${p.name}` : 'Criar meu site'}
+                              </button>
+                            </div>
+                          );
                         })
-                      ) : (
-                        <div className="col-span-3 text-center py-10 text-stone-500 font-bold">Nenhum plano configurado.</div>
-                      );
-                 })()}
+                    ) : (
+                      <div className="col-span-3 text-center py-10 text-stone-500 font-bold">Nenhum plano configurado.</div>
+                    );
+                  })()}
                 </div>
               </div>
             </motion.div>
@@ -3678,8 +3714,8 @@ const App: React.FC = () => {
                   {isUpdatePublish ? 'Atualização no Ar!' : 'Seu Site está no Ar!'}
                 </h2>
                 <p className="text-sm text-stone-500 font-medium">
-                  {isUpdatePublish 
-                    ? 'Suas alterações foram publicadas com sucesso e já estão refletindo no seu endereço oficial:' 
+                  {isUpdatePublish
+                    ? 'Suas alterações foram publicadas com sucesso e já estão refletindo no seu endereço oficial:'
                     : 'Parabéns! O projeto foi implantado e já pode ser acessado em todo o mundo através do link abaixo:'
                   }
                 </p>
@@ -3833,7 +3869,7 @@ const App: React.FC = () => {
                     {checkoutDetailsModal.planType || 'Plano Escolhido'}
                   </h4>
                   <p className="text-[10px] font-bold uppercase tracking-widest opacity-60 relative z-10">Confirmação de Assinatura</p>
-                  
+
                   {(() => {
                     const plan = platformConfigs?.plans?.find((p: any) => p.priceId === checkoutDetailsModal.priceId);
                     if (plan?.allowInstallments) {
@@ -3986,7 +4022,7 @@ const App: React.FC = () => {
       {/* MODAL DE PERFIL / KYC */}
       <AnimatePresence>
         {isProfileModalOpen && (
-          <ProfileForm 
+          <ProfileForm
             initialData={userProfile}
             onSubmit={handleProfileSubmit}
             onClose={() => setIsProfileModalOpen(false)}
