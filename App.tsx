@@ -1462,7 +1462,7 @@ const App: React.FC = () => {
     if (data.rappi) addSocialBtn(data.rappi.startsWith('http') ? data.rappi : `https://${data.rappi}`, '#FF441F', 'Rappi', '<span style="font-size: 15px; font-weight: 900; line-height: 1;">Rappi</span>');
     if (data.zeDelivery) addSocialBtn(data.zeDelivery.startsWith('http') ? data.zeDelivery : `https://${data.zeDelivery}`, '#FCCC24', 'Zé Delivery', '<span style="font-size: 15px; font-weight: 900; line-height: 1; color: black;">Zé</span>');
     if (data.directLink) addSocialBtn(data.directLink.startsWith('http') ? data.directLink : `https://${data.directLink}`, colors.c1, 'Comprar', '<i class="fas fa-external-link-alt"></i>');
- font-weight: 900; line-height: 1;">Keeta</span>');
+
 
     const shareBtnHtml = `<div class="glass-social-links-premium">[[SOCIAL_LINKS]]<div class="glass-social-link" onclick="zingShareSite()" title="Compartilhar Site" style="cursor:pointer; color: ${colors.c4};"><i class="fas fa-arrow-up-from-bracket"></i></div></div>`;
     replaceAll('[[SOCIAL_LINKS_CONTAINER]]', shareBtnHtml);
