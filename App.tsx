@@ -3547,6 +3547,2211 @@ const App: React.FC = () => {
         )}
       </AnimatePresence>
 
+  const renderMobileBottomNav = () => {
+    if (!isMobile) return null;
+    const canPublish = Boolean(generatedHtml);
+
+    return (
+      <div className="fixed bottom-0 left-0 right-0 z-[120] border-t border-stone-200 bg-white/95 backdrop-blur-md px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)]">
+        <div className="grid grid-cols-4 gap-2">
+          <button
+            onClick={() => { setMobileActiveTab('editar'); setIsMobileWizardOpen(true); }}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
+          >
+            <Edit3 size={16} />
+            <span className="text-[10px] font-bold mt-1">Editar</span>
+          </button>
+          <button
+            onClick={() => { setMobileActiveTab('plano'); setIsMobileWizardOpen(true); }}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
+          >
+            <CreditCard size={16} />
+            <span className="text-[10px] font-bold mt-1">Plano</span>
+          </button>
+          <button
+            onClick={() => {
+              if (!canPublish) {
+                showToast('Gere o site antes de publicar.', 'info');
+                setIsMobileWizardOpen(true);
+                setMobileActiveTab('editar');
+                return;
+              }
+              handlePublishSite();
+            }}
+            disabled={isPublishing || isSavingProject}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-200 disabled:opacity-50 active:scale-95 transition-all"
+          >
+            <Globe size={16} />
+            <span className="text-[10px] font-black mt-1">Publicar</span>
+          </button>
+          <button
+            onClick={() => setIsMobileWizardOpen(prev => !prev)}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
+          >
+            <Menu size={16} />
+            <span className="text-[10px] font-bold mt-1">{isMobileWizardOpen ? 'Preview' : 'Menu'}</span>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const getStatusBadge = (project: any) => {
+    if (!project) return null;
+    if (project.status === 'frozen') return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">CONGELADO</span>;
+
+    if (project.paymentStatus === 'paid' || project.status === 'published') {
+      return <span className="text-[9px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-emerald-200">ATIVO / PUBLICADO</span>;
+    }
+
+    if (project.expiresAt) {
+      const expirationDate = getExpirationTimestampMs(project.expiresAt);
+      if (!expirationDate) return <span className="text-[9px] bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold ml-2">RASCUNHO</span>;
+      const daysLeft = Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24));
+
+      if (daysLeft <= 0) return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">VENCIDO</span>;
+
+      return <span className="text-[9px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-orange-200 animate-pulse" title="Período de Teste">TRIAL ({daysLeft} dias restantes)</span>;
+    }
+    return <span className="text-[9px] bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold ml-2">RASCUNHO</span>;
+  };
+
+  return (
+    <>
+      <style>{`
+        ::-webkit-scrollbar { display: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+
+      {/* Toast Notification (Substitui os alerts nativos) */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl font-bold text-sm border backdrop-blur-md"
+            style={{
+              backgroundColor: toast.type === 'error' ? 'rgba(254, 242, 242, 0.95)' : toast.type === 'success' ? 'rgba(240, 253, 244, 0.95)' : toast.type === 'warning' ? 'rgba(255, 251, 235, 0.95)' : 'rgba(248, 250, 252, 0.95)',
+              color: toast.type === 'error' ? '#991B1B' : toast.type === 'success' ? '#166534' : toast.type === 'warning' ? '#92400E' : '#334155',
+              borderColor: toast.type === 'error' ? '#FCA5A5' : toast.type === 'success' ? '#86EFAC' : toast.type === 'warning' ? '#FCD34D' : '#E2E8F0'
+            }}
+          >
+            {toast.type === 'error' ? <AlertCircle size={18} /> : toast.type === 'success' ? <CheckCircle size={18} /> : toast.type === 'warning' ? <AlertCircle size={18} /> : <Info size={18} />}
+            {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirm Modal (Substitui o window.confirm) */}
+      <AnimatePresence>
+        {confirmDialog && (
+          <div className="fixed inset-0 z-[300] bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl"
+            >
+              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100">
+                <AlertCircle size={32} />
+              </div>
+              <h2 className="text-xl font-black text-stone-900 mb-2 uppercase">{confirmDialog.title}</h2>
+              <p className="text-sm text-stone-500 mb-6 leading-relaxed">{confirmDialog.message}</p>
+              <div className="flex gap-3">
+                <button onClick={() => setConfirmDialog(null)} className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 py-3.5 rounded-xl font-bold text-xs transition-colors">Cancelar</button>
+                <button onClick={confirmDialog.onConfirm} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3.5 rounded-xl font-bold text-xs shadow-lg shadow-red-500/20 transition-colors">Confirmar</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL AMPLO DE INSTRUÇÕES DNS */}
+      <AnimatePresence>
+        {isDnsModalOpen && currentProjectSlug && (() => {
+          const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
+          const domainRecords = currentProject?.domainRecords || [];
+          return (
+            <div className="fixed inset-0 z-[200] bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-white border border-stone-200 p-8 rounded-3xl shadow-2xl max-w-3xl w-full relative overflow-hidden"
+              >
+                <button onClick={() => setIsDnsModalOpen(false)} className="absolute top-6 right-6 text-stone-400 hover:text-stone-800 transition-colors bg-stone-100 p-2 rounded-full z-20">
+                  <X size={18} />
+                </button>
+
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="bg-orange-100 p-3 rounded-xl"><Settings className="text-orange-600 w-6 h-6" /></div>
+                  <div>
+                    <h2 className="text-2xl font-black text-stone-900 uppercase">Apontamentos DNS</h2>
+                    <p className="text-sm text-stone-500">Configure o domínio <span className="font-bold text-teal-600">{currentProject.officialDomain}</span></p>
+                  </div>
+                </div>
+
+                <div className="bg-orange-50 border border-orange-200 rounded-2xl p-6 mb-6">
+                  <p className="text-sm text-orange-800 leading-relaxed font-medium mb-4">
+                    Acesse o painel do seu provedor de domínio (ex: Registro.br, HostGator, Locaweb) e procure pela opção <strong>"Editar Zona DNS"</strong>. Em seguida, adicione as linhas abaixo <strong>exatamente</strong> como são apresentadas.
+                    <br /><span className="text-xs text-orange-600 italic block mt-1">* Dica de Ouro: Se o painel já possuir apontamentos do tipo "A" ou "CNAME" conflitantes, exclua os antigos primeiro.</span>
+                  </p>
+
+                  <div className="border border-stone-300 rounded-xl overflow-hidden bg-white shadow-sm">
+                    {/* Cabeçalho da Tabela */}
+                    <div className="bg-stone-100 text-xs font-black text-stone-500 p-4 grid grid-cols-12 gap-3 uppercase tracking-widest border-b border-stone-200">
+                      <div className="col-span-4">Nome (Host)</div>
+                      <div className="col-span-2">Tipo</div>
+                      <div className="col-span-6">Dados (Valor/Destino)</div>
+                    </div>
+
+                    {/* Linha 1: TIPO A */}
+                    <div className="p-4 grid grid-cols-12 gap-3 border-b border-stone-100 text-sm items-center hover:bg-stone-50 transition-colors">
+                      <div className="col-span-4 text-stone-500 font-medium">@ <span className="text-[11px] text-stone-400 italic">(Ou deixe em branco)</span></div>
+                      <div className="col-span-2 font-black text-stone-800">A</div>
+                      <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
+                        <span className="font-mono text-teal-700 font-bold select-all">199.36.158.100</span>
+                        <button onClick={() => { navigator.clipboard.writeText('199.36.158.100'); showToast('IP copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100"><Copy size={14} /> Copiar</button>
+                      </div>
+                    </div>
+
+                    {/* Linha 2: CNAME (WWW) */}
+                    <div className="p-4 grid grid-cols-12 gap-3 border-b border-stone-100 text-sm items-center hover:bg-stone-50 transition-colors">
+                      <div className="col-span-4 font-mono text-stone-800 font-bold">www</div>
+                      <div className="col-span-2 font-black text-stone-800">CNAME</div>
+                      <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
+                        <span className="font-mono text-teal-700 font-bold select-all truncate">sitezing.com.br</span>
+                        <button onClick={() => { navigator.clipboard.writeText(`sitezing.com.br`); showToast('Destino copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100 shrink-0 ml-2"><Copy size={14} /> Copiar</button>
+                      </div>
+                    </div>
+
+                    {/* Linha 3: TXT (Se houver) */}
+                    {domainRecords && domainRecords.length > 0 && (
+                      <div className="p-4 grid grid-cols-12 gap-3 text-sm items-center hover:bg-stone-50 transition-colors">
+                        <div className="col-span-4 text-stone-500 font-medium">@ <span className="text-[11px] text-stone-400 italic">(Ou deixe em branco)</span></div>
+                        <div className="col-span-2 font-black text-stone-800">TXT</div>
+                        <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
+                          <span className="font-mono text-xs text-teal-700 font-bold select-all truncate" title={domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}>
+                            {domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}
+                          </span>
+                          <button onClick={() => { navigator.clipboard.writeText(domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`); showToast('TXT copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100 shrink-0 ml-2"><Copy size={14} /> Copiar</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <button onClick={() => setIsDnsModalOpen(false)} className="w-full bg-stone-900 hover:bg-stone-800 text-white py-4 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors">
+                  Pronto, entendi como configurar
+                </button>
+              </motion.div>
+            </div>
+          );
+        })()}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isGenerating && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-stone-900/95 backdrop-blur-xl flex flex-col items-center justify-center overflow-hidden"
+          >
+            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="flex flex-col items-center">
+              <div className="w-24 h-24 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl mb-8 relative">
+                <Rocket className="w-12 h-12 text-orange-500 animate-bounce relative z-10" />
+                <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-orange-500/40 to-transparent blur-xl rounded-full animate-pulse"></div>
+              </div>
+              <img src={BRAND_LOGO} alt="SiteZing" className="h-8 mb-4 opacity-50 block" />
+              <h2 className="text-3xl font-black text-white px-6 text-center tracking-tight">Criando sua Mágica...</h2>
+              <p className="text-stone-400 mt-3 text-sm font-medium animate-pulse text-center max-w-sm px-6">A Inteligência Artificial está escrevendo e montando o layout do seu novo site profissional em segundos.</p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isPublishing && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-stone-900/95 backdrop-blur-xl flex flex-col items-center justify-center overflow-hidden"
+          >
+            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="flex flex-col items-center">
+              <div className="w-24 h-24 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl mb-8 relative">
+                <Globe className="w-12 h-12 text-emerald-400 animate-pulse relative z-10" />
+                <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-emerald-500/40 to-transparent blur-xl rounded-full animate-bounce"></div>
+              </div>
+              <img src={BRAND_LOGO} alt="SiteZing" className="h-8 mb-4 opacity-50 block" />
+              <h2 className="text-3xl font-black text-white px-6 text-center tracking-tight">Publicando Site...</h2>
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={publishMsgIndex}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-emerald-400 mt-3 text-sm font-medium text-center max-w-sm px-6 h-10"
+                >
+                  {publishMsgs[publishMsgIndex]}
+                </motion.p>
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="w-full h-screen bg-[#FAFAF9] overflow-hidden font-sans text-stone-900 flex flex-col md:flex-row">
+
+        <div className="flex-1 relative h-full overflow-hidden bg-[#FAFAF9]">
+          <iframe
+            ref={iframeRef}
+            srcDoc={generatedHtml ? getPreviewHtml(generatedHtml) : getDynamicPromoHtml(platformConfigs)}
+            className="w-full h-full border-none bg-transparent"
+            title="Visão Principal"
+          />
+
+          <AnimatePresence>
+            {!isMenuOpen && !isMobile && (
+              <div
+                className={`absolute top-6 right-6 z-[90] flex items-center cursor-pointer group`}
+                onClick={() => setIsMenuOpen(true)}
+              >
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="relative flex items-center justify-center">
+                  <div className="relative flex items-center justify-center bg-white w-12 h-12 rounded-full border border-stone-200 shadow-lg group-hover:shadow-xl transition-all group-hover:border-stone-300 text-stone-600 group-hover:text-stone-900">
+                    <Menu size={20} />
+                    <GuidedTip step={2} currentStep={guideStep} text="Clique aqui para continuar editando seu site!" position="top" />
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
+          {renderMobileMenu()}
+          {renderMobileBottomSheet()}
+          {renderMobileBottomNav()}
+        </div>
+
+        <Suspense fallback={null}>
+          <LoginPage isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onSubmit={handleLoginSubmit} />
+        </Suspense>
+
+        <AnimatePresence initial={false}>
+          {isMenuOpen && !isMobile && (
+            <motion.div
+              initial={{ width: 0, paddingLeft: 0, paddingRight: 0 }}
+              animate={{ width: 420, paddingLeft: 16, paddingRight: 16 }}
+              exit={{ width: 0, paddingLeft: 0, paddingRight: 0 }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+              className="flex-shrink-0 h-full flex flex-col justify-center overflow-hidden relative z-50 bg-[#FAFAF9] w-full md:w-[420px] py-4"
+            >
+              <motion.div
+                initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 20, opacity: 0 }} transition={{ delay: 0.1 }}
+                className="w-full h-full lg:aspect-[16/9] lg:max-h-[min(90vh,900px)] lg:mx-auto lg:my-auto bg-[#F8FAFC] border border-stone-200 lg:rounded-[2rem] rounded-none shadow-xl flex flex-col overflow-hidden relative"
+              >
+                <div className="flex justify-between items-center px-6 py-5 border-b border-stone-200 flex-shrink-0 bg-white">
+                  <div className="flex items-center gap-3 select-none">
+                    <img src={BRAND_LOGO} alt="SiteZing" className="h-10 w-auto object-contain" />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <button onClick={() => setIsSupportModalOpen(true)} className="text-stone-400 hover:text-indigo-500 transition-colors p-2 rounded-full hover:bg-indigo-50" title="Central de Ajuda (Falar com Suporte)">
+                      <HelpCircle size={18} />
+                    </button>
+                    <button onClick={sharePlatform} className="text-stone-400 hover:text-orange-500 transition-colors p-2 rounded-full hover:bg-orange-50" title="Compartilhar SiteZing">
+                      <ExternalLink size={18} />
+                    </button>
+                    <div className="w-px h-4 bg-stone-200"></div>
+                    {loggedUserEmail ? (
+                      <button className="text-stone-400 hover:text-teal-500 transition-colors" title={`Logado como: ${loggedUserEmail}`}><User size={18} /></button>
+                    ) : (
+                      <button onClick={() => setIsLoginOpen(true)} className="text-xs font-bold text-teal-600 hover:text-teal-500 transition-colors flex items-center gap-1.5"><LogIn size={16} /> Login</button>
+                    )}
+                    <div className="w-px h-4 bg-stone-200"></div>
+                    <button onClick={() => { setIsMenuOpen(false); nextGuideStep(2); }} className={`text-stone-400 hover:text-stone-800 transition-colors relative ${guideStep === 1 ? 'animate-guide-pulse bg-orange-100 rounded-full p-1' : ''}`} title="Esconder Painel">
+                      <X size={18} />
+                      <GuidedTip step={1} currentStep={guideStep} text="Minimize aqui para ver como seu site ficou!" position="bottom" />
+                    </button>
+                  </div>
+                </div>
+
+                {(() => {
+                  const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
+                  let daysLeft = 0; let isPaid = false;
+                  if (currentProject?.expiresAt) {
+                    const expDate = getExpirationTimestampMs(currentProject.expiresAt);
+                    if (typeof expDate === 'number' && !Number.isNaN(expDate)) {
+                      daysLeft = Math.ceil((expDate - Date.now()) / (1000 * 3600 * 24));
+                    }
+                  }
+
+                  return (
+                    <>
+                      <div className={`mb-6 p-4 rounded-2xl border flex flex-col gap-2 ${isDomainActive ? 'bg-blue-50 border-blue-100' : 'bg-amber-50 border-amber-100'}`}>
+                        <div className="flex items-center justify-between">
+                          <h4 className={`font-black text-xs uppercase flex items-center gap-2 ${isDomainActive ? 'text-blue-800' : 'text-amber-800'}`}>
+                            <ShieldCheck size={16} /> Status do SSL
+                          </h4>
+                          <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${isDomainActive ? 'bg-blue-200 text-blue-900' : 'bg-amber-200 text-amber-900 animate-pulse'}`}>
+                            {isDomainActive ? 'Ativo ✅' : 'Gerando... ⏳'}
+                          </span>
+                        </div>
+                        <p className={`text-[11px] leading-relaxed font-medium ${isDomainActive ? 'text-blue-700/80' : 'text-amber-700/80'}`}>
+                          O certificado de segurança pode levar até 24h para ser totalmente propagado (Limpe o cache do navegador se necessário).
+                        </p>
+                      </div>
+
+                      {!isPaid && (
+                        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 mb-6 shadow-inner relative overflow-hidden">
+                          <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/10 blur-xl rounded-full pointer-events-none"></div>
+                          <h4 className="flex items-center gap-2 text-orange-800 font-black text-sm uppercase tracking-wider mb-2 relative z-10"><Zap size={18} className="text-orange-500" /> Benefício 7 Dias Grátis</h4>
+                          <p className="text-xs text-orange-700/90 leading-relaxed font-medium mb-3 relative z-10">Você ganha <strong className="text-orange-900 bg-orange-200/50 px-1.5 py-0.5 rounded">{Math.max(0, daysLeft)} dias restantes</strong> de navegação pública e hospedagem irrestrita.</p>
+                          <ul className="text-[11px] text-orange-800/80 space-y-2 font-medium relative z-10">
+                            <li className="flex gap-2 items-start"><div className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1 shrink-0" /> Após o teste, seu site será gentilmente congelado mantendo seus dados salvos.</li>
+                            <li className="flex gap-2 items-start"><div className="w-1.5 h-1.5 rounded-full bg-orange-400 mt-1 shrink-0" /> Assine agora para manter no ar e liberar domínio personalizado.</li>
+                          </ul>
+                        </div>
+                      )}
+
+                      <div className="flex flex-col gap-3">
+                        <button
+                          onClick={() => {
+                            setPublishModalUrl(null);
+                            setActiveTab('assinatura');
+                            setIsMenuOpen(true);
+                          }}
+                          className={`w-full ${!isPaid ? 'bg-orange-500 hover:bg-orange-600 shadow-orange-500/30' : 'bg-stone-900 hover:bg-black shadow-stone-900/30'} text-white py-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg text-xs`}
+                        >
+                          {!isPaid ? 'Garantir Hospedagem e Domínio' : 'Ver Meu Plano'}
+                        </button>
+                        <button
+                          onClick={() => setPublishModalUrl(null)}
+                          className="w-full bg-stone-100 hover:bg-stone-200 text-stone-600 py-3 rounded-xl font-bold uppercase tracking-wider transition-colors text-xs"
+                        >
+                          Fechar e Voltar ao Painel
+                        </button>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">X (Twitter)</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-stone-800" placeholder="@usuario ou Link" value={formData.x} onChange={e => { setFormData({ ...formData, x: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">LinkedIn</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-700" placeholder="Link do Perfil/Página" value={formData.linkedin} onChange={e => { setFormData({ ...formData, linkedin: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">YouTube</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-red-600" placeholder="Link do Canal" value={formData.youtube} onChange={e => { setFormData({ ...formData, youtube: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                    </div>
+                 )}
+
+                 {/* ID 7 */}
+                 {activeMobileSheet === 7 && (
+                     <div className="space-y-6 text-center">
+                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block text-left">Sua Logomarca</label>
+                        {!formData.logoBase64 ? (
+                          <label className="cursor-pointer w-full border-2 border-dashed border-stone-200 rounded-2xl p-12 flex flex-col items-center gap-3 bg-stone-50">
+                            <Upload size={24} className="text-teal-500" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Enviar Logotipo</span>
+                            <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                          </label>
+                        ) : (
+                          <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200 relative">
+                             <img src={formData.logoBase64} style={{ maxHeight: `${formData.logoSize || 40}px` }} className="block object-contain mx-auto mb-4" />
+                             <button onClick={() => { setFormData(p => ({ ...p, logoBase64: '', logoSize: 40 })); setHasUnsavedChanges(true); }} className="text-red-500 text-[10px] font-black uppercase mb-6 block w-full hover:underline">Remover Logotipo</button>
+                             <div className="space-y-3 text-left bg-white p-4 rounded-xl border border-stone-100">
+                               <label className="flex justify-between text-[9px] font-black text-stone-400 uppercase tracking-tighter">Ajustar Tamanho no Site <span>{formData.logoSize}px</span></label>
+                               <input type="range" min="20" max="100" value={formData.logoSize} onChange={e => { setFormData({ ...formData, logoSize: parseInt(e.target.value) }); setHasUnsavedChanges(true) }} className="w-full h-1.5 bg-stone-100 rounded-lg appearance-none cursor-pointer accent-teal-500" />
+                             </div>
+                          </div>
+                        )}
+                     </div>
+                 )}
+
+                 {/* ID 8 */}
+                 {activeMobileSheet === 8 && (
+                     <div className="space-y-6">
+                       <div>
+                         <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Endereço Físico (Opcional)</label>
+                         <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Rua, Número, Bairro - Cidade" value={formData.address} onChange={e => { setFormData({ ...formData, address: e.target.value }); setHasUnsavedChanges(true) }} />
+                       </div>
+                       <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 flex items-center justify-between">
+                          <div className="flex flex-col">
+                             <span className="text-[11px] font-black text-stone-800 uppercase">Exibir Mapa</span>
+                          </div>
+                          <div onClick={() => { setFormData({ ...formData, showMap: !formData.showMap }); setHasUnsavedChanges(true); }} className={`w-12 h-6 rounded-full relative transition-all cursor-pointer ${formData.showMap ? 'bg-teal-500' : 'bg-stone-300'}`}>
+                             <motion.div animate={{ x: formData.showMap ? 24 : 4 }} className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
+                          </div>
+                       </div>
+                     </div>
+                 )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    )
+  }
+
+  const renderMobileBottomNav = () => {
+    if (!isMobile) return null;
+    const canPublish = Boolean(generatedHtml);
+
+    return (
+      <div className="fixed bottom-0 left-0 right-0 z-[260] border-t border-stone-200 bg-white/90 backdrop-blur-xl px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] pointer-events-auto">
+        <div className="grid grid-cols-4 gap-2">
+          <button
+            onClick={() => { setMobileActiveTab('editar'); setIsMobileWizardOpen(true); }}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all touch-manipulation relative z-20"
+          >
+            <Edit3 size={16} />
+            <span className="text-[10px] font-bold mt-1">Editar</span>
+          </button>
+          <button
+            onClick={() => { setMobileActiveTab('plano'); setIsMobileWizardOpen(true); }}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all touch-manipulation relative z-20"
+          >
+            <CreditCard size={16} />
+            <span className="text-[10px] font-bold mt-1">Plano</span>
+          </button>
+          <button
+            onClick={() => {
+              if (!canPublish) {
+                showToast('Gere o site antes de publicar.', 'info');
+                setIsMobileWizardOpen(true);
+                setMobileActiveTab('editar');
+                return;
+              }
+              handlePublishSite();
+            }}
+            disabled={isPublishing || isSavingProject}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-200 disabled:opacity-50 active:scale-95 transition-all"
+          >
+            <Globe size={16} />
+            <span className="text-[10px] font-black mt-1">Publicar</span>
+          </button>
+          <button
+            onClick={() => setIsMobileWizardOpen(prev => !prev)}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
+          >
+            <Menu size={16} />
+            <span className="text-[10px] font-bold mt-1">{isMobileWizardOpen ? 'Preview' : 'Menu'}</span>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const getStatusBadge = (project: any) => {
+    if (!project) return null;
+    if (project.status === 'frozen') return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">CONGELADO</span>;
+
+    if (project.paymentStatus === 'paid' || project.status === 'published') {
+      return <span className="text-[9px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-emerald-200">ATIVO / PUBLICADO</span>;
+    }
+
+    if (project.expiresAt) {
+      const expirationDate = getExpirationTimestampMs(project.expiresAt);
+      if (!expirationDate) return <span className="text-[9px] bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold ml-2">RASCUNHO</span>;
+      const daysLeft = Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24));
+
+      if (daysLeft <= 0) return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">VENCIDO</span>;
+
+      return <span className="text-[9px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-orange-200 animate-pulse" title="Período de Teste">TRIAL ({daysLeft} dias restantes)</span>;
+    }
+    return <span className="text-[9px] bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold ml-2">RASCUNHO</span>;
+  };
+
+  return (
+    <>
+      <style>{`
+        ::-webkit-scrollbar { display: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+
+      {/* Toast Notification (Substitui os alerts nativos) */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl font-bold text-sm border backdrop-blur-md"
+            style={{
+              backgroundColor: toast.type === 'error' ? 'rgba(254, 242, 242, 0.95)' : toast.type === 'success' ? 'rgba(240, 253, 244, 0.95)' : toast.type === 'warning' ? 'rgba(255, 251, 235, 0.95)' : 'rgba(248, 250, 252, 0.95)',
+              color: toast.type === 'error' ? '#991B1B' : toast.type === 'success' ? '#166534' : toast.type === 'warning' ? '#92400E' : '#334155',
+              borderColor: toast.type === 'error' ? '#FCA5A5' : toast.type === 'success' ? '#86EFAC' : toast.type === 'warning' ? '#FCD34D' : '#E2E8F0'
+            }}
+          >
+            {toast.type === 'error' ? <AlertCircle size={18} /> : toast.type === 'success' ? <CheckCircle size={18} /> : toast.type === 'warning' ? <AlertCircle size={18} /> : <Info size={18} />}
+            {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirm Modal (Substitui o window.confirm) */}
+      <AnimatePresence>
+        {confirmDialog && (
+          <div className="fixed inset-0 z-[300] bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl"
+            >
+              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100">
+                <AlertCircle size={32} />
+              </div>
+              <h2 className="text-xl font-black text-stone-900 mb-2 uppercase">{confirmDialog.title}</h2>
+              <p className="text-sm text-stone-500 mb-6 leading-relaxed">{confirmDialog.message}</p>
+              <div className="flex gap-3">
+                <button onClick={() => setConfirmDialog(null)} className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 py-3.5 rounded-xl font-bold text-xs transition-colors">Cancelar</button>
+                <button onClick={confirmDialog.onConfirm} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3.5 rounded-xl font-bold text-xs shadow-lg shadow-red-500/20 transition-colors">Confirmar</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL AMPLO DE INSTRUÇÕES DNS */}
+      <AnimatePresence>
+        {isDnsModalOpen && currentProjectSlug && (() => {
+          const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
+          const domainRecords = currentProject?.domainRecords || [];
+          return (
+            <div className="fixed inset-0 z-[200] bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-white border border-stone-200 p-8 rounded-3xl shadow-2xl max-w-3xl w-full relative overflow-hidden"
+              >
+                <button onClick={() => setIsDnsModalOpen(false)} className="absolute top-6 right-6 text-stone-400 hover:text-stone-800 transition-colors bg-stone-100 p-2 rounded-full z-20">
+                  <X size={18} />
+                </button>
+
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="bg-orange-100 p-3 rounded-xl"><Settings className="text-orange-600 w-6 h-6" /></div>
+                  <div>
+                    <h2 className="text-2xl font-black text-stone-900 uppercase">Apontamentos DNS</h2>
+                    <p className="text-sm text-stone-500">Configure o domínio <span className="font-bold text-teal-600">{currentProject.officialDomain}</span></p>
+                  </div>
+                </div>
+
+                <div className="bg-orange-50 border border-orange-200 rounded-2xl p-6 mb-6">
+                  <p className="text-sm text-orange-800 leading-relaxed font-medium mb-4">
+                    Acesse o painel do seu provedor de domínio (ex: Registro.br, HostGator, Locaweb) e procure pela opção <strong>"Editar Zona DNS"</strong>. Em seguida, adicione as linhas abaixo <strong>exatamente</strong> como são apresentadas.
+                    <br /><span className="text-xs text-orange-600 italic block mt-1">* Dica de Ouro: Se o painel já possuir apontamentos do tipo "A" ou "CNAME" conflitantes, exclua os antigos primeiro.</span>
+                  </p>
+
+                  <div className="border border-stone-300 rounded-xl overflow-hidden bg-white shadow-sm">
+                    {/* Cabeçalho da Tabela */}
+                    <div className="bg-stone-100 text-xs font-black text-stone-500 p-4 grid grid-cols-12 gap-3 uppercase tracking-widest border-b border-stone-200">
+                      <div className="col-span-4">Nome (Host)</div>
+                      <div className="col-span-2">Tipo</div>
+                      <div className="col-span-6">Dados (Valor/Destino)</div>
+                    </div>
+
+                    {/* Linha 1: TIPO A */}
+                    <div className="p-4 grid grid-cols-12 gap-3 border-b border-stone-100 text-sm items-center hover:bg-stone-50 transition-colors">
+                      <div className="col-span-4 text-stone-500 font-medium">@ <span className="text-[11px] text-stone-400 italic">(Ou deixe em branco)</span></div>
+                      <div className="col-span-2 font-black text-stone-800">A</div>
+                      <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
+                        <span className="font-mono text-teal-700 font-bold select-all">199.36.158.100</span>
+                        <button onClick={() => { navigator.clipboard.writeText('199.36.158.100'); showToast('IP copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100"><Copy size={14} /> Copiar</button>
+                      </div>
+                    </div>
+
+                    {/* Linha 2: CNAME (WWW) */}
+                    <div className="p-4 grid grid-cols-12 gap-3 border-b border-stone-100 text-sm items-center hover:bg-stone-50 transition-colors">
+                      <div className="col-span-4 font-mono text-stone-800 font-bold">www</div>
+                      <div className="col-span-2 font-black text-stone-800">CNAME</div>
+                      <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
+                        <span className="font-mono text-teal-700 font-bold select-all truncate">sitezing.com.br</span>
+                        <button onClick={() => { navigator.clipboard.writeText(`sitezing.com.br`); showToast('Destino copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100 shrink-0 ml-2"><Copy size={14} /> Copiar</button>
+                      </div>
+                    </div>
+
+                    {/* Linha 3: TXT (Se houver) */}
+                    {domainRecords && domainRecords.length > 0 && (
+                      <div className="p-4 grid grid-cols-12 gap-3 text-sm items-center hover:bg-stone-50 transition-colors">
+                        <div className="col-span-4 text-stone-500 font-medium">@ <span className="text-[11px] text-stone-400 italic">(Ou deixe em branco)</span></div>
+                        <div className="col-span-2 font-black text-stone-800">TXT</div>
+                        <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
+                          <span className="font-mono text-xs text-teal-700 font-bold select-all truncate" title={domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}>
+                            {domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}
+                          </span>
+                          <button onClick={() => { navigator.clipboard.writeText(domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`); showToast('TXT copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100 shrink-0 ml-2"><Copy size={14} /> Copiar</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <button onClick={() => setIsDnsModalOpen(false)} className="w-full bg-stone-900 hover:bg-stone-800 text-white py-4 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors">
+                  Pronto, entendi como configurar
+                </button>
+              </motion.div>
+            </div>
+          );
+        })()}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isGenerating && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-stone-900/95 backdrop-blur-xl flex flex-col items-center justify-center overflow-hidden"
+          >
+            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="flex flex-col items-center">
+              <div className="w-24 h-24 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl mb-8 relative">
+                <Rocket className="w-12 h-12 text-orange-500 animate-bounce relative z-10" />
+                <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-orange-500/40 to-transparent blur-xl rounded-full animate-pulse"></div>
+              </div>
+              <img src={BRAND_LOGO} alt="SiteZing" className="h-8 mb-4 opacity-50 block" />
+              <h2 className="text-3xl font-black text-white px-6 text-center tracking-tight">Criando sua Mágica...</h2>
+              <p className="text-stone-400 mt-3 text-sm font-medium animate-pulse text-center max-w-sm px-6">A Inteligência Artificial está escrevendo e montando o layout do seu novo site profissional em segundos.</p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isPublishing && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-stone-900/95 backdrop-blur-xl flex flex-col items-center justify-center overflow-hidden"
+          >
+            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="flex flex-col items-center">
+              <div className="w-24 h-24 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl mb-8 relative">
+                <Globe className="w-12 h-12 text-emerald-400 animate-pulse relative z-10" />
+                <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-emerald-500/40 to-transparent blur-xl rounded-full animate-bounce"></div>
+              </div>
+              <img src={BRAND_LOGO} alt="SiteZing" className="h-8 mb-4 opacity-50 block" />
+              <h2 className="text-3xl font-black text-white px-6 text-center tracking-tight">Publicando Site...</h2>
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={publishMsgIndex}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-emerald-400 mt-3 text-sm font-medium text-center max-w-sm px-6 h-10"
+                >
+                  {publishMsgs[publishMsgIndex]}
+                </motion.p>
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="w-full h-screen bg-[#FAFAF9] overflow-hidden font-sans text-stone-900 flex flex-col md:flex-row">
+
+        <div className="flex-1 relative h-full overflow-hidden bg-[#FAFAF9]">
+          <iframe
+            ref={iframeRef}
+            srcDoc={generatedHtml ? getPreviewHtml(generatedHtml) : getDynamicPromoHtml(platformConfigs)}
+            className="w-full h-full border-none bg-transparent"
+            title="Visão Principal"
+          />
+
+          <AnimatePresence>
+            {!isMenuOpen && !isMobile && (
+              <div
+                className={`absolute top-6 right-6 z-[90] flex items-center cursor-pointer group`}
+                onClick={() => setIsMenuOpen(true)}
+              >
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="relative flex items-center justify-center">
+                  <div className="relative flex items-center justify-center bg-white w-12 h-12 rounded-full border border-stone-200 shadow-lg group-hover:shadow-xl transition-all group-hover:border-stone-300 text-stone-600 group-hover:text-stone-900">
+                    <Menu size={20} />
+                    <GuidedTip step={2} currentStep={guideStep} text="Clique aqui para continuar editando seu site!" position="top" />
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
+          {renderMobileMenu()}
+          {renderMobileBottomSheet()}
+          {renderMobileBottomNav()}
+        </div>
+
+        <Suspense fallback={null}>
+          <LoginPage isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onSubmit={handleLoginSubmit} />
+        </Suspense>
+
+        <AnimatePresence initial={false}>
+          {isMenuOpen && !isMobile && (
+            <motion.div
+              initial={{ width: 0, paddingLeft: 0, paddingRight: 0 }}
+              animate={{ width: 420, paddingLeft: 16, paddingRight: 16 }}
+              exit={{ width: 0, paddingLeft: 0, paddingRight: 0 }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+              className="flex-shrink-0 h-full flex flex-col justify-center overflow-hidden relative z-50 bg-[#FAFAF9] w-full md:w-[420px] py-4"
+            >
+              <motion.div
+                initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 20, opacity: 0 }} transition={{ delay: 0.1 }}
+                className="w-full h-full lg:aspect-[16/9] lg:max-h-[min(90vh,900px)] lg:mx-auto lg:my-auto bg-[#F8FAFC] border border-stone-200 lg:rounded-[2rem] rounded-none shadow-xl flex flex-col overflow-hidden relative"
+              >
+                <div className="flex justify-between items-center px-6 py-5 border-b border-stone-200 flex-shrink-0 bg-white">
+                  <div className="flex items-center gap-3 select-none">
+                    <img src={BRAND_LOGO} alt="SiteZing" className="h-10 w-auto object-contain" />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <button onClick={() => setIsSupportModalOpen(true)} className="text-stone-400 hover:text-indigo-500 transition-colors p-2 rounded-full hover:bg-indigo-50" title="Central de Ajuda (Falar com Suporte)">
+                      <HelpCircle size={18} />
+                    </button>
+                    <button onClick={sharePlatform} className="text-stone-400 hover:text-orange-500 transition-colors p-2 rounded-full hover:bg-orange-50" title="Compartilhar SiteZing">
+                      <ExternalLink size={18} />
+                    </button>
+                    <div className="w-px h-4 bg-stone-200"></div>
+                    {loggedUserEmail ? (
+                      <button className="text-stone-400 hover:text-teal-500 transition-colors" title={`Logado como: ${loggedUserEmail}`}><User size={18} /></button>
+                    ) : (
+                      <button onClick={() => setIsLoginOpen(true)} className="text-xs font-bold text-teal-600 hover:text-teal-500 transition-colors flex items-center gap-1.5"><LogIn size={16} /> Login</button>
+                    )}
+                    <div className="w-px h-4 bg-stone-200"></div>
+                    <button onClick={() => { setIsMenuOpen(false); nextGuideStep(2); }} className={`text-stone-400 hover:text-stone-800 transition-colors relative ${guideStep === 1 ? 'animate-guide-pulse bg-orange-100 rounded-full p-1' : ''}`} title="Esconder Painel">
+                      <X size={18} />
+                      <GuidedTip step={1} currentStep={guideStep} text="Minimize aqui para ver como seu site ficou!" position="bottom" />
+                    </button>
+                  </div>
+                </div>
+
+                {(() => {
+                  const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
+                  let daysLeft = 0; let isPaid = false;
+                  if (currentProject?.expiresAt) {
+                    const expirationDate = getExpirationTimestampMs(currentProject.expiresAt);
+                    if (expirationDate) {
+                      daysLeft = Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24));
+                    }
+                    isPaid = currentProject.paymentStatus === 'paid';
+                  }
+                  return (
+                    <div className="flex border-b border-stone-200/70 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider flex-shrink-0 bg-white/70 backdrop-blur-md">
+                      <button onClick={() => setActiveTab('dashboard')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors flex items-center justify-center gap-1.5 ${activeTab === 'dashboard' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
+                        <LayoutDashboard size={12} /> Meus Sites
+                      </button>
+                      {generatedHtml && (
+                        <>
+                          <button onClick={() => setActiveTab('geral')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors flex items-center justify-center gap-1.5 ${activeTab === 'geral' ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
+                            <Edit3 size={12} /> Visual
+                          </button>
+                          <button onClick={() => setActiveTab('dominio')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative flex items-center justify-center gap-1.5 ${activeTab === 'dominio' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
+                            <Globe size={12} /> Domínio
+                          </button>
+                          {currentProjectSlug && (
+                            <button onClick={() => setActiveTab('assinatura')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative flex items-center justify-center gap-1.5 ${activeTab === 'assinatura' ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
+                              <CreditCard size={12} /> Plano
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-6 pb-6 bg-white">
+                  {activeTab === 'geral' && (
+                    <>
+                      {currentProjectSlug && (
+                        <div className="group relative flex items-center justify-between bg-stone-50 p-3.5 rounded-xl border border-stone-200 -mt-2">
+                          <div className="flex items-center gap-2 cursor-help">
+                            <Info size={14} className="text-stone-400" />
+                            <span className="text-xs text-stone-600 font-bold uppercase tracking-wider">Status do Site</span>
+                          </div>
+                          {getStatusBadge(savedProjects.find(p => p.id === currentProjectSlug) || {})}
+                        </div>
+                      )}
+
+                      <div className="space-y-4">
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl relative overflow-hidden group">
+                          <label className="block text-xs font-black text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4" /> Importação Mágica (Google)
+                          </label>
+                          <div className="flex flex-col gap-2 relative z-10 w-full shrink-0">
+                            <input
+                              type="text"
+                              placeholder="Link do Maps ou Nome do Local..."
+                              className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2.5 text-[11px] font-medium focus:outline-none focus:border-emerald-500 transition-all placeholder:text-stone-400 text-stone-800 min-w-0"
+                              value={formData.googlePlaceUrl || ''}
+                              onChange={(e) => { setFormData({ ...formData, googlePlaceUrl: e.target.value }); setHasUnsavedChanges(true) }}
+                            />
+                            <button
+                              type="button"
+                              onClick={fetchGoogleData}
+                              disabled={isFetchingGoogle || !formData.googlePlaceUrl}
+                              className="w-full shrink-0 bg-emerald-600 hover:bg-emerald-500 border border-emerald-700 disabled:opacity-50 text-white font-black text-[10px] uppercase tracking-widest py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+                            >
+                              {isFetchingGoogle ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Puxar Dados'}
+                            </button>
+                          </div>
+                          {pendingGoogleData && (
+                            <div className="mt-3 bg-white border border-emerald-200 p-3.5 rounded-xl shadow-[0_4px_20px_-4px_rgba(16,185,129,0.3)] text-center relative z-20 overflow-hidden before:absolute before:inset-0 before:bg-emerald-500/5">
+                              <p className="text-[11px] font-black justify-center text-emerald-800 uppercase flex items-center gap-1.5 mb-1.5"><CheckCircle size={14} /> É esta a empresa?</p>
+                              <p className="text-[10px] text-stone-600 mb-3 font-medium px-2 leading-relaxed h-10 line-clamp-2"><span className="font-bold">{pendingGoogleData.name}</span> - {pendingGoogleData.address}</p>
+                              <div className="flex gap-2 relative z-10">
+                                <button type="button" onClick={() => setPendingGoogleData(null)} className="flex-1 py-2.5 bg-stone-100 text-stone-500 rounded-lg text-[9px] uppercase font-black tracking-wider hover:bg-stone-200 transition-colors">Voltar</button>
+                                <button type="button" onClick={confirmGoogleInjection} className="flex-[2] py-2.5 px-3 bg-emerald-600 text-white rounded-lg text-[10px] uppercase font-black tracking-widest hover:bg-emerald-500 shadow-md transition-all flex items-center justify-center gap-1.5"><Rocket size={12} /> Confirmar</button>
+                              </div>
+                            </div>
+                          )}
+                          {!pendingGoogleData && googleStatus && (
+                            <div className={`mt-3 text-[10px] uppercase font-black tracking-widest text-center ${googleStatus.type === 'success' ? 'text-emerald-600' : 'text-red-500'}`}>
+                              {googleStatus.msg}
+                            </div>
+                          )}
+                        </motion.div>
+
+                        <div className="relative">
+                          <label className="text-[11px] font-black text-stone-500 uppercase flex items-center gap-1.5 mb-1.5"><Briefcase size={12} /> Nome do Negócio</label>
+                          <input className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-[12px] font-bold text-stone-800 focus:border-teal-500 outline-none transition-colors mb-3" placeholder="Ex: Eletricista Silva" value={formData.businessName} onChange={e => handleFloatNameChange(e.target.value)} />
+
+                          <label className="text-[11px] font-black text-stone-500 uppercase flex items-center gap-1.5 mb-1.5"><Globe size={12} /> Seu Link Oficial</label>
+                          <div className="flex bg-stone-50 border border-stone-200 rounded-xl overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
+                            <input className="flex-1 bg-transparent px-3 py-2.5 text-[12px] font-mono font-bold text-blue-600 outline-none w-full text-right" placeholder="meu-site" value={formData.customSlug} onChange={e => handleCustomSlugChange(e.target.value)} />
+                            <span className="bg-stone-100 border-l border-stone-200 px-3 py-2.5 text-[11px] font-bold text-stone-400 flex items-center select-none shadow-inner">.sitezing.com.br</span>
+                          </div>
+
+                          <div className="mt-1.5 min-h-[16px]">
+                            {floatDomainStatus.loading && (
+                              <div className="text-[10px] text-stone-400 flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin" /> Validando domínio...</div>
+                            )}
+                            {!floatDomainStatus.loading && formData.customSlug.length >= 3 && floatDomainStatus.available === false && (
+                              <div className="text-[10px] text-red-500 font-bold flex items-center gap-1"><AlertCircle size={10} /> "{floatDomainStatus.slug}" já está em uso! Tente modificar.</div>
+                            )}
+                            {!floatDomainStatus.loading && formData.customSlug.length >= 3 && floatDomainStatus.available && floatDomainStatus.slug && (
+                              <div className="text-[10px] text-emerald-600 font-bold flex items-center gap-1"><CheckCircle size={10} /> Liberado!</div>
+                            )}
+                          </div>
+                        </div>
+                        <div><label className="text-[11px] font-black text-stone-500 uppercase flex items-center gap-1.5 mb-1.5"><FileText size={12} /> Ideia Principal</label><textarea className="w-full h-20 bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-[12px] resize-none focus:border-teal-500 outline-none transition-colors text-stone-800" placeholder="Descreva os serviços..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} /></div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">X (Twitter)</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-stone-800" placeholder="@usuario ou Link" value={formData.x} onChange={e => { setFormData({ ...formData, x: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">LinkedIn</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-700" placeholder="Link do Perfil/Página" value={formData.linkedin} onChange={e => { setFormData({ ...formData, linkedin: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">YouTube</label>
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-red-600" placeholder="Link do Canal" value={formData.youtube} onChange={e => { setFormData({ ...formData, youtube: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
+                    </div>
+                 )}
+
+                 {/* ID 7 */}
+                 {activeMobileSheet === 7 && (
+                     <div className="space-y-6 text-center">
+                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block text-left">Sua Logomarca</label>
+                        {!formData.logoBase64 ? (
+                          <label className="cursor-pointer w-full border-2 border-dashed border-stone-200 rounded-2xl p-12 flex flex-col items-center gap-3 bg-stone-50">
+                            <Upload size={24} className="text-teal-500" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Enviar Logotipo</span>
+                            <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                          </label>
+                        ) : (
+                          <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200 relative">
+                             <img src={formData.logoBase64} style={{ maxHeight: `${formData.logoSize || 40}px` }} className="block object-contain mx-auto mb-4" />
+                             <button onClick={() => { setFormData(p => ({ ...p, logoBase64: '', logoSize: 40 })); setHasUnsavedChanges(true); }} className="text-red-500 text-[10px] font-black uppercase mb-6 block w-full hover:underline">Remover Logotipo</button>
+                             <div className="space-y-3 text-left bg-white p-4 rounded-xl border border-stone-100">
+                               <label className="flex justify-between text-[9px] font-black text-stone-400 uppercase tracking-tighter">Ajustar Tamanho no Site <span>{formData.logoSize}px</span></label>
+                               <input type="range" min="20" max="100" value={formData.logoSize} onChange={e => { setFormData({ ...formData, logoSize: parseInt(e.target.value) }); setHasUnsavedChanges(true) }} className="w-full h-1.5 bg-stone-100 rounded-lg appearance-none cursor-pointer accent-teal-500" />
+                             </div>
+                          </div>
+                        )}
+                     </div>
+                 )}
+
+                 {/* ID 8 */}
+                 {activeMobileSheet === 8 && (
+                     <div className="space-y-6">
+                       <div>
+                         <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Endereço Físico (Opcional)</label>
+                         <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Rua, Número, Bairro - Cidade" value={formData.address} onChange={e => { setFormData({ ...formData, address: e.target.value }); setHasUnsavedChanges(true) }} />
+                       </div>
+                       <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 flex items-center justify-between">
+                          <div className="flex flex-col">
+                             <span className="text-[11px] font-black text-stone-800 uppercase">Exibir Mapa</span>
+                          </div>
+                          <div onClick={() => { setFormData({ ...formData, showMap: !formData.showMap }); setHasUnsavedChanges(true); }} className={`w-12 h-6 rounded-full relative transition-all cursor-pointer ${formData.showMap ? 'bg-teal-500' : 'bg-stone-300'}`}>
+                             <motion.div animate={{ x: formData.showMap ? 24 : 4 }} className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
+                          </div>
+                       </div>
+                     </div>
+                 )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    )
+  }
+
+  const renderMobileBottomNav = () => {
+    if (!isMobile) return null;
+    const canPublish = Boolean(generatedHtml);
+
+    return (
+      <div className="fixed bottom-0 left-0 right-0 z-[260] border-t border-stone-200 bg-white/90 backdrop-blur-xl px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] pointer-events-auto">
+        <div className="grid grid-cols-4 gap-2">
+          <button
+            onClick={() => { setMobileActiveTab('editar'); setIsMobileWizardOpen(true); }}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all touch-manipulation relative z-20"
+          >
+            <Edit3 size={16} />
+            <span className="text-[10px] font-bold mt-1">Editar</span>
+          </button>
+          <button
+            onClick={() => { setMobileActiveTab('plano'); setIsMobileWizardOpen(true); }}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all touch-manipulation relative z-20"
+          >
+            <CreditCard size={16} />
+            <span className="text-[10px] font-bold mt-1">Plano</span>
+          </button>
+          <button
+            onClick={() => {
+              if (!canPublish) {
+                showToast('Gere o site antes de publicar.', 'info');
+                setIsMobileWizardOpen(true);
+                setMobileActiveTab('editar');
+                return;
+              }
+              handlePublishSite();
+            }}
+            disabled={isPublishing || isSavingProject}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-emerald-700 bg-emerald-50 border border-emerald-200 disabled:opacity-50 active:scale-95 transition-all"
+          >
+            <Globe size={16} />
+            <span className="text-[10px] font-black mt-1">Publicar</span>
+          </button>
+          <button
+            onClick={() => setIsMobileWizardOpen(prev => !prev)}
+            className="h-14 rounded-2xl flex flex-col items-center justify-center text-stone-600 active:scale-95 transition-all"
+          >
+            <Menu size={16} />
+            <span className="text-[10px] font-bold mt-1">{isMobileWizardOpen ? 'Preview' : 'Menu'}</span>
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const getStatusBadge = (project: any) => {
+    if (!project) return null;
+    if (project.status === 'frozen') return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">CONGELADO</span>;
+
+    if (project.paymentStatus === 'paid' || project.status === 'published') {
+      return <span className="text-[9px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-emerald-200">ATIVO / PUBLICADO</span>;
+    }
+
+    if (project.expiresAt) {
+      const expirationDate = getExpirationTimestampMs(project.expiresAt);
+      if (!expirationDate) return <span className="text-[9px] bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold ml-2">RASCUNHO</span>;
+      const daysLeft = Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24));
+
+      if (daysLeft <= 0) return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">VENCIDO</span>;
+
+      return <span className="text-[9px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-orange-200 animate-pulse" title="Período de Teste">TRIAL ({daysLeft} dias restantes)</span>;
+    }
+    return <span className="text-[9px] bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold ml-2">RASCUNHO</span>;
+  };
+
+  return (
+    <>
+      <style>{`
+        ::-webkit-scrollbar { display: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+
+      {/* Toast Notification (Substitui os alerts nativos) */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[300] flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl font-bold text-sm border backdrop-blur-md"
+            style={{
+              backgroundColor: toast.type === 'error' ? 'rgba(254, 242, 242, 0.95)' : toast.type === 'success' ? 'rgba(240, 253, 244, 0.95)' : toast.type === 'warning' ? 'rgba(255, 251, 235, 0.95)' : 'rgba(248, 250, 252, 0.95)',
+              color: toast.type === 'error' ? '#991B1B' : toast.type === 'success' ? '#166534' : toast.type === 'warning' ? '#92400E' : '#334155',
+              borderColor: toast.type === 'error' ? '#FCA5A5' : toast.type === 'success' ? '#86EFAC' : toast.type === 'warning' ? '#FCD34D' : '#E2E8F0'
+            }}
+          >
+            {toast.type === 'error' ? <AlertCircle size={18} /> : toast.type === 'success' ? <CheckCircle size={18} /> : toast.type === 'warning' ? <AlertCircle size={18} /> : <Info size={18} />}
+            {toast.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Confirm Modal (Substitui o window.confirm) */}
+      <AnimatePresence>
+        {confirmDialog && (
+          <div className="fixed inset-0 z-[300] bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center shadow-2xl"
+            >
+              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100">
+                <AlertCircle size={32} />
+              </div>
+              <h2 className="text-xl font-black text-stone-900 mb-2 uppercase">{confirmDialog.title}</h2>
+              <p className="text-sm text-stone-500 mb-6 leading-relaxed">{confirmDialog.message}</p>
+              <div className="flex gap-3">
+                <button onClick={() => setConfirmDialog(null)} className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 py-3.5 rounded-xl font-bold text-xs transition-colors">Cancelar</button>
+                <button onClick={confirmDialog.onConfirm} className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3.5 rounded-xl font-bold text-xs shadow-lg shadow-red-500/20 transition-colors">Confirmar</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL AMPLO DE INSTRUÇÕES DNS */}
+      <AnimatePresence>
+        {isDnsModalOpen && currentProjectSlug && (() => {
+          const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
+          const domainRecords = currentProject?.domainRecords || [];
+          return (
+            <div className="fixed inset-0 z-[200] bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="bg-white border border-stone-200 p-8 rounded-3xl shadow-2xl max-w-3xl w-full relative overflow-hidden"
+              >
+                <button onClick={() => setIsDnsModalOpen(false)} className="absolute top-6 right-6 text-stone-400 hover:text-stone-800 transition-colors bg-stone-100 p-2 rounded-full z-20">
+                  <X size={18} />
+                </button>
+
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="bg-orange-100 p-3 rounded-xl"><Settings className="text-orange-600 w-6 h-6" /></div>
+                  <div>
+                    <h2 className="text-2xl font-black text-stone-900 uppercase">Apontamentos DNS</h2>
+                    <p className="text-sm text-stone-500">Configure o domínio <span className="font-bold text-teal-600">{currentProject.officialDomain}</span></p>
+                  </div>
+                </div>
+
+                <div className="bg-orange-50 border border-orange-200 rounded-2xl p-6 mb-6">
+                  <p className="text-sm text-orange-800 leading-relaxed font-medium mb-4">
+                    Acesse o painel do seu provedor de domínio (ex: Registro.br, HostGator, Locaweb) e procure pela opção <strong>"Editar Zona DNS"</strong>. Em seguida, adicione as linhas abaixo <strong>exatamente</strong> como são apresentadas.
+                    <br /><span className="text-xs text-orange-600 italic block mt-1">* Dica de Ouro: Se o painel já possuir apontamentos do tipo "A" ou "CNAME" conflitantes, exclua os antigos primeiro.</span>
+                  </p>
+
+                  <div className="border border-stone-300 rounded-xl overflow-hidden bg-white shadow-sm">
+                    {/* Cabeçalho da Tabela */}
+                    <div className="bg-stone-100 text-xs font-black text-stone-500 p-4 grid grid-cols-12 gap-3 uppercase tracking-widest border-b border-stone-200">
+                      <div className="col-span-4">Nome (Host)</div>
+                      <div className="col-span-2">Tipo</div>
+                      <div className="col-span-6">Dados (Valor/Destino)</div>
+                    </div>
+
+                    {/* Linha 1: TIPO A */}
+                    <div className="p-4 grid grid-cols-12 gap-3 border-b border-stone-100 text-sm items-center hover:bg-stone-50 transition-colors">
+                      <div className="col-span-4 text-stone-500 font-medium">@ <span className="text-[11px] text-stone-400 italic">(Ou deixe em branco)</span></div>
+                      <div className="col-span-2 font-black text-stone-800">A</div>
+                      <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
+                        <span className="font-mono text-teal-700 font-bold select-all">199.36.158.100</span>
+                        <button onClick={() => { navigator.clipboard.writeText('199.36.158.100'); showToast('IP copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100"><Copy size={14} /> Copiar</button>
+                      </div>
+                    </div>
+
+                    {/* Linha 2: CNAME (WWW) */}
+                    <div className="p-4 grid grid-cols-12 gap-3 border-b border-stone-100 text-sm items-center hover:bg-stone-50 transition-colors">
+                      <div className="col-span-4 font-mono text-stone-800 font-bold">www</div>
+                      <div className="col-span-2 font-black text-stone-800">CNAME</div>
+                      <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
+                        <span className="font-mono text-teal-700 font-bold select-all truncate">sitezing.com.br</span>
+                        <button onClick={() => { navigator.clipboard.writeText(`sitezing.com.br`); showToast('Destino copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100 shrink-0 ml-2"><Copy size={14} /> Copiar</button>
+                      </div>
+                    </div>
+
+                    {/* Linha 3: TXT (Se houver) */}
+                    {domainRecords && domainRecords.length > 0 && (
+                      <div className="p-4 grid grid-cols-12 gap-3 text-sm items-center hover:bg-stone-50 transition-colors">
+                        <div className="col-span-4 text-stone-500 font-medium">@ <span className="text-[11px] text-stone-400 italic">(Ou deixe em branco)</span></div>
+                        <div className="col-span-2 font-black text-stone-800">TXT</div>
+                        <div className="col-span-6 flex justify-between items-center bg-teal-50 border border-teal-100 px-3 py-2 rounded-lg">
+                          <span className="font-mono text-xs text-teal-700 font-bold select-all truncate" title={domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}>
+                            {domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`}
+                          </span>
+                          <button onClick={() => { navigator.clipboard.writeText(domainRecords[0]?.records[0]?.text || `firebase-site-verification=${currentProjectSlug}-app`); showToast('TXT copiado!', 'success'); }} className="text-teal-600 hover:text-teal-800 transition-colors flex items-center gap-1.5 text-xs font-bold bg-white px-2 py-1 rounded shadow-sm border border-teal-100 shrink-0 ml-2"><Copy size={14} /> Copiar</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <button onClick={() => setIsDnsModalOpen(false)} className="w-full bg-stone-900 hover:bg-stone-800 text-white py-4 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors">
+                  Pronto, entendi como configurar
+                </button>
+              </motion.div>
+            </div>
+          );
+        })()}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isGenerating && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-stone-900/95 backdrop-blur-xl flex flex-col items-center justify-center overflow-hidden"
+          >
+            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="flex flex-col items-center">
+              <div className="w-24 h-24 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl mb-8 relative">
+                <Rocket className="w-12 h-12 text-orange-500 animate-bounce relative z-10" />
+                <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-orange-500/40 to-transparent blur-xl rounded-full animate-pulse"></div>
+              </div>
+              <img src={BRAND_LOGO} alt="SiteZing" className="h-8 mb-4 opacity-50 block" />
+              <h2 className="text-3xl font-black text-white px-6 text-center tracking-tight">Criando sua Mágica...</h2>
+              <p className="text-stone-400 mt-3 text-sm font-medium animate-pulse text-center max-w-sm px-6">A Inteligência Artificial está escrevendo e montando o layout do seu novo site profissional em segundos.</p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isPublishing && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-stone-900/95 backdrop-blur-xl flex flex-col items-center justify-center overflow-hidden"
+          >
+            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="flex flex-col items-center">
+              <div className="w-24 h-24 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl mb-8 relative">
+                <Globe className="w-12 h-12 text-emerald-400 animate-pulse relative z-10" />
+                <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-emerald-500/40 to-transparent blur-xl rounded-full animate-bounce"></div>
+              </div>
+              <img src={BRAND_LOGO} alt="SiteZing" className="h-8 mb-4 opacity-50 block" />
+              <h2 className="text-3xl font-black text-white px-6 text-center tracking-tight">Publicando Site...</h2>
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={publishMsgIndex}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-emerald-400 mt-3 text-sm font-medium text-center max-w-sm px-6 h-10"
+                >
+                  {publishMsgs[publishMsgIndex]}
+                </motion.p>
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="w-full h-screen bg-[#FAFAF9] overflow-hidden font-sans text-stone-900 flex flex-col md:flex-row">
+
+        <div className="flex-1 relative h-full overflow-hidden bg-[#FAFAF9]">
+          <iframe
+            ref={iframeRef}
+            srcDoc={generatedHtml ? getPreviewHtml(generatedHtml) : getDynamicPromoHtml(platformConfigs)}
+            className="w-full h-full border-none bg-transparent"
+            title="Visão Principal"
+          />
+
+          <AnimatePresence>
+            {!isMenuOpen && !isMobile && (
+              <div
+                className={`absolute top-6 right-6 z-[90] flex items-center cursor-pointer group`}
+                onClick={() => setIsMenuOpen(true)}
+              >
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="relative flex items-center justify-center">
+                  <div className="relative flex items-center justify-center bg-white w-12 h-12 rounded-full border border-stone-200 shadow-lg group-hover:shadow-xl transition-all group-hover:border-stone-300 text-stone-600 group-hover:text-stone-900">
+                    <Menu size={20} />
+                    <GuidedTip step={2} currentStep={guideStep} text="Clique aqui para continuar editando seu site!" position="top" />
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
+
+          {renderMobileMenu()}
+          {renderMobileBottomSheet()}
+          {renderMobileBottomNav()}
+        </div>
+
+        <Suspense fallback={null}>
+          <LoginPage isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onSubmit={handleLoginSubmit} />
+        </Suspense>
+
+        <AnimatePresence initial={false}>
+          {isMenuOpen && !isMobile && (
+            <motion.div
+              initial={{ width: 0, paddingLeft: 0, paddingRight: 0 }}
+              animate={{ width: 420, paddingLeft: 16, paddingRight: 16 }}
+              exit={{ width: 0, paddingLeft: 0, paddingRight: 0 }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+              className="flex-shrink-0 h-full flex flex-col justify-center overflow-hidden relative z-50 bg-[#FAFAF9] w-full md:w-[420px] py-4"
+            >
+              <motion.div
+                initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 20, opacity: 0 }} transition={{ delay: 0.1 }}
+                className="w-full h-full lg:aspect-[16/9] lg:max-h-[min(90vh,900px)] lg:mx-auto lg:my-auto bg-[#F8FAFC] border border-stone-200 lg:rounded-[2rem] rounded-none shadow-xl flex flex-col overflow-hidden relative"
+              >
+                <div className="flex justify-between items-center px-6 py-5 border-b border-stone-200 flex-shrink-0 bg-white">
+                  <div className="flex items-center gap-3 select-none">
+                    <img src={BRAND_LOGO} alt="SiteZing" className="h-10 w-auto object-contain" />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <button onClick={() => setIsSupportModalOpen(true)} className="text-stone-400 hover:text-indigo-500 transition-colors p-2 rounded-full hover:bg-indigo-50" title="Central de Ajuda (Falar com Suporte)">
+                      <HelpCircle size={18} />
+                    </button>
+                    <button onClick={sharePlatform} className="text-stone-400 hover:text-orange-500 transition-colors p-2 rounded-full hover:bg-orange-50" title="Compartilhar SiteZing">
+                      <ExternalLink size={18} />
+                    </button>
+                    <div className="w-px h-4 bg-stone-200"></div>
+                    {loggedUserEmail ? (
+                      <button className="text-stone-400 hover:text-teal-500 transition-colors" title={`Logado como: ${loggedUserEmail}`}><User size={18} /></button>
+                    ) : (
+                      <button onClick={() => setIsLoginOpen(true)} className="text-xs font-bold text-teal-600 hover:text-teal-500 transition-colors flex items-center gap-1.5"><LogIn size={16} /> Login</button>
+                    )}
+                    <div className="w-px h-4 bg-stone-200"></div>
+                    <button onClick={() => { setIsMenuOpen(false); nextGuideStep(2); }} className={`text-stone-400 hover:text-stone-800 transition-colors relative ${guideStep === 1 ? 'animate-guide-pulse bg-orange-100 rounded-full p-1' : ''}`} title="Esconder Painel">
+                      <X size={18} />
+                      <GuidedTip step={1} currentStep={guideStep} text="Minimize aqui para ver como seu site ficou!" position="bottom" />
+                    </button>
+                  </div>
+                </div>
+
+                {(() => {
+                  const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
+                  let daysLeft = 0; let isPaid = false;
+                  if (currentProject?.expiresAt) {
+                    const expirationDate = getExpirationTimestampMs(currentProject.expiresAt);
+                    if (expirationDate) {
+                      daysLeft = Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24));
+                    }
+                    isPaid = currentProject.paymentStatus === 'paid';
+                  }
+                  return (
+                    <div className="flex border-b border-stone-200/70 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider flex-shrink-0 bg-white/70 backdrop-blur-md">
+                      <button onClick={() => setActiveTab('dashboard')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors flex items-center justify-center gap-1.5 ${activeTab === 'dashboard' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
+                        <LayoutDashboard size={12} /> Meus Sites
+                      </button>
+                      {generatedHtml && (
+                        <>
+                          <button onClick={() => setActiveTab('geral')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors flex items-center justify-center gap-1.5 ${activeTab === 'geral' ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
+                            <Edit3 size={12} /> Visual
+                          </button>
+                          <button onClick={() => setActiveTab('dominio')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative flex items-center justify-center gap-1.5 ${activeTab === 'dominio' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
+                            <Globe size={12} /> Domínio
+                          </button>
+                          {currentProjectSlug && (
+                            <button onClick={() => setActiveTab('assinatura')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative flex items-center justify-center gap-1.5 ${activeTab === 'assinatura' ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
+                              <CreditCard size={12} /> Plano
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-6 pb-6 bg-white">
+                  {activeTab === 'geral' && (
+                    <>
+                      {currentProjectSlug && (
+                        <div className="group relative flex items-center justify-between bg-stone-50 p-3.5 rounded-xl border border-stone-200 -mt-2">
+                          <div className="flex items-center gap-2 cursor-help">
+                            <Info size={14} className="text-stone-400" />
+                            <span className="text-xs text-stone-600 font-bold uppercase tracking-wider">Status do Site</span>
+                          </div>
+                          {getStatusBadge(savedProjects.find(p => p.id === currentProjectSlug) || {})}
+                        </div>
+                      )}
+
+                      <div className="space-y-4">
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl relative overflow-hidden group">
+                          <label className="block text-xs font-black text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4" /> Importação Mágica (Google)
+                          </label>
+                          <div className="flex flex-col gap-2 relative z-10 w-full shrink-0">
+                            <input
+                              type="text"
+                              placeholder="Link do Maps ou Nome do Local..."
+                              className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2.5 text-[11px] font-medium focus:outline-none focus:border-emerald-500 transition-all placeholder:text-stone-400 text-stone-800 min-w-0"
+                              value={formData.googlePlaceUrl || ''}
+                              onChange={(e) => { setFormData({ ...formData, googlePlaceUrl: e.target.value }); setHasUnsavedChanges(true) }}
+                            />
+                            <button
+                              type="button"
+                              onClick={fetchGoogleData}
+                              disabled={isFetchingGoogle || !formData.googlePlaceUrl}
+                              className="w-full shrink-0 bg-emerald-600 hover:bg-emerald-500 border border-emerald-700 disabled:opacity-50 text-white font-black text-[10px] uppercase tracking-widest py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+                            >
+                              {isFetchingGoogle ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Puxar Dados'}
+                            </button>
+                          </div>
+                          {pendingGoogleData && (
+                            <div className="mt-3 bg-white border border-emerald-200 p-3.5 rounded-xl shadow-[0_4px_20px_-4px_rgba(16,185,129,0.3)] text-center relative z-20 overflow-hidden before:absolute before:inset-0 before:bg-emerald-500/5">
+                              <p className="text-[11px] font-black justify-center text-emerald-800 uppercase flex items-center gap-1.5 mb-1.5"><CheckCircle size={14} /> É esta a empresa?</p>
+                              <p className="text-[10px] text-stone-600 mb-3 font-medium px-2 leading-relaxed h-10 line-clamp-2"><span className="font-bold">{pendingGoogleData.name}</span> - {pendingGoogleData.address}</p>
+                              <div className="flex gap-2 relative z-10">
+                                <button type="button" onClick={() => setPendingGoogleData(null)} className="flex-1 py-2.5 bg-stone-100 text-stone-500 rounded-lg text-[9px] uppercase font-black tracking-wider hover:bg-stone-200 transition-colors">Voltar</button>
+                                <button type="button" onClick={confirmGoogleInjection} className="flex-[2] py-2.5 px-3 bg-emerald-600 text-white rounded-lg text-[10px] uppercase font-black tracking-widest hover:bg-emerald-500 shadow-md transition-all flex items-center justify-center gap-1.5"><Rocket size={12} /> Confirmar</button>
+                              </div>
+                            </div>
+                          )}
+                          {!pendingGoogleData && googleStatus && (
+                            <div className={`mt-3 text-[10px] uppercase font-black tracking-widest text-center ${googleStatus.type === 'success' ? 'text-emerald-600' : 'text-red-500'}`}>
+                              {googleStatus.msg}
+                            </div>
+                          )}
+                        </motion.div>
+
+                        <div className="relative">
+                          <label className="text-[11px] font-black text-stone-500 uppercase flex items-center gap-1.5 mb-1.5"><Briefcase size={12} /> Nome do Negócio</label>
+                          <input className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-[12px] font-bold text-stone-800 focus:border-teal-500 outline-none transition-colors mb-3" placeholder="Ex: Eletricista Silva" value={formData.businessName} onChange={e => handleFloatNameChange(e.target.value)} />
+
+                          <label className="text-[11px] font-black text-stone-500 uppercase flex items-center gap-1.5 mb-1.5"><Globe size={12} /> Seu Link Oficial</label>
+                          <div className="flex bg-stone-50 border border-stone-200 rounded-xl overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
+                            <input className="flex-1 bg-transparent px-3 py-2.5 text-[12px] font-mono font-bold text-blue-600 outline-none w-full text-right" placeholder="meu-site" value={formData.customSlug} onChange={e => handleCustomSlugChange(e.target.value)} />
+                            <span className="bg-stone-100 border-l border-stone-200 px-3 py-2.5 text-[11px] font-bold text-stone-400 flex items-center select-none shadow-inner">.sitezing.com.br</span>
+                          </div>
+
+                          <div className="mt-1.5 min-h-[16px]">
+                            {floatDomainStatus.loading && (
+                              <div className="text-[10px] text-stone-400 flex items-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin" /> Validando domínio...</div>
+                            )}
+                            {!floatDomainStatus.loading && formData.customSlug.length >= 3 && floatDomainStatus.available === false && (
+                              <div className="text-[10px] text-red-500 font-bold flex items-center gap-1"><AlertCircle size={10} /> "{floatDomainStatus.slug}" já está em uso! Tente modificar.</div>
+                            )}
+                            {!floatDomainStatus.loading && formData.customSlug.length >= 3 && floatDomainStatus.available && floatDomainStatus.slug && (
+                              <div className="text-[10px] text-emerald-600 font-bold flex items-center gap-1"><CheckCircle size={10} /> Liberado!</div>
+                            )}
+                          </div>
+                        </div>
+                        <div><label className="text-[11px] font-black text-stone-500 uppercase flex items-center gap-1.5 mb-1.5"><FileText size={12} /> Ideia Principal</label><textarea className="w-full h-20 bg-white border border-stone-200 rounded-xl px-3 py-2.5 text-[12px] resize-none focus:border-teal-500 outline-none transition-colors text-stone-800" placeholder="Descreva os serviços..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} /></div>
+                      </div>
+
+                      <button onClick={() => handleGenerate()} disabled={isGenerating} className="w-full bg-stone-900 hover:bg-stone-800 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 border border-stone-700 transition-colors shadow-md">
+                        {isGenerating ? <Loader2 className="animate-spin" /> : <RefreshCw size={18} />} {generatedHtml ? 'Recriar Site c/ IA' : 'Gerar Meu Site'}
+                      </button>
+
+                      {generatedHtml && (
+                        <div className="pt-6 border-t border-stone-100 space-y-6">
+                          <div className="space-y-4">
+                            <div className="space-y-2.5">
+                              <label className="text-xs font-bold text-stone-500 uppercase">Estilo do Site</label>
+                              <select className="w-full bg-white border border-stone-200 rounded-xl p-3 text-sm outline-none" value={formData.layoutStyle} onChange={e => { setFormData({ ...formData, layoutStyle: e.target.value }); setHasUnsavedChanges(true) }}>{LAYOUT_STYLES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}</select>
+                            </div>
+
+                            <div className="space-y-2.5">
+                              <label className="text-xs font-bold text-stone-500 uppercase">Layout do Cabeçalho</label>
+                              <select className="w-full bg-white border border-stone-200 rounded-xl p-3 text-sm outline-none font-medium" value={formData.headerLayout} onChange={e => { setFormData({ ...formData, headerLayout: e.target.value }); setHasUnsavedChanges(true) }}>
+                                <option value="logo_left_icons_right">Logo Esquerda / Ícones Direita</option>
+                                <option value="logo_right_icons_left">Logo Direita / Ícones Esquerda</option>
+                                <option value="logo_center_icons_right">Logo Centro / Ícones Direita</option>
+                                <option value="logo_center_icons_left">Logo Centro / Ícones Esquerda</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="space-y-4">
+                            <label className="text-xs font-bold text-stone-500 uppercase block border-b border-stone-100 pb-2">Temas (Cores)</label>
+
+                            <div className="space-y-2">
+                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">1. Essenciais da Marca</span>
+                              <div className="grid grid-cols-5 gap-3">
+                                {COLORS.filter(c => !c.id.includes('_')).map(c => (
+                                  <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">2. Paleta Celeste</span>
+                              <div className="grid grid-cols-5 gap-3">
+                                {COLORS.filter(c => c.id.startsWith('celeste_')).map(c => (
+                                  <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">3. Paleta Marinha</span>
+                              <div className="grid grid-cols-5 gap-3">
+                                {COLORS.filter(c => c.id.startsWith('marinha_')).map(c => (
+                                  <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">4. Mediterrânea</span>
+                              <div className="grid grid-cols-5 gap-3">
+                                {COLORS.filter(c => c.id.startsWith('med_')).map(c => (
+                                  <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">5. Caribe</span>
+                              <div className="grid grid-cols-5 gap-3">
+                                {COLORS.filter(c => c.id.startsWith('caribe_')).map(c => (
+                                  <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-10 h-10 rounded-full transition-all relative overflow-hidden shadow-sm ${formData.colorId === c.id ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'} ring-offset-white`} title={c.name}><div className="absolute inset-0" style={{ backgroundColor: c.c1 }} /><div className="absolute bottom-0 right-0 w-4 h-4 rounded-tl-full" style={{ backgroundColor: c.c4 }} /></button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2.5">
+                            <label className="text-xs font-bold text-stone-500 uppercase flex justify-between items-center"><span>Sua Logomarca</span>{formData.logoBase64 && <button onClick={() => { setFormData(p => ({ ...p, logoBase64: '', logoSize: 40 })); setHasUnsavedChanges(true); }} className="text-red-500 hover:text-red-600 text-[10px] font-bold">X Remover</button>}</label>
+                            {!formData.logoBase64 ? (
+                              <div className="space-y-2"><label className="cursor-pointer w-full border border-dashed border-stone-300 hover:border-teal-400 rounded-xl p-4 flex justify-center items-center gap-2 text-xs text-stone-500 transition-colors bg-stone-50"><Upload size={14} /> Fazer Upload da Marca<input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" /></label></div>
+                            ) : (
+                              <div className="space-y-3 bg-stone-50 border border-stone-200 rounded-xl p-4">
+                                <div className="h-16 flex items-center justify-center overflow-hidden bg-white rounded-lg border border-stone-200 relative">
+                                  <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)', backgroundSize: '10px 10px', backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px' }}></div>
+                                  <img src={formData.logoBase64} style={{ maxHeight: `${formData.logoSize || 40}px` }} className="w-auto object-contain relative z-10 transition-all" alt="Logo" />
+                                </div>
+                                <div className="space-y-1 mt-2">
+                                  <label className="flex justify-between text-[10px] font-bold text-stone-500 uppercase"><span>Tamanho da Logo</span><span>{formData.logoSize || 40}px</span></label>
+                                  <input type="range" min="20" max="100" value={formData.logoSize || 40} onChange={e => { setFormData({ ...formData, logoSize: parseInt(e.target.value) }); setHasUnsavedChanges(true) }} className="w-full accent-teal-500" />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="space-y-3 pt-5 border-t border-stone-100">
+                            <label className="text-xs font-bold text-stone-500 uppercase flex gap-1.5"><Globe size={14} /> Redes Sociais & Delivery</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="WhatsApp (só números)" value={formData.whatsapp} onChange={e => { setFormData({ ...formData, whatsapp: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="Instagram (@usuario)" value={formData.instagram} onChange={e => { setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="Facebook (Link)" value={formData.facebook} onChange={e => { setFormData({ ...formData, facebook: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="LinkedIn (Link)" value={formData.linkedin} onChange={e => { setFormData({ ...formData, linkedin: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-stone-800 outline-none" placeholder="TikTok (Link ou @)" value={formData.tiktok} onChange={e => { setFormData({ ...formData, tiktok: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-stone-800 outline-none" placeholder="X / Twitter (Link)" value={formData.x} onChange={e => { setFormData({ ...formData, x: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-red-600 outline-none" placeholder="YouTube (Link do Canal)" value={formData.youtube} onChange={e => { setFormData({ ...formData, youtube: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-orange-500 outline-none" placeholder="iFood (Link)" value={formData.ifood} onChange={e => { setFormData({ ...formData, ifood: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-orange-600 outline-none" placeholder="Rappi (Link)" value={formData.rappi} onChange={e => { setFormData({ ...formData, rappi: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-yellow-500 outline-none" placeholder="Zé Delivery (Link)" value={formData.zeDelivery} onChange={e => { setFormData({ ...formData, zeDelivery: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none sm:col-span-2" placeholder="Outro Link de Compra/Cardápio Digital" value={formData.directLink} onChange={e => { setFormData({ ...formData, directLink: e.target.value }); setHasUnsavedChanges(true) }} />
+                            </div>
+                          </div>
+
+                          <div className="space-y-3 pt-5 border-t border-stone-100">
+                            <label className="text-xs font-bold text-stone-500 uppercase flex gap-1.5"><MapPin size={14} /> Contato e Localização</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="Telefone" value={formData.phone} onChange={e => { setFormData({ ...formData, phone: e.target.value }); setHasUnsavedChanges(true) }} />
+                              <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="E-mail" value={formData.email} onChange={e => { setFormData({ ...formData, email: e.target.value }); setHasUnsavedChanges(true) }} />
+                            </div>
+                            <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs focus:border-teal-500 outline-none" placeholder="Endereço Físico" value={formData.address} onChange={e => { setFormData({ ...formData, address: e.target.value }); setHasUnsavedChanges(true) }} />
+
+                            <label className="flex items-center justify-between bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs text-stone-600"><span>Exibir Mapa do Google</span><input type="checkbox" checked={formData.showMap} onChange={e => { setFormData({ ...formData, showMap: e.target.checked }); setHasUnsavedChanges(true) }} className="accent-teal-500" /></label>
+                            <label className="flex items-center justify-between bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs text-stone-600"><span>Exibir formulário de contato</span><input type="checkbox" checked={formData.showForm} onChange={e => { setFormData({ ...formData, showForm: e.target.checked }); setHasUnsavedChanges(true) }} className="accent-teal-500" /></label>
+                            {formData.reviews && formData.reviews.length > 0 && (
+                              <label className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs text-stone-600 font-bold mt-2">
+                                <span className="flex items-center gap-1.5"><Star className="w-3 h-3 text-emerald-500" /> Exibir Galeria de Avaliações Google</span>
+                                <input type="checkbox" checked={formData.showReviews} onChange={e => { setFormData({ ...formData, showReviews: e.target.checked }); setHasUnsavedChanges(true) }} className="accent-emerald-500" />
+                              </label>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  
+                  {activeTab === 'dashboard' && (
+                    <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                      <div className="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-100 blur-[50px] rounded-full pointer-events-none"></div>
+                        <h3 className="text-lg font-black text-stone-950 mb-1 flex items-center gap-2 relative z-10"><LayoutDashboard size={18} className="text-indigo-500" /> Meus Sites</h3>
+                        <p className="text-xs text-stone-500 font-medium mb-6 relative z-10">Gerencie todos os seus projetos salvos na plataforma.</p>
+                        
+                        {!loggedUserEmail ? (
+                          <div className="text-center py-10 bg-stone-50 rounded-xl border border-stone-100">
+                            <p className="text-sm text-stone-600 font-bold mb-4">Você precisa estar logado para ver seus sites.</p>
+                            <button onClick={() => setIsLoginOpen(true)} className="bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase text-xs px-6 py-3 rounded-xl transition-all shadow-md">Fazer Login</button>
+                          </div>
+                        ) : (
+                          <div className="space-y-3 relative z-10">
+                            {savedProjects.length === 0 ? <p className="text-xs text-stone-400 italic text-center py-8">Nenhum projeto ainda. Comece a criar o seu primeiro site!</p> : (
+                              savedProjects.map((p) => (
+                                <div
+                                  key={p.id}
+                                  role="button"
+                                  tabIndex={0}
+                                  onClick={() => handleLoadProject(p)}
+                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleLoadProject(p); }}
+                                  className={`flex flex-col sm:flex-row gap-3 bg-white border border-stone-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-400' : ''}`}
+                                >
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                                      <span className="font-black text-sm text-stone-800 truncate">{p.businessName || 'Projeto sem nome'}</span>
+                                      {getStatusBadge(p)}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px] sm:text-xs text-stone-500 font-mono truncate">
+                                      <Globe size={12} className="shrink-0" /> <span className="truncate">{p.publishUrl?.replace('https://', '') || 'Sem link público'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[10px] text-stone-400 mt-1">
+                                      <Clock size={10} className="shrink-0" /> Atualizado em {new Date(p.updatedAt).toLocaleDateString()}
+                                    </div>
+                                  </div>
+                                  <div className="flex sm:flex-col justify-end gap-2 shrink-0 border-t sm:border-t-0 sm:border-l border-stone-100 pt-3 sm:pt-0 sm:pl-3 mt-1 sm:mt-0">
+                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteSite(p.id); }} className="flex-1 sm:flex-none py-2 px-4 bg-red-50 text-red-600 hover:bg-red-100 font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                                      <Trash2 size={12} /> Excluir
+                                    </button>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        )}
+                        {loggedUserEmail && (
+                           <div className="mt-6 text-center border-t border-stone-100 pt-6">
+                              <button onClick={() => { setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', youtube: '', x: '', rappi: '', zeDelivery: '', directLink: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' }); setCurrentProjectSlug(null); setGeneratedHtml(null); setOfficialDomain(''); setPublishModalUrl(null); setActiveTab('geral'); setConfirmDialog({ title: 'Novo Site', message: 'Deseja iniciar um projeto em branco?', onConfirm: () => { window.location.reload(); } }) }} className="text-xs font-black text-indigo-600 hover:underline uppercase tracking-widest">+ Criar Novo Site</button>
+                           </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === 'dominio' && generatedHtml && (
+                    <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                      {!currentProjectSlug ? (
+                        <div className="bg-teal-50/50 p-5 rounded-2xl border border-teal-100">
+                          <h4 className="text-sm font-bold text-teal-700 flex items-center gap-2"><Globe size={16} /> Qual será o endereço?</h4>
+                          <p className="text-xs text-teal-600/80 mb-5 leading-relaxed">Antes de salvar, precisamos saber se você vai usar um domínio oficial (Ex: Registro.br).</p>
+                          <Suspense fallback={null}><DomainChecker onDomainChange={(domain, isLater) => { setOfficialDomain(domain); setRegisterLater(isLater); }} /></Suspense>
+                        </div>
+                      ) : (() => {
+                        const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
+                        const hasCustomDomain = currentProject?.officialDomain && currentProject.officialDomain !== 'Pendente' && !currentProject.officialDomain.includes('.sitezing.com.br');
+                        const isDomainActive = currentProject?.domainStatus === 'ACTIVE' || currentProject?.domainStatus === 'HOSTING_ACTIVE';
+
+                        return (
+                          <div className="space-y-4">
+                            <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm">
+                              <div className="flex items-center gap-3 mb-5">
+                                <div className="bg-teal-100 p-2.5 rounded-xl"><Globe className="text-teal-600 w-5 h-5" /></div>
+                                <div>
+                                  <h3 className="font-bold text-stone-950 text-sm">Domínio Profissional</h3>
+                                  <p className="text-[10px] text-stone-500">Conecte seu próprio endereço</p>
+                                </div>
+                              </div>
+
+                              {!hasCustomDomain ? (
+                                <div className="space-y-6">
+                                  {/* PASSO 1: Obter Domínio */}
+                                  <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 bg-orange-100 text-orange-700 text-[9px] font-black uppercase px-3 py-1.5 rounded-bl-lg">Passo 1</div>
+                                    <h4 className="text-sm font-bold text-stone-900 mb-2 flex items-center gap-2"><Star size={16} className="text-orange-500" /> Obtenha seu endereço oficial</h4>
+                                    <p className="text-xs text-stone-600 leading-relaxed mb-4">
+                                      Para passar credibilidade, seu site precisa de um endereço profissional (ex: <b>suaempresa.com.br</b>). Recomendamos registrar o seu domínio diretamente no órgão oficial do Brasil, o Registro.br (custa apenas R$ 40,00 por ano).
+                                    </p>
+                                    <a
+                                      href="https://registro.br"
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-2 bg-stone-100 hover:bg-stone-200 text-stone-800 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors"
+                                    >
+                                      <ExternalLink size={14} /> Abrir Registro.br
+                                    </a>
+                                  </div>
+
+                                  {/* PASSO 2: Conectar Domínio */}
+                                  <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm relative">
+                                    <div className="absolute top-0 right-0 bg-teal-100 text-teal-700 text-[9px] font-black uppercase px-3 py-1.5 rounded-bl-lg">Passo 2</div>
+                                    <h4 className="text-sm font-bold text-stone-900 mb-2">Já tenho um domínio. Conectar agora:</h4>
+                                    <p className="text-[10px] text-stone-500 mb-4">Digite apenas o endereço raiz. O nosso sistema já configura o "www" automaticamente para você.</p>
+
+                                    <div className="flex flex-col sm:flex-row gap-2 relative">
+                                      <div className="relative flex-1">
+                                        <input
+                                          className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 pl-12 text-sm focus:border-teal-500 outline-none transition-colors font-mono text-stone-700 h-12"
+                                          placeholder="suamarca.com.br"
+                                          value={customDomainInput}
+                                          onChange={e => {
+                                            let val = e.target.value.toLowerCase().trim();
+                                            val = val.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '');
+                                            setCustomDomainInput(val);
+                                          }}
+                                        />
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 font-mono text-sm pointer-events-none">www.</span>
+                                      </div>
+                                      <button
+                                        onClick={handleAddCustomDomain}
+                                        disabled={isLinkingDomain || !customDomainInput}
+                                        className="bg-stone-900 hover:bg-stone-800 disabled:bg-stone-300 text-white px-6 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-2 h-12 shrink-0"
+                                      >
+                                        {isLinkingDomain ? <Loader2 size={16} className="animate-spin" /> : 'Conectar'}
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="space-y-5">
+                                  <div className="flex items-center justify-between bg-stone-50 p-3.5 rounded-xl border border-stone-200">
+                                    <div className="flex flex-col">
+                                      <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Endereço Vinculado</span>
+                                      <span className="font-mono text-sm font-bold text-teal-700">{currentProject.officialDomain}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                      <div className="flex flex-col gap-1 items-end">
+                                        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${isDomainActive ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700 animate-pulse'}`}>
+                                          {isDomainActive ? 'Propagado' : 'Pendente'}
+                                        </span>
+                                        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${isDomainActive ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>
+                                          {isDomainActive ? 'SSL Ativo ✅' : 'SSL Gerando... ⏳'}
+                                        </span>
+                                      </div>
+                                      {/* BOTÃO PARA DESCONECTAR O DOMÍNIO */}
+                                      <button
+                                        onClick={() => handleRemoveDomain(currentProject.officialDomain)}
+                                        className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100"
+                                        title="Desconectar Domínio"
+                                      >
+                                        <Trash2 size={16} />
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  {!isDomainActive && (
+                                    <div className="bg-orange-50 border border-orange-200 p-4 sm:p-5 rounded-2xl flex flex-col items-center justify-center text-center space-y-3">
+                                      <Settings className="text-orange-400 w-8 h-8" />
+                                      <div>
+                                        <h4 className="text-sm font-black text-orange-800">Finalize a Configuração DNS</h4>
+                                        <p className="text-[11px] text-orange-700/80 mt-1">Para o site funcionar, você precisa adicionar alguns dados no seu provedor de domínio.</p>
+                                      </div>
+                                      <button
+                                        onClick={() => setIsDnsModalOpen(true)}
+                                        className="mt-2 bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-colors shadow-lg shadow-orange-500/20"
+                                      >
+                                        Abrir Instruções de Apontamento
+                                      </button>
+                                    </div>
+                                  )}
+
+                                  <button
+                                    onClick={() => handleVerifyDomain(currentProject.officialDomain)}
+                                    disabled={isVerifyingDomain || isDomainActive}
+                                    className={`w-full py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${isDomainActive ? 'bg-stone-100 text-stone-400 cursor-not-allowed' : 'bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-500/20'}`}
+                                  >
+                                    {isVerifyingDomain ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+                                    {isDomainActive ? 'Conectado e Operacional' : 'Verificar Propagação'}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+
+                  {activeTab === 'plataforma' && loggedUserEmail === 'caiotleal@gmail.com' && (
+                    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300 pb-10">
+                      <div className="bg-purple-50 border border-purple-100 p-5 rounded-2xl relative overflow-hidden shadow-sm">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-purple-100 blur-[50px] rounded-full pointer-events-none opacity-50"></div>
+                        <h3 className="text-sm font-black text-purple-700 mb-1 flex items-center gap-2"><Settings size={16} /> Configurações Globais</h3>
+                        <p className="text-[10px] text-purple-600/70 uppercase font-bold tracking-widest mb-6">Controle preços, banners e branding</p>
+
+                        <div className="space-y-5 relative z-10">
+                          {/* PREÇOS */}
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2"><CreditCard size={12} /> Tabela de Preços (Stripe)</label>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <span className="text-[9px] font-extrabold text-stone-500 uppercase">Mensal (R$)</span>
+                                <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-sm font-black text-stone-800 focus:border-purple-400 outline-none" value={platformConfigs?.pricing?.mensal || ''} onChange={e => setPlatformConfigs({ ...platformConfigs, pricing: { ...platformConfigs.pricing, mensal: e.target.value } })} />
+                              </div>
+                              <div className="space-y-1">
+                                <span className="text-[9px] font-extrabold text-stone-500 uppercase">Anual (R$)</span>
+                                <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-sm font-black text-stone-800 focus:border-purple-400 outline-none" value={platformConfigs?.pricing?.anual || ''} onChange={e => setPlatformConfigs({ ...platformConfigs, pricing: { ...platformConfigs.pricing, anual: e.target.value } })} />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* BANNERS */}
+                          <div className="space-y-3 pt-4 border-t border-purple-100">
+                            <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2"><Zap size={12} /> Banner de Marketing (Topo)</label>
+                            <div className="bg-white border border-stone-200 rounded-xl p-4 space-y-4">
+                              <label className="flex items-center justify-between text-xs font-bold text-stone-600">
+                                <span>Banner Ativo?</span>
+                                <input type="checkbox" checked={platformConfigs?.marketing?.bannerActive || false} onChange={e => setPlatformConfigs({ ...platformConfigs, marketing: { ...platformConfigs.marketing, bannerActive: e.target.checked } })} className="accent-purple-500 w-4 h-4" />
+                              </label>
+                              <div className="space-y-1">
+                                <span className="text-[9px] font-extrabold text-stone-500 uppercase">Texto do Banner</span>
+                                <input className="w-full bg-stone-50 border border-stone-200 rounded-lg p-2.5 text-xs text-stone-700 focus:border-purple-400 outline-none" placeholder="Ex: Black Friday: 50% OFF!" value={platformConfigs?.marketing?.bannerText || ''} onChange={e => setPlatformConfigs({ ...platformConfigs, marketing: { ...platformConfigs.marketing, bannerText: e.target.value } })} />
+                              </div>
+                              <div className="space-y-1">
+                                <span className="text-[9px] font-extrabold text-stone-500 uppercase">Tipo / Cor</span>
+                                <select className="w-full bg-stone-50 border border-stone-200 rounded-lg p-2.5 text-xs text-stone-700 outline-none" value={platformConfigs?.marketing?.bannerType || 'info'} onChange={e => setPlatformConfigs({ ...platformConfigs, marketing: { ...platformConfigs.marketing, bannerType: e.target.value } })}>
+                                  <option value="info">Azul (Informação)</option>
+                                  <option value="warning">Laranja (Destaque)</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* CHAVES DE CONEXÃO */}
+                          <div className="space-y-3 pt-4 border-t border-purple-100">
+                            <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2"><ShieldCheck size={12} /> Chave Stripe Production</label>
+                            <input className="w-full bg-white border border-stone-200 rounded-xl p-3 text-[10px] font-mono text-stone-500 focus:border-purple-400 outline-none" placeholder="sk_live_..." type="password" value={platformConfigs?.stripe?.secretKey || ''} onChange={e => setPlatformConfigs({ ...platformConfigs, stripe: { ...platformConfigs.stripe, secretKey: e.target.value } })} />
+                            <p className="text-[9px] text-stone-400 italic">Cuidado: Alterar esta chave pode quebrar os pagamentos atuais.</p>
+                          </div>
+
+                          {/* TERMOS E LEGAL */}
+                          <div className="space-y-3 pt-4 border-t border-purple-100">
+                            <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2"><FileText size={12} /> Conteúdo Institucional</label>
+                            <div className="space-y-1">
+                              <span className="text-[9px] font-extrabold text-stone-500 uppercase">Termos de Uso (Texto)</span>
+                              <textarea className="w-full bg-white border border-stone-200 rounded-xl p-3 text-xs text-stone-700 h-24 resize-none outline-none focus:border-purple-400" placeholder="Digite os termos de uso aqui..." value={platformConfigs?.legal?.terms || ''} onChange={e => setPlatformConfigs({ ...platformConfigs, legal: { ...platformConfigs.legal, terms: e.target.value } })} />
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={async () => {
+                              try {
+                                setIsSavingProject(true);
+                                const upFn = httpsCallable(functions, 'updatePlatformConfigs');
+                                await upFn(platformConfigs);
+                                showToast("Configurações da Plataforma Atualizadas!", "success");
+                              } catch (e: any) {
+                                console.error(e);
+                                showToast("Erro ao salvar: " + e.message, "error");
+                              } finally {
+                                setIsSavingProject(false);
+                              }
+                            }}
+                            className="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2"
+                          >
+                            {isSavingProject ? <Loader2 className="animate-spin w-4 h-4" /> : <Save size={16} />} Salvar Alterações Globais
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === 'assinatura' && currentProjectSlug && (() => {
+                    const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
+
+                    const expirationDate = currentProject?.expiresAt ? getExpirationTimestampMs(currentProject.expiresAt) : null;
+                    const daysLeft = expirationDate ? Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24)) : 0;
+
+                    const isPaid = currentProject?.paymentStatus === 'paid';
+                    const isCanceled = currentProject?.cancelAtPeriodEnd === true || currentProject?.subscriptionStatus === 'canceled';
+
+                    let isExpired = false;
+                    if (expirationDate && expirationDate < Date.now() && !isPaid) {
+                      isExpired = true;
+                    }
+                    const needsPayment = currentProject?.status === 'frozen' || isExpired;
+
+                    return (
+                      <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                        <div className="bg-white border border-stone-200 p-6 rounded-2xl shadow-sm relative overflow-hidden">
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-orange-100 blur-[50px] rounded-full pointer-events-none"></div>
+                          <h3 className="text-lg font-black text-stone-950 mb-1 flex items-center gap-2"><CreditCard size={18} className="text-orange-500" /> Assinatura</h3>
+                          <p className="text-xs text-stone-500 mb-6">Gerencie o plano do projeto <span className="text-orange-500 font-mono">{currentProjectSlug}</span></p>
+
+                          <div className="bg-stone-50 p-5 rounded-2xl border border-stone-200 mb-6 relative z-10 shadow-inner">
+                            <h4 className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-4">Resumo da Conta</h4>
+                            <div className="space-y-4">
+                              <div className="flex justify-between items-center border-b border-stone-200 pb-3">
+                                <span className="text-xs text-stone-500 font-medium">Status do Site</span>
+                                <span className={`text-xs font-black uppercase tracking-wider px-2 py-1 rounded-md ${daysLeft > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                                  {daysLeft > 0 ? 'Online (Ativo)' : 'Offline (Congelado)'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center border-b border-stone-200 pb-3">
+                                <span className="text-xs text-stone-500 font-medium">Situação do Plano</span>
+                                <span className="text-xs font-bold text-stone-800">
+                                  {isPaid ? (isCanceled ? 'Cancelada' : 'Assinatura Ativa') : 'Teste Gratuito (Trial)'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs text-stone-500 font-medium">Tempo / Vencimento</span>
+                                <span className="text-xs font-bold text-stone-800 text-right">
+                                  {!isPaid && daysLeft > 0 && `Faltam ${daysLeft} dias para acabar`}
+                                  {!isPaid && daysLeft <= 0 && `Teste encerrado`}
+                                  {isPaid && !isCanceled && expirationDate && `Próxima renovação em ${new Date(expirationDate).toLocaleDateString('pt-BR')}`}
+                                  {isPaid && isCanceled && expirationDate && `No ar até ${new Date(expirationDate).toLocaleDateString('pt-BR')}`}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {isPaid && isCanceled && daysLeft > 0 ? (
+                            <div className="bg-orange-50 border border-orange-200 p-6 rounded-xl text-center space-y-4 relative z-10">
+                              <h4 className="font-black text-orange-700 text-lg uppercase tracking-wider">Assinatura Cancelada</h4>
+                              <p className="text-xs text-orange-600/80 mb-2">Seu site continuará no ar, recebendo visitas e contatos normalmente até o cumprimento total do período que você já pagou. Nenhum valor retroativo será cobrado ou estornado.</p>
+                              <p className="text-[11px] text-orange-700/60 font-medium">Após o vencimento, o site entrará em estado de Congelamento por 5 dias e, após isso, será definitivamente suspenso. Deseja reativar a renovação automática para não perdê-lo?</p>
+                              <button
+                                onClick={() => handleResumeSubscription(currentProjectSlug)}
+                                disabled={isResuming}
+                                className="bg-orange-500 text-white px-6 py-3.5 rounded-xl font-bold text-xs uppercase shadow-lg shadow-orange-500/20 hover:bg-orange-600 transition-colors w-full"
+                              >
+                                {isResuming ? <Loader2 className="animate-spin inline mr-2" /> : <RefreshCw className="inline mr-2" size={16} />} Reativar Assinatura
+                              </button>
+                            </div>
+                          ) : isPaid && !isCanceled ? (
+                            <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-xl text-center space-y-4 relative z-10">
+                              <h4 className="font-black text-emerald-700 text-lg uppercase tracking-wider">Plano Operacional</h4>
+                              <p className="text-xs text-emerald-600/70">Seu ambiente está operando com potência máxima e sem restrições.</p>
+                              <div className="pt-2">
+                                <button
+                                  onClick={() => { setSelectedPlanModal(currentProject.planSelected === 'anual' ? 'monthly' : 'annual'); setCheckoutTermsAccepted(false); }}
+                                  className="bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-100 px-6 py-3 rounded-xl text-xs font-bold transition-colors shadow-sm w-full uppercase tracking-wider"
+                                >
+                                  Mudar de Plano
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-6">
+                              <div className="grid grid-cols-1 gap-4">
+                                {platformConfigs?.plans?.length > 0 ? (
+                                  [...platformConfigs.plans].sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0)).map((p: any) => {
+                                    const isAnual = p.interval === 'year';
+                                    return (
+                                      <div key={p.id} className={`bg-white p-5 rounded-xl border ${isAnual ? 'border-orange-200' : 'border-teal-200'} flex flex-col h-full relative overflow-hidden shadow-sm`}>
+                                        <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
+                                        <div className={`absolute top-0 right-0 ${isAnual ? 'bg-orange-500' : 'bg-teal-600'} text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg`}>
+                                          {p.badge || (isAnual ? 'Mais Econômico' : 'Recomendado')}
+                                        </div>
+                                        <h4 className={`${isAnual ? 'text-orange-500' : 'text-teal-600'} font-bold mb-2 uppercase tracking-wide text-xs`}>{p.name}</h4>
+                                        <div className="flex items-end gap-1 mb-1">
+                                          <span className="text-3xl font-black text-stone-950">R$ {p.price}</span>
+                                          <span className="text-xs text-stone-500 font-medium pb-1">/
+                                            {p.interval === 'month' ? 'mês' : 
+                                             p.interval === 'bimestral' ? 'bimestre' :
+                                             p.interval === 'trimestral' ? 'trimestre' :
+                                             p.interval === 'semestral' ? 'semestre' : 'ano'}
+                                          </span>
+                                        </div>
+                                        {p.allowInstallments && (
+                                          <div className="text-[10px] font-bold text-emerald-600 mb-4 flex items-center gap-1">
+                                            <CreditCard size={12} /> Ou em até {p.maxInstallments || 12}x no cartão
+                                          </div>
+                                        )}
+                                        {!p.allowInstallments && <div className="mb-4"></div>}
+                                        <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
+                                          {p.features?.map((f: string, i: number) => (
+                                            <li key={i} className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5" /> {f}</li>
+                                          ))}
+                                        </ul>
+                                        <button
+                                          onClick={() => {
+                                            if (currentProject?.stripeSubscriptionId && currentProject?.cancelAtPeriodEnd && currentProject?.status !== 'frozen') {
+                                              handleResumeSubscription(currentProjectSlug);
+                                            } else {
+                                              setCheckoutDetailsModal({ projectId: currentProjectSlug, planType: p.name, priceId: p.priceId });
+                                            }
+                                          }}
+                                          disabled={checkoutLoading === `${currentProjectSlug}-${p.name}` || isResuming}
+                                          className={`w-full ${isAnual ? 'bg-orange-500 hover:bg-orange-400 shadow-orange-500/20' : 'bg-teal-600 hover:bg-teal-500 shadow-teal-500/20'} text-white py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors relative z-10 shadow-lg`}
+                                        >
+                                          {checkoutLoading === `${currentProjectSlug}-${p.name}` || isResuming ? <Loader2 className="animate-spin w-4 h-4 mx-auto" /> : (needsPayment ? `Reativar com ${p.name}` : `Assinar ${p.name}`)}
+                                        </button>
+                                      </div>
+                                    );
+                                  })
+                                ) : (
+                                  <>
+                                    <div className="bg-white p-5 rounded-xl border border-teal-200 flex flex-col h-full relative overflow-hidden shadow-sm">
+                                      <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
+                                      <div className="absolute top-0 right-0 bg-teal-600 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg">Mais Assinado</div>
+                                      <h4 className="text-teal-600 font-bold mb-2 uppercase tracking-wide text-xs">Plano Mensal</h4>
+                                      <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ {platformConfigs?.pricing?.mensal || '49,90'}</span><span className="text-xs text-stone-500 font-medium pb-1">/mês</span></div>
+                                      <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
+                                        <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Domínio próprio & Suporte</li>
+                                      </ul>
+                                      <button
+                                        onClick={() => {
+                                          if (currentProject?.stripeSubscriptionId && currentProject?.cancelAtPeriodEnd && currentProject?.status !== 'frozen') {
+                                            handleResumeSubscription(currentProjectSlug);
+                                          } else {
+                                            setCheckoutDetailsModal({ projectId: currentProjectSlug, planType: 'mensal' });
+                                          }
+                                        }}
+                                        disabled={checkoutLoading === `${currentProjectSlug}-mensal` || isResuming}
+                                        className="w-full bg-teal-600 hover:bg-teal-500 text-white py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition-colors relative z-10 shadow-lg shadow-teal-500/20"
+                                      >
+                                        {checkoutLoading === `${currentProjectSlug}-mensal` || isResuming ? <Loader2 className="animate-spin w-4 h-4 mx-auto" /> : needsPayment ? 'Reativar com Plano Mensal' : 'Assinar Mensal'}
+                                      </button>
+                                    </div>
+
+                                    <div className="bg-white p-5 rounded-xl border border-orange-200 flex flex-col h-full relative overflow-hidden shadow-md">
+                                      <img src={BRAND_LOGO} className="absolute bottom-[-10%] right-[-10%] w-1/2 opacity-[0.03] pointer-events-none filter grayscale" alt="" />
+                                      <div className="absolute top-0 right-0 bg-orange-500 text-white text-[9px] font-black uppercase px-2 py-1 rounded-bl-lg rounded-tr-lg">Mais Econômico</div>
+                                      <h4 className="text-orange-500 font-bold mb-2 uppercase tracking-wide text-xs">Plano Anual</h4>
+                                      <div className="flex items-end gap-1 mb-4"><span className="text-3xl font-black text-stone-950">R$ {platformConfigs?.pricing?.anual || '499'}</span><span className="text-xs text-stone-500 font-medium pb-1">/ano</span></div>
+                                      <ul className="space-y-2 text-xs text-stone-600 mb-6 flex-1 relative z-10">
+                                        <li className="flex items-start gap-2"><CheckCircle size={14} className="text-emerald-500 shrink-0 mt-0.5" /> 2 meses grátis equivalentes</li>
+                                      </ul>
+                                      <button
+                                        onClick={() => {
+                                          if (currentProject?.stripeSubscriptionId && currentProject?.cancelAtPeriodEnd && currentProject?.status !== 'frozen') {
+                                            handleResumeSubscription(currentProjectSlug);
+                                          } else {
+                                            setCheckoutDetailsModal({ projectId: currentProjectSlug, planType: 'anual' });
+                                          }
+                                        }}
+                                        disabled={checkoutLoading === `${currentProjectSlug}-anual` || isResuming}
+                                        className="w-full bg-orange-500 hover:bg-orange-400 text-white py-3 rounded-xl font-black uppercase tracking-wider text-xs transition-colors shadow-lg shadow-orange-500/20 relative z-10"
+                                      >
+                                        {checkoutLoading === `${currentProjectSlug}-anual` || isResuming ? <Loader2 className="animate-spin w-4 h-4 mx-auto" /> : needsPayment ? 'Reativar com Plano Anual' : 'Assinar Anual'}
+                                      </button>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="mt-8 pt-6 border-t border-stone-100 relative z-10">
+                            <h4 className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-3">Ações da Conta</h4>
+                            {isPaid && !isCanceled ? (
+                              <button
+                                onClick={() => { setCancelModalProject(currentProjectSlug); setCancelTermsAccepted(false) }}
+                                className="w-full bg-white border border-red-200 text-red-600 hover:bg-red-50 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
+                              >
+                                Cancelar Assinatura
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => showToast("Sua assinatura já encontra-se inativa ou em período de teste gratuito.", "info")}
+                                className="w-full bg-stone-100 border border-stone-200 text-stone-400 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-not-allowed"
+                              >
+                                Cancelar Assinatura
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  
+                </div>
+
+                {generatedHtml && (() => {
+                  const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
+                  const isPublished = Boolean(currentProject?.publishUrl || currentProject?.status === 'active' || currentProject?.status === 'published');
+
+                  let isExpired = false;
+                  if (currentProject?.expiresAt) {
+                    const expDate = getExpirationTimestampMs(currentProject.expiresAt);
+                    if (expDate && expDate < Date.now() && currentProject.paymentStatus !== 'paid') {
+                      isExpired = true;
+                    }
+                  }
+
+                  const needsPayment = currentProject?.status === 'frozen' || isExpired;
+
+                  return (
+                    <div className="p-4 border-t border-stone-200 bg-white flex flex-col sm:flex-row items-center gap-3 flex-shrink-0">
+                      <button
+                        onClick={handleSaveOrUpdateSite}
+                        disabled={isSavingProject || (!hasUnsavedChanges && currentProjectSlug !== null)}
+                        className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 relative ${hasUnsavedChanges || !currentProjectSlug ? (guideStep === 2 ? 'bg-orange-500 animate-guide-pulse text-white shadow-lg' : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md') : 'bg-stone-100 text-stone-400 cursor-not-allowed'}`}
+                      >
+                        {isSavingProject ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save size={14} />}
+                        {currentProjectSlug ? 'Salvar Alterações' : 'Salvar Projeto'}
+                        <GuidedTip step={2} currentStep={guideStep} text="Salve seu projeto para garantir seu link oficial!" position="top" />
+                      </button>
+
+                      {needsPayment ? (
+                        <button
+                          onClick={() => {
+                            setActiveTab('assinatura');
+                            showToast('Seu site expirou. Ative um plano para reativá-lo e poder publicar as alterações!', 'warning');
+                          }}
+                          className="w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20"
+                        >
+                          <Zap size={14} />
+                          Reativar Assinatura
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            if (hasUnsavedChanges || !currentProjectSlug) {
+                              setIsSaveReminderOpen(true);
+                            } else {
+                              handlePublishSite();
+                            }
+                          }}
+                          disabled={isPublishing}
+                          className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 relative ${!hasUnsavedChanges && currentProjectSlug ? (guideStep === 3 ? 'bg-orange-500 animate-guide-pulse text-white shadow-lg' : (isPublished ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20' : 'bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-500/20')) : 'bg-stone-200 text-stone-600 hover:bg-stone-300'}`}
+                        >
+                          {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : (isPublished ? <RefreshCw size={14} /> : <Globe size={14} />)}
+                          {isPublished ? 'Atualizar Publicação' : 'Publicar Site'}
+                          <GuidedTip step={3} currentStep={guideStep} text="Clique aqui para colocar seu site no ar!" position="top" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })()}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      {/* MODAL DOS PLANOS E REGRAS (Vindo do iFrame) */}
+      <AnimatePresence>
+        {selectedPlanModal && (
+          <div className="fixed inset-0 z-[400] bg-stone-950/40 backdrop-blur-md flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              className="bg-white rounded-[2.5rem] overflow-hidden max-w-lg w-full shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] relative border border-stone-100"
+            >
+              <button onClick={() => setSelectedPlanModal(null)} className="absolute top-6 right-6 bg-stone-100 hover:bg-stone-200 text-stone-500 p-2.5 rounded-full transition-all z-20 hover:rotate-90">
+                <X size={20} />
+              </button>
+
+              {(() => {
+                const plan = platformConfigs?.plans?.find((p: any) => p.id === selectedPlanModal || p.priceId === selectedPriceId);
+                const isAnual = plan?.interval === 'year';
+                const isFree = selectedPlanModal === 'free';
+                
+                return (
+                  <>
+                    <div className={`p-10 pb-12 text-center relative overflow-hidden ${isFree ? 'bg-stone-50' :
+                        isAnual ? 'bg-gradient-to-br from-orange-500 to-amber-600 text-white' : 'bg-gradient-to-br from-teal-600 to-emerald-700 text-white'
+                      }`}>
+                      {!isFree && (
+                        <div className="absolute inset-0 opacity-10 mix-blend-overlay">
+                          <img src={BRAND_LOGO} className="w-full h-full object-cover scale-150 rotate-12" alt="" />
+                        </div>
+                      )}
+                      
+                      <div className="relative z-10 space-y-4">
+                        <div className="inline-block px-4 py-1 rounded-full border border-current opacity-70 text-[10px] font-black uppercase tracking-[0.2em]">
+                          {isFree ? 'Experimente Agora' : (isAnual ? 'Melhor Custo-Benefício' : 'Plano Flexível')}
+                        </div>
+                        <h2 className="text-4xl font-black italic uppercase tracking-tight leading-none">
+                          {plan?.name || (isFree ? 'Plano Turbo Teste' : selectedPlanModal)}
+                        </h2>
+                        {plan && (
+                          <div className="flex flex-col items-center">
+                            <div className="flex items-end gap-1">
+                              <span className="text-4xl font-black">R$ {plan.price}</span>
+                              <span className="text-xs font-bold opacity-80 mb-1">
+                                /{plan.interval === 'month' ? 'mês' : 
+                                  plan.interval === 'year' ? 'ano' : plan.interval}
+                              </span>
+                            </div>
+                            {plan.allowInstallments && (
+                              <div className="text-[11px] font-black mt-2 opacity-90 bg-black/10 px-3 py-1 rounded-lg flex items-center gap-2">
+                                <CreditCard size={12} /> Em até {plan.maxInstallments}x de R$ {(parseFloat(plan.price) / parseInt(plan.maxInstallments)).toFixed(2)}*
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="p-10 bg-white">
+                      <div className="space-y-6 mb-10">
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100 shadow-sm"><CheckCircle2 className="w-5 h-5" /></div>
+                          <div>
+                            <h4 className="font-black text-stone-900 text-sm uppercase tracking-wide">Recursos Ilimitados</h4>
+                            <p className="text-xs text-stone-500 mt-1 leading-relaxed">Criação completa via IA, todos os blocos liberados e design profissional de alto nível.</p>
+                          </div>
+                        </div>
+                        {!isFree && (
+                          <div className="flex items-start gap-4">
+                            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100 shadow-sm"><Globe className="w-5 h-5" /></div>
+                            <div>
+                              <h4 className="font-black text-stone-900 text-sm uppercase tracking-wide">Infraestrutura Premium</h4>
+                              <p className="text-xs text-stone-500 mt-1 leading-relaxed">Hospedagem Google Cloud com SSL (Cadeado ✅) e suporte para seu próprio domínio.</p>
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex items-start gap-4">
+                          <div className="w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0 border border-orange-100 shadow-sm"><Rocket className="w-5 h-5" /></div>
+                          <div>
+                            <h4 className="font-black text-stone-900 text-sm uppercase tracking-wide">Velocidade e SEO</h4>
+                            <p className="text-xs text-stone-500 mt-1 leading-relaxed">Performance estelar para ranquear no Google e carregar instantaneamente no celular.</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <button
+                          onClick={() => {
+                            setSelectedPlanModal(null);
+                            setIsMenuOpen(true);
+                          }}
+                          className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.15em] transition-all shadow-xl hover:translate-y-[-2px] text-xs ${isFree
+                              ? 'bg-stone-900 text-white hover:bg-stone-800 shadow-stone-900/20'
+                              : isAnual ? 'bg-orange-500 text-white hover:bg-orange-400 shadow-orange-500/30' : 'bg-teal-600 text-white hover:bg-teal-500 shadow-teal-500/30'
+                            }`}
+                        >
+                          {isFree ? '🚀 Começar Teste Grátis' : '🚀 Criar meu site agora'}
+                        </button>
+                        <p className="text-center text-[10px] font-bold text-stone-400 uppercase tracking-widest">
+                          {isFree ? 'Sem cartão de crédito' : 'Acesso imediato após confirmação'}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* NOVO MODAL: PLANOS (BANNER) */}
+      <AnimatePresence>
+        {isPlansBannerOpen && (
+          <div className="fixed inset-0 z-[500] bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, y: 30, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 30, scale: 0.95 }}
+              className="w-full max-w-5xl bg-stone-50 rounded-3xl overflow-hidden shadow-2xl relative flex flex-col max-h-[90vh]"
+            >
+              <div className="bg-white p-6 border-b border-stone-200 flex justify-between items-center shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center"><Briefcase size={20} /></div>
+                  <h3 className="text-xl font-black text-stone-900 uppercase italic tracking-tight">Nossos Planos</h3>
+                </div>
+                <button onClick={() => { setIsPlansBannerOpen(false); window.location.hash = ''; }} className="text-stone-400 hover:text-orange-500 transition-colors bg-stone-100 hover:bg-orange-50 p-2 rounded-full cursor-pointer">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-6 md:p-8 overflow-y-auto w-full">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {platformConfigs?.plans?.length > 0 ? (
+                    [...platformConfigs.plans].sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0)).map((p: any) => {
+                      const isAnual = p.interval === 'year';
+                      return (
+                        <div key={p.id} className={`bg-white p-6 rounded-2xl border ${isAnual ? 'border-orange-200 shadow-orange-500/10' : 'border-stone-200'} flex flex-col h-full relative overflow-hidden shadow-xl hover:-translate-y-1 transition-transform`}>
+                          <div className={`absolute top-0 right-0 ${isAnual ? 'bg-orange-500' : 'bg-stone-800'} text-white text-[10px] font-black uppercase px-3 py-1.5 rounded-bl-xl tracking-wider`}>
+                            {p.badge || (isAnual ? 'Mais Econômico' : 'Recomendado')}
+                          </div>
+                          <h4 className={`${isAnual ? 'text-orange-500' : 'text-stone-800'} font-black text-lg mb-2 uppercase tracking-tight`}>{p.name}</h4>
+                          <div className="flex items-end gap-1 mb-6">
+                            <span className="text-4xl font-black text-stone-950">R$ {p.price}</span>
+                            <span className="text-sm text-stone-500 font-bold pb-1">/{p.interval === 'month' ? 'mês' : p.interval === 'year' ? 'ano' : p.interval}</span>
+                          </div>
+                          <ul className="space-y-3 mb-8 flex-1">
+                            {p.features?.map((f: string, i: number) => (
+                              <li key={i} className="flex items-start gap-2 text-xs font-bold text-stone-600">
+                                <CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+                                {f}
+                              </li>
+                            ))}
+                          </ul>
+                          <button
+                            onClick={() => {
+                              setIsPlansBannerOpen(false);
+                              setTimeout(() => { window.location.hash = '#criarsite'; }, 50);
+                            }}
+                            className={`w-full py-4 rounded-xl cursor-pointer font-black uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-2 text-xs ${isAnual ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/30' : 'bg-stone-900 text-white hover:bg-black shadow-lg shadow-black/20'}`}
+                          >
+                            <Rocket size={16} /> Criar meu site
+                          </button>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="col-span-3 text-center py-10 text-stone-500 font-bold">Nenhum plano configurado.</div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* NOVO MODAL: COMO FUNCIONA */}
       <AnimatePresence>
         {isHowItWorksOpen && (
