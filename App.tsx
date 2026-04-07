@@ -947,7 +947,7 @@ const App: React.FC = () => {
 
   const [loggedUserEmail, setLoggedUserEmail] = useState<string | null>(auth.currentUser?.email || null);
   const [savedProjects, setSavedProjects] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'geral' | 'dominio' | 'assinatura' | 'plataforma'>('geral');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'geral' | 'dominio' | 'assinatura' | 'plataforma'>('dashboard');
   const [currentProjectSlug, setCurrentProjectSlug] = useState<string | null>(null);
   const [isSavingProject, setIsSavingProject] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -1968,7 +1968,7 @@ const App: React.FC = () => {
 
 
   const renderMobileMenu = () => {
-    if (!isMobile || !generatedHtml) return null;
+    if (!isMobile) return null;
     const steps = [
       { id: 1, title: 'Identidade', icon: <Briefcase size={16} /> },
       { id: 2, title: 'Modelo', icon: <Settings size={16} /> },
@@ -1999,11 +1999,24 @@ const App: React.FC = () => {
            
            <div className="p-4 pb-0 flex-1 overflow-y-auto">
              <div className="grid grid-cols-4 gap-3">
+               <button 
+                  onClick={() => setActiveMobileSheet(9)}
+                  className="flex flex-col items-center justify-center gap-2 p-3 bg-indigo-50 border border-indigo-100 rounded-2xl active:scale-95 transition-all text-indigo-600 hover:bg-indigo-100"
+               >
+                 <LayoutDashboard size={16} />
+                 <span className="text-[9px] font-bold text-center leading-tight">Meus Sites</span>
+               </button>
                {steps.map(s => (
                  <button 
                    key={s.id} 
-                   onClick={() => setActiveMobileSheet(s.id)}
-                   className="flex flex-col items-center justify-center gap-2 p-3 bg-stone-50 border border-stone-100 rounded-2xl active:scale-95 transition-all text-stone-600 hover:bg-stone-100"
+                   onClick={() => {
+                     if (!generatedHtml) {
+                       showToast('Gere um site ou selecione um existente primeiro.', 'info');
+                       return;
+                     }
+                     setActiveMobileSheet(s.id);
+                   }}
+                   className={`flex flex-col items-center justify-center gap-2 p-3 bg-stone-50 border border-stone-100 rounded-2xl active:scale-95 transition-all text-stone-600 hover:bg-stone-100 ${!generatedHtml ? 'opacity-50 grayscale' : ''}`}
                  >
                    {s.icon}
                    <span className="text-[9px] font-bold text-center leading-tight">{s.title}</span>
@@ -2041,6 +2054,41 @@ const App: React.FC = () => {
                  </button>
               </div>
               <div className="p-5 overflow-y-auto pb-10 space-y-6 flex-1">
+                 {/* ID 9: Dashboard Mobile */}
+                 {activeMobileSheet === 9 && (
+                   <div className="space-y-4">
+                     <div className="flex items-center justify-between mb-2">
+                       <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Seus Projetos</h4>
+                       {loggedUserEmail && <button onClick={handleLogout} className="text-[10px] font-bold text-red-500">Sair</button>}
+                     </div>
+                     {!loggedUserEmail ? (
+                        <div className="bg-stone-50 rounded-2xl p-8 border border-stone-100 text-center">
+                          <p className="text-xs text-stone-500 font-bold mb-4">Faça login para ver seus sites.</p>
+                          <button onClick={() => { setIsLoginOpen(true); setActiveMobileSheet(null); }} className="w-full bg-indigo-600 text-white py-3 rounded-xl font-black text-[10px] uppercase">Fazer Login</button>
+                        </div>
+                     ) : (
+                        <div className="space-y-3">
+                          {savedProjects.length === 0 ? (
+                            <p className="text-[10px] text-stone-400 italic text-center py-6">Nenhum site encontrado.</p>
+                          ) : (
+                            savedProjects.map(p => (
+                              <div key={p.id} className={`flex items-center gap-3 bg-stone-50 border border-stone-200 p-3 rounded-2xl ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-500' : ''}`}>
+                                <div className="flex-1 min-w-0">
+                                   <p className="text-xs font-bold text-stone-800 truncate">{p.businessName || 'Sem título'}</p>
+                                   <p className="text-[9px] font-mono text-stone-400 truncate">{p.publishUrl?.replace('https://', '') || 'Rascunho'}</p>
+                                </div>
+                                <button onClick={() => { handleLoadProject(p); setActiveMobileSheet(null); }} className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase">Editar</button>
+                              </div>
+                            ))
+                          )}
+                          <div className="pt-4 border-t border-stone-100 text-center">
+                            <button onClick={() => { window.location.reload(); }} className="text-[10px] font-black text-indigo-600 uppercase">+ Criar Novo</button>
+                          </div>
+                        </div>
+                     )}
+                   </div>
+                 )}
+
                  {/* ID 1 */}
                  {activeMobileSheet === 1 && (
                      <div className="space-y-4">
@@ -2530,7 +2578,7 @@ const App: React.FC = () => {
                   </div>
                 </div>
 
-                {generatedHtml && (() => {
+                {(() => {
                   const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
                   let daysLeft = 0; let isPaid = false;
                   if (currentProject?.expiresAt) {
@@ -2542,28 +2590,23 @@ const App: React.FC = () => {
                   }
                   return (
                     <div className="flex border-b border-stone-200 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider flex-shrink-0 bg-white">
-                      <button onClick={() => setActiveTab('geral')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors ${activeTab === 'geral' ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
-                        Visual
+                      <button onClick={() => setActiveTab('dashboard')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors ${activeTab === 'dashboard' ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
+                        Meus Sites
                       </button>
-                      <button onClick={() => setActiveTab('dominio')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative ${activeTab === 'dominio' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
-                        Domínio
-                        {(!officialDomain || officialDomain === 'Pendente' || registerLater) && (
-                          <span className="absolute top-3 right-4 flex h-2 w-2" title="Domínio não configurado"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span></span>
-                        )}
-                      </button>
-                      {currentProjectSlug && (
-                        <button onClick={() => setActiveTab('assinatura')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative ${activeTab === 'assinatura' ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'} ${guideStep === 4 ? 'animate-guide-pulse' : ''}`}>
-                          Pagamento
-                          <GuidedTip step={4} currentStep={guideStep} text="Tudo pronto! Ative seu plano para manter seu site online." position="bottom" />
-                          {!isPaid && (
-                            <span className="absolute top-3 right-2 flex h-2 w-2"><span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${daysLeft > 0 ? 'bg-yellow-400' : 'bg-red-400'}`}></span><span className={`relative inline-flex rounded-full h-2 w-2 ${daysLeft > 0 ? 'bg-yellow-500' : 'bg-red-500'}`}></span></span>
+                      {generatedHtml && (
+                        <>
+                          <button onClick={() => setActiveTab('geral')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors ${activeTab === 'geral' ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
+                            Visual
+                          </button>
+                          <button onClick={() => setActiveTab('dominio')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative ${activeTab === 'dominio' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
+                            Domínio
+                          </button>
+                          {currentProjectSlug && (
+                            <button onClick={() => setActiveTab('assinatura')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative ${activeTab === 'assinatura' ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
+                              Plano
+                            </button>
                           )}
-                        </button>
-                      )}
-                      {loggedUserEmail === 'caiotleal@gmail.com' && (
-                        <button onClick={() => setActiveTab('plataforma')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors ${activeTab === 'plataforma' ? 'text-purple-600 border-b-2 border-purple-600 bg-purple-50/50' : 'text-stone-500 hover:text-stone-800 hover:bg-stone-50'}`}>
-                          Plataforma
-                        </button>
+                        </>
                       )}
                     </div>
                   );
