@@ -14,6 +14,7 @@ const ADMIN_EMAIL = 'caiotleal@gmail.com';
 
 const CPanel: React.FC = () => {
   const [user, setUser] = useState<any>(null);
+  const [showStripeKeys, setShowStripeKeys] = useState(false);
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
@@ -1001,35 +1002,45 @@ const CPanel: React.FC = () => {
                     <option value="prod">Produção</option>
                   </select>
                 </div>
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest">Credenciais Stripe</p>
+                  <button 
+                    onClick={() => setShowStripeKeys(!showStripeKeys)} 
+                    className="flex items-center gap-1.5 text-[9px] font-black uppercase text-orange-500 hover:text-orange-600 transition-colors"
+                  >
+                    {showStripeKeys ? <Eye size={14} /> : <Eye size={14} className="opacity-40" />} 
+                    {showStripeKeys ? 'Ocultar Chaves' : 'Visualizar Chaves'}
+                  </button>
+                </div>
                 <div className="space-y-4">
                   {platformConfigs.stripe.mode === 'test' ? (
                     <>
                       <div>
                         <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Test Public Key</label>
-                        <input type="password" value={platformConfigs.stripe.testPublicKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, testPublicKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
+                        <input type={showStripeKeys ? "text" : "password"} value={platformConfigs.stripe.testPublicKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, testPublicKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
                       </div>
                       <div>
                         <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Test Secret Key</label>
-                        <input type="password" value={platformConfigs.stripe.testSecretKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, testSecretKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
+                        <input type={showStripeKeys ? "text" : "password"} value={platformConfigs.stripe.testSecretKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, testSecretKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
                       </div>
                       <div>
                         <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Test Webhook Secret</label>
-                        <input type="password" value={platformConfigs.stripe.testWebhookSecret || ''} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, testWebhookSecret: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" placeholder="whsec_..." />
+                        <input type={showStripeKeys ? "text" : "password"} value={platformConfigs.stripe.testWebhookSecret || ''} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, testWebhookSecret: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" placeholder="whsec_..." />
                       </div>
                     </>
                   ) : (
                     <>
                       <div>
                         <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Production Public Key</label>
-                        <input type="password" value={platformConfigs.stripe.prodPublicKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, prodPublicKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
+                        <input type={showStripeKeys ? "text" : "password"} value={platformConfigs.stripe.prodPublicKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, prodPublicKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
                       </div>
                       <div>
                         <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Production Secret Key</label>
-                        <input type="password" value={platformConfigs.stripe.prodSecretKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, prodSecretKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
+                        <input type={showStripeKeys ? "text" : "password"} value={platformConfigs.stripe.prodSecretKey} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, prodSecretKey: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" />
                       </div>
                       <div>
                         <label className="block text-[8px] font-black uppercase text-stone-400 mb-1.5 ml-1 tracking-widest">Production Webhook Secret</label>
-                        <input type="password" value={platformConfigs.stripe.prodWebhookSecret || ''} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, prodWebhookSecret: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" placeholder="whsec_..." />
+                        <input type={showStripeKeys ? "text" : "password"} value={platformConfigs.stripe.prodWebhookSecret || ''} onChange={e => setPlatformConfigs({...platformConfigs, stripe: {...platformConfigs.stripe, prodWebhookSecret: e.target.value}})} className="w-full px-6 py-4 bg-stone-50 border border-stone-100 rounded-2xl text-xs font-mono focus:ring-2 focus:ring-orange-500 outline-none" placeholder="whsec_..." />
                       </div>
                     </>
                   )}
