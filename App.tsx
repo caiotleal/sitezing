@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndP
 import { auth, functions, db } from './firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, Info, Sparkles, ChevronRight, ChevronDown, ChevronUp, Gift, Menu, HelpCircle, Palette, Check, Instagram, Edit3, Clock
+  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, LogOut, Info, Sparkles, ChevronRight, ChevronDown, ChevronUp, Gift, Menu, HelpCircle, Palette, Check, Instagram, Edit3, Clock
 } from 'lucide-react';
 import { TEMPLATES } from './components/templates';
 const LoginPage = lazy(() => import('./components/LoginPage'));
@@ -462,7 +462,7 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
 
   let html = PROMO_HTML;
   
-  // Geração de Cards de Preço Dinâmicos
+  // 1. Render Pricing Cards (Core Conversion)
   const plans = [...(platformConfigs.plans || [])].sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0));
   let cardsHtml = ``;
 
@@ -473,7 +473,7 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
       p.interval === 'trimestral' ? 'trimestre' :
       p.interval === 'semestral' ? 'semestre' : 
       p.interval === 'year' ? 'ano' : 'período';
-    console.log(`[DEBUG] Rendering plan ${p.name} with interval: ${p.interval} -> ${intervalLabel}`);
+    
     const isAnual = p.interval === 'year';
     const integer = p.price.toString().split('.')[0];
     const decimal = p.price.toString().split('.')[1] || '00';
@@ -505,74 +505,7 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
 
   html = html.replace('__PRICING_CARDS__', cardsHtml);
 
-  // Banner e Decorações Temáticas
-  if (platformConfigs.marketing?.bannerActive) {
-    const type = platformConfigs.marketing.bannerType || 'info';
-    const text = platformConfigs.marketing.bannerText || '';
-    let decoHtml = '';
-    let extraCss = '';
-
-    if (type === 'christmas') {
-      // Cordão de luzes e chapéu no logo
-      decoHtml = `
-        <div style="position: fixed; top: 90px; left: 0; width: 100%; height: 40px; z-index: 85; pointer-events: none; overflow: hidden;">
-          <svg width="100%" height="100%" viewBox="0 0 1200 40" preserveAspectRatio="none">
-            <path d="M0,10 Q150,40 300,10 T600,10 T900,10 T1200,10" fill="none" stroke="#064e3b" stroke-width="2"/>
-            ${[20, 150, 280, 450, 580, 750, 880, 1050, 1150].map((x, i) => `
-              <circle cx="${x}" cy="${i % 2 === 0 ? 25 : 15}" r="4" fill="${['#ff0000', '#00ff00', '#ffff00', '#ffffff'][i % 4]}" class="christmas-light"/>
-            `).join('')}
-          </svg>
-        </div>
-        <div style="position: fixed; top: 96px; left: 0; width: 100%; height: 32px; display: flex; align-items: center; justify-content: center; z-index: 70; pointer-events: none;">
-          <span style="background: rgba(239, 68, 68, 0.9); color: white; padding: 4px 16px; border-radius: 20px; font-size: 11px; font-weight: 900; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.3); text-transform: uppercase;">
-             <i class="fas fa-snowflake mr-2"></i> ${text}
-          </span>
-        </div>
-      `;
-      extraCss = `
-        @keyframes lightBlink { 0%, 100% { opacity: 1; filter: brightness(1.5) drop-shadow(0 0 5px currentColor); } 50% { opacity: 0.5; filter: brightness(1); } }
-        .christmas-light { animation: lightBlink 1s infinite alternate; }
-        .christmas-light:nth-child(2n) { animation-delay: 0.5s; }
-      `;
-    } else if (type === 'black-friday') {
-      // Fita Neon e Badge
-      decoHtml = `
-        <div style="position: fixed; top: 96px; left: 0; width: 100%; height: 32px; z-index: 70; pointer-events: none; display: flex; align-items: center; justify-content: center;">
-          <div style="height: 2px; width: 100%; background: #f97316; position: absolute; box-shadow: 0 0 15px #f97316; opacity: 0.5;"></div>
-          <span class="bf-badge" style="background: #000; color: #f97316; border: 1px solid #f97316; padding: 4px 20px; border-radius: 4px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 20px rgba(249,115,22,0.4); position: relative; z-index: 2;">
-            <i class="fas fa-bolt mr-2"></i> ${text}
-          </span>
-        </div>
-       `;
-      extraCss = `
-        @keyframes bfPulse { 0%, 100% { box-shadow: 0 0 10px #f97316; transform: scale(1); } 50% { box-shadow: 0 0 25px #f97316; transform: scale(1.05); } }
-        .bf-badge { animation: bfPulse 2s infinite ease-in-out; }
-       `;
-    } else {
-      // Banner Info/Warning padrão no vão
-      const bgColor = type === 'warning' ? '#f97316' : '#3b82f6';
-      decoHtml = `
-        <div style="position: fixed; top: 96px; left: 0; width: 100%; height: 32px; display: flex; align-items: center; justify-content: center; z-index: 70; pointer-events: none;">
-          <div style="background: ${bgColor}; color: white; padding: 4px 16px; border-radius: 99px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.2);">
-            ${text}
-          </div>
-        </div>
-      `;
-    }
-
-    const bannerStyles = `
-      <style>
-        ${extraCss}
-        /* Garantir que o header original continue no topo 0 sem empurrar nada */
-        header { border-bottom: none !important; }
-        .promo-overlay { pointer-events: none; }
-      </style>
-    `;
-    html = html.replace(/<\/head>/i, `${bannerStyles}</head>`);
-    html = html.replace(/<body[^>]*>/i, (match) => `${match}${decoHtml}`);
-  }
-
-  // Injeção de Reviews Reais
+  // 2. Render Google Reviews (Social Proof)
   if (platformConfigs.reviews && platformConfigs.reviews.length > 0) {
     const reviewsHtml = platformConfigs.reviews.slice(0, 3).map((r: any) => `
       <div class="glass-card p-6 rounded-2xl border-stone-200/40 text-left relative overflow-hidden">
@@ -968,7 +901,7 @@ const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [mobileWizardStep, setMobileWizardStep] = useState(1);
   const [isMobileWizardOpen, setIsMobileWizardOpen] = useState(true);
-  const [activeMobileSheet, setActiveMobileSheet] = useState<number | null>(null);
+  const [activeMobileSheet, setActiveMobileSheet] = useState<string | number | null>(null);
   const [mobileActiveTab, setMobileActiveTab] = useState<'editar' | 'plano'>('editar');
 
   useEffect(() => {
@@ -976,6 +909,19 @@ const App: React.FC = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Sincroniza Bottom Nav com os Modais de Configuração
+  useEffect(() => {
+    if (isMobile) {
+      if (mobileActiveTab === 'editar') {
+        setActiveMobileSheet('visual');
+        setIsMobileWizardOpen(true);
+      } else if (mobileActiveTab === 'plano') {
+        setActiveMobileSheet('plano');
+        setIsMobileWizardOpen(true);
+      }
+    }
+  }, [mobileActiveTab, isMobile]);
 
   const [formData, setFormData] = useState({
     businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '',
@@ -1986,15 +1932,11 @@ const App: React.FC = () => {
 
   const renderMobileMenu = () => {
     if (!isMobile) return null;
-    const steps = [
-      { id: 1, title: 'Identidade', icon: <Briefcase size={16} /> },
-      { id: 2, title: 'Modelo', icon: <Settings size={16} /> },
-      { id: 3, title: 'Cores', icon: <Palette size={16} /> },
-      { id: 4, title: 'Conteúdo', icon: <FileText size={16} /> },
-      { id: 5, title: 'Contatos', icon: <Phone size={16} /> },
-      { id: 6, title: 'Sociais', icon: <Globe size={16} /> },
-      { id: 7, title: 'Logotipo', icon: <Upload size={16} /> },
-      { id: 8, title: 'Extras', icon: <MapPin size={16} /> },
+    const categories = [
+      { id: 'visual', title: 'Visual', icon: <Palette size={16} /> },
+      { id: 'social', title: 'Redes', icon: <Instagram size={16} /> },
+      { id: 'delivery', title: 'Delivery', icon: <Rocket size={16} /> },
+      { id: 'contato', title: 'Contato', icon: <Phone size={16} /> },
     ];
 
     return (
@@ -2015,28 +1957,28 @@ const App: React.FC = () => {
            </div>
            
            <div className="p-4 pb-0 flex-1 overflow-y-auto">
-             <div className="grid grid-cols-4 gap-3">
+             <div className="grid grid-cols-5 gap-2">
                <button 
-                  onClick={() => setActiveMobileSheet(9)}
-                  className="flex flex-col items-center justify-center gap-2 p-3 bg-indigo-50 border border-indigo-100 rounded-2xl active:scale-95 transition-all text-indigo-600 hover:bg-indigo-100"
+                  onClick={() => setActiveMobileSheet('dashboard')}
+                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl active:scale-95 transition-all text-center ${activeMobileSheet === 'dashboard' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-indigo-50 border border-indigo-100 text-indigo-600'}`}
                >
                  <LayoutDashboard size={16} />
-                 <span className="text-[9px] font-bold text-center leading-tight">Meus Sites</span>
+                 <span className="text-[9px] font-bold leading-tight">Painel</span>
                </button>
-               {steps.map(s => (
+               {categories.map(c => (
                  <button 
-                   key={s.id} 
+                   key={c.id} 
                    onClick={() => {
                      if (!generatedHtml) {
                        showToast('Gere um site ou selecione um existente primeiro.', 'info');
                        return;
                      }
-                     setActiveMobileSheet(s.id);
+                     setActiveMobileSheet(c.id);
                    }}
-                   className={`flex flex-col items-center justify-center gap-2 p-3 bg-stone-50 border border-stone-100 rounded-2xl active:scale-95 transition-all text-stone-600 hover:bg-stone-100 ${!generatedHtml ? 'opacity-50 grayscale' : ''}`}
+                   className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl active:scale-95 transition-all text-center ${activeMobileSheet === c.id ? 'bg-stone-900 text-white' : 'bg-stone-50 border border-stone-100 text-stone-600'} ${!generatedHtml ? 'opacity-50 grayscale' : ''}`}
                  >
-                   {s.icon}
-                   <span className="text-[9px] font-bold text-center leading-tight">{s.title}</span>
+                   {c.icon}
+                   <span className="text-[9px] font-bold leading-tight">{c.title}</span>
                  </button>
                ))}
              </div>
@@ -2049,7 +1991,6 @@ const App: React.FC = () => {
 
   const renderMobileBottomSheet = () => {
     if (!activeMobileSheet) return null;
-    
     return (
       <AnimatePresence>
         {activeMobileSheet && (
@@ -2071,207 +2012,226 @@ const App: React.FC = () => {
                   </button>
               </div>
               <div className="p-5 overflow-y-auto pb-10 space-y-6 flex-1">
-                 {/* ID 9: Dashboard Mobile */}
-                 {activeMobileSheet === 9 && (
-                   <div className="space-y-4">
-                     <div className="flex items-center justify-between mb-2">
-                       <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Seus Projetos</h4>
-                       {loggedUserEmail && <button onClick={handleLogout} className="text-[10px] font-bold text-red-500">Sair</button>}
-                     </div>
-                     {!loggedUserEmail ? (
-                        <div className="bg-stone-50 rounded-2xl p-8 border border-stone-100 text-center">
-                          <p className="text-xs text-stone-500 font-bold mb-4">Faça login para ver seus sites.</p>
-                          <button onClick={() => { setIsLoginOpen(true); setActiveMobileSheet(null); }} className="w-full bg-indigo-600 text-white py-3 rounded-xl font-black text-[10px] uppercase">Fazer Login</button>
-                        </div>
-                     ) : (
-                        <div className="space-y-3">
-                          {savedProjects.length === 0 ? (
-                            <p className="text-[10px] text-stone-400 italic text-center py-6">Nenhum site encontrado.</p>
-                          ) : (
-                            savedProjects.map(p => (
-                              <div
-                                key={p.id}
-                                role="button"
-                                tabIndex={0}
-                                onClick={() => { handleLoadProject(p); setActiveMobileSheet(null); }}
-                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { handleLoadProject(p); setActiveMobileSheet(null); } }}
-                                className={`flex items-center gap-3 bg-stone-50 border border-stone-200 p-3 rounded-2xl cursor-pointer ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-500' : ''}`}
-                              >
-                                <div className="flex-1 min-w-0">
-                                   <p className="text-xs font-bold text-stone-800 truncate">{p.businessName || 'Sem título'}</p>
-                                   <p className="text-[9px] font-mono text-stone-400 truncate">{p.publishUrl?.replace('https://', '') || 'Rascunho'}</p>
-                                </div>
-                                <ChevronRight size={14} className="text-stone-400" />
-                              </div>
-                            ))
-                          )}
-                          <div className="pt-4 border-t border-stone-100 text-center">
-                            <button onClick={() => { window.location.reload(); }} className="text-[10px] font-black text-indigo-600 uppercase">+ Criar Novo</button>
-                          </div>
-                        </div>
-                     )}
-                   </div>
-                 )}
-
-                 {/* ID 1 */}
-                 {activeMobileSheet === 1 && (
-                     <div className="space-y-4">
-                        <div>
-                          <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Nome do Seu Negócio</label>
-                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm font-bold text-stone-800 focus:border-teal-500 outline-none" placeholder="Ex: Pizzaria do Zé" value={formData.businessName} onChange={e => handleFloatNameChange(e.target.value)} />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Seu Endereço Web Temporário</label>
-                          <div className="flex bg-stone-50 border border-stone-200 rounded-xl overflow-hidden focus-within:border-teal-500 transition-all">
-                            <input className="flex-1 bg-transparent px-3 py-4 text-sm font-mono font-bold text-teal-600 outline-none w-full text-right" placeholder="meu-site" value={formData.customSlug} onChange={e => handleCustomSlugChange(e.target.value)} />
-                            <span className="bg-stone-100 border-l border-stone-200 px-3 py-4 text-[10px] font-bold text-stone-400 flex items-center select-none shadow-inner">.sitezing.com.br</span>
-                          </div>
-                          {floatDomainStatus.available === false && <p className="text-[9px] text-red-500 font-bold mt-1">✗ Este link já está em uso.</p>}
-                        </div>
-                     </div>
-                 )}
-
-                 {/* ID 2 */}
-                 {activeMobileSheet === 2 && (
-                    <div className="space-y-6">
-                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-3 block">Escolha o Modelo Visual</label>
-                      <div className="relative group">
-                        <select 
-                          value={formData.layoutStyle}
-                          onChange={(e) => { setFormData({ ...formData, layoutStyle: e.target.value }); setHasUnsavedChanges(true); }}
-                          className="w-full bg-stone-50 border border-stone-200 rounded-2xl p-4 pr-12 text-sm font-bold text-stone-800 appearance-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 outline-none transition-all cursor-pointer shadow-sm"
-                        >
-                          {LAYOUT_STYLES.map(s => (<option key={s.id} value={s.id}>{s.label}</option>))}
-                        </select>
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-stone-400 group-focus-within:text-teal-500 transition-colors">
-                          <Settings size={18} className="animate-spin-slow" />
-                        </div>
-                      </div>
-                    </div>
-                 )}
-
-                 {/* ID 3 */}
-                 {activeMobileSheet === 3 && (
-                    <div className="space-y-6">
-                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-3 block">Paleta de Cores do Site</label>
-                      <div className="grid grid-cols-5 gap-3">
-                        {COLORS.slice(0, 15).map(c => (
-                          <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-full aspect-square rounded-2xl border-2 transition-all flex items-center justify-center ${formData.colorId === c.id ? 'border-teal-500 scale-110 shadow-lg shadow-teal-500/20' : 'border-transparent bg-stone-50'}`} style={{ backgroundColor: c.c1 }}>
-                             {formData.colorId === c.id && <Check size={16} className="text-white drop-shadow-md" />}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                 )}
-
-                 {/* ID 4 */}
-                 {activeMobileSheet === 4 && (
-                     <div className="space-y-4">
-                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">O Que Vocês Fazem?</label>
-                        <textarea className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm text-stone-800 h-40 outline-none focus:border-teal-500 resize-none font-medium leading-relaxed" placeholder="Ex: Somos uma pizzaria..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} />
-                     </div>
-                 )}
-
-                 {/* ID 5 Contacts + Delivery */}
-                 {activeMobileSheet === 5 && (
+                  {/* ID: dashboard */}
+                  {activeMobileSheet === 'dashboard' && (
                     <div className="space-y-4">
-                      <div>
-                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">WhatsApp Para Pedidos</label>
-                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-emerald-500" placeholder="DDD + Número" value={formData.whatsapp} onChange={e => { setFormData({ ...formData, whatsapp: e.target.value }); setHasUnsavedChanges(true) }} />
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Seus Projetos</h4>
+                        {loggedUserEmail && <button onClick={handleLogout} className="text-[10px] font-bold text-red-500">Sair da Conta</button>}
                       </div>
-                      <div>
-                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Telefone</label>
-                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Fixo ou Celular" value={formData.phone} onChange={e => { setFormData({ ...formData, phone: e.target.value }); setHasUnsavedChanges(true) }} />
-                      </div>
-                      <div className="pt-2 border-t border-stone-100">
-                        <label className="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-2 block">iFood</label>
-                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-orange-500" placeholder="Link da loja no iFood" value={formData.ifood} onChange={e => { setFormData({ ...formData, ifood: e.target.value }); setHasUnsavedChanges(true) }} />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-2 block">Rappi</label>
-                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-orange-600" placeholder="Link do Rappi" value={formData.rappi} onChange={e => { setFormData({ ...formData, rappi: e.target.value }); setHasUnsavedChanges(true) }} />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-2 block">Zé Delivery</label>
-                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-yellow-500" placeholder="Link do Zé Delivery" value={formData.zeDelivery} onChange={e => { setFormData({ ...formData, zeDelivery: e.target.value }); setHasUnsavedChanges(true) }} />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2 block">Outro Link de Compra / Delivery</label>
-                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-500" placeholder="Cardápio Digital, Site Externo, etc" value={formData.directLink} onChange={e => { setFormData({ ...formData, directLink: e.target.value }); setHasUnsavedChanges(true) }} />
-                      </div>
+                      {!loggedUserEmail ? (
+                         <div className="bg-stone-50 rounded-2xl p-8 border border-stone-100 text-center">
+                           <p className="text-xs text-stone-500 font-bold mb-4">Faça login para ver seus sites.</p>
+                           <button onClick={() => { setIsLoginOpen(true); setActiveMobileSheet(null); }} className="w-full bg-indigo-600 text-white py-3 rounded-xl font-black text-[10px] uppercase">Fazer Login</button>
+                         </div>
+                      ) : (
+                         <div className="space-y-3">
+                           {savedProjects.length === 0 ? (
+                             <p className="text-[10px] text-stone-400 italic text-center py-6">Nenhum site encontrado.</p>
+                           ) : (
+                             savedProjects.map(p => (
+                               <div
+                                 key={p.id}
+                                 role="button"
+                                 tabIndex={0}
+                                 onClick={() => { handleLoadProject(p); setActiveMobileSheet(null); }}
+                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { handleLoadProject(p); setActiveMobileSheet(null); } }}
+                                 className={`flex items-center gap-3 bg-stone-50 border border-stone-200 p-3 rounded-2xl cursor-pointer ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-500' : ''}`}
+                               >
+                                 <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-bold text-stone-800 truncate">{p.businessName || 'Sem título'}</p>
+                                    <p className="text-[9px] font-mono text-stone-400 truncate">{p.publishUrl?.replace('https://', '') || 'Rascunho'}</p>
+                                 </div>
+                                 <ChevronRight size={14} className="text-stone-400" />
+                               </div>
+                             ))
+                           )}
+                           <div className="pt-4 border-t border-stone-100 text-center">
+                             <button onClick={() => { window.location.reload(); }} className="text-[10px] font-black text-indigo-600 uppercase">+ Criar Novo</button>
+                           </div>
+                         </div>
+                      )}
                     </div>
-                 )}
+                  )}
 
-                 {/* ID 6 Social */}
-                 {activeMobileSheet === 6 && (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">Instagram</label>
-                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-pink-500" placeholder="@usuario ou Link" value={formData.instagram} onChange={e => { setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true) }} />
+                  {/* ID: visual */}
+                  {activeMobileSheet === 'visual' && (
+                      <div className="space-y-6">
+                         <div className="space-y-4">
+                           <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Nome do Seu Negócio</label>
+                           <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm font-bold text-stone-800 outline-none" placeholder="Ex: Pizzaria do Zé" value={formData.businessName} onChange={e => handleFloatNameChange(e.target.value)} />
+                         </div>
+                         <div className="space-y-4">
+                           <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">O Que Vocês Fazem?</label>
+                           <textarea className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm text-stone-800 h-24 outline-none resize-none font-medium leading-relaxed" placeholder="Ex: Somos uma pizzaria..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} />
+                         </div>
+                         <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                               <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Modelo</label>
+                               <select value={formData.layoutStyle} onChange={(e) => { setFormData({ ...formData, layoutStyle: e.target.value }); setHasUnsavedChanges(true); }} className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs font-bold text-stone-800 appearance-none outline-none">
+                                  {LAYOUT_STYLES.map(s => (<option key={s.id} value={s.id}>{s.label}</option>))}
+                               </select>
+                            </div>
+                            <div className="space-y-2">
+                               <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Logo</label>
+                               <label className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs font-bold text-stone-600 flex items-center justify-center gap-2 cursor-pointer">
+                                  {formData.logoBase64 ? <Check size={14} className="text-teal-500" /> : <Upload size={14} />}
+                                  {formData.logoBase64 ? 'Alterar' : 'Subir'}
+                                  <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                               </label>
+                            </div>
+                         </div>
+                         <div className="space-y-4">
+                           <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Cores do Site</label>
+                           <div className="grid grid-cols-5 gap-2">
+                             {COLORS.slice(0, 10).map(c => (
+                               <button key={c.id} onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} className={`w-full aspect-square rounded-xl border-2 transition-all flex items-center justify-center ${formData.colorId === c.id ? 'border-teal-500 scale-110 shadow-lg' : 'border-transparent bg-stone-50'}`} style={{ backgroundColor: c.c1 }}>
+                                  {formData.colorId === c.id && <Check size={14} className="text-white drop-shadow-md" />}
+                               </button>
+                             ))}
+                           </div>
+                         </div>
+                         <div className="space-y-2 pt-4 border-t border-stone-100">
+                           <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Domínio Temporário</label>
+                           <div className="flex bg-stone-50 border border-stone-200 rounded-xl overflow-hidden">
+                             <input className="flex-1 bg-transparent px-3 py-3 text-sm font-mono font-bold text-teal-600 outline-none w-full text-right" placeholder="meu-site" value={formData.customSlug} onChange={e => handleCustomSlugChange(e.target.value)} />
+                             <span className="bg-stone-100 px-3 py-3 text-[9px] font-bold text-stone-400 flex items-center">.sitezing.com.br</span>
+                           </div>
+                         </div>
                       </div>
-                      <div>
-                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">Facebook</label>
-                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-600" placeholder="Link da Página" value={formData.facebook} onChange={e => { setFormData({ ...formData, facebook: e.target.value }); setHasUnsavedChanges(true) }} />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">TikTok</label>
-                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-black" placeholder="@usuario ou Link" value={formData.tiktok} onChange={e => { setFormData({ ...formData, tiktok: e.target.value }); setHasUnsavedChanges(true) }} />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">X (Twitter)</label>
-                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-stone-800" placeholder="@usuario ou Link" value={formData.x} onChange={e => { setFormData({ ...formData, x: e.target.value }); setHasUnsavedChanges(true) }} />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">LinkedIn</label>
-                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-700" placeholder="Link do Perfil/Página" value={formData.linkedin} onChange={e => { setFormData({ ...formData, linkedin: e.target.value }); setHasUnsavedChanges(true) }} />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-black justify-between flex text-stone-400 uppercase tracking-widest mb-2 block">YouTube</label>
-                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-red-600" placeholder="Link do Canal" value={formData.youtube} onChange={e => { setFormData({ ...formData, youtube: e.target.value }); setHasUnsavedChanges(true) }} />
-                      </div>
-                    </div>
-                 )}
+                  )}
 
-                 {/* ID 7 */}
-                 {activeMobileSheet === 7 && (
-                     <div className="space-y-6 text-center">
-                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block text-left">Sua Logomarca</label>
-                        {!formData.logoBase64 ? (
-                          <label className="cursor-pointer w-full border-2 border-dashed border-stone-200 rounded-2xl p-12 flex flex-col items-center gap-3 bg-stone-50">
-                            <Upload size={24} className="text-teal-500" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Enviar Logotipo</span>
-                            <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
-                          </label>
-                        ) : (
-                          <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200 relative">
-                             <img src={formData.logoBase64} style={{ maxHeight: `${formData.logoSize || 40}px` }} className="block object-contain mx-auto mb-4" />
-                             <button onClick={() => { setFormData(p => ({ ...p, logoBase64: '', logoSize: 40 })); setHasUnsavedChanges(true); }} className="text-red-500 text-[10px] font-black uppercase mb-6 block w-full hover:underline">Remover Logotipo</button>
-                             <div className="space-y-3 text-left bg-white p-4 rounded-xl border border-stone-100">
-                               <label className="flex justify-between text-[9px] font-black text-stone-400 uppercase tracking-tighter">Ajustar Tamanho no Site <span>{formData.logoSize}px</span></label>
-                               <input type="range" min="20" max="100" value={formData.logoSize} onChange={e => { setFormData({ ...formData, logoSize: parseInt(e.target.value) }); setHasUnsavedChanges(true) }} className="w-full h-1.5 bg-stone-100 rounded-lg appearance-none cursor-pointer accent-teal-500" />
-                             </div>
-                          </div>
-                        )}
-                     </div>
-                 )}
-
-                 {/* ID 8 */}
-                 {activeMobileSheet === 8 && (
-                     <div className="space-y-6">
+                  {/* ID: social */}
+                  {activeMobileSheet === 'social' && (
+                     <div className="space-y-4">
                        <div>
-                         <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Endereço Físico (Opcional)</label>
-                         <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Rua, Número, Bairro - Cidade" value={formData.address} onChange={e => { setFormData({ ...formData, address: e.target.value }); setHasUnsavedChanges(true) }} />
+                         <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Instagram</label>
+                         <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-pink-500" placeholder="@usuario ou Link" value={formData.instagram} onChange={e => { setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true) }} />
                        </div>
-                       <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 flex items-center justify-between">
-                          <div className="flex flex-col">
-                             <span className="text-[11px] font-black text-stone-800 uppercase">Exibir Mapa</span>
-                          </div>
-                          <div onClick={() => { setFormData({ ...formData, showMap: !formData.showMap }); setHasUnsavedChanges(true); }} className={`w-12 h-6 rounded-full relative transition-all cursor-pointer ${formData.showMap ? 'bg-teal-500' : 'bg-stone-300'}`}>
-                             <motion.div animate={{ x: formData.showMap ? 24 : 4 }} className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
-                          </div>
+                       <div>
+                         <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Facebook</label>
+                         <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-600" placeholder="Link da Página" value={formData.facebook} onChange={e => { setFormData({ ...formData, facebook: e.target.value }); setHasUnsavedChanges(true) }} />
+                       </div>
+                       <div>
+                         <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">TikTok</label>
+                         <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-black" placeholder="@usuario ou Link" value={formData.tiktok} onChange={e => { setFormData({ ...formData, tiktok: e.target.value }); setHasUnsavedChanges(true) }} />
+                       </div>
+                       <div>
+                         <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">YouTube</label>
+                         <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-red-600" placeholder="Link do Canal" value={formData.youtube} onChange={e => { setFormData({ ...formData, youtube: e.target.value }); setHasUnsavedChanges(true) }} />
                        </div>
                      </div>
-                 )}
+                  )}
+
+                  {/* ID: delivery */}
+                  {activeMobileSheet === 'delivery' && (
+                     <div className="space-y-4">
+                        <div className="p-4 bg-orange-50 border border-orange-100 rounded-2xl mb-2">
+                           <p className="text-[11px] text-orange-800 font-medium">Configure seus canais de venda direta. Os botões aparecerão automaticamente em seu site.</p>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-2 block">iFood</label>
+                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-orange-500" placeholder="Link da loja no iFood" value={formData.ifood} onChange={e => { setFormData({ ...formData, ifood: e.target.value }); setHasUnsavedChanges(true) }} />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-2 block">Rappi</label>
+                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-orange-600" placeholder="Link do Rappi" value={formData.rappi} onChange={e => { setFormData({ ...formData, rappi: e.target.value }); setHasUnsavedChanges(true) }} />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-2 block">Zé Delivery</label>
+                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-yellow-500" placeholder="Link do Zé Delivery" value={formData.zeDelivery} onChange={e => { setFormData({ ...formData, zeDelivery: e.target.value }); setHasUnsavedChanges(true) }} />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2 block">Menu / Link Direto</label>
+                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-500" placeholder="Cardápio Digital ou Outro Site" value={formData.directLink} onChange={e => { setFormData({ ...formData, directLink: e.target.value }); setHasUnsavedChanges(true) }} />
+                        </div>
+                     </div>
+                  )}
+
+                  {/* ID: contato */}
+                  {activeMobileSheet === 'contato' && (
+                     <div className="space-y-4">
+                        <div>
+                          <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">WhatsApp de Atendimento</label>
+                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-emerald-500" placeholder="DDD + Número" value={formData.whatsapp} onChange={e => { setFormData({ ...formData, whatsapp: e.target.value }); setHasUnsavedChanges(true) }} />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Telefone / Fixo</label>
+                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Número de contato" value={formData.phone} onChange={e => { setFormData({ ...formData, phone: e.target.value }); setHasUnsavedChanges(true) }} />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">E-mail</label>
+                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Ex: contato@suaempresa.com" value={formData.email} onChange={e => { setFormData({ ...formData, email: e.target.value }); setHasUnsavedChanges(true) }} />
+                        </div>
+                        <div className="pt-4 border-t border-stone-100">
+                          <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Endereço Físico</label>
+                          <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-teal-500" placeholder="Rua, Número, Bairro - Cidade" value={formData.address} onChange={e => { setFormData({ ...formData, address: e.target.value }); setHasUnsavedChanges(true) }} />
+                        </div>
+                        <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 flex items-center justify-between">
+                           <span className="text-[11px] font-black text-stone-800 uppercase">Exibir Mapa no Site</span>
+                           <div onClick={() => { setFormData({ ...formData, showMap: !formData.showMap }); setHasUnsavedChanges(true); }} className={`w-12 h-6 rounded-full relative transition-all cursor-pointer ${formData.showMap ? 'bg-teal-500' : 'bg-stone-300'}`}>
+                              <motion.div animate={{ x: formData.showMap ? 24 : 4 }} className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
+                           </div>
+                        </div>
+                     </div>
+                  )}
+
+                  {/* ID: plano */}
+                  {activeMobileSheet === 'plano' && (
+                    <div className="space-y-6">
+                      <div className="flex flex-col items-center text-center space-y-2 mb-6">
+                        <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 mb-2">
+                           <CreditCard size={24} />
+                        </div>
+                        <h4 className="text-sm font-black text-stone-900 uppercase">Escolha seu Plano</h4>
+                        <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest">Ativação imediata após o pagamento</p>
+                      </div>
+
+                      <div className="space-y-4">
+                        {platformConfigs?.plans?.map((p: any) => {
+                          const isAnual = p.interval === 'year';
+                          return (
+                            <button 
+                              key={p.priceId}
+                              onClick={() => {
+                                 window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', priceId: p.priceId, plan: p.name.toLowerCase() }, '*');
+                                 setActiveMobileSheet(null);
+                                 setIsMobileWizardOpen(false);
+                              }}
+                              className={`w-full text-left p-4 rounded-2xl border-2 transition-all active:scale-95 ${isAnual ? 'border-orange-500 bg-orange-50/30' : 'border-stone-100 bg-stone-50'}`}
+                            >
+                               <div className="flex justify-between items-center mb-1">
+                                  <span className={`text-[10px] font-black uppercase tracking-widest ${isAnual ? 'text-orange-600' : 'text-stone-400'}`}>{p.name}</span>
+                                  {isAnual && <span className="bg-orange-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase">Melhor Oferta</span>}
+                               </div>
+                               <div className="flex items-baseline gap-1">
+                                  <span className="text-lg font-black text-stone-900">R$ {p.price}</span>
+                                  <span className="text-[9px] text-stone-400 font-bold">/ {p.interval === 'month' ? 'mês' : (p.interval === 'year' ? 'ano' : p.interval)}</span>
+                               </div>
+                               <p className="text-[9px] text-stone-400 mt-2 font-medium">{p.description || 'Hospedagem profissional SiteZing'}</p>
+                            </button>
+                          );
+                        })}
+                        
+                        {(!platformConfigs?.plans || platformConfigs.plans.length === 0) && (
+                           <div className="p-8 text-center bg-stone-50 rounded-2xl border border-dashed border-stone-200">
+                             <p className="text-[10px] text-stone-400 font-bold italic">Carregando opções de planos...</p>
+                           </div>
+                        )}
+                      </div>
+
+                      <div className="pt-6 border-t border-stone-100">
+                        <div className="bg-teal-50 rounded-xl p-4 flex items-center gap-3">
+                           <ShieldCheck size={20} className="text-teal-600" />
+                           <div className="flex-1">
+                              <p className="text-[10px] font-black text-teal-800 uppercase">Pagamento Seguro</p>
+                              <p className="text-[9px] text-teal-600 font-medium">Processado via Stripe com proteção total.</p>
+                           </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
               </div>
             </motion.div>
           </>
@@ -2555,7 +2515,22 @@ const App: React.FC = () => {
                     </button>
                     <div className="w-px h-4 bg-stone-200"></div>
                     {loggedUserEmail ? (
-                      <button className="text-stone-400 hover:text-teal-500 transition-colors" title={`Logado como: ${loggedUserEmail}`}><User size={18} /></button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => { setActiveTab('dashboard'); setIsMenuOpen(true); }}
+                          className="text-stone-400 hover:text-indigo-500 transition-colors p-2 rounded-full hover:bg-indigo-50"
+                          title="Ir para Meus Sites"
+                        >
+                          <LayoutDashboard size={18} />
+                        </button>
+                        <button
+                          onClick={handleLogout}
+                          className="text-stone-400 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50"
+                          title="Sair da Conta"
+                        >
+                          <LogOut size={18} />
+                        </button>
+                      </div>
                     ) : (
                       <button onClick={() => setIsLoginOpen(true)} className="text-xs font-bold text-teal-600 hover:text-teal-500 transition-colors flex items-center gap-1.5"><LogIn size={16} /> Login</button>
                     )}
@@ -3396,11 +3371,13 @@ const App: React.FC = () => {
               </div>
               <div className="p-6 md:p-8 overflow-y-auto w-full">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                   {platformConfigs?.plans?.length > 0 ? (
-                     [...platformConfigs.plans]
-                       .filter((p: any) => p.name !== currentProject?.planSelected)
-                       .sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0))
-                       .map((p: any) => {
+                   {(() => {
+                     const currentProjectData = savedProjects.find((px: any) => px.projectSlug === currentProjectSlug);
+                     return platformConfigs?.plans?.length > 0 ? (
+                       [...platformConfigs.plans]
+                         .filter((p: any) => p.name !== currentProjectData?.planSelected)
+                         .sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0))
+                         .map((p: any) => {
                       const isAnual = p.interval === 'year';
                       return (
                         <div key={p.id} className={`bg-white p-6 rounded-2xl border ${isAnual ? 'border-orange-200 shadow-orange-500/10' : 'border-stone-200'} flex flex-col h-full relative overflow-hidden shadow-xl hover:-translate-y-1 transition-transform`}>
@@ -3436,10 +3413,11 @@ const App: React.FC = () => {
                           </button>
                         </div>
                       );
-                    })
-                  ) : (
-                    <div className="col-span-3 text-center py-10 text-stone-500 font-bold">Nenhum plano configurado.</div>
-                  )}
+                        })
+                      ) : (
+                        <div className="col-span-3 text-center py-10 text-stone-500 font-bold">Nenhum plano configurado.</div>
+                      );
+                 })()}
                 </div>
               </div>
             </motion.div>
