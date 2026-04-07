@@ -683,51 +683,42 @@ function getStripeInstance(stripeConfig) {
 async function findProjectDocById(projectId) {
   if (!projectId) return null;
   const db = admin.firestore();
-  console.log(`[ProjectLookup] Iniciando busca para ID: ${projectId}`);
+  console.log(`[ProjectLookup] Iniciando busca para ID/Slug: ${projectId}`);
 
-  // 1. Tentar busca por Document ID (Mais rápido e único)
+  // 1. Tentar busca por Document ID
   const idSnap = await db.collectionGroup("projects")
     .where(admin.firestore.FieldPath.documentId(), "==", projectId)
     .limit(1)
     .get();
+  if (!idSnap.empty) return idSnap.docs[0];
 
-  if (!idSnap.empty) {
-    console.log(`[ProjectLookup] Encontrado via Document ID: ${projectId}`);
-    return idSnap.docs[0];
-  }
-
-  // 2. Tentar busca por projectSlug (Mapeamento de subdomínio)
+  // 2. Tentar busca por projectSlug
   const slugSnap = await db.collectionGroup("projects")
     .where("projectSlug", "==", projectId)
     .limit(1)
     .get();
+  if (!slugSnap.empty) return slugSnap.docs[0];
 
-  if (!slugSnap.empty) {
-    console.log(`[ProjectLookup] Encontrado via projectSlug: ${projectId}`);
-    return slugSnap.docs[0];
-  }
+  // 3. Tentar busca por internalDomain (Crucial para visualização pública)
+  const internalSnap = await db.collectionGroup("projects")
+    .where("internalDomain", "==", projectId)
+    .limit(1)
+    .get();
+  if (!internalSnap.empty) return internalSnap.docs[0];
 
-  // 3. Tentar busca por customSlug (Mapeamento de link amigável)
+  // 4. Tentar busca por customSlug
   const customSnap = await db.collectionGroup("projects")
     .where("customSlug", "==", projectId)
     .limit(1)
     .get();
+  if (!customSnap.empty) return customSnap.docs[0];
 
-  if (!customSnap.empty) {
-    console.log(`[ProjectLookup] Encontrado via customSlug: ${projectId}`);
-    return customSnap.docs[0];
-  }
-
-  // 4. Tentar busca por officialDomain (Mapeamento de domínio customizado)
+  // 5. Tentar busca por officialDomain
   const domainSnap = await db.collectionGroup("projects")
     .where("officialDomain", "==", projectId)
     .limit(1)
     .get();
-
-  if (!domainSnap.empty) {
-    console.log(`[ProjectLookup] Encontrado via officialDomain: ${projectId}`);
-    return domainSnap.docs[0];
-  }
+  if (!domainSnap.empty) return domainSnap.docs[0];
 
   console.warn(`[ProjectLookup] Nenhum projeto encontrado para o identificador: ${projectId}`);
   return null;
