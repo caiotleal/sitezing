@@ -3442,6 +3442,66 @@ const App: React.FC = () => {
                           {isFree ? 'Sem cartão de crédito' : 'Acesso imediato após confirmação'}
                         </p>
                       </div>
+                    );
+                  })()}
+
+                  
+                </div>
+
+                {generatedHtml && (() => {
+                  const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
+                  const isPublished = Boolean(currentProject?.publishUrl || currentProject?.status === 'active' || currentProject?.status === 'published');
+
+                  let isExpired = false;
+                  if (currentProject?.expiresAt) {
+                    const expDate = getExpirationTimestampMs(currentProject.expiresAt);
+                    if (expDate && expDate < Date.now() && currentProject.paymentStatus !== 'paid') {
+                      isExpired = true;
+                    }
+                  }
+
+                  const needsPayment = currentProject?.status === 'frozen' || isExpired;
+
+                  return (
+                    <div className="p-4 border-t border-stone-200 bg-white flex flex-col sm:flex-row items-center gap-3 flex-shrink-0">
+                      <button
+                        onClick={handleSaveOrUpdateSite}
+                        disabled={isSavingProject || (!hasUnsavedChanges && currentProjectSlug !== null)}
+                        className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 relative ${hasUnsavedChanges || !currentProjectSlug ? (guideStep === 2 ? 'bg-orange-500 animate-guide-pulse text-white shadow-lg' : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md') : 'bg-stone-100 text-stone-400 cursor-not-allowed'}`}
+                      >
+                        {isSavingProject ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save size={14} />}
+                        {currentProjectSlug ? 'Salvar Alterações' : 'Salvar Projeto'}
+                        <GuidedTip step={2} currentStep={guideStep} text="Salve seu projeto para garantir seu link oficial!" position="top" />
+                      </button>
+
+                      {needsPayment ? (
+                        <button
+                          onClick={() => {
+                            setActiveTab('assinatura');
+                            showToast('Seu site expirou. Ative um plano para reativá-lo e poder publicar as alterações!', 'warning');
+                          }}
+                          className="w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20"
+                        >
+                          <Zap size={14} />
+                          Reativar Assinatura
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            if (hasUnsavedChanges || !currentProjectSlug) {
+                              setIsSaveReminderOpen(true);
+                            } else {
+                              handlePublishSite();
+                            }
+                          }}
+                          disabled={isPublishing}
+                          className={`w-full sm:flex-1 py-3.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 relative ${!hasUnsavedChanges && currentProjectSlug ? (guideStep === 3 ? 'bg-orange-500 animate-guide-pulse text-white shadow-lg' : (isPublished ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20' : 'bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-500/20')) : 'bg-stone-200 text-stone-600 hover:bg-stone-300'}`}
+                        >
+                          {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : (isPublished ? <RefreshCw size={14} /> : <Globe size={14} />)}
+                          {isPublished ? 'Atualizar Publicação' : 'Publicar Site'}
+                          <GuidedTip step={3} currentStep={guideStep} text="Clique aqui para colocar seu site no ar!" position="top" />
+                        </button>
+                      )}
                     </div>
                   </>
                 );
