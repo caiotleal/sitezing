@@ -32,7 +32,7 @@ for (const file of files) {
 }
 
 if (hasError) {
-  console.error('\nUse comentários JSX ({/* ... */}) fora de strings/template literals.');
+  console.error('\nUse comentários JSX ({/* ... */}) fora de strings/template literals e remova marcadores inválidos (ex.: ***).');
   process.exit(1);
 }
 
