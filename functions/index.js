@@ -680,40 +680,52 @@ function getStripeInstance(stripeConfig) {
   return new Stripe(key);
 }
 
-async function findProjectDocById(projectId) {
+async function findProjectDocById(projectId, ownerUid = null) {
   if (!projectId) return null;
   const db = admin.firestore();
-  console.log(`[ProjectLookup] Iniciando busca para ID/Slug: ${projectId}`);
+  
+  // 1. Tentar busca DIRETA se tivermos o Owner UID (Mais seguro e performático)
+  if (ownerUid) {
+    console.log(`[ProjectLookup] Tentando busca DIRETA: users/${ownerUid}/projects/${projectId}`);
+    const directDoc = await db.collection("users").doc(ownerUid).collection("projects").doc(projectId).get();
+    if (directDoc.exists) {
+      console.log(`[ProjectLookup] Sucesso na busca DIRETA.`);
+      return directDoc;
+    }
+    console.warn(`[ProjectLookup] Busca DIRETA falhou, tentando Fallbacks...`);
+  }
 
-  // 1. Tentar busca por Document ID
+  console.log(`[ProjectLookup] Iniciando busca via CollectionGroup para: ${projectId}`);
+
+  // 2. Tentar busca por Document ID
   const idSnap = await db.collectionGroup("projects")
     .where(admin.firestore.FieldPath.documentId(), "==", projectId)
     .limit(1)
     .get();
   if (!idSnap.empty) return idSnap.docs[0];
 
-  // 2. Tentar busca por projectSlug
+  // 3. Tentar busca por projectSlug
   const slugSnap = await db.collectionGroup("projects")
     .where("projectSlug", "==", projectId)
     .limit(1)
     .get();
   if (!slugSnap.empty) return slugSnap.docs[0];
 
-  // 3. Tentar busca por internalDomain (Crucial para visualização pública)
+  // 4. Tentar busca por internalDomain (Crucial para visualização pública)
   const internalSnap = await db.collectionGroup("projects")
     .where("internalDomain", "==", projectId)
     .limit(1)
     .get();
   if (!internalSnap.empty) return internalSnap.docs[0];
 
-  // 4. Tentar busca por customSlug
+  // 5. Tentar busca por customSlug
   const customSnap = await db.collectionGroup("projects")
     .where("customSlug", "==", projectId)
     .limit(1)
     .get();
   if (!customSnap.empty) return customSnap.docs[0];
 
-  // 5. Tentar busca por officialDomain
+  // 6. Tentar busca por officialDomain
   const domainSnap = await db.collectionGroup("projects")
     .where("officialDomain", "==", projectId)
     .limit(1)
@@ -789,13 +801,15 @@ exports.createStripeCheckoutSession = onCall({ cors: true }, async (request) => 
     };
   }
 
+  const ownerUid = request.auth.uid;
+
   const sessionParams = {
     mode: 'subscription',
     line_items: [lineItem],
     success_url: `${safeOrigin}?payment=success&tab=status&project=${projectId}`,
     cancel_url: `${safeOrigin}?payment=cancelled&project=${projectId}`,
-    metadata: { projectId, planType },
-    subscription_data: { metadata: { projectId, planType } },
+    metadata: { projectId, planType, ownerUid },
+    subscription_data: { metadata: { projectId, planType, ownerUid } },
     client_reference_id: projectId,
     allow_promotion_codes: true,
     payment_method_collection: 'always',
@@ -894,7 +908,8 @@ exports.stripeWebhook = onRequest({ cors: true }, async (req, res) => {
 
     if (projectId) {
       try {
-        const projectDoc = await findProjectDocById(projectId);
+        const ownerUid = session.metadata?.ownerUid || null;
+        const projectDoc = await findProjectDocById(projectId, ownerUid);
         if (!projectDoc) {
           console.warn(`[StripeWebhook] Projeto não encontrado para projectId=${projectId}`);
         } else if (session.mode === "subscription" && session.subscription) {
@@ -927,7 +942,8 @@ exports.stripeWebhook = onRequest({ cors: true }, async (req, res) => {
       projectId,
     }));
     if (projectId) {
-      const projectDoc = await findProjectDocById(projectId);
+      const ownerUid = subscription?.metadata?.ownerUid || null;
+      const projectDoc = await findProjectDocById(projectId, ownerUid);
       if (projectDoc) {
         await applyStripeSubscriptionToProject(projectDoc.ref, {
           subscription,
@@ -946,7 +962,8 @@ exports.stripeWebhook = onRequest({ cors: true }, async (req, res) => {
       projectId,
     }));
     if (projectId) {
-      const projectDoc = await findProjectDocById(projectId);
+      const ownerUid = subscription?.metadata?.ownerUid || null;
+      const projectDoc = await findProjectDocById(projectId, ownerUid);
       if (projectDoc) {
         await projectDoc.ref.update({
           subscriptionStatus: "canceled",
@@ -970,8 +987,9 @@ exports.stripeWebhook = onRequest({ cors: true }, async (req, res) => {
       try {
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
         const projectId = subscription.metadata?.projectId || invoice.metadata?.projectId;
+        const ownerUid = subscription.metadata?.ownerUid || invoice.metadata?.ownerUid || null;
         if (projectId) {
-          const projectDoc = await findProjectDocById(projectId);
+          const projectDoc = await findProjectDocById(projectId, ownerUid);
           if (projectDoc) {
             await applyStripeSubscriptionToProject(projectDoc.ref, {
               subscription,
