@@ -2279,6 +2279,20 @@ const App: React.FC = () => {
     )
   }
 
+  const renderMobileBottomNav = () => (
+    <MobileBottomNav
+      isMobile={isMobile}
+      canPublish={Boolean(generatedHtml)}
+      isPublishing={isPublishing}
+      isSavingProject={isSavingProject}
+      isMobileWizardOpen={isMobileWizardOpen}
+      setIsMobileWizardOpen={setIsMobileWizardOpen}
+      setMobileActiveTab={setMobileActiveTab}
+      onPublish={handlePublishSite}
+      onWarnMissingSite={() => showToast('Gere o site antes de publicar.', 'info')}
+    />
+  );
+
   const getStatusBadge = (project: any) => {
     if (!project) return null;
     if (project.status === 'frozen') return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">CONGELADO</span>;
@@ -2507,17 +2521,7 @@ const App: React.FC = () => {
 
           {renderMobileMenu()}
           {renderMobileBottomSheet()}
-          <MobileBottomNav
-            isMobile={isMobile}
-            canPublish={Boolean(generatedHtml)}
-            isPublishing={isPublishing}
-            isSavingProject={isSavingProject}
-            isMobileWizardOpen={isMobileWizardOpen}
-            setIsMobileWizardOpen={setIsMobileWizardOpen}
-            setMobileActiveTab={setMobileActiveTab}
-            onPublish={handlePublishSite}
-            onWarnMissingSite={() => showToast('Gere o site antes de publicar.', 'info')}
-          />
+          {renderMobileBottomNav()}
         </div>
 
         <Suspense fallback={null}>
