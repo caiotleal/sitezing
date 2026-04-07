@@ -3113,7 +3113,7 @@ const App: React.FC = () => {
                               <div className="flex justify-between items-center border-b border-stone-200 pb-3">
                                 <span className="text-xs text-stone-500 font-medium">Situação do Plano</span>
                                 <span className="text-xs font-bold text-stone-800">
-                                  {isPaid ? (isCanceled ? 'Cancelada' : 'Assinatura Ativa') : 'Teste Gratuito (Trial)'}
+                                  {isPaid ? (isCanceled ? 'Cancelada' : `Assinatura Ativa (${currentProject?.planSelected || 'Plano'})`) : 'Teste Gratuito (Trial)'}
                                 </span>
                               </div>
                               <div className="flex justify-between items-center">
@@ -3147,7 +3147,7 @@ const App: React.FC = () => {
                               <p className="text-xs text-emerald-600/70">Seu ambiente está operando com potência máxima e sem restrições.</p>
                               <div className="pt-2">
                                 <button
-                                  onClick={() => { setSelectedPlanModal(currentProject.planSelected === 'anual' ? 'monthly' : 'annual'); setCheckoutTermsAccepted(false); }}
+                                  onClick={() => { setIsPlansBannerOpen(true); }}
                                   className="bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-100 px-6 py-3 rounded-xl text-xs font-bold transition-colors shadow-sm w-full uppercase tracking-wider"
                                 >
                                   Mudar de Plano
@@ -3470,8 +3470,11 @@ const App: React.FC = () => {
               </div>
               <div className="p-6 md:p-8 overflow-y-auto w-full">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {platformConfigs?.plans?.length > 0 ? (
-                    [...platformConfigs.plans].sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0)).map((p: any) => {
+                   {platformConfigs?.plans?.length > 0 ? (
+                     [...platformConfigs.plans]
+                       .filter((p: any) => p.name !== currentProject?.planSelected)
+                       .sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0))
+                       .map((p: any) => {
                       const isAnual = p.interval === 'year';
                       return (
                         <div key={p.id} className={`bg-white p-6 rounded-2xl border ${isAnual ? 'border-orange-200 shadow-orange-500/10' : 'border-stone-200'} flex flex-col h-full relative overflow-hidden shadow-xl hover:-translate-y-1 transition-transform`}>
@@ -3493,12 +3496,17 @@ const App: React.FC = () => {
                           </ul>
                           <button
                             onClick={() => {
-                              setIsPlansBannerOpen(false);
-                              setTimeout(() => { window.location.hash = '#criarsite'; }, 50);
+                              if (currentProjectSlug) {
+                                handleStripeCheckout(currentProjectSlug, p.name, p.priceId);
+                                setIsPlansBannerOpen(false);
+                              } else {
+                                setIsPlansBannerOpen(false);
+                                setTimeout(() => { window.location.hash = '#criarsite'; }, 50);
+                              }
                             }}
                             className={`w-full py-4 rounded-xl cursor-pointer font-black uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-2 text-xs ${isAnual ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/30' : 'bg-stone-900 text-white hover:bg-black shadow-lg shadow-black/20'}`}
                           >
-                            <Rocket size={16} /> Criar meu site
+                            <Rocket size={16} /> {currentProjectSlug ? `Assinar ${p.name}` : 'Criar meu site'}
                           </button>
                         </div>
                       );
