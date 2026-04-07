@@ -1034,6 +1034,46 @@ const CPanel: React.FC = () => {
                     </>
                   )}
                 </div>
+
+                <div className="mt-8 pt-6 border-t border-stone-100">
+                  <div className="bg-orange-50 border border-orange-100 p-6 rounded-3xl">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 bg-orange-500 text-white rounded-lg"><ExternalLink size={16} /></div>
+                      <h4 className="text-xs font-black uppercase tracking-widest text-orange-900">Webhook do Stripe</h4>
+                    </div>
+                    <p className="text-[10px] text-stone-500 font-bold mb-4 leading-relaxed">
+                      Siga o link abaixo para configurar o Webhook no seu painel do Stripe (em Desenvolvedores {'->'} Webhooks). Use a URL abaixo e selecione os eventos necessários.
+                    </p>
+                    <div className="bg-white border border-stone-200 p-4 rounded-xl flex items-center justify-between gap-4">
+                      <code className="text-[10px] font-mono font-bold text-orange-600 break-all">https://us-central1-sitezing-4714c.cloudfunctions.net/stripeWebhook</code>
+                      <button 
+                         onClick={() => { navigator.clipboard.writeText('https://us-central1-sitezing-4714c.cloudfunctions.net/stripeWebhook'); alert('Copiado!'); }}
+                         className="flex-shrink-0 p-2 text-stone-400 hover:text-orange-500 transition-all"
+                      ><FileText size={18} /></button>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-stone-50 p-4 rounded-2xl border border-stone-100">
+                      <h5 className="text-[9px] font-black uppercase text-stone-800 mb-1">O que configurar no Stripe?</h5>
+                      <p className="text-[9px] text-stone-400 font-medium leading-normal">
+                        Marque os seguintes eventos: <br/>
+                        • <code className="text-orange-600 font-bold italic">checkout.session.completed</code> <br/>
+                        • <code className="text-orange-600 font-bold italic">customer.subscription.updated</code> <br/>
+                        • <code className="text-orange-600 font-bold italic">customer.subscription.deleted</code> <br/>
+                        • <code className="text-orange-600 font-bold italic">invoice.paid</code>
+                      </p>
+                    </div>
+                    <div className="bg-stone-50 p-4 rounded-2xl border border-stone-100">
+                      <h5 className="text-[9px] font-black uppercase text-stone-800 mb-1">Importante sobre as chaves</h5>
+                      <p className="text-[9px] text-stone-400 font-medium leading-normal">
+                        <b>Public Key:</b> Identifica sua conta no seu front-end.<br/>
+                        <b>Secret Key:</b> Permite ao servidor realizar cobranças.<br/>
+                        <b>Webhook Secret:</b> (Iniciada com <code className="italic font-bold">whsec_</code>) Garante que as notificações sejam autênticas.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Configurações de E-mail (SMTP) */}

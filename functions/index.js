@@ -934,22 +934,31 @@ exports.stripeWebhook = onRequest({ cors: true }, async (req, res) => {
   } else if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.created") {
     const subscription = event.data.object;
     const projectId = subscription?.metadata?.projectId || null;
+    const ownerUid = subscription?.metadata?.ownerUid || null;
+
     console.log(`[StripeWebhook] ${event.type} payload:`, JSON.stringify({
       id: subscription?.id,
       status: subscription?.status,
       current_period_end: subscription?.current_period_end,
       customer: subscription?.customer,
       projectId,
+      ownerUid
     }));
+
     if (projectId) {
-      const ownerUid = subscription?.metadata?.ownerUid || null;
-      const projectDoc = await findProjectDocById(projectId, ownerUid);
-      if (projectDoc) {
-        await applyStripeSubscriptionToProject(projectDoc.ref, {
-          subscription,
-          session: null,
-          planType: subscription?.metadata?.planType,
-        });
+      try {
+        const projectDoc = await findProjectDocById(projectId, ownerUid);
+        if (projectDoc) {
+          await applyStripeSubscriptionToProject(projectDoc.ref, {
+            subscription,
+            session: null,
+            planType: subscription?.metadata?.planType,
+          });
+        } else {
+          console.warn(`[StripeWebhook] Projeto ${projectId} não encontrado para ${event.type}.`);
+        }
+      } catch (err) {
+        console.error(`[StripeWebhook] Erro ao processar ${event.type}:`, err.message);
       }
     }
   } else if (event.type === "customer.subscription.deleted") {
