@@ -683,12 +683,54 @@ function getStripeInstance(stripeConfig) {
 async function findProjectDocById(projectId) {
   if (!projectId) return null;
   const db = admin.firestore();
-  const snap = await db.collectionGroup("projects")
+  console.log(`[ProjectLookup] Iniciando busca para ID: ${projectId}`);
+
+  // 1. Tentar busca por Document ID (Mais rápido e único)
+  const idSnap = await db.collectionGroup("projects")
     .where(admin.firestore.FieldPath.documentId(), "==", projectId)
     .limit(1)
     .get();
-  if (snap.empty) return null;
-  return snap.docs[0];
+
+  if (!idSnap.empty) {
+    console.log(`[ProjectLookup] Encontrado via Document ID: ${projectId}`);
+    return idSnap.docs[0];
+  }
+
+  // 2. Tentar busca por projectSlug (Mapeamento de subdomínio)
+  const slugSnap = await db.collectionGroup("projects")
+    .where("projectSlug", "==", projectId)
+    .limit(1)
+    .get();
+
+  if (!slugSnap.empty) {
+    console.log(`[ProjectLookup] Encontrado via projectSlug: ${projectId}`);
+    return slugSnap.docs[0];
+  }
+
+  // 3. Tentar busca por customSlug (Mapeamento de link amigável)
+  const customSnap = await db.collectionGroup("projects")
+    .where("customSlug", "==", projectId)
+    .limit(1)
+    .get();
+
+  if (!customSnap.empty) {
+    console.log(`[ProjectLookup] Encontrado via customSlug: ${projectId}`);
+    return customSnap.docs[0];
+  }
+
+  // 4. Tentar busca por officialDomain (Mapeamento de domínio customizado)
+  const domainSnap = await db.collectionGroup("projects")
+    .where("officialDomain", "==", projectId)
+    .limit(1)
+    .get();
+
+  if (!domainSnap.empty) {
+    console.log(`[ProjectLookup] Encontrado via officialDomain: ${projectId}`);
+    return domainSnap.docs[0];
+  }
+
+  console.warn(`[ProjectLookup] Nenhum projeto encontrado para o identificador: ${projectId}`);
+  return null;
 }
 
 async function applyStripeSubscriptionToProject(projectRef, { subscription, session, planType }) {
