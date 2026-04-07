@@ -28,6 +28,11 @@ for (const file of files) {
       const rel = file.replace(`${ROOT}/`, '');
       console.error(`[check-tsx-comments] Comentário HTML encontrado em ${rel}:${i + 1}`);
     }
+    if (/\=\>\s*\*\*\*/.test(line) || /\*\*\*\s*$/.test(line)) {
+      hasError = true;
+      const rel = file.replace(`${ROOT}/`, '');
+      console.error(`[check-tsx-comments] Marcador inválido detectado em ${rel}:${i + 1}: ${line.trim()}`);
+    }
   });
 }
 
