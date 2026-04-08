@@ -107,8 +107,11 @@ const PROMO_HTML = `
   <style>
     html, body { -ms-overflow-style: none; scrollbar-width: none; background-color: #FAFAF9; color: #1C1917; font-family: sans-serif; overflow-x: hidden; }
     ::-webkit-scrollbar { display: none; }
-    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(231, 229, 228, 0.8); transition: all 0.3s ease; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); position: relative; }
-    .glass-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 20px 40px -10px rgba(249, 115, 22, 0.15); border-color: rgba(249, 115, 22, 0.3); }
+    .glass-card { background: #ffffff; border: 1px solid #e7e5e4; transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.03); position: relative; }
+    .glass-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+    .hero-form-card { background: #ffffff; border-radius: 2.5rem; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.15); border: 1px solid #e7e5e4; }
+    .badge-label { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 12px; border-radius: 99px; background: #f5f5f4; color: #78716c; }
+    
     @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     .animate-up { animation: fadeUp 1s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
     .plan-bg-logo { position: absolute; bottom: -15%; right: -10%; width: 70%; height: auto; opacity: 0.03; pointer-events: none; filter: grayscale(100%); }
@@ -119,6 +122,8 @@ const PROMO_HTML = `
     .card-share-btn { position: absolute; bottom: 20px; right: 20px; width: 32px; height: 32px; background: #f5f5f4; color: #78716c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; z-index: 20; }
     .glass-card:hover .card-share-btn { opacity: 1; transform: translateY(0); }
     .card-share-btn:hover { background: #f97316; color: white; }
+
+    .react-vite-badge { display: flex; items-center: center; gap: 6px; background: #ffffff; border: 1px solid #e7e5e4; padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; color: #444; }
 
     @media (min-width: 1024px) {
       body { display: block; }
@@ -221,79 +226,67 @@ const PROMO_HTML = `
   <main class="pt-8 pb-8 px-6 md:px-20 w-full mx-auto flex flex-col min-h-screen relative overflow-x-hidden">
     <div class="h-16 md:h-20 w-full"></div>
     <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-200/30 blur-[150px] rounded-full pointer-events-none"></div>
-    <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-orange-200/30 blur-[150px] rounded-full pointer-events-none"></div>
-    
-    <div class="max-w-6xl mx-auto w-full relative z-10 animate-up mb-12 mt-6 md:mt-20 flex flex-col items-center text-center">
-        
-        <div class="flex flex-wrap items-center gap-2 mb-8 justify-center">
-          <div class="react-vite-badge">
-            <i class="fab fa-react text-[#61DAFB] text-sm"></i>
-            React 19
-          </div>
-          <div class="react-vite-badge">
-            <i class="fas fa-bolt text-yellow-500 text-sm"></i>
-            Vite 6 + Tailwind
-          </div>
-          <div class="react-vite-badge">
-            <i class="fas fa-robot text-teal-500 text-sm"></i>
-            Gemini Powered
-          </div>
+    <div class="max-w-7xl mx-auto w-full relative z-10 animate-up mb-12 mt-6 md:mt-16 grid grid-cols-1 lg:grid-cols-[1fr,420px] gap-12 items-start text-left">
+      
+      <div class="pt-10">
+        <div class="flex flex-wrap items-center gap-3 mb-10 justify-start">
+          <div class="react-vite-badge shadow-sm"><i class="fab fa-react text-[#61DAFB]"></i> React 19</div>
+          <div class="react-vite-badge shadow-sm"><i class="fas fa-bolt text-yellow-500"></i> Vite 6</div>
+          <div class="react-vite-badge shadow-sm"><i class="fas fa-robot text-teal-500"></i> Gemini AI</div>
         </div>
 
-        <h1 class="text-[2.8rem] md:text-[6.5rem] font-black leading-[0.85] tracking-tighter mb-8 uppercase italic text-stone-900 drop-shadow-sm max-w-5xl">
-          Seu site pronto em um <span class="text-orange-500 pr-4 inline-block drop-shadow-sm">ZING!!!</span>
+        <h1 class="text-[3.2rem] md:text-[6.5rem] font-black leading-[0.85] tracking-tighter mb-8 uppercase italic text-stone-900 drop-shadow-sm">
+          Seu site pronto em um <span class="text-orange-500 drop-shadow-sm">ZING!!!</span>
         </h1>
 
-        <p class="text-lg md:text-2xl text-stone-500 font-medium leading-relaxed max-w-3xl mb-12 px-4">
-          A nossa inteligência artificial cria, escreve e publica o seu site automaticamente. <span class="text-stone-900 font-black">Em 30 segundos, sem complicação.</span>
+        <p class="text-lg md:text-2xl text-stone-500 font-bold leading-relaxed max-w-2xl mb-12">
+          Não perca vendas por não estar no Google. A nossa inteligência artificial cria, escreve e publica o seu site automaticamente. Preencha o menu ao lado e veja a mágica acontecer.
         </p>
-        
-        <div class="w-full max-w-2xl glass-card rounded-[3rem] p-4 md:p-8 mb-16 border-stone-200/60 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.1)] relative overflow-hidden group/form">
-          <div class="absolute top-0 right-0 p-4 opacity-5 group-hover/form:opacity-10 transition-opacity"><i class="fas fa-magic text-6xl"></i></div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="md:col-span-2 space-y-3">
-              <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-2">1. Importar Dados do Google (IA)</label>
-              <div class="flex gap-2">
-                <div class="relative flex-1">
-                  <i class="fab fa-google absolute left-4 top-1/2 -translate-y-1/2 text-blue-400 text-sm"></i>
-                  <input type="text" id="hero-google-search" placeholder="Link ou Nome no Google Business" oninput="syncFormData()" class="w-full bg-stone-50 border border-stone-200 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold focus:border-blue-500 outline-none text-stone-800 transition-all shadow-inner" />
-                </div>
-                <button onclick="triggerImport()" class="bg-blue-600 hover:bg-black text-white px-6 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center gap-2 whitespace-nowrap">
-                   <i class="fas fa-cloud-download-alt"></i> Importar
-                </button>
-              </div>
-            </div>
+      </div>
 
-            <div class="space-y-3">
-              <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-2">2. Nome do Negócio</label>
-              <input type="text" id="hero-name" placeholder="Ex: Pizzaria Mágica" oninput="syncFormData()" class="w-full bg-stone-50 border border-stone-200 rounded-2xl px-5 py-4 text-sm focus:border-orange-500 outline-none text-stone-800 font-bold transition-all shadow-inner" />
-            </div>
-
-            <div class="space-y-3">
-              <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-2">4. Endereço na Web</label>
-              <div class="relative">
-                <div class="flex items-center bg-stone-100 border border-stone-200 rounded-2xl px-4 py-4 group-focus-within:border-emerald-500 transition-all">
-                  <span class="text-[10px] font-black text-stone-400 uppercase tracking-tight shrink-0">sitezing.com/</span>
-                  <input type="text" id="hero-slug" placeholder="seu-negocio" oninput="syncFormData()" class="w-full bg-transparent outline-none text-sm font-black text-stone-900 px-1" />
-                  <div id="slug-feedback" class="shrink-0"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="md:col-span-2 space-y-3">
-              <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-2">3. O que seu negócio faz?</label>
-              <textarea id="hero-desc" placeholder="Ex: Pizzaria com bordas recheadas e delivery rápido." oninput="syncFormData()" class="w-full bg-stone-50 border border-stone-200 rounded-2xl px-5 py-4 text-sm focus:border-orange-500 outline-none text-stone-800 font-bold resize-none h-24 transition-all shadow-inner"></textarea>
-            </div>
-
-            <div class="md:col-span-2 pt-2">
-              <button onclick="submitCreate()" class="w-full py-6 rounded-3xl bg-black text-white font-black uppercase tracking-[0.3em] text-xs shadow-2xl shadow-black/20 transition-all active:scale-[0.98] flex items-center justify-center gap-4 hover:bg-stone-900 overflow-hidden group/magic relative">
-                <div class="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600 opacity-0 group-hover/magic:opacity-100 transition-opacity"></div>
-                <span class="relative z-10 flex items-center gap-3">✨ INICIAR MÁGICA AGORA <i class="fas fa-magic text-orange-400 group-hover/magic:text-white"></i></span>
-              </button>
-            </div>
+      <div class="hero-form-card overflow-hidden sticky top-24">
+        <div class="flex items-center justify-between p-6 border-b border-stone-100 bg-stone-50/50">
+          <img src="${BRAND_LOGO}" class="h-6 opacity-40" />
+          <div class="flex items-center gap-4">
+            <button class="text-[10px] font-black uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors flex items-center gap-2"><i class="fas fa-door-open"></i> Login</button>
+            <button class="text-stone-300 hover:text-stone-900"><i class="fas fa-times"></i></button>
           </div>
         </div>
+
+        <div class="p-8 space-y-6">
+          <div class="space-y-2">
+            <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2"><i class="fab fa-google"></i> Busca Google IA</label>
+            <div class="flex gap-2">
+              <input type="text" id="hero-google-search" placeholder="Empresa ou Link Google" oninput="syncFormData()" class="flex-1 bg-stone-100 border border-stone-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:bg-white focus:border-blue-500 transition-all text-stone-900" />
+              <button onclick="triggerImport()" class="bg-blue-600 hover:bg-black text-white px-3 rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-90"><i class="fas fa-sync-alt"></i></button>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Nome do Negócio</label>
+            <input type="text" id="hero-name" placeholder="Ex: Eletricista Silva" oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900" />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Ideia Principal</label>
+            <textarea id="hero-desc" placeholder="Descreva os serviços..." oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900 h-24 resize-none"></textarea>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Endereço Web</label>
+            <div class="bg-stone-100 border border-stone-100 rounded-xl px-4 py-3 flex items-center gap-1 focus-within:bg-white focus-within:border-emerald-500 transition-all">
+               <span class="text-[9px] font-black text-stone-300 uppercase shrink-0">sitezing.com/</span>
+               <input type="text" id="hero-slug" placeholder="slug" oninput="syncFormData()" class="flex-1 bg-transparent border-none outline-none text-xs font-bold text-stone-900 p-0" />
+               <div id="slug-feedback" class="shrink-0"></div>
+            </div>
+          </div>
+
+          <button onclick="submitCreate()" class="w-full py-5 rounded-2xl bg-[#1c1c1c] text-white font-black uppercase tracking-[0.15em] text-[10px] shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3">
+             <i class="fas fa-redo-alt animate-spin-slow"></i> Gerar Meu Site
+          </button>
+        </div>
+      </div>
+    </div>
 
     <div class="grid md:grid-cols-3 gap-6 relative z-10 animate-up" style="animation-delay: 0.2s;">
       __PRICING_CARDS__
