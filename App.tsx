@@ -7,8 +7,17 @@ import {
   Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, LogOut, Info, Sparkles, ChevronRight, ChevronDown, ChevronUp, Gift, Menu, HelpCircle, Palette, Check, Instagram, Edit3, Clock, ArrowRight
 } from 'lucide-react';
 import { TEMPLATES } from './components/templates';
-const LoginPage = lazy(() => import('./components/LoginPage'));
-const DomainChecker = lazy(() => import('./components/DomainChecker'));
+const lazyWithRetry = (componentImport: any) =>
+  lazy(() =>
+    componentImport().catch((error: any) => {
+      console.error('Falha ao carregar componente dinâmico. Recarregando site...', error);
+      window.location.reload();
+      return { default: () => null };
+    })
+  );
+
+const LoginPage = lazyWithRetry(() => import('./components/LoginPage'));
+const DomainChecker = lazyWithRetry(() => import('./components/DomainChecker'));
 import { useIframeEditor } from './components/useIframeEditor';
 
 import { BRAND_LOGO } from './components/brand';
