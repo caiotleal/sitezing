@@ -1220,11 +1220,11 @@ exports.fetchGoogleBusiness = onCall({ cors: true, secrets: [googlePlacesKey] },
       languageCode: "pt-BR"
     };
 
-    // Correção Aplicada: Headers do FieldMask limpos
+    // Adicionamos googleMapsUri para ajudar o Gemini a localizar as redes
     const headers = {
       "Content-Type": "application/json",
       "X-Goog-Api-Key": apiKey,
-      "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.websiteUri,places.rating,places.reviews,places.photos"
+      "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.websiteUri,places.googleMapsUri,places.rating,places.reviews,places.photos"
     };
 
     const searchRes = await axios.post(searchUrl, data, { headers });
@@ -1246,6 +1246,42 @@ exports.fetchGoogleBusiness = onCall({ cors: true, secrets: [googlePlacesKey] },
       return `https://places.googleapis.com/v1/${p.name}/media?maxHeightPx=800&maxWidthPx=800&key=${apiKey}`;
     });
 
+    let socialLinks = { instagram: null, facebook: null, whatsapp: null, linkedin: null, tiktok: null, youtube: null };
+
+    // Enriquecimento com Gemini: Encontrar Redes Sociais
+    try {
+      const name = place.displayName?.text || "";
+      const website = place.websiteUri || "";
+      const address = place.formattedAddress || "";
+      const mapsUrl = place.googleMapsUri || "";
+
+      if (name) {
+        const genAI = getGeminiClient();
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-lite" });
+        
+        const prompt = `
+          Extract the official social media links for this business. 
+          Business Name: ${name}
+          Address: ${address}
+          Website: ${website}
+          Google Maps: ${mapsUrl}
+
+          Return ONLY a JSON object with these keys: instagram, facebook, whatsapp, linkedin, tiktok, youtube.
+          Use full URLs (e.g., https://instagram.com/handle). 
+          For WhatsApp, use wa.me link if number is known. 
+          Return null for links that cannot be found with high confidence.
+          JSON ONLY. No markdown.
+        `;
+
+        const result = await model.generateContent(prompt);
+        const text = result.response.text().trim().replace(/```json|```/g, "");
+        const enriched = JSON.parse(text);
+        socialLinks = { ...socialLinks, ...enriched };
+      }
+    } catch (safeErr) {
+      console.error("⚠️ [Gemini Social Enrichment] Falha ao enriquecer redes:", safeErr.message);
+    }
+
     return {
       name: place.displayName?.text || "",
       address: place.formattedAddress || "",
@@ -1253,7 +1289,9 @@ exports.fetchGoogleBusiness = onCall({ cors: true, secrets: [googlePlacesKey] },
       website: place.websiteUri || "",
       rating: place.rating || 0,
       reviews: parsedReviews,
-      photos: parsedPhotos
+      photos: parsedPhotos,
+      googleMapsUri: place.googleMapsUri || "",
+      socialLinks
     };
   } catch (err) {
     if (err.response) {

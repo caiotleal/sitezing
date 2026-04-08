@@ -1211,6 +1211,16 @@ const App: React.FC = () => {
           updates.description = d.editorialSummary;
         }
 
+        // Injetar Redes Sociais se encontradas
+        if (d.socialLinks) {
+          if (d.socialLinks.instagram) updates.instagram = d.socialLinks.instagram;
+          if (d.socialLinks.facebook) updates.facebook = d.socialLinks.facebook;
+          if (d.socialLinks.whatsapp) updates.whatsapp = d.socialLinks.whatsapp;
+          if (d.socialLinks.linkedin) updates.linkedin = d.socialLinks.linkedin;
+          if (d.socialLinks.tiktok) updates.tiktok = d.socialLinks.tiktok;
+          if (d.socialLinks.youtube) updates.youtube = d.socialLinks.youtube;
+        }
+
         setFormData(prev => ({ ...prev, ...updates }));
         
         const desc = d.editorialSummary || `Uma empresa moderna e inovadora chamada ${d.name || formData.businessName}.`;
@@ -1248,6 +1258,16 @@ const App: React.FC = () => {
     if (!currentProjectSlug && d.editorialSummary) {
       updates.editorialSummary = d.editorialSummary;
       updates.description = d.editorialSummary;
+    }
+
+    // Injetar Redes Sociais se encontradas
+    if (d.socialLinks) {
+      if (d.socialLinks.instagram) updates.instagram = d.socialLinks.instagram;
+      if (d.socialLinks.facebook) updates.facebook = d.socialLinks.facebook;
+      if (d.socialLinks.whatsapp) updates.whatsapp = d.socialLinks.whatsapp;
+      if (d.socialLinks.linkedin) updates.linkedin = d.socialLinks.linkedin;
+      if (d.socialLinks.tiktok) updates.tiktok = d.socialLinks.tiktok;
+      if (d.socialLinks.youtube) updates.youtube = d.socialLinks.youtube;
     }
 
     setFormData(prev => {
