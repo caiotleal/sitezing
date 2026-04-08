@@ -149,28 +149,63 @@ const PROMO_HTML = `
       } catch (err) { console.log('Erro ao compartilhar:', err); }
     }
 
-    // Hero Communication
-    window.addEventListener('message', function(e) {
-      if (!e.data || e.data.type !== 'SYNC_STATE') return;
-      var data = e.data;
-      var domainStatus = data.domainStatus;
-      
-      // Update Slug Feedback
-      var sFeed = document.getElementById('slug-feedback');
-      if (sFeed) {
-        if (domainStatus.loading) {
-          sFeed.innerText = 'Validando endereço...';
-          sFeed.className = 'text-[10px] mt-1 ml-1 font-bold text-stone-400 animate-pulse italic';
-        } else if (domainStatus.available === true) {
-          sFeed.innerText = '✓ Disponível!';
-          sFeed.className = 'text-[10px] mt-1 ml-1 font-bold text-emerald-500 italic';
-        } else if (domainStatus.available === false) {
-          sFeed.innerText = '✗ Indisponível';
-          sFeed.className = 'text-[10px] mt-1 ml-1 font-bold text-red-500 italic';
+      // State Synchronization & Population
+      window.addEventListener('message', function(e) {
+        if (!e.data) return;
+        
+        if (e.data.type === 'SYNC_STATE') {
+          var domainStatus = e.data.domainStatus || {};
+          var sFeed = document.getElementById('slug-feedback');
+          if (sFeed) {
+            if (domainStatus.loading) {
+              sFeed.innerText = 'Validando...';
+              sFeed.className = 'text-[9px] font-black text-stone-400 animate-pulse uppercase tracking-widest';
+            } else if (domainStatus.available === true) {
+              sFeed.innerText = '✓ Disponível';
+              sFeed.className = 'text-[9px] font-black text-emerald-500 uppercase tracking-widest';
+            } else if (domainStatus.available === false) {
+              sFeed.innerText = '✗ Indisponível';
+              sFeed.className = 'text-[9px] font-black text-red-500 uppercase tracking-widest';
+            }
+          }
         }
+
+        if (e.data.type === 'FILL_FIELDS') {
+          var data = e.data.data;
+          if (data.name) document.getElementById('hero-name').value = data.name;
+          if (data.description) document.getElementById('hero-desc').value = data.description;
+          if (data.slug) document.getElementById('hero-slug').value = data.slug;
+          
+          // Trigger sync after filling
+          syncFormData();
+        }
+      });
+
+      function syncFormData() {
+        window.parent.postMessage({
+          type: 'SYNC_FORM_DATA',
+          data: {
+            businessName: document.getElementById('hero-name').value,
+            description: document.getElementById('hero-desc').value,
+            customSlug: document.getElementById('hero-slug').value,
+            googleSearch: document.getElementById('hero-google-search').value
+          }
+        }, '*');
       }
-    });
-  </script>
+
+      function triggerImport() {
+        var query = document.getElementById('hero-google-search').value;
+        if (query.length < 3) return;
+        window.parent.postMessage({ type: 'TRIGGER_FETCH_GOOGLE', value: query }, '*');
+      }
+
+      function submitCreate() {
+        syncFormData();
+        setTimeout(() => {
+          window.parent.postMessage({ type: 'SUBMIT_CREATE' }, '*');
+        }, 50);
+      }
+    </script>
 </head>
 <body class="antialiased selection:bg-orange-500 selection:text-white">
   
@@ -213,12 +248,52 @@ const PROMO_HTML = `
           A nossa inteligência artificial cria, escreve e publica o seu site automaticamente. <span class="text-stone-900 font-black">Em 30 segundos, sem complicação.</span>
         </p>
         
-        <div class="flex flex-col md:flex-row items-center gap-6 mb-16">
-          <button onclick="window.parent.postMessage({ type: 'OPEN_MAGIC_MODAL' }, '*')" class="group relative bg-stone-900 text-white px-12 py-6 rounded-[2rem] font-black uppercase italic tracking-widest text-sm shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center gap-4 overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <span class="relative z-10">🚀 Iniciar Mágica Agora</span>
-            <i class="fas fa-magic relative z-10 text-orange-400 group-hover:text-white transition-colors"></i>
-          </button>
+        <div class="w-full max-w-2xl glass-card rounded-[3rem] p-4 md:p-8 mb-16 border-stone-200/60 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.1)] relative overflow-hidden group/form">
+          <div class="absolute top-0 right-0 p-4 opacity-5 group-hover/form:opacity-10 transition-opacity"><i class="fas fa-magic text-6xl"></i></div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="md:col-span-2 space-y-3">
+              <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-2">1. Importar Dados do Google (IA)</label>
+              <div class="flex gap-2">
+                <div class="relative flex-1">
+                  <i class="fab fa-google absolute left-4 top-1/2 -translate-y-1/2 text-blue-400 text-sm"></i>
+                  <input type="text" id="hero-google-search" placeholder="Link ou Nome no Google Business" oninput="syncFormData()" class="w-full bg-stone-50 border border-stone-200 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold focus:border-blue-500 outline-none text-stone-800 transition-all shadow-inner" />
+                </div>
+                <button onclick="triggerImport()" class="bg-blue-600 hover:bg-black text-white px-6 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center gap-2 whitespace-nowrap">
+                   <i class="fas fa-cloud-download-alt"></i> Importar
+                </button>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-2">2. Nome do Negócio</label>
+              <input type="text" id="hero-name" placeholder="Ex: Pizzaria Mágica" oninput="syncFormData()" class="w-full bg-stone-50 border border-stone-200 rounded-2xl px-5 py-4 text-sm focus:border-orange-500 outline-none text-stone-800 font-bold transition-all shadow-inner" />
+            </div>
+
+            <div class="space-y-3">
+              <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-2">4. Endereço na Web</label>
+              <div class="relative">
+                <div class="flex items-center bg-stone-100 border border-stone-200 rounded-2xl px-4 py-4 group-focus-within:border-emerald-500 transition-all">
+                  <span class="text-[10px] font-black text-stone-400 uppercase tracking-tight shrink-0">sitezing.com/</span>
+                  <input type="text" id="hero-slug" placeholder="seu-negocio" oninput="syncFormData()" class="w-full bg-transparent outline-none text-sm font-black text-stone-900 px-1" />
+                  <div id="slug-feedback" class="shrink-0"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="md:col-span-2 space-y-3">
+              <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-2">3. O que seu negócio faz?</label>
+              <textarea id="hero-desc" placeholder="Ex: Pizzaria com bordas recheadas e delivery rápido." oninput="syncFormData()" class="w-full bg-stone-50 border border-stone-200 rounded-2xl px-5 py-4 text-sm focus:border-orange-500 outline-none text-stone-800 font-bold resize-none h-24 transition-all shadow-inner"></textarea>
+            </div>
+
+            <div class="md:col-span-2 pt-2">
+              <button onclick="submitCreate()" class="w-full py-6 rounded-3xl bg-black text-white font-black uppercase tracking-[0.3em] text-xs shadow-2xl shadow-black/20 transition-all active:scale-[0.98] flex items-center justify-center gap-4 hover:bg-stone-900 overflow-hidden group/magic relative">
+                <div class="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600 opacity-0 group-hover/magic:opacity-100 transition-opacity"></div>
+                <span class="relative z-10 flex items-center gap-3">✨ INICIAR MÁGICA AGORA <i class="fas fa-magic text-orange-400 group-hover/magic:text-white"></i></span>
+              </button>
+            </div>
+          </div>
+        </div>
 
     <div class="grid md:grid-cols-3 gap-6 relative z-10 animate-up" style="animation-delay: 0.2s;">
       __PRICING_CARDS__
@@ -1061,13 +1136,30 @@ const App: React.FC = () => {
       }
       return nextState;
     });
+
+    // Enviar dados preenchidos de volta para o iframe da Landing Page
+    const iframe = iframeRef.current;
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({
+        type: 'FILL_FIELDS',
+        data: {
+          name: d.name,
+          description: d.description || d.editorialSummary,
+          slug: slugify(d.name || '').slice(0, 30)
+        }
+      }, '*');
+    }
+
     setHasUnsavedChanges(true);
     setGoogleStatus({ type: 'success', msg: 'Google Inteligência ativada!' });
     setPendingGoogleData(null);
 
-    // AUTO-GENERATE ON CONFIRMATION (3-CLICK MAGIC)
-    const desc = d.editorialSummary || `Uma empresa moderna e inovadora chamada ${d.name || formData.businessName}.`;
-    handleGenerate(desc);
+    // AUTO-GENERATE ON CONFIRMATION (Apenas se já estivermos no editor ou se o usuário não pediu para ver os campos preenchidos)
+    // Para a Home (sem currentProjectSlug), deixamos o usuário ver os campos preenchidos antes de clicar no botão mágico final.
+    if (currentProjectSlug) {
+      const desc = d.editorialSummary || `Uma empresa moderna e inovadora chamada ${d.name || formData.businessName}.`;
+      handleGenerate(desc);
+    }
   };
 
   // Receptor de mensagens do iframe (Landing Page) consolidado acima
