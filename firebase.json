@@ -48,5 +48,8 @@
         "npm --prefix \"$RESOURCE_DIR\" install"
       ]
     }
-  ]
+  ],
+  "storage": {
+    "rules": "storage.rules"
+  }
 }
