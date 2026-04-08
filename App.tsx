@@ -2220,7 +2220,7 @@ const App: React.FC = () => {
                           disabled={isFetchingGoogle || !formData.googlePlaceUrl}
                           className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-stone-300 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl shadow-blue-600/20 active:scale-95 flex items-center justify-center gap-2"
                         >
-                          {isFetchingGoogle ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>SINCRONIZAR GOOGLE <Zap size={14} fill="currentColor" /></>}
+                          {isFetchingGoogle ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>GOOGLE <Zap size={14} fill="currentColor" /></>}
                         </button>
                       </div>
 
@@ -2934,6 +2934,49 @@ const App: React.FC = () => {
                       <div className="space-y-6">
                         {(!activeCategory || activeCategory === 'visual') && (
                           <div className="space-y-4 animate-in fade-in duration-500">
+                            {/* SINCRONIZAR GOOGLE (DESKTOP) */}
+                            <div className="bg-blue-50 border border-blue-100 p-5 rounded-3xl shadow-sm mb-6">
+                              <label className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4 block flex items-center justify-center gap-2">Sincronizar com Google</label>
+                              <div className="flex gap-2">
+                                <input 
+                                  className="flex-1 bg-white border border-blue-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:border-blue-500 shadow-sm" 
+                                  placeholder="Cole o link do seu negócio no Google Maps" 
+                                  value={formData.googlePlaceUrl} 
+                                  onChange={e => { setFormData({ ...formData, googlePlaceUrl: e.target.value }); setHasUnsavedChanges(true) }} 
+                                />
+                                <button 
+                                  onClick={() => fetchGoogleData(false)}
+                                  disabled={isFetchingGoogle || !formData.googlePlaceUrl}
+                                  className="bg-blue-600 hover:bg-blue-500 disabled:bg-stone-300 text-white px-6 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 min-w-[120px]"
+                                >
+                                  {isFetchingGoogle ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>GOOGLE <Zap size={13} fill="currentColor" /></>}
+                                </button>
+                              </div>
+
+                              {googleStatus && (
+                                <div className={`text-[10px] font-bold p-3 rounded-xl mt-3 flex items-center gap-2 ${googleStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
+                                  {googleStatus.type === 'success' ? <CheckCircle size={12} /> : <AlertCircle size={12} />}
+                                  {googleStatus.msg}
+                                </div>
+                              )}
+
+                              {pendingGoogleData && (
+                                <div className="bg-white border-2 border-blue-400 rounded-2xl p-4 shadow-2xl animate-up mt-4 relative overflow-hidden">
+                                  <div className="absolute top-0 right-0 p-2 opacity-10"><Zap size={40} className="text-blue-600" /></div>
+                                  <div className="flex items-center gap-3 mb-4 relative z-10 text-left">
+                                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 shadow-inner"><CheckCircle size={24} /></div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-[10px] font-black text-blue-600 uppercase tracking-tighter">Empresa Localizada!</p>
+                                      <p className="text-xs font-black text-stone-900 truncate leading-tight uppercase italic">{pendingGoogleData.name}</p>
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-2 relative z-10">
+                                    <button onClick={() => setPendingGoogleData(null)} className="flex-1 py-3 bg-stone-100 text-stone-500 rounded-xl text-[10px] uppercase font-black hover:bg-stone-200 transition-colors">Ignorar</button>
+                                    <button onClick={confirmGoogleInjection} className="flex-[2] py-3 bg-blue-600 text-white rounded-xl text-[10px] uppercase font-black shadow-lg shadow-blue-600/30 active:scale-95 transition-all">Importar Agora ✨</button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                             <label className="text-[11px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2 mb-2"><Palette size={12} /> Design & Identidade</label>
 
                             <div className="grid grid-cols-1 gap-4">
