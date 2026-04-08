@@ -741,6 +741,8 @@ const App: React.FC = () => {
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showFloatModal, setShowFloatModal] = useState(false);
+  const [isMobileWizardOpen, setIsMobileWizardOpen] = useState(false);
   const [aiContent, setAiContent] = useState<any>(null);
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -3915,114 +3917,175 @@ const App: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* MODAL FLUTUANTE DE CAPTAÇÃO 10S - CENTRALIZADO E SIMPLIFICADO */}
+      {/* MODAL DE CRIAÇÃO "PERFEITO" (RESTAURADO E OTIMIZADO) */}
       <AnimatePresence>
-        {showFloatModal && !isMenuOpen && !generatedHtml && !currentProjectSlug && (
-          <div className="fixed inset-0 z-[500] bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        {showFloatModal && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
             <motion.div
-              initial={{ opacity: 0, y: 30, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 30, scale: 0.95 }}
-              className="w-full max-w-[380px] bg-white border border-stone-200 shadow-2xl rounded-3xl overflow-hidden relative"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm"
+              onClick={() => setShowFloatModal(false)}
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-white/95 backdrop-blur-2xl w-full max-w-lg rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.15)] border border-white relative overflow-hidden flex flex-col"
             >
-              <div className="bg-gradient-to-r from-teal-600 to-indigo-600 p-5 relative text-center">
-                <button onClick={() => setShowFloatModal(false)} className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors bg-black/20 p-1.5 rounded-full">
-                  <X size={18} />
-                </button>
-                <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-3 backdrop-blur-md border border-white/20">
-                  <Rocket className="w-6 h-6 text-yellow-300" />
+              {/* Header com gradiente premium */}
+              <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 p-6 relative overflow-hidden flex-shrink-0">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 blur-3xl rounded-full"></div>
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full"></div>
+                
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                    <div className="w-2 h-2 rounded-full bg-amber-400"></div>
+                    <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+                  </div>
+                  <button onClick={() => setShowFloatModal(false)} className="text-white/40 hover:text-white transition-colors">
+                    <X size={18} />
+                  </button>
                 </div>
-                <h3 className="text-xl font-black text-white italic uppercase tracking-wider">
-                  Crie em 30 Segundos
-                </h3>
-                <p className="text-white/80 text-xs mt-1.5 font-medium leading-relaxed">Não perca mais nenhuma venda. Deixe nossa IA montar tudo de imediato.</p>
+                
+                <h3 className="text-lg md:text-xl font-black text-white italic uppercase tracking-wider mb-1">Crie seu site profissional</h3>
+                <p className="text-xs text-stone-400 font-medium tracking-tight">Nosso IA vai montar tudo para você em segundos.</p>
               </div>
-              <div className="p-6">
-                <div className="space-y-5">
-                  <div className="bg-blue-50/50 p-4 border border-blue-100 rounded-2xl relative overflow-hidden ring-1 ring-blue-500/10">
-                    <label className="text-[10px] uppercase tracking-widest font-black text-blue-800 mb-3 flex items-center justify-center gap-1.5"><MapPin size={14} className="text-blue-600" /> Importação Mágica do Google</label>
-                    <div className="flex flex-col gap-2 relative z-10 w-full">
-                      <input
-                        type="text" placeholder="Cole de onde achar: Maps, Link ou Nome..."
-                        className="w-full bg-white border border-blue-200 rounded-xl text-center px-3 py-3.5 text-[11px] font-bold focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-stone-800 shadow-sm transition-all"
-                        value={formData.googlePlaceUrl || ''}
-                        onChange={(e) => setFormData(p => ({ ...p, googlePlaceUrl: e.target.value }))}
-                      />
-                      <button
-                        onClick={async () => fetchGoogleData()}
-                        disabled={isFetchingGoogle || !formData.googlePlaceUrl}
-                        className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white py-3 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-blue-500/30 transition-all cursor-pointer flex items-center justify-center gap-1.5 mt-1"
-                      >
-                        {isFetchingGoogle ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Trazer Meu Negócio'}
-                      </button>
+
+              <div className="p-8 space-y-6 overflow-y-auto max-h-[70vh]">
+                {/* 3-CLICK GOOGLE SYNC SECTION - HIGH VISIBILITY */}
+                <div className="bg-blue-50/70 border-2 border-blue-400 p-6 rounded-[2rem] shadow-[0_10px_40px_rgba(59,130,246,0.1)] group transition-all hover:bg-blue-50">
+                  <label className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-4 flex items-center justify-center gap-2">
+                    <Search size={14} className="animate-pulse" /> Sincronizar com Google Business
+                  </label>
+                  <div className="space-y-4">
+                    <div className="relative group/input">
+                      <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-orange-500 rounded-2xl blur opacity-10 group-focus-within/input:opacity-30 transition duration-500"></div>
+                      <div className="relative">
+                        <i className="fab fa-google absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 text-sm"></i>
+                        <input 
+                          type="text" 
+                          placeholder="Link do Google ou Nome da Empresa" 
+                          value={googleSearchQuery}
+                          onChange={(e) => {
+                            setGoogleSearchQuery(e.target.value);
+                            if (e.target.value === '') {
+                              setGoogleStatus(null);
+                              setPendingGoogleData(null);
+                            }
+                          }}
+                          className="w-full bg-white border-2 border-blue-100 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold focus:border-blue-500 outline-none text-stone-800 transition-all shadow-sm" 
+                        />
+                      </div>
                     </div>
 
-                    {pendingGoogleData && (
-                      <div className="mt-4 pt-4 border-t border-blue-200/50">
-                        <div className="bg-white p-3 rounded-xl shadow-sm border border-emerald-100 flex flex-col items-center text-center">
-                          <CheckCircle size={16} className="text-emerald-500 mb-1.5" />
-                          <p className="text-[10px] text-stone-800 font-bold mb-0.5">{pendingGoogleData.name}</p>
-                          <p className="text-[9px] text-stone-500 font-medium mb-3 h-6 line-clamp-2 leading-tight">{pendingGoogleData.address}</p>
-                          <div className="flex gap-2 w-full">
-                            <button type="button" onClick={() => setPendingGoogleData(null)} className="flex-1 py-2 bg-stone-100 text-stone-500 rounded-lg text-[9px] uppercase font-black hover:bg-stone-200 transition-colors">Tentar Outro</button>
-                            <button type="button" onClick={confirmGoogleInjection} className="flex-[1.5] py-2 bg-emerald-600 text-white rounded-lg text-[9px] uppercase font-black shadow-md hover:bg-emerald-500 transition-all flex justify-center items-center gap-1">Puxar Tudo <Rocket size={10} /></button>
-                          </div>
-                        </div>
+                    {isFetchingGoogle && (
+                      <div className="flex items-center justify-center gap-3 py-4 text-blue-600 font-black uppercase italic tracking-widest text-xs animate-pulse">
+                        <Loader2 className="animate-spin w-4 h-4" /> Consultando Google AI...
                       </div>
                     )}
 
-                    {!pendingGoogleData && googleStatus && googleStatus.type === 'error' && (
-                      <div className="mt-3 text-[9px] text-center font-bold text-red-500">{googleStatus.msg}</div>
+                    {googleStatus && (
+                      <div className={`text-xs p-4 rounded-xl font-bold flex items-center gap-3 animate-in slide-in-from-top-2 ${googleStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+                        {googleStatus.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+                        {googleStatus.msg}
+                      </div>
+                    )}
+
+                    {pendingGoogleData && (
+                      <div className="bg-white border border-blue-100 p-6 rounded-[2rem] animate-in fade-in zoom-in duration-300 shadow-xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-2 opacity-5"><i className="fab fa-google text-4xl"></i></div>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                          <h5 className="text-xs font-black text-stone-900 uppercase italic truncate">{pendingGoogleData.name}</h5>
+                        </div>
+                        
+                        <div className="space-y-2 mb-4">
+                          {pendingGoogleData.address && (
+                            <div className="flex items-center gap-3 text-stone-500 text-[10px] font-bold uppercase tracking-tight">
+                              <MapPin size={12} className="text-blue-400" /> <span className="truncate">{pendingGoogleData.address}</span>
+                            </div>
+                          )}
+                          {pendingGoogleData.phone && (
+                            <div className="flex items-center gap-3 text-stone-500 text-[10px] font-bold uppercase tracking-tight">
+                              <Phone size={12} className="text-blue-400" /> {pendingGoogleData.phone}
+                            </div>
+                          )}
+                          {pendingGoogleData.rating && (
+                            <div className="flex items-center gap-3 text-stone-500 text-[10px] font-bold uppercase tracking-tight">
+                              <Star size={12} className="text-amber-500 fill-amber-500" /> {pendingGoogleData.rating} <span className="opacity-40">({pendingGoogleData.reviews?.length || 0} avaliações)</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex gap-2 pt-4 border-t border-blue-50">
+                          <button onClick={() => setPendingGoogleData(null)} className="flex-1 py-3 bg-stone-100 text-stone-500 rounded-xl text-[10px] uppercase font-black hover:bg-stone-200 transition-colors">Tentar Outro</button>
+                          <button onClick={confirmGoogleInjection} className="flex-[2] py-3 bg-blue-600 text-white rounded-xl text-[10px] uppercase font-black shadow-lg shadow-blue-500/20 active:scale-95 transition-all">Importar Tudo ✨</button>
+                        </div>
+                      </div>
                     )}
                   </div>
+                </div>
 
-                  <div className="flex items-center gap-3 opacity-60 px-4">
-                    <div className="flex-1 h-px bg-stone-300"></div><span className="text-[9px] font-black uppercase tracking-widest text-stone-500">OU DIGITE MANUAL</span><div className="flex-1 h-px bg-stone-300"></div>
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest font-bold text-stone-500 mb-2 block text-center">Qual o Nome do Seu Negócio?</label>
-                    <input
-                      type="text" placeholder="Ex: Studio da Beleza"
-                      className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-4 text-center text-[12px] focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none text-stone-800 font-bold"
-                      value={formData.businessName}
-                      onChange={(e) => handleFloatNameChange(e.target.value)}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest font-black text-stone-500 mb-2.5 flex items-center justify-center gap-1.5"><Globe size={12} /> Seu Link Oficial</label>
-                    <div className="flex bg-white border border-stone-200 rounded-xl overflow-hidden focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20 transition-all shadow-sm">
-                      <input className="flex-1 bg-transparent px-3 py-3.5 text-[12px] font-mono font-bold text-teal-600 outline-none w-full text-right placeholder:text-stone-300" placeholder="meu-site" value={formData.customSlug} onChange={e => handleCustomSlugChange(e.target.value)} />
-                      <span className="bg-stone-50 border-l border-stone-200 px-3 py-3.5 text-[11px] font-bold text-stone-400 flex items-center select-none shadow-inner">.sitezing.com.br</span>
+                {!pendingGoogleData && !isFetchingGoogle && !googleStatus && (
+                  <div className="space-y-4 animate-in fade-in duration-700">
+                    <div className="flex items-center gap-4">
+                      <div className="h-px bg-stone-100 flex-1"></div>
+                      <span className="text-[10px] font-black text-stone-300 uppercase tracking-[0.2em]">Ou Manual</span>
+                      <div className="h-px bg-stone-100 flex-1"></div>
                     </div>
 
-                    <div className="mt-2 min-h-[16px] text-center">
-                      {floatDomainStatus.loading && (
-                        <div className="text-[10px] text-stone-400 flex items-center justify-center gap-1.5"><Loader2 className="w-3 h-3 animate-spin" /> Mapeando domínio...</div>
-                      )}
-                      {!floatDomainStatus.loading && formData.customSlug.length >= 3 && floatDomainStatus.available === false && (
-                        <div className="text-[10px] text-red-500 font-bold flex items-center justify-center gap-1"><AlertCircle size={10} /> Indisponível. Altere acima!</div>
-                      )}
-                      {!floatDomainStatus.loading && formData.customSlug.length >= 3 && floatDomainStatus.available && floatDomainStatus.slug && (
-                        <div className="text-[10px] text-emerald-600 font-bold flex items-center justify-center gap-1"><CheckCircle size={10} /> Domínio liberado!</div>
-                      )}
+                    <div className="space-y-4">
+                       <input 
+                         type="text" 
+                         placeholder="Nome do seu Negócio" 
+                         value={formData.businessName}
+                         onChange={(e) => setFormData(p => ({ ...p, businessName: e.target.value }))}
+                         className="w-full bg-stone-50 border border-stone-200 rounded-2xl px-6 py-4 text-sm focus:border-orange-500 outline-none text-stone-800 font-bold" 
+                       />
+                       <textarea 
+                         placeholder="O que seu negócio faz? (Ex: Pizzaria napolitana, Clínica odontológica...)"
+                         value={formData.description}
+                         onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))}
+                         className="w-full bg-stone-50 border border-stone-200 rounded-2xl px-6 py-4 text-sm focus:border-orange-500 outline-none text-stone-800 font-bold resize-none h-24"
+                       />
                     </div>
                   </div>
+                )}
 
-                  <button
+                <div className="pt-4">
+                  <button 
                     onClick={() => {
-                      if (!formData.businessName || floatDomainStatus.available === false) return;
-                      const constructedDesc = `Uma empresa moderna e inovadora chamada ${formData.businessName}.`;
-                      setFormData(p => ({ ...p, segment: "Negócios / Geral", description: constructedDesc }));
-                      handleGenerate(constructedDesc);
-                      setIsMenuOpen(true);
-                      setActiveTab('geral');
+                      if (pendingGoogleData) confirmGoogleInjection();
+                      else if (googleSearchQuery.length > 3 && !googleStatus) fetchGoogleData(false, googleSearchQuery);
+                      else handleGenerateSite();
                     }}
-                    disabled={isGenerating || !formData.businessName || floatDomainStatus.available === false}
-                    className="w-full bg-[#18181b] hover:bg-black text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-xl shadow-black/10"
+                    disabled={isGenerating || isFetchingGoogle || (!formData.businessName && googleSearchQuery.length <= 3)}
+                    className={`w-full py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] transition-all shadow-xl text-xs flex items-center justify-center gap-3 active:scale-95 ${
+                      pendingGoogleData ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20' : 
+                      (googleSearchQuery.length > 3 && !googleStatus) ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20' : 
+                      'bg-stone-900 hover:bg-black text-white shadow-stone-900/20'
+                    }`}
                   >
-                    {isGenerating ? <Loader2 className="animate-spin w-5 h-5" /> : <>✨ Iniciar a Mágica</>}
+                    {isGenerating ? <Loader2 className="animate-spin w-5 h-5" /> : 
+                     pendingGoogleData ? <>Confirmar Dados <Check size={18} /></> : 
+                     (googleSearchQuery.length > 3 && !googleStatus) ? <>Pesquisar no Google <Zap size={18} /></> : 
+                     <>✨ Iniciar a Mágica Agora</>}
                   </button>
                 </div>
+              </div>
+
+              <div className="p-4 bg-stone-50 border-t border-stone-100 flex items-center justify-center gap-6">
+                 <div className="flex items-center gap-1.5 opacity-30">
+                   <ShieldCheck size={12} />
+                   <span className="text-[8px] font-black uppercase tracking-widest text-stone-600">Ambiente Seguro</span>
+                 </div>
+                 <div className="flex items-center gap-1.5 opacity-30">
+                   <Zap size={12} />
+                   <span className="text-[8px] font-black uppercase tracking-widest text-stone-600">Geração 30s</span>
+                 </div>
               </div>
             </motion.div>
           </div>
