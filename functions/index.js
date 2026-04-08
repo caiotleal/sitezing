@@ -1232,39 +1232,50 @@ exports.fetchGoogleBusiness = onCall({ cors: true, secrets: [googlePlacesKey] },
     if (!searchRes.data.places || searchRes.data.places.length === 0) {
       throw new Error("Nenhum local encontrado com esse nome/link.");
     }
-    const place = searchRes.data.places[0];
 
-    const parsedReviews = (place.reviews || []).map(r => ({
-      author_name: r.authorAttribution?.displayName || "Cliente",
-      profile_photo_url: r.authorAttribution?.photoUri || "https://via.placeholder.com/50",
-      rating: r.rating || 5,
-      text: r.text?.text || "",
-      relative_time_description: r.relativePublishTimeDescription || ""
-    }));
+    // Processar até 5 resultados
+    const results = searchRes.data.places.slice(0, 5).map(place => {
+      const parsedReviews = (place.reviews || []).map(r => ({
+        author_name: r.authorAttribution?.displayName || "Cliente",
+        profile_photo_url: r.authorAttribution?.photoUri || "https://via.placeholder.com/50",
+        rating: r.rating || 5,
+        text: r.text?.text || "",
+        relative_time_description: r.relativePublishTimeDescription || ""
+      }));
 
-    const parsedPhotos = (place.photos || []).slice(0, 12).map(p => {
-      return `https://places.googleapis.com/v1/${p.name}/media?maxHeightPx=800&maxWidthPx=800&key=${apiKey}`;
+      const parsedPhotos = (place.photos || []).slice(0, 12).map(p => {
+        return `https://places.googleapis.com/v1/${p.name}/media?maxHeightPx=800&maxWidthPx=800&key=${apiKey}`;
+      });
+
+      return {
+        id: place.googleMapsUri, // Usamos a URI como ID único
+        name: place.displayName?.text || "",
+        address: place.formattedAddress || "",
+        phone: place.nationalPhoneNumber || "",
+        website: place.websiteUri || "",
+        rating: place.rating || 0,
+        reviews: parsedReviews,
+        photos: parsedPhotos,
+        googleMapsUri: place.googleMapsUri || "",
+        socialLinks: { instagram: null, facebook: null, whatsapp: null, linkedin: null, tiktok: null, youtube: null }
+      };
     });
 
-    let socialLinks = { instagram: null, facebook: null, whatsapp: null, linkedin: null, tiktok: null, youtube: null };
-
-    // Enriquecimento com Gemini: Encontrar Redes Sociais
+    // Enriquecimento com Gemini: Encontrar Redes Sociais apenas para o primeiro resultado (Otimização)
+    // Se o usuário selecionar outro, podemos ter uma função de 'enrich' se necessário, 
+    // ou apenas usar o que o Google nos deu.
     try {
-      const name = place.displayName?.text || "";
-      const website = place.websiteUri || "";
-      const address = place.formattedAddress || "";
-      const mapsUrl = place.googleMapsUri || "";
-
-      if (name) {
+      const firstPlace = results[0];
+      if (firstPlace.name) {
         const genAI = getGeminiClient();
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-lite" });
         
         const prompt = `
           Extract the official social media links for this business. 
-          Business Name: ${name}
-          Address: ${address}
-          Website: ${website}
-          Google Maps: ${mapsUrl}
+          Business Name: ${firstPlace.name}
+          Address: ${firstPlace.address}
+          Website: ${firstPlace.website}
+          Google Maps: ${firstPlace.googleMapsUri}
 
           Return ONLY a JSON object with these keys: instagram, facebook, whatsapp, linkedin, tiktok, youtube.
           Use full URLs (e.g., https://instagram.com/handle). 
@@ -1276,23 +1287,13 @@ exports.fetchGoogleBusiness = onCall({ cors: true, secrets: [googlePlacesKey] },
         const result = await model.generateContent(prompt);
         const text = result.response.text().trim().replace(/```json|```/g, "");
         const enriched = JSON.parse(text);
-        socialLinks = { ...socialLinks, ...enriched };
+        firstPlace.socialLinks = { ...firstPlace.socialLinks, ...enriched };
       }
     } catch (safeErr) {
       console.error("⚠️ [Gemini Social Enrichment] Falha ao enriquecer redes:", safeErr.message);
     }
 
-    return {
-      name: place.displayName?.text || "",
-      address: place.formattedAddress || "",
-      phone: place.nationalPhoneNumber || "",
-      website: place.websiteUri || "",
-      rating: place.rating || 0,
-      reviews: parsedReviews,
-      photos: parsedPhotos,
-      googleMapsUri: place.googleMapsUri || "",
-      socialLinks
-    };
+    return { results };
   } catch (err) {
     if (err.response) {
       const status = err.response.status;

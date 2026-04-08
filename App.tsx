@@ -743,6 +743,7 @@ const App: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showFloatModal, setShowFloatModal] = useState(false);
   const [isMobileWizardOpen, setIsMobileWizardOpen] = useState(false);
+  const [googleResults, setGoogleResults] = useState<any[]>([]);
   const [aiContent, setAiContent] = useState<any>(null);
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -969,9 +970,9 @@ const App: React.FC = () => {
       const fetchFn = httpsCallable(functions, 'fetchGoogleBusiness');
       const res: any = await fetchFn({ query });
       
-      if (autoConfirm && res.data) {
-        // Se for geração instantânea, injetamos os dados e já disparamos a geração
-        const d = res.data;
+      if (autoConfirm && res.data?.results?.[0]) {
+        // Se for geração instantânea, injetamos os dados e já disparamos a geração (Pega o 1º resultado)
+        const d = res.data.results[0];
         const updates: any = {};
         if (d.name) updates.businessName = d.name;
         if (d.phone) updates.whatsapp = d.phone;
@@ -1005,9 +1006,14 @@ const App: React.FC = () => {
         setIsMenuOpen(true);
         setActiveTab('geral');
         setGoogleStatus({ type: 'success', msg: 'Google Inteligência ativada!' });
-      } else {
-        setPendingGoogleData(res.data);
-        setGoogleStatus({ type: 'success', msg: 'Localizamos a empresa!' });
+      } else if (res.data?.results) {
+        if (res.data.results.length === 1) {
+          setPendingGoogleData(res.data.results[0]);
+          setGoogleStatus({ type: 'success', msg: 'Localizamos a empresa!' });
+        } else {
+          setGoogleResults(res.data.results);
+          setGoogleStatus({ type: 'success', msg: 'Vários locais encontrados. Selecione o correto abaixo:' });
+        }
       }
     } catch (e: any) {
       setGoogleStatus({ type: 'error', msg: e.message });
@@ -3991,6 +3997,30 @@ const App: React.FC = () => {
                       <div className={`text-xs p-4 rounded-xl font-bold flex items-center gap-3 animate-in slide-in-from-top-2 ${googleStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
                         {googleStatus.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
                         {googleStatus.msg}
+                      </div>
+                    )}
+
+                    {googleResults.length > 0 && !pendingGoogleData && (
+                      <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar py-2">
+                        {googleResults.map((res, i) => (
+                          <div 
+                            key={i}
+                            onClick={() => {
+                              setPendingGoogleData(res);
+                              setGoogleResults([]);
+                            }}
+                            className="bg-white border-2 border-stone-100 hover:border-blue-400 p-4 rounded-2xl cursor-pointer transition-all hover:scale-[1.02] shadow-sm flex items-start gap-3 group"
+                          >
+                            <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                              <MapPin size={16} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h5 className="text-[11px] font-black text-stone-900 uppercase italic truncate">{res.name}</h5>
+                              <p className="text-[9px] text-stone-500 font-medium truncate mt-0.5">{res.address}</p>
+                            </div>
+                            <ChevronRight size={14} className="text-stone-300 mt-2" />
+                          </div>
+                        ))}
                       </div>
                     )}
 
