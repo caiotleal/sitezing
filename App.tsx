@@ -149,6 +149,34 @@ const PROMO_HTML = `
       } catch (err) { console.log('Erro ao compartilhar:', err); }
     }
 
+    var currentStep = 'IDLE'; // IDLE, SEARCHING, FETCHING, CONFIRMING, READY
+    var googleVal = '';
+
+    function updateUnifiedButton() {
+      var btn = document.getElementById('unified-magic-btn');
+      var manualContainer = document.getElementById('manual-data-container');
+      if (!btn) return;
+      
+      if (currentStep === 'FETCHING') {
+        btn.innerHTML = 'BUSCANDO... <i class="fas fa-circle-notch fa-spin"></i>';
+        btn.className = "w-full bg-blue-500 text-white py-3.5 rounded-2xl font-black uppercase tracking-[0.1em] opacity-80 cursor-wait flex items-center justify-center gap-3 text-xs";
+        if (manualContainer) manualContainer.style.display = 'none';
+      } else if (currentStep === 'CONFIRMING') {
+        btn.innerHTML = 'CONFIRMAR DADOS <i class="fas fa-check"></i>';
+        btn.className = "w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-2xl font-black uppercase tracking-[0.1em] transition-all shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-3 text-xs";
+        if (manualContainer) manualContainer.style.display = 'none';
+      } else if (googleVal.length > 3 && currentStep !== 'READY') {
+        currentStep = 'SEARCHING';
+        btn.innerHTML = 'VALIDAR GOOGLE <i class="fab fa-google"></i>';
+        btn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-2xl font-black uppercase tracking-[0.1em] transition-all shadow-xl shadow-blue-600/30 flex items-center justify-center gap-3 text-xs";
+        if (manualContainer) manualContainer.style.display = 'none';
+      } else {
+        btn.innerHTML = 'INICIAR MÁGICA <i class="fas fa-magic"></i>';
+        btn.className = "w-full bg-orange-500 hover:bg-orange-600 text-white py-3.5 rounded-2xl font-black uppercase tracking-[0.1em] transition-all shadow-xl shadow-orange-500/30 flex items-center justify-center gap-3 text-xs";
+        if (manualContainer) manualContainer.style.display = 'block';
+      }
+    }
+
     // Hero Creation Form Communication
     window.addEventListener('message', function(e) {
       if (!e.data || e.data.type !== 'SYNC_STATE') return;
@@ -163,29 +191,38 @@ const PROMO_HTML = `
       // Update Google Feedback & Confirmation Box
       var gFeed = document.getElementById('google-feedback');
       var gConfirm = document.getElementById('google-confirm-box');
-      if (gFeed) {
-        if (isFetchingGoogle) {
+      
+      if (isFetchingGoogle) {
+        currentStep = 'FETCHING';
+        if (gFeed) {
           gFeed.style.display = 'block';
           gFeed.className = 'text-[10px] mt-1 ml-1 font-bold text-orange-500 animate-pulse';
           gFeed.innerText = 'Buscando no Google...';
-          if (gConfirm) gConfirm.style.display = 'none';
-        } else if (pendingGoogleData) {
-          gFeed.style.display = 'none';
-          if (gConfirm) {
-            gConfirm.style.display = 'block';
-            document.getElementById('conf-name').innerText = pendingGoogleData.name;
-            document.getElementById('conf-addr').innerText = pendingGoogleData.address;
-          }
-        } else if (googleStatus) {
+        }
+        if (gConfirm) gConfirm.style.display = 'none';
+      } else if (pendingGoogleData) {
+        currentStep = 'CONFIRMING';
+        if (gFeed) gFeed.style.display = 'none';
+        if (gConfirm) {
+          gConfirm.style.display = 'block';
+          document.getElementById('conf-name').innerText = pendingGoogleData.name;
+          document.getElementById('conf-addr').innerText = pendingGoogleData.address;
+        }
+      } else if (googleStatus) {
+        if (gFeed) {
           gFeed.style.display = 'block';
           gFeed.className = 'text-[10px] mt-1 ml-1 font-bold ' + (googleStatus.type === 'success' ? 'text-emerald-500' : 'text-red-500');
           gFeed.innerText = googleStatus.msg;
-          if (gConfirm) gConfirm.style.display = 'none';
-        } else {
-          gFeed.style.display = 'none';
-          if (gConfirm) gConfirm.style.display = 'none';
         }
+        if (gConfirm) gConfirm.style.display = 'none';
+        if (googleStatus.type === 'success') currentStep = 'READY';
+        else if (googleStatus.type === 'error') currentStep = 'IDLE';
+      } else {
+        if (gFeed) gFeed.style.display = 'none';
+        if (gConfirm) gConfirm.style.display = 'none';
       }
+      
+      updateUnifiedButton();
 
       // Update Inputs (Avoid overwriting while typing)
       var nameInput = document.getElementById('hero-business-name');
@@ -210,10 +247,10 @@ const PROMO_HTML = `
           sFeed.innerText = 'Validando endereço...';
           sFeed.className = 'text-[10px] mt-1 ml-1 font-bold text-stone-400 animate-pulse italic';
         } else if (domainStatus.available === true) {
-          sFeed.innerText = '✓ Endereço disponível!';
+          sFeed.innerText = '✓ Disponível!';
           sFeed.className = 'text-[10px] mt-1 ml-1 font-bold text-emerald-500 italic';
         } else if (domainStatus.available === false) {
-          sFeed.innerText = '✗ Indisponível. Sugestão: ' + (domainStatus.slug || '');
+          sFeed.innerText = '✗ Indisponível';
           sFeed.className = 'text-[10px] mt-1 ml-1 font-bold text-red-500 italic';
         }
       }
@@ -254,6 +291,7 @@ const PROMO_HTML = `
 
         busName.addEventListener('input', function(e) {
           window.parent.postMessage({ type: 'SET_BUSINESS_NAME', value: e.target.value }, '*');
+          updateUnifiedButton();
         });
       }
 
@@ -268,35 +306,21 @@ const PROMO_HTML = `
       });
 
       var googSearch = document.getElementById('hero-google-search');
-      if (googSearch) googSearch.addEventListener('change', function(e) {
-        window.parent.postMessage({ type: 'SET_GOOGLE_URL', value: e.target.value }, '*');
+      if (googSearch) googSearch.addEventListener('input', function(e) {
+        googleVal = e.target.value;
+        if (googleVal === '') currentStep = 'IDLE';
+        updateUnifiedButton();
       });
 
-      var googBtn = document.getElementById('hero-google-btn');
-      if (googBtn) googBtn.addEventListener('click', function() {
-        var val = document.getElementById('hero-google-search').value;
-        window.parent.postMessage({ type: 'TRIGGER_FETCH_GOOGLE', value: val }, '*');
-      });
-
-      var instantBtn = document.getElementById('hero-instant-btn');
-      if (instantBtn) instantBtn.addEventListener('click', function() {
-        var val = document.getElementById('hero-google-search').value;
-        window.parent.postMessage({ type: 'ACTION_INSTANT_GENERATE', value: val }, '*');
-      });
-
-      var confBtn = document.getElementById('hero-google-confirm');
-      if (confBtn) confBtn.addEventListener('click', function() {
-        window.parent.postMessage({ type: 'ACTION_CONFIRM_GOOGLE' }, '*');
-      });
-
-      var resetBtn = document.getElementById('hero-google-reset');
-      if (resetBtn) resetBtn.addEventListener('click', function() {
-        window.parent.postMessage({ type: 'ACTION_RESET_GOOGLE' }, '*');
-      });
-
-      var subBtn = document.getElementById('hero-submit-btn');
-      if (subBtn) subBtn.addEventListener('click', function() {
-        window.parent.postMessage({ type: 'ACTION_START_MAGIC' }, '*');
+      var magicBtn = document.getElementById('unified-magic-btn');
+      if (magicBtn) magicBtn.addEventListener('click', function() {
+        if (currentStep === 'SEARCHING') {
+          window.parent.postMessage({ type: 'TRIGGER_FETCH_GOOGLE', value: googleVal }, '*');
+        } else if (currentStep === 'CONFIRMING') {
+          window.parent.postMessage({ type: 'ACTION_CONFIRM_GOOGLE' }, '*');
+        } else {
+          window.parent.postMessage({ type: 'ACTION_START_MAGIC' }, '*');
+        }
       });
     });
   </script>
@@ -360,76 +384,61 @@ const PROMO_HTML = `
 
       <div class="w-full max-w-[400px] mx-auto md:ml-auto md:mr-0 animate-up" style="animation-delay: 0.1s;">
         <div class="bg-white border-[3px] border-orange-500 shadow-[0_20px_50px_rgba(249,115,22,0.2)] rounded-[3rem] overflow-hidden relative">
-          <div class="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 p-6 relative text-center overflow-hidden">
+          <div class="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 p-4 relative text-center overflow-hidden">
             <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-            <div class="absolute -top-10 -right-10 w-32 h-32 bg-orange-500/20 rounded-full blur-3xl"></div>
-            <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute -top-10 -right-10 w-24 h-24 bg-orange-500/20 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-10 -left-10 w-24 h-24 bg-blue-500/10 rounded-full blur-3xl"></div>
             
-            <div class="flex items-center justify-center gap-2 mb-3 relative z-10">
-              <span class="bg-orange-500 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-lg shadow-orange-500/20">Site pronto em 30 segundos</span>
-              <span class="bg-white/10 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter backdrop-blur-md">7 dias grátis</span>
+            <div class="flex items-center justify-center gap-2 mb-1.5 relative z-10">
+              <span class="bg-orange-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-lg">Site em 30 segundos</span>
+              <span class="bg-white/10 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter backdrop-blur-md">7 dias grátis</span>
             </div>
             
-            <h3 class="text-lg font-black text-white italic uppercase tracking-[0.15em] relative z-10">Crie seu site</h3>
+            <h3 class="text-sm font-black text-white italic uppercase tracking-[0.15em] relative z-10">Crie seu site</h3>
           </div>
           
-          <div class="p-8 space-y-6">
-            <div class="text-center">
-              <h4 class="text-xl font-black text-stone-900 leading-tight uppercase italic mb-1">Seu Site Pronto</h4>
-              <p class="text-[10px] text-stone-400 font-bold uppercase tracking-widest">Coloque seu link do Google abaixo</p>
-            </div>
-
-            <div class="space-y-4">
+          <div class="p-3.5 space-y-3">
+            <div id="google-selection-container">
               <div class="relative group">
-                <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-orange-500 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition duration-500"></div>
-                <div class="relative flex flex-col gap-2">
-                  <div class="relative">
-                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500"><i class="fas fa-map-marker-alt"></i></span>
-                    <input type="text" id="hero-google-search" placeholder="Link do Google Maps ou Nome da Empresa" 
-                           class="w-full bg-stone-50 border-2 border-stone-100 rounded-2xl pl-12 pr-4 py-5 text-xs font-bold focus:border-blue-500 focus:bg-white outline-none text-stone-800 transition-all" />
-                  </div>
+                <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-orange-500 rounded-2xl blur opacity-10 group-focus-within:opacity-30 transition duration-500"></div>
+                <div class="relative">
+                  <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-500 text-xs"><i class="fas fa-search"></i></span>
+                  <input type="text" id="hero-google-search" placeholder="Link do Google ou Nome da Empresa" 
+                         class="w-full bg-stone-50 border-2 border-stone-100 rounded-xl pl-10 pr-4 py-3 text-xs font-bold focus:border-blue-500 focus:bg-white outline-none text-stone-800 transition-all" />
                 </div>
               </div>
 
-              <div id="google-feedback" class="text-[10px] text-center font-bold hidden"></div>
+              <div id="google-feedback" class="text-[9px] text-center font-bold mt-1 hidden"></div>
 
-              <button id="hero-instant-btn" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-5 rounded-2xl font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-orange-500/30 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 text-xs">
-                CRIAR SITE PRONTO <i class="fas fa-bolt"></i>
-              </button>
-
-              <div class="flex items-center gap-4 py-2">
-                <div class="h-px bg-stone-100 flex-1"></div>
-                <span class="text-[9px] font-black text-stone-300 uppercase tracking-widest">Ou manual</span>
-                <div class="h-px bg-stone-100 flex-1"></div>
-              </div>
-
-              <div class="space-y-3 opacity-60 hover:opacity-100 transition-opacity">
-                <input type="text" id="hero-business-name" placeholder="Nome do Negócio" 
-                       class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-center text-xs focus:border-teal-500 outline-none text-stone-800 font-bold" />
-                
-                <textarea id="hero-business-desc" placeholder="O que seu negócio faz? (Opcional)"
-                        class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-xs focus:border-orange-500 outline-none text-stone-800 font-bold resize-none h-20 placeholder:text-stone-300"></textarea>
-                
-                <div class="flex bg-white border border-stone-200 rounded-xl overflow-hidden focus-within:border-teal-500 transition-all shadow-sm">
-                  <input id="hero-custom-slug" class="flex-1 bg-transparent px-3 py-3 text-[10px] font-mono font-bold text-teal-600 outline-none w-full text-right" placeholder="meu-site" />
-                  <span class="bg-stone-50 border-l border-stone-200 px-2 py-3 text-[9px] font-bold text-stone-400 flex items-center">.sitezing.com.br</span>
+              <div id="google-confirm-box" class="hidden bg-emerald-50 border border-emerald-100 p-2 mt-2 rounded-xl animate-in fade-in zoom-in duration-300">
+                <div class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <h5 id="conf-name" class="text-[10px] font-black text-stone-900 uppercase italic truncate"></h5>
                 </div>
-                
-                <button id="hero-submit-btn" class="w-full text-stone-400 hover:text-stone-900 py-2 font-black uppercase tracking-widest text-[9px] transition-all">
-                  Gerar Manualmente <i class="fas fa-magic ml-1"></i>
-                </button>
               </div>
             </div>
+
+            <div id="manual-data-container" class="space-y-2">
+              <input type="text" id="hero-business-name" placeholder="Nome do Negócio" 
+                     class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs focus:border-orange-500 outline-none text-stone-800 font-bold" />
+              
+              <textarea id="hero-business-desc" placeholder="O que seu negócio faz?"
+                      class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2 text-[10px] focus:border-orange-500 outline-none text-stone-800 font-bold resize-none h-14 placeholder:text-stone-300"></textarea>
+            </div>
+
+            <button id="unified-magic-btn" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3.5 rounded-2xl font-black uppercase tracking-[0.15em] transition-all shadow-xl shadow-orange-500/30 hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-3 text-xs">
+              INICIAR MÁGICA <i class="fas fa-magic"></i>
+            </button>
           </div>
           
-          <div class="bg-stone-50 p-4 border-t border-stone-100 flex items-center justify-center gap-6">
-            <div class="flex items-center gap-1.5 opacity-40">
-              <i class="fas fa-shield-alt text-xs text-stone-400"></i>
-              <span class="text-[8px] font-black uppercase tracking-widest text-stone-400">Seguro</span>
+          <div class="bg-stone-50 p-2 border-t border-stone-100 flex items-center justify-center gap-4">
+            <div class="flex items-center gap-1 opacity-20">
+              <i class="fas fa-shield-alt text-[8px] text-stone-400"></i>
+              <span class="text-[6px] font-black uppercase tracking-widest text-stone-400">Seguro</span>
             </div>
-            <div class="flex items-center gap-1.5 opacity-40">
-              <i class="fas fa-clock text-xs text-stone-400"></i>
-              <span class="text-[8px] font-black uppercase tracking-widest text-stone-400">30 Segundos</span>
+            <div class="flex items-center gap-1 opacity-20">
+              <i class="fas fa-clock text-[8px] text-stone-400"></i>
+              <span class="text-[6px] font-black uppercase tracking-widest text-stone-400">30 Segundos</span>
             </div>
           </div>
         </div>
