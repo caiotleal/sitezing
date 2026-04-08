@@ -165,7 +165,7 @@ const PROMO_HTML = `
         btn.innerHTML = 'CONFIRMAR DADOS <i class="fas fa-check"></i>';
         btn.className = "w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-2xl font-black uppercase tracking-[0.1em] transition-all shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-3 text-xs";
         if (manualContainer) manualContainer.style.display = 'none';
-      } else if (googleVal.length > 3 && currentStep !== 'READY') {
+      } else if (googleVal.length > 3 && currentStep !== 'READY' && currentStep !== 'CONFIRMING') {
         currentStep = 'SEARCHING';
         btn.innerHTML = 'VALIDAR GOOGLE <i class="fab fa-google"></i>';
         btn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-2xl font-black uppercase tracking-[0.1em] transition-all shadow-xl shadow-blue-600/30 flex items-center justify-center gap-3 text-xs";
@@ -206,7 +206,28 @@ const PROMO_HTML = `
         if (gConfirm) {
           gConfirm.style.display = 'block';
           document.getElementById('conf-name').innerText = pendingGoogleData.name;
-          document.getElementById('conf-addr').innerText = pendingGoogleData.address;
+          
+          if (pendingGoogleData.address) {
+             document.getElementById('conf-addr-row').style.display = 'flex';
+             document.getElementById('conf-addr').innerText = pendingGoogleData.address;
+          } else {
+             document.getElementById('conf-addr-row').style.display = 'none';
+          }
+
+          if (pendingGoogleData.phone) {
+             document.getElementById('conf-phone-row').style.display = 'flex';
+             document.getElementById('conf-phone').innerText = pendingGoogleData.phone;
+          } else {
+             document.getElementById('conf-phone-row').style.display = 'none';
+          }
+
+          if (pendingGoogleData.rating) {
+             document.getElementById('conf-reviews-row').style.display = 'flex';
+             document.getElementById('conf-rating').innerText = pendingGoogleData.rating + ' ★';
+             document.getElementById('conf-reviews-count').innerText = '(' + (pendingGoogleData.reviews ? pendingGoogleData.reviews.length : 0) + ' avaliações)';
+          } else {
+             document.getElementById('conf-reviews-row').style.display = 'none';
+          }
           
           var sCont = document.getElementById('conf-socials');
           if (sCont) {
@@ -232,6 +253,7 @@ const PROMO_HTML = `
       } else {
         if (gFeed) gFeed.style.display = 'none';
         if (gConfirm) gConfirm.style.display = 'none';
+        currentStep = 'IDLE';
       }
       
       updateUnifiedButton();
@@ -406,7 +428,7 @@ const PROMO_HTML = `
               <span class="bg-white/10 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter backdrop-blur-md">7 dias grátis</span>
             </div>
             
-            <h3 class="text-sm font-black text-white italic uppercase tracking-[0.15em] relative z-10">Crie seu site</h3>
+            <h3 class="text-[11px] md:text-sm font-black text-white italic uppercase tracking-[0.15em] relative z-10">Crie seu site</h3>
           </div>
           
           <div class="p-3.5 space-y-3">
@@ -422,12 +444,29 @@ const PROMO_HTML = `
 
               <div id="google-feedback" class="text-[9px] text-center font-bold mt-1 hidden"></div>
 
-              <div id="google-confirm-box" class="hidden bg-emerald-50 border border-emerald-100 p-2.5 mt-2 rounded-xl animate-in fade-in zoom-in duration-300">
-                <div class="flex items-center gap-2 mb-1.5">
+              <div id="google-confirm-box" class="hidden bg-emerald-50 border border-emerald-100 p-3 mt-2 rounded-2xl animate-in fade-in zoom-in duration-300 shadow-sm">
+                <div class="flex items-center gap-2 mb-2">
                   <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                  <h5 id="conf-name" class="text-[10px] font-black text-stone-900 uppercase italic truncate"></h5>
+                  <h5 id="conf-name" class="text-[11px] font-black text-stone-900 uppercase italic truncate"></h5>
                 </div>
-                <div id="conf-socials" class="flex items-center gap-2 ml-3.5"></div>
+                
+                <div id="conf-summary" class="space-y-1 ml-3.5 mb-2.5">
+                  <div id="conf-addr-row" class="flex items-center gap-2 text-stone-500 text-[9px] font-medium">
+                    <i class="fas fa-map-marker-alt text-[8px] opacity-40"></i>
+                    <span id="conf-addr" class="truncate"></span>
+                  </div>
+                  <div id="conf-phone-row" class="flex items-center gap-2 text-stone-500 text-[9px] font-medium">
+                    <i class="fas fa-phone text-[8px] opacity-40"></i>
+                    <span id="conf-phone" class="truncate"></span>
+                  </div>
+                  <div id="conf-reviews-row" class="flex items-center gap-2 text-stone-500 text-[9px] font-medium">
+                    <i class="fas fa-star text-[8px] text-amber-500"></i>
+                    <span id="conf-rating" class="font-bold text-stone-700"></span>
+                    <span id="conf-reviews-count" class="opacity-60"></span>
+                  </div>
+                </div>
+
+                <div id="conf-socials" class="flex items-center gap-2 ml-3.5 pt-2 border-t border-emerald-100/50"></div>
               </div>
             </div>
 
@@ -1019,7 +1058,7 @@ const App: React.FC = () => {
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [mobileWizardStep, setMobileWizardStep] = useState(1);
-  const [isMobileWizardOpen, setIsMobileWizardOpen] = useState(true);
+  const [isMobileWizardOpen, setIsMobileWizardOpen] = useState(false);
   const [activeMobileSheet, setActiveMobileSheet] = useState<string | number | null>(null);
   const [mobileActiveTab, setMobileActiveTab] = useState<'editar' | 'plano'>('editar');
 
@@ -2842,13 +2881,13 @@ const App: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <div className="w-full h-screen bg-[#FAFAF9] overflow-hidden font-sans text-stone-900 flex flex-col md:flex-row">
+      <div className="w-full h-[100dvh] bg-[#FAFAF9] overflow-hidden font-sans text-stone-900 flex flex-col md:flex-row">
 
         <div className="flex-1 relative h-full overflow-hidden bg-[#FAFAF9]">
           <iframe
             ref={iframeRef}
             srcDoc={generatedHtml ? getPreviewHtml(generatedHtml) : getDynamicPromoHtml(platformConfigs)}
-            className="w-full h-full border-none bg-transparent"
+            className="w-full h-full border-none bg-transparent min-h-screen"
             title="Visão Principal"
           />
 
