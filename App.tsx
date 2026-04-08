@@ -577,11 +577,14 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
     `).join('');
 
     html = html.replace(/<div id="google-reviews-section"[^>]*class="[^"]*opacity-0[^"]*"/i, (match) => match.replace('opacity-0', 'opacity-100'));
-    html = html.replace(/__REVIEWS_START__([\s\S]*?)__REVIEWS_END__/i, `__REVIEWS_START__${reviewsHtml}__REVIEWS_END__`);
+    html = html.replace(/__REVIEWS_START__[\s\S]*?__REVIEWS_END__/i, reviewsHtml);
   } else {
     // Hidden if no reviews
     html = html.replace(/<div id="google-reviews-section"[^>]*class="[^"]*"/i, '<div style="display:none;"');
   }
+
+  // Final Polish: Ensure no placeholders remain visible
+  html = html.replace(/__REVIEWS_START__|__REVIEWS_END__/g, '');
 
   return html;
 };
