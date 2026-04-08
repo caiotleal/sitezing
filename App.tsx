@@ -1166,7 +1166,9 @@ const App: React.FC = () => {
           updates.showReviews = true;
         }
         if (d.photos && d.photos.length > 0) updates.googlePhotos = d.photos;
-        if (d.editorialSummary) {
+        
+        // MANTEM A DESCRIÇÃO EXISTENTE em sites prontos
+        if (!currentProjectSlug && d.editorialSummary) {
           updates.editorialSummary = d.editorialSummary;
           updates.description = d.editorialSummary;
         }
@@ -1203,7 +1205,9 @@ const App: React.FC = () => {
       updates.showReviews = true;
     }
     if (d.photos && d.photos.length > 0) updates.googlePhotos = d.photos;
-    if (d.editorialSummary) {
+    
+    // MANTEM A DESCRIÇÃO EXISTENTE em sites prontos
+    if (!currentProjectSlug && d.editorialSummary) {
       updates.editorialSummary = d.editorialSummary;
       updates.description = d.editorialSummary;
     }
