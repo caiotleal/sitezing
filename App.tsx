@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndP
 import { auth, functions, db } from './firebase';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, LogOut, Info, Sparkles, ChevronRight, ChevronDown, ChevronUp, Gift, Menu, HelpCircle, Palette, Check, Instagram, Edit3, Clock
+  Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, LogOut, Info, Sparkles, ChevronRight, ChevronDown, ChevronUp, Gift, Menu, HelpCircle, Palette, Check, Instagram, Edit3, Clock, ArrowRight
 } from 'lucide-react';
 import { TEMPLATES } from './components/templates';
 const LoginPage = lazy(() => import('./components/LoginPage'));
@@ -1928,64 +1928,7 @@ const App: React.FC = () => {
   };
 
 
-  const renderMobileMenu = () => {
-    if (!isMobile) return null;
-    const categories = [
-      { id: 'visual', title: 'Visual', icon: <Palette size={16} /> },
-      { id: 'social', title: 'Redes', icon: <Instagram size={16} /> },
-      { id: 'delivery', title: 'Delivery', icon: <Rocket size={16} /> },
-      { id: 'contato', title: 'Contato', icon: <Phone size={16} /> },
-    ];
 
-    return (
-      <AnimatePresence>
-        {isMobileWizardOpen && (
-          <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-[84px] left-0 right-0 z-[240] bg-white/80 border-t border-stone-200/70 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] rounded-t-[2.5rem] flex flex-col max-h-[30vh] overflow-hidden backdrop-blur-xl"
-          >
-            <div className="p-4 bg-stone-50/80 backdrop-blur-md border-b border-stone-100 flex justify-between items-center">
-              <span className="text-[10px] font-black uppercase text-stone-500 tracking-widest pl-2">Configurações Rápidas</span>
-              <button onClick={() => setIsMobileWizardOpen(false)} className="bg-stone-200/50 p-1.5 rounded-full text-stone-500">
-                <X size={16} />
-              </button>
-            </div>
-
-            <div className="p-4 pb-0 flex-1 overflow-y-auto">
-              <div className="grid grid-cols-5 gap-2">
-                <button
-                  onClick={() => setActiveMobileSheet('dashboard')}
-                  className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl active:scale-95 transition-all text-center ${activeMobileSheet === 'dashboard' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-indigo-50 border border-indigo-100 text-indigo-600'}`}
-                >
-                  <LayoutDashboard size={16} />
-                  <span className="text-[9px] font-bold leading-tight">Painel</span>
-                </button>
-                {categories.map(c => (
-                  <button
-                    key={c.id}
-                    onClick={() => {
-                      if (!generatedHtml) {
-                        showToast('Gere um site ou selecione um existente primeiro.', 'info');
-                        return;
-                      }
-                      setActiveMobileSheet(c.id);
-                    }}
-                    className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl active:scale-95 transition-all text-center ${activeMobileSheet === c.id ? 'bg-stone-900 text-white' : 'bg-stone-50 border border-stone-100 text-stone-600'} ${!generatedHtml ? 'opacity-50 grayscale' : ''}`}
-                  >
-                    {c.icon}
-                    <span className="text-[9px] font-bold leading-tight">{c.title}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    );
-  };
 
   const renderMobileBottomSheet = () => {
     if (!activeMobileSheet) return null;
@@ -2134,6 +2077,15 @@ const App: React.FC = () => {
                         <span className="bg-stone-100 px-3 py-3 text-[9px] font-bold text-stone-400 flex items-center">.sitezing.com.br</span>
                       </div>
                     </div>
+
+                    <div className="pt-8 border-t border-stone-100 flex flex-col gap-3">
+                      <button 
+                        onClick={() => { setActiveMobileSheet('social'); handleSaveOrUpdateSite(); }}
+                        className="w-full bg-stone-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all shadow-xl"
+                      >
+                        Próximo: Redes Sociais <ArrowRight size={14} />
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -2155,6 +2107,15 @@ const App: React.FC = () => {
                     <div>
                       <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">YouTube</label>
                       <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-red-600" placeholder="Link do Canal" value={formData.youtube} onChange={e => { setFormData({ ...formData, youtube: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+
+                    <div className="pt-8 border-t border-stone-100 flex flex-col gap-3">
+                      <button 
+                        onClick={() => { setActiveMobileSheet('delivery'); handleSaveOrUpdateSite(); }}
+                        className="w-full bg-stone-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all shadow-xl"
+                      >
+                        Próximo: Delivery <ArrowRight size={14} />
+                      </button>
                     </div>
                   </div>
                 )}
@@ -2180,6 +2141,15 @@ const App: React.FC = () => {
                     <div>
                       <label className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2 block">Menu / Link Direto</label>
                       <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-500" placeholder="Cardápio Digital ou Outro Site" value={formData.directLink} onChange={e => { setFormData({ ...formData, directLink: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+
+                    <div className="pt-8 border-t border-stone-100 flex flex-col gap-3">
+                      <button 
+                        onClick={() => { setActiveMobileSheet('contato'); handleSaveOrUpdateSite(); }}
+                        className="w-full bg-stone-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all shadow-xl"
+                      >
+                        Próximo: Contato <ArrowRight size={14} />
+                      </button>
                     </div>
                   </div>
                 )}
@@ -2208,6 +2178,19 @@ const App: React.FC = () => {
                       <div onClick={() => { setFormData({ ...formData, showMap: !formData.showMap }); setHasUnsavedChanges(true); }} className={`w-12 h-6 rounded-full relative transition-all cursor-pointer ${formData.showMap ? 'bg-teal-500' : 'bg-stone-300'}`}>
                         <motion.div animate={{ x: formData.showMap ? 24 : 4 }} className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
                       </div>
+                    </div>
+
+                    <div className="pt-8 border-t border-stone-100 flex flex-col gap-4">
+                      <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl">
+                         <p className="text-[11px] font-black text-emerald-800 uppercase text-center">Tudo Pronto! 🎉</p>
+                         <p className="text-[10px] text-emerald-600 font-medium text-center mt-1">Suas configurações básicas foram concluídas. Você pode assinar um plano para publicar agora.</p>
+                      </div>
+                      <button 
+                        onClick={() => { setActiveMobileSheet('plano'); handleSaveOrUpdateSite(); }}
+                        className="w-full min-h-[56px] bg-emerald-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all shadow-xl shadow-emerald-500/20"
+                      >
+                        Finalizar e Ver Planos <CheckCircle size={16} />
+                      </button>
                     </div>
                   </div>
                 )}
@@ -2265,6 +2248,19 @@ const App: React.FC = () => {
                         </div>
                       </div>
                     </div>
+
+                    <div className="pt-8 border-t border-stone-100 flex flex-col gap-4">
+                      <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl">
+                         <p className="text-[11px] font-black text-emerald-800 uppercase text-center">Tudo Pronto! 🎉</p>
+                         <p className="text-[10px] text-emerald-600 font-medium text-center mt-1">Suas configurações básicas foram concluídas. Você pode assinar um plano para publicar agora.</p>
+                      </div>
+                      <button 
+                        onClick={() => { setActiveMobileSheet('plano'); handleSaveOrUpdateSite(); }}
+                        className="w-full min-h-[56px] bg-emerald-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all shadow-xl shadow-emerald-500/20"
+                      >
+                        Finalizar e Ver Planos <CheckCircle size={16} />
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -2273,8 +2269,8 @@ const App: React.FC = () => {
           </>
         )}
       </AnimatePresence>
-    )
-  }
+    );
+  };
 
   const renderMobileBottomNav = () => (
     <MobileBottomNav
@@ -2283,12 +2279,19 @@ const App: React.FC = () => {
       isPublishing={isPublishing}
       isSavingProject={isSavingProject}
       isMobileWizardOpen={isMobileWizardOpen}
+      activeMobileSheet={activeMobileSheet}
       setIsMobileWizardOpen={setIsMobileWizardOpen}
-      setMobileActiveTab={setMobileActiveTab}
+      setActiveMobileSheet={setActiveMobileSheet}
       onPublish={handlePublishSite}
       onWarnMissingSite={() => showToast('Gere o site antes de publicar.', 'info')}
+      generatedHtml={generatedHtml}
+      loggedUserEmail={loggedUserEmail}
+      onLogin={() => setIsLoginOpen(true)}
+      onLogout={handleLogout}
     />
   );
+
+
 
   const getStatusBadge = (project: any) => {
     if (!project) return null;
@@ -2516,7 +2519,6 @@ const App: React.FC = () => {
             )}
           </AnimatePresence>
 
-          {renderMobileMenu()}
           {renderMobileBottomSheet()}
           {renderMobileBottomNav()}
         </div>
