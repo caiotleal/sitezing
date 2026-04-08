@@ -11,7 +11,7 @@ const Stripe = require("stripe");
 if (!admin.apps.length) {
   const firebaseConfig = process.env.FIREBASE_CONFIG ? JSON.parse(process.env.FIREBASE_CONFIG) : {};
   admin.initializeApp({
-    storageBucket: firebaseConfig.storageBucket || "criador-de-site-1a91d.firebasestorage.app"
+    storageBucket: firebaseConfig.storageBucket || "sitezing-4714c.firebasestorage.app"
   });
   admin.firestore().settings({ ignoreUndefinedProperties: true });
 }

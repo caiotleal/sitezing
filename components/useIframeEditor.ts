@@ -57,37 +57,51 @@ export const useIframeEditor = ({ setGeneratedHtml, setHasUnsavedChanges }: UseI
           if (!file) return;
 
           try {
-            // Mostra algum feedback visual se necessário (opcional aqui, já que o iframe cuida do estado)
             const reader = new FileReader();
             reader.onload = async () => {
-              // Comprime a imagem antes do upload para economizar espaço e banda
-              const compressedBase64 = await compressImage(reader.result as string);
-              
-              // Converte base64 de volta para Blob para o upload
-              const response = await fetch(compressedBase64);
-              const blob = await response.blob();
+              try {
+                // Comprime a imagem antes do upload para economizar espaço e banda
+                const compressedBase64 = await compressImage(reader.result as string);
+                
+                // Converte base64 de volta para Blob para o upload (mais robusto que fetch)
+                const parts = compressedBase64.split(';base64,');
+                const contentType = parts[0].split(':')[1];
+                const raw = window.atob(parts[1]);
+                const rawLength = raw.length;
+                const uInt8Array = new Uint8Array(rawLength);
+                for (let i = 0; i < rawLength; ++i) {
+                  uInt8Array[i] = raw.charCodeAt(i);
+                }
+                const blob = new Blob([uInt8Array], { type: contentType });
 
-              // Nome único para o arquivo
-              const fileName = `uploads/${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi, '_')}`;
-              const storageRef = ref(storage, fileName);
+                // Nome único para o arquivo
+                const fileName = `uploads/${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi, '_')}`;
+                const storageRef = ref(storage, fileName);
 
-              // Upload
-              await uploadBytes(storageRef, blob);
-              const downloadUrl = await getDownloadURL(storageRef);
+                // Upload
+                await uploadBytes(storageRef, blob);
+                const downloadUrl = await getDownloadURL(storageRef);
 
-              const iframe = document.querySelector('iframe');
-              iframe?.contentWindow?.postMessage({ 
-                type: 'INSERT_IMAGE', 
-                targetId: event.data.targetId, 
-                url: downloadUrl 
-              }, '*');
-              
-              setHasUnsavedChanges(true);
+                const iframe = document.querySelector('iframe');
+                iframe?.contentWindow?.postMessage({ 
+                  type: 'INSERT_IMAGE', 
+                  targetId: event.data.targetId, 
+                  url: downloadUrl 
+                }, '*');
+                
+                setHasUnsavedChanges(true);
+              } catch (innerErr: any) {
+                console.error("Erro interno no processamento da imagem:", innerErr);
+                alert("Erro ao processar imagem: " + (innerErr.message || "Erro desconhecido"));
+              }
+            };
+            reader.onerror = () => {
+              alert("Erro ao ler o arquivo selecionado.");
             };
             reader.readAsDataURL(file);
-          } catch (error) {
+          } catch (error: any) {
             console.error("Erro no upload do usuário:", error);
-            alert("Erro ao enviar imagem. Tente novamente.");
+            alert("Erro ao enviar imagem: " + (error.message || "Erro desconhecido"));
           }
         };
         input.click();
