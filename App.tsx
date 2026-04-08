@@ -665,6 +665,7 @@ const getPreviewHtml = (baseHtml: string | null) => {
     <div id="image-toolbar" class="custom-editor-toolbar flex gap-2">
       <button id="btn-upload" style="background: #27272a; color: white; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">📤 Upload</button>
       <button id="btn-ai" style="background: #10b981; color: white; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;">✨ Gerar com IA</button>
+      <button id="btn-enhance" style="background: #3b82f6; color: white; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; border: none;" title="Melhorar Qualidade e Gerar Descrição SEO">⚡ Melhorar IA</button>
       <button id="btn-img-delete" style="color: #ef4444; background: none; border: none; font-size: 12px; cursor: pointer; margin-left: 4px;">✖ Remover</button>
     </div>
 
@@ -777,6 +778,22 @@ const getPreviewHtml = (baseHtml: string | null) => {
           });
         });
 
+        document.getElementById('btn-enhance').addEventListener('click', () => {
+          imgToolbar.style.display = 'none';
+          if (!currentImgTarget) return;
+
+          const img = currentImgTarget.querySelector('img');
+          const imgSrc = img ? img.src : null;
+          
+          if (!imgSrc || imgSrc.includes('placeholder')) {
+             alert("A primeira imagem ainda não foi carregada. Envie uma foto para poder melhorá-la!");
+             return;
+          }
+
+          currentImgTarget.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; color:#3b82f6;"><i class="fas fa-magic fa-spin text-3xl mb-3"></i><span class="text-xs font-bold uppercase tracking-widest">Melhorando Qualidade e SEO...</span></div>';
+          window.parent.postMessage({ type: 'REQUEST_ENHANCE_IMAGE', targetId: currentImgTarget.dataset.id, url: imgSrc }, '*');
+        });
+
         document.getElementById('btn-img-delete').addEventListener('click', () => {
           if (currentImgTarget) { 
             currentImgTarget.innerHTML = '<i class="fas fa-camera text-4xl mb-3"></i><span class="text-xs font-bold uppercase tracking-widest">Adicionar Imagem (Opcional)</span>';
@@ -787,9 +804,10 @@ const getPreviewHtml = (baseHtml: string | null) => {
 
         window.addEventListener('message', (e) => {
           if (e.data.type === 'INSERT_IMAGE') {
-            const targetEl = document.querySelector(\`.editable-image[data-id="\${e.data.targetId}"]\`);
+            const targetEl = document.querySelector('.editable-image[data-id="' + e.data.targetId + '"]');
             if (targetEl) {
-              targetEl.innerHTML = \`<img src="\${e.data.url}" class="w-full h-full block object-contain" style="border-radius: inherit; margin: 0; box-shadow: none;" />\`;
+              const alt = e.data.alt || "";
+              targetEl.innerHTML = '<img src="' + e.data.url + '" alt="' + alt + '" title="' + alt + '" class="w-full h-full block object-contain" style="border-radius: inherit; margin: 0; box-shadow: none;" />';
               sendCleanHtml();
             }
           }

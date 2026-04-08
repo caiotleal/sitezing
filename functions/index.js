@@ -283,7 +283,7 @@ exports.generateImage = onCall({ cors: true, timeoutSeconds: 120, secrets: [gemi
   try {
     const apiKey = geminiKey.value();
     const refinedPrompt = `A high-end, realistic commercial photograph of: ${prompt}. Shot on a 35mm lens, natural lighting, authentic detailed textures, 8k resolution. Pure photography.`;
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ instances: [{ prompt: refinedPrompt }], parameters: { sampleCount: 1, aspectRatio: "1:1" } })
     });
@@ -294,6 +294,86 @@ exports.generateImage = onCall({ cors: true, timeoutSeconds: 120, secrets: [gemi
   } catch (error) {
     if (error instanceof HttpsError) throw error;
     throw new HttpsError("internal", error.message);
+  }
+});
+
+exports.enhanceProjectImage = onCall({ cors: true, timeoutSeconds: 300, secrets: [geminiKey] }, async (request) => {
+  const uid = ensureAuthed(request);
+  const { imageUrl, projectId } = request.data;
+  if (!imageUrl || !projectId) throw new HttpsError("invalid-argument", "Dados incompletos.");
+
+  const db = admin.firestore();
+  const today = new Date().toISOString().split('T')[0];
+  const quotaRef = db.collection("users").doc(uid).collection("stats").doc("aiUsage");
+
+  // 1. Verificação de Cota Diária (2 fotos/dia)
+  await db.runTransaction(async (t) => {
+    const doc = await t.get(quotaRef);
+    const data = doc.exists ? doc.data() : { dailyEnhanceCount: 0, lastDate: "" };
+
+    if (data.lastDate === today) {
+      if (data.dailyEnhanceCount >= 2) throw new HttpsError("resource-exhausted", "Você atingiu o limite de 2 fotos melhoradas por dia.");
+      t.update(quotaRef, { dailyEnhanceCount: data.dailyEnhanceCount + 1 });
+    } else {
+      t.set(quotaRef, { dailyEnhanceCount: 1, lastDate: today });
+    }
+  });
+
+  try {
+    const apiKey = geminiKey.value();
+    
+    // 2. Análise SEO via Gemini 1.5 Flash Vision
+    const visionUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    
+    // Para simplificar, baixamos a imagem e passamos como base64 se for URL
+    let imageBase64;
+    if (imageUrl.startsWith('data:')) {
+      imageBase64 = imageUrl.split(',')[1];
+    } else {
+      const imgRes = await fetch(imageUrl);
+      const buffer = await imgRes.arrayBuffer();
+      imageBase64 = Buffer.from(buffer).toString('base64');
+    }
+
+    const visionPayload = {
+      contents: [{
+        parts: [
+          { text: "Analyze this image and provide: 1. A professional SEO alt-text for a website (in Portuguese). 2. A high-detail descriptive prompt to recreate this image in 4K professional quality. Format: JSON { seoAltText: '...', enhancementPrompt: '...' }" },
+          { inline_data: { mime_type: "image/jpeg", data: imageBase64 } }
+        ]
+      }],
+      generationConfig: { response_mime_type: "application/json" }
+    };
+
+    const vRes = await fetch(visionUrl, { method: "POST", body: JSON.stringify(visionPayload) });
+    const vData = await vRes.json();
+    const analysis = JSON.parse(vData.candidates[0].content.parts[0].text);
+
+    // 3. Melhoria de Qualidade via Imagen (Regeneração em Alta Definição)
+    const imagenUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`;
+    const refinedPrompt = `PROFESSIONAL 8K UPSCALED PHOTOGRAPHY: ${analysis.enhancementPrompt}. Shot on high-end camera, masterpiece, commercial lighting, authentic textures.`;
+    
+    const iRes = await fetch(imagenUrl, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ instances: [{ prompt: refinedPrompt }], parameters: { sampleCount: 1 } })
+    });
+    const iData = await iRes.json();
+    
+    let finalUrl = imageUrl;
+    if (iData.predictions && iData.predictions[0]) {
+      const base64Out = `data:${iData.predictions[0].mimeType || "image/jpeg"};base64,${iData.predictions[0].bytesBase64Encoded}`;
+      finalUrl = await uploadBase64ToStorage(base64Out);
+    }
+
+    return { 
+      success: true, 
+      enhancedUrl: finalUrl, 
+      seoAltText: analysis.seoAltText 
+    };
+
+  } catch (err) {
+    console.error("Erro no Beneficiamento IA:", err);
+    throw new HttpsError("internal", "Falha ao processar melhoria via IA: " + err.message);
   }
 });
 

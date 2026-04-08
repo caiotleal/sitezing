@@ -166,6 +166,40 @@ export const useIframeEditor = ({ setGeneratedHtml, setHasUnsavedChanges }: UseI
         }
       }
 
+      // 4. Beneficiamento de Foto com IA (Qualidade + SEO)
+      if (event.data?.type === 'REQUEST_ENHANCE_IMAGE') {
+        const imageUrl = event.data.url;
+        const targetId = event.data.targetId;
+        
+        try {
+          const enhanceFn = httpsCallable(functions, 'enhanceProjectImage');
+          // Nota: O projectId é usado para auditoria no backend, o limite é por UID
+          const result: any = await enhanceFn({ imageUrl, projectId: "sitezing-project" });
+          
+          if (result.data?.success) {
+            const iframe = document.querySelector('iframe');
+            iframe?.contentWindow?.postMessage({ 
+              type: 'INSERT_IMAGE', 
+              targetId, 
+              url: result.data.enhancedUrl,
+              alt: result.data.seoAltText
+            }, '*');
+            setHasUnsavedChanges(true);
+          }
+        } catch (error: any) {
+          console.error("Erro no Beneficiamento IA:", error);
+          alert(error.message || "Falha ao melhorar imagem.");
+          
+          // Reverte o estado de carregamento no iframe voltando a imagem original
+          const iframe = document.querySelector('iframe');
+          iframe?.contentWindow?.postMessage({ 
+            type: 'INSERT_IMAGE', 
+            targetId, 
+            url: imageUrl 
+          }, '*');
+        }
+      }
+
     };
     
     window.addEventListener('message', handleIframeMessage);
