@@ -1528,28 +1528,45 @@ exports.listRecentEmailLogsAdmin = onCall({ cors: true }, async (request) => {
 // ==============================================================================
 // ROTINAS DE MANUTENÇÃO (CRON) E HIGIENIZAÇÃO DE DADOS
 // ==============================================================================
-exports.cleanupAnonymousUsers = onSchedule("every 24 hours", async (event) => {
+exports.cleanupAnonymousUsers = onSchedule("59 23 * * *", async (event) => {
   let nextPageToken;
   let deletedCount = 0;
+  const db = admin.firestore();
   
   try {
     do {
       const listUsersResult = await admin.auth().listUsers(1000, nextPageToken);
       
-      const uidsToDelete = listUsersResult.users
-        .filter(user => user.providerData.length === 0)
-        .map(user => user.uid);
+      const anonymousUsers = listUsersResult.users.filter(user => user.providerData.length === 0);
       
-      if (uidsToDelete.length > 0) {
-        await admin.auth().deleteUsers(uidsToDelete);
-        deletedCount += uidsToDelete.length;
+      for (const user of anonymousUsers) {
+        const uid = user.uid;
+        
+        try {
+          // 1. Deletar Projetos vinculados (via Collection Group para segurança)
+          const projectsSnap = await db.collectionGroup("projects").where("uid", "==", uid).get();
+          const batch = db.batch();
+          projectsSnap.forEach(doc => batch.delete(doc.ref));
+          
+          // 2. Deletar Documento do Usuário
+          const userRef = db.collection("users").doc(uid);
+          batch.delete(userRef);
+          
+          await batch.commit();
+          
+          // 3. Deletar da Autenticação
+          await admin.auth().deleteUser(uid);
+          deletedCount++;
+        } catch (itemErr) {
+          console.error(`Erro ao limpar dados do usuário anônimo ${uid}:`, itemErr);
+        }
       }
       
       nextPageToken = listUsersResult.pageToken;
     } while (nextPageToken);
     
-    console.log(`Cron (Diário): ${deletedCount} usuários anônimos removidos com sucesso.`);
+    console.log(`Cron (Diário 23:59): ${deletedCount} usuários anônimos e seus respectivos dados foram removidos.`);
   } catch (err) {
-    console.error("Erro na rotina de limpar usuários anônimos:", err);
+    console.error("Erro crítico na rotina de higienização:", err);
   }
 });
