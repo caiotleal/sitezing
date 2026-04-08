@@ -32,6 +32,8 @@ type MobileBottomNavProps = {
   onLogout: () => void;
 };
 
+import { useState } from 'react';
+
 export default function MobileBottomNav({
   isMobile,
   canPublish,
@@ -49,6 +51,27 @@ export default function MobileBottomNav({
   onLogout
 }: MobileBottomNavProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - scrollRef.current.offsetLeft);
+    setScrollLeft(scrollRef.current.scrollLeft);
+  };
+
+  const handleMouseLeave = () => setIsDragging(false);
+  const handleMouseUp = () => setIsDragging(false);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
 
   useEffect(() => {
     // Initial scroll hint animation
@@ -112,7 +135,11 @@ export default function MobileBottomNav({
             {/* Scroll Area */}
             <div 
               ref={scrollRef}
-              className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide px-2 py-1 mask-linear-right no-scrollbar"
+              onMouseDown={handleMouseDown}
+              onMouseLeave={handleMouseLeave}
+              onMouseUp={handleMouseUp}
+              onMouseMove={handleMouseMove}
+              className={`flex-1 flex gap-2 overflow-x-auto scrollbar-hide px-2 py-1 mask-linear-right no-scrollbar select-none cursor-grab active:cursor-grabbing`}
             >
               {categories.map((c) => {
                 const isActive = activeMobileSheet === c.id;
