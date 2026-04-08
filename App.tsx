@@ -2261,31 +2261,31 @@ const App: React.FC = () => {
                 {/* ID: social */}
                 {activeMobileSheet === 'social' && (
                   <div className="space-y-4">
-                    <div>
-                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Google (Avaliações / Maps)</label>
-                      <div className="flex gap-2 mb-3">
-                        <input className="flex-1 bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-500" placeholder="Link da página no Google" value={formData.googlePlaceUrl} onChange={e => { setFormData({ ...formData, googlePlaceUrl: e.target.value }); setHasUnsavedChanges(true) }} />
+                    <div className="bg-blue-50/50 p-4 rounded-3xl border border-blue-100 shadow-sm mb-4">
+                      <label className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-3 block flex items-center justify-center gap-2"><i className="fas fa-map-marker-alt"></i> Google (Avaliações / Fotos)</label>
+                      <div className="space-y-3">
+                        <input className="w-full bg-white border border-blue-200 rounded-2xl p-4 text-xs font-bold outline-none focus:border-blue-500 shadow-sm" placeholder="Link da sua empresa no Google Maps" value={formData.googlePlaceUrl} onChange={e => { setFormData({ ...formData, googlePlaceUrl: e.target.value }); setHasUnsavedChanges(true) }} />
                         <button 
                           onClick={() => fetchGoogleData(false)}
                           disabled={isFetchingGoogle || !formData.googlePlaceUrl}
-                          className="bg-blue-600 hover:bg-blue-500 disabled:bg-stone-300 text-white px-4 rounded-xl transition-all shadow-lg active:scale-95"
+                          className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-stone-300 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
                         >
-                          {isFetchingGoogle ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Search size={16} />}
+                          {isFetchingGoogle ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>SINCRONIZAR GOOGLE <Zap size={14} fill="white" /></>}
                         </button>
                       </div>
 
                       {googleStatus && (
-                        <div className={`text-[10px] font-bold p-3 rounded-xl mb-3 flex items-center gap-2 ${googleStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+                        <div className={`text-[10px] font-bold p-3 rounded-xl mt-3 flex items-center gap-2 ${googleStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
                           {googleStatus.type === 'success' ? <CheckCircle size={12} /> : <AlertCircle size={12} />}
                           {googleStatus.msg}
                         </div>
                       )}
 
                       {pendingGoogleData && (
-                        <div className="bg-white border-2 border-blue-100 rounded-2xl p-4 shadow-xl animate-up mb-4">
+                        <div className="bg-white border-2 border-blue-100 rounded-2xl p-4 shadow-xl animate-up mt-4">
                           <div className="flex items-center gap-3 mb-3">
                             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><CheckCircle size={20} /></div>
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 text-left">
                               <p className="text-[10px] font-black text-blue-600 uppercase">Localizado!</p>
                               <p className="text-xs font-black text-stone-800 truncate leading-tight uppercase italic">{pendingGoogleData.name}</p>
                             </div>
