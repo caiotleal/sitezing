@@ -278,6 +278,12 @@ const PROMO_HTML = `
         window.parent.postMessage({ type: 'TRIGGER_FETCH_GOOGLE', value: val }, '*');
       });
 
+      var instantBtn = document.getElementById('hero-instant-btn');
+      if (instantBtn) instantBtn.addEventListener('click', function() {
+        var val = document.getElementById('hero-google-search').value;
+        window.parent.postMessage({ type: 'ACTION_INSTANT_GENERATE', value: val }, '*');
+      });
+
       var confBtn = document.getElementById('hero-google-confirm');
       if (confBtn) confBtn.addEventListener('click', function() {
         window.parent.postMessage({ type: 'ACTION_CONFIRM_GOOGLE' }, '*');
@@ -352,61 +358,68 @@ const PROMO_HTML = `
         </div>
       </div>
 
-      <div class="w-full max-w-[340px] bg-white border border-stone-200 shadow-2xl rounded-[2.5rem] overflow-hidden relative mx-auto md:ml-auto md:mr-0 animate-up" style="animation-delay: 0.1s;">
-        <div class="bg-gradient-to-r from-teal-600 to-indigo-600 p-3 pt-4 relative text-center">
-          <div class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-1.5 backdrop-blur-md border border-white/20">
-            <i class="fas fa-rocket text-yellow-300 text-xs"></i>
+      <div class="w-full max-w-[400px] mx-auto md:ml-auto md:mr-0 animate-up" style="animation-delay: 0.1s;">
+        <div class="bg-white border-[3px] border-orange-500 shadow-[0_20px_50px_rgba(249,115,22,0.2)] rounded-[3rem] overflow-hidden relative">
+          <div class="bg-gradient-to-r from-orange-500 via-orange-600 to-orange-500 p-4 relative text-center">
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+            <h3 class="text-sm font-black text-white italic uppercase tracking-[0.2em] relative z-10">Inteligência Artificial</h3>
           </div>
-          <h3 class="text-xs font-black text-white italic uppercase tracking-wider">Crie em 30 Segundos</h3>
-        </div>
-        
-        <div class="p-5 pb-6">
-          <div class="space-y-3">
-            <div class="bg-blue-50/40 p-3 border border-blue-100 rounded-2xl relative overflow-hidden">
-              <label class="text-[8px] uppercase tracking-widest font-black text-blue-800 mb-2 flex items-center justify-center gap-1.5"><i class="fas fa-map-marker-alt"></i> Importar do Google</label>
-              <div class="flex flex-col gap-1.5 relative z-10">
-                <div class="relative">
-                  <input type="text" id="hero-google-search" placeholder="Maps ou Nome da Empresa" 
-                         class="w-full bg-white border border-blue-200 rounded-xl text-center px-3 py-2 text-[10px] font-bold focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none text-stone-800 shadow-sm" />
-                  <button id="hero-google-btn" class="absolute right-1 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-500 text-white p-1.5 rounded-lg transition-all shadow-md"><i class="fas fa-search text-[10px]"></i></button>
-                </div>
-                <div id="google-feedback" class="text-[8px] mt-1 text-center font-bold hidden"></div>
-                
-                <div id="google-confirm-box" class="mt-2 hidden animate-up">
-                  <div class="bg-white p-2.5 rounded-xl shadow-sm border border-emerald-100 flex flex-col items-center text-center">
-                    <i class="fas fa-check-circle text-emerald-500 mb-1 text-xs"></i>
-                    <p id="conf-name" class="text-[9px] text-stone-800 font-bold mb-0.5 truncate w-full"></p>
-                    <p id="conf-addr" class="text-[8px] text-stone-500 font-medium mb-2 line-clamp-1 leading-tight"></p>
-                    <div class="flex gap-1.5 w-full">
-                      <button id="hero-google-reset" class="flex-1 py-1 bg-stone-100 text-stone-500 rounded-lg text-[8px] uppercase font-black hover:bg-stone-200 transition-colors">Trocar</button>
-                      <button id="hero-google-confirm" class="flex-[1.5] py-1 bg-emerald-600 text-white rounded-lg text-[8px] uppercase font-black shadow-md hover:bg-emerald-500">Puxar Tudo</button>
-                    </div>
+          
+          <div class="p-8 space-y-6">
+            <div class="text-center">
+              <h4 class="text-xl font-black text-stone-900 leading-tight uppercase italic mb-1">Seu Site Pronto</h4>
+              <p class="text-[10px] text-stone-400 font-bold uppercase tracking-widest">Coloque seu link do Google abaixo</p>
+            </div>
+
+            <div class="space-y-4">
+              <div class="relative group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-orange-500 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition duration-500"></div>
+                <div class="relative flex flex-col gap-2">
+                  <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500"><i class="fas fa-map-marker-alt"></i></span>
+                    <input type="text" id="hero-google-search" placeholder="Link do Google Maps ou Nome da Empresa" 
+                           class="w-full bg-stone-50 border-2 border-stone-100 rounded-2xl pl-12 pr-4 py-5 text-xs font-bold focus:border-blue-500 focus:bg-white outline-none text-stone-800 transition-all" />
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div>
-              <input type="text" id="hero-business-name" placeholder="Qual o Nome do Seu Negócio?" 
-                     class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-center text-[11px] focus:border-teal-500 focus:ring-1 focus:ring-teal-500/20 outline-none text-stone-800 font-bold" />
-            </div>
+              <div id="google-feedback" class="text-[10px] text-center font-bold hidden"></div>
 
-            <div>
-              <textarea id="hero-business-desc" placeholder="Descreva seu negócio (Opcional)" rows="2"
-                     class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-center text-[11px] focus:border-teal-500 focus:ring-1 focus:ring-teal-500/20 outline-none text-stone-800 font-bold resize-none"></textarea>
-            </div>
+              <button id="hero-instant-btn" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-5 rounded-2xl font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-orange-500/30 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 text-xs">
+                CRIAR SITE PRONTO <i class="fas fa-bolt"></i>
+              </button>
 
-            <div>
-              <div class="flex bg-white border border-stone-200 rounded-xl overflow-hidden focus-within:border-teal-500 focus-within:ring-1 focus-within:ring-teal-500/20 transition-all shadow-sm">
-                <input id="hero-custom-slug" class="flex-1 bg-transparent px-3 py-3 text-[11px] font-mono font-bold text-teal-600 outline-none w-full text-right placeholder:text-stone-300" placeholder="meu-site" />
-                <span class="bg-stone-50 border-l border-stone-200 px-2 py-3 text-[10px] font-bold text-stone-400 flex items-center select-none shadow-inner">.sitezing.com.br</span>
+              <div class="flex items-center gap-4 py-2">
+                <div class="h-px bg-stone-100 flex-1"></div>
+                <span class="text-[9px] font-black text-stone-300 uppercase tracking-widest">Ou manual</span>
+                <div class="h-px bg-stone-100 flex-1"></div>
               </div>
-              <div id="slug-feedback" class="text-[9px] mt-1 text-center font-bold italic"></div>
-            </div>
 
-            <button id="hero-submit-btn" class="w-full bg-[#18181b] hover:bg-black text-white py-4 rounded-xl font-black uppercase tracking-widest text-[11px] transition-all shadow-xl hover:translate-y-[-1px] mt-1 flex items-center justify-center gap-2">
-              INICIAR A MÁGICA ✨
-            </button>
+              <div class="space-y-3 opacity-60 hover:opacity-100 transition-opacity">
+                <input type="text" id="hero-business-name" placeholder="Nome do Negócio" 
+                       class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-center text-[10px] focus:border-teal-500 outline-none text-stone-800 font-bold" />
+                
+                <div class="flex bg-white border border-stone-200 rounded-xl overflow-hidden focus-within:border-teal-500 transition-all shadow-sm">
+                  <input id="hero-custom-slug" class="flex-1 bg-transparent px-3 py-3 text-[10px] font-mono font-bold text-teal-600 outline-none w-full text-right" placeholder="meu-site" />
+                  <span class="bg-stone-50 border-l border-stone-200 px-2 py-3 text-[9px] font-bold text-stone-400 flex items-center">.sitezing.com.br</span>
+                </div>
+                
+                <button id="hero-submit-btn" class="w-full text-stone-400 hover:text-stone-900 py-2 font-black uppercase tracking-widest text-[9px] transition-all">
+                  Gerar Manualmente <i class="fas fa-magic ml-1"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-stone-50 p-4 border-t border-stone-100 flex items-center justify-center gap-6">
+            <div class="flex items-center gap-1.5 opacity-40">
+              <i class="fas fa-shield-alt text-xs text-stone-400"></i>
+              <span class="text-[8px] font-black uppercase tracking-widest text-stone-400">Seguro</span>
+            </div>
+            <div class="flex items-center gap-1.5 opacity-40">
+              <i class="fas fa-clock text-xs text-stone-400"></i>
+              <span class="text-[8px] font-black uppercase tracking-widest text-stone-400">30 Segundos</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1119,25 +1132,57 @@ const App: React.FC = () => {
   const [googleStatus, setGoogleStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
   const [pendingGoogleData, setPendingGoogleData] = useState<any>(null);
   const [guideStep, setGuideStep] = useState(0);
+  const [isInstantGenerating, setIsInstantGenerating] = useState(false);
 
   const nextGuideStep = (step: number) => {
     if (guideStep < step) setGuideStep(step);
   };
 
-  const fetchGoogleData = async () => {
+  const fetchGoogleData = async (autoConfirm = false) => {
     if (!formData.googlePlaceUrl) return;
     setIsFetchingGoogle(true);
     setGoogleStatus(null);
     setPendingGoogleData(null);
+    if (autoConfirm) setIsInstantGenerating(true);
+
     try {
       const fetchFn = httpsCallable(functions, 'fetchGoogleBusiness');
       const res: any = await fetchFn({ query: formData.googlePlaceUrl });
-      setPendingGoogleData(res.data);
-      setGoogleStatus({ type: 'success', msg: 'Localizamos a empresa!' });
+      
+      if (autoConfirm && res.data) {
+        // Se for geração instantânea, injetamos os dados e já disparamos a geração
+        const d = res.data;
+        const updates: any = {};
+        if (d.name) updates.businessName = d.name;
+        if (d.phone) updates.whatsapp = d.phone;
+        if (d.address) updates.address = d.address;
+        if (d.reviews && d.reviews.length > 0) {
+          updates.reviews = d.reviews;
+          updates.showReviews = true;
+        }
+        if (d.photos && d.photos.length > 0) updates.googlePhotos = d.photos;
+        if (d.editorialSummary) {
+          updates.editorialSummary = d.editorialSummary;
+          updates.description = d.editorialSummary;
+        }
+
+        setFormData(prev => ({ ...prev, ...updates }));
+        
+        const desc = d.editorialSummary || `Uma empresa moderna e inovadora chamada ${d.name || formData.businessName}.`;
+        handleGenerate(desc);
+        setIsMenuOpen(true);
+        setActiveTab('geral');
+        setGoogleStatus({ type: 'success', msg: 'Google Inteligência ativada!' });
+      } else {
+        setPendingGoogleData(res.data);
+        setGoogleStatus({ type: 'success', msg: 'Localizamos a empresa!' });
+      }
     } catch (e: any) {
       setGoogleStatus({ type: 'error', msg: e.message });
+      setIsInstantGenerating(false);
     } finally {
       setIsFetchingGoogle(false);
+      if (autoConfirm) setIsInstantGenerating(false);
     }
   };
 
@@ -1808,6 +1853,11 @@ const App: React.FC = () => {
       if (e.data?.type === 'ACTION_RESET_GOOGLE') {
         setPendingGoogleData(null);
         setGoogleStatus(null);
+      }
+      if (e.data?.type === 'ACTION_INSTANT_GENERATE') {
+        if (!e.data.value) return showToast('Coloque o link do Google!', 'warning');
+        setFormData(p => ({ ...p, googlePlaceUrl: e.data.value, businessName: e.data.name || p.businessName }));
+        setTimeout(() => fetchGoogleData(true), 100);
       }
       if (e.data?.type === 'ACTION_START_MAGIC') {
         if (!formData.businessName) return showToast('Digite o nome da sua empresa!', 'warning');
