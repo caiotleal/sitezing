@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useState, useEffect } from 'react';
+import React, { Suspense, lazy, useState, useEffect, useRef, Component, ErrorInfo, ReactNode } from 'react';
 import { httpsCallable } from 'firebase/functions';
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, signInAnonymously } from 'firebase/auth';
 import { auth, functions, db } from './firebase';
@@ -7,6 +7,13 @@ import {
   Rocket, Settings, Upload, Loader2, RefreshCw, Briefcase, FileText, X, Phone, Globe, CheckCircle, CheckCircle2, Save, Trash2, AlertCircle, LayoutDashboard, MapPin, Copy, ExternalLink, Zap, Star, ShieldCheck, CreditCard, User, LogIn, LogOut, Info, Sparkles, ChevronRight, ChevronDown, ChevronUp, Gift, Menu, HelpCircle, Palette, Check, Instagram, Edit3, Clock, ArrowRight
 } from 'lucide-react';
 import { TEMPLATES } from './components/templates';
+import { useIframeEditor } from './components/useIframeEditor';
+import { BRAND_LOGO } from './components/brand';
+import ProfileForm from './components/ProfileForm';
+import SupportModal from './components/SupportModal';
+import MobileBottomNav from './components/MobileBottomNav';
+
+// HELPER PARA CARREGAMENTO RESILIENTE DE COMPONENTES
 const lazyWithRetry = (componentImport: any) =>
   lazy(() =>
     componentImport().catch((error: any) => {
@@ -18,12 +25,35 @@ const lazyWithRetry = (componentImport: any) =>
 
 const LoginPage = lazyWithRetry(() => import('./components/LoginPage'));
 const DomainChecker = lazyWithRetry(() => import('./components/DomainChecker'));
-import { useIframeEditor } from './components/useIframeEditor';
 
-import { BRAND_LOGO } from './components/brand';
-import ProfileForm from './components/ProfileForm';
-import SupportModal from './components/SupportModal';
-import MobileBottomNav from './components/MobileBottomNav';
+// ERROR BOUNDARY PARA RESILIÊNCIA GLOBAL
+class GlobalErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean}> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("Erro Crítico no App:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center p-6 text-center text-white font-sans">
+          <div className="w-20 h-20 bg-orange-500/10 rounded-full flex items-center justify-center mb-6">
+            <RefreshCw className="w-10 h-10 text-orange-500 animate-spin-slow" />
+          </div>
+          <h1 className="text-2xl font-black uppercase mb-4 tracking-tighter italic">Ops! Algo deu errado</h1>
+          <p className="text-zinc-400 text-sm max-w-sm mb-8 leading-relaxed">Não se preocupe, isso pode acontecer após uma atualização do sistema. Vamos recarregar sua sessão agora para resolver.</p>
+          <button onClick={() => window.location.reload()} className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-orange-500/20">Recarregar Editor</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const LAYOUT_STYLES = [
   { id: 'layout_modern_center', label: 'Centro Imponente', desc: 'Hero centralizado, animações verticais' },
@@ -2459,7 +2489,8 @@ const App: React.FC = () => {
   };
 
   return (
-    <>
+    <GlobalErrorBoundary>
+      <>
       <style>{`
         ::-webkit-scrollbar { display: none; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
@@ -4184,7 +4215,8 @@ const App: React.FC = () => {
           />
         )}
       </AnimatePresence>
-    </>
+      </>
+    </GlobalErrorBoundary>
   );
 };
 
