@@ -2205,6 +2205,50 @@ const App: React.FC = () => {
                 {/* ID: visual */}
                 {activeMobileSheet === 'visual' && (
                   <div className="space-y-6">
+                    {/* SINCRONIZAR GOOGLE (MOVIDO PARA O TOPO PARA MÁXIMA VISIBILIDADE) */}
+                    <div className="bg-blue-50 border border-blue-100 p-5 rounded-[2.5rem] shadow-sm mb-2">
+                      <label className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4 block flex items-center justify-center gap-2"><Sparkles size={14} className="text-blue-500" /> Sincronizar com Google</label>
+                      <div className="space-y-3">
+                        <input 
+                          className="w-full bg-white border border-blue-100 rounded-2xl p-4 text-xs font-bold outline-none focus:border-blue-500 shadow-sm" 
+                          placeholder="Link da sua empresa no Google" 
+                          value={formData.googlePlaceUrl} 
+                          onChange={e => { setFormData({ ...formData, googlePlaceUrl: e.target.value }); setHasUnsavedChanges(true) }} 
+                        />
+                        <button 
+                          onClick={() => fetchGoogleData(false)}
+                          disabled={isFetchingGoogle || !formData.googlePlaceUrl}
+                          className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-stone-300 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl shadow-blue-600/20 active:scale-95 flex items-center justify-center gap-2"
+                        >
+                          {isFetchingGoogle ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>SINCRONIZAR GOOGLE <Zap size={14} fill="currentColor" /></>}
+                        </button>
+                      </div>
+
+                      {googleStatus && (
+                        <div className={`text-[10px] font-bold p-3 rounded-xl mt-3 flex items-center gap-2 ${googleStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
+                          {googleStatus.type === 'success' ? <CheckCircle size={12} /> : <AlertCircle size={12} />}
+                          {googleStatus.msg}
+                        </div>
+                      )}
+
+                      {pendingGoogleData && (
+                        <div className="bg-white border-2 border-blue-400 rounded-2xl p-4 shadow-2xl animate-up mt-4 relative overflow-hidden">
+                          <div className="absolute top-0 right-0 p-2 opacity-10"><Zap size={40} className="text-blue-600" /></div>
+                          <div className="flex items-center gap-3 mb-4 relative z-10 text-left">
+                            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 shadow-inner"><CheckCircle size={24} /></div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[10px] font-black text-blue-600 uppercase tracking-tighter">Empresa Localizada!</p>
+                              <p className="text-xs font-black text-stone-900 truncate leading-tight uppercase italic">{pendingGoogleData.name}</p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 relative z-10">
+                            <button onClick={() => setPendingGoogleData(null)} className="flex-1 py-3 bg-stone-100 text-stone-500 rounded-xl text-[10px] uppercase font-black hover:bg-stone-200 transition-colors">Ignorar</button>
+                            <button onClick={confirmGoogleInjection} className="flex-[2] py-3 bg-blue-600 text-white rounded-xl text-[10px] uppercase font-black shadow-lg shadow-blue-600/30 active:scale-95 transition-all">Importar Agora ✨</button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
                     <div className="space-y-4">
                       <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Nome do Seu Negócio</label>
                       <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm font-bold text-stone-800 outline-none" placeholder="Ex: Pizzaria do Zé" value={formData.businessName} onChange={e => handleFloatNameChange(e.target.value)} />
@@ -2261,41 +2305,9 @@ const App: React.FC = () => {
                 {/* ID: social */}
                 {activeMobileSheet === 'social' && (
                   <div className="space-y-4">
-                    <div className="bg-blue-50/50 p-4 rounded-3xl border border-blue-100 shadow-sm mb-4">
-                      <label className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-3 block flex items-center justify-center gap-2"><i className="fas fa-map-marker-alt"></i> Google (Avaliações / Fotos)</label>
-                      <div className="space-y-3">
-                        <input className="w-full bg-white border border-blue-200 rounded-2xl p-4 text-xs font-bold outline-none focus:border-blue-500 shadow-sm" placeholder="Link da sua empresa no Google Maps" value={formData.googlePlaceUrl} onChange={e => { setFormData({ ...formData, googlePlaceUrl: e.target.value }); setHasUnsavedChanges(true) }} />
-                        <button 
-                          onClick={() => fetchGoogleData(false)}
-                          disabled={isFetchingGoogle || !formData.googlePlaceUrl}
-                          className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-stone-300 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
-                        >
-                          {isFetchingGoogle ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>SINCRONIZAR GOOGLE <Zap size={14} fill="white" /></>}
-                        </button>
-                      </div>
-
-                      {googleStatus && (
-                        <div className={`text-[10px] font-bold p-3 rounded-xl mt-3 flex items-center gap-2 ${googleStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
-                          {googleStatus.type === 'success' ? <CheckCircle size={12} /> : <AlertCircle size={12} />}
-                          {googleStatus.msg}
-                        </div>
-                      )}
-
-                      {pendingGoogleData && (
-                        <div className="bg-white border-2 border-blue-100 rounded-2xl p-4 shadow-xl animate-up mt-4">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><CheckCircle size={20} /></div>
-                            <div className="flex-1 min-w-0 text-left">
-                              <p className="text-[10px] font-black text-blue-600 uppercase">Localizado!</p>
-                              <p className="text-xs font-black text-stone-800 truncate leading-tight uppercase italic">{pendingGoogleData.name}</p>
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <button onClick={() => setPendingGoogleData(null)} className="flex-1 py-3 bg-stone-100 text-stone-500 rounded-xl text-[10px] uppercase font-black">Ignorar</button>
-                            <button onClick={confirmGoogleInjection} className="flex-[1.5] py-3 bg-blue-600 text-white rounded-xl text-[10px] uppercase font-black shadow-lg shadow-blue-500/20 active:scale-95">Importar Agora</button>
-                          </div>
-                        </div>
-                      )}
+                    <div>
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Link do Google Business</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-500" placeholder="Link da página no Google" value={formData.googlePlaceUrl} onChange={e => { setFormData({ ...formData, googlePlaceUrl: e.target.value }); setHasUnsavedChanges(true) }} />
                     </div>
                     <div>
                       <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Instagram</label>
