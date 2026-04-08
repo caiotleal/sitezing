@@ -738,12 +738,15 @@ const App: React.FC = () => {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, []);
 
-  const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
+   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showFloatModal, setShowFloatModal] = useState(false);
   const [isMobileWizardOpen, setIsMobileWizardOpen] = useState(false);
   const [googleResults, setGoogleResults] = useState<any[]>([]);
+  const [googleSearchQuery, setGoogleSearchQuery] = useState('');
+  const [googleStatus, setGoogleStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
+  const [pendingGoogleData, setPendingGoogleData] = useState<any>(null);
   const [aiContent, setAiContent] = useState<any>(null);
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -784,7 +787,6 @@ const App: React.FC = () => {
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [mobileWizardStep, setMobileWizardStep] = useState(1);
-  const [isMobileWizardOpen, setIsMobileWizardOpen] = useState(false);
   const [activeMobileSheet, setActiveMobileSheet] = useState<string | number | null>(null);
   const [mobileActiveTab, setMobileActiveTab] = useState<'editar' | 'plano'>('editar');
 
@@ -866,7 +868,6 @@ const App: React.FC = () => {
   const [pendingSave, setPendingSave] = useState(false);
   const [isSaveReminderOpen, setIsSaveReminderOpen] = useState(false);
 
-  const [showFloatModal, setShowFloatModal] = useState(false);
   const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
   const [isPlansBannerOpen, setIsPlansBannerOpen] = useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
@@ -924,6 +925,17 @@ const App: React.FC = () => {
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
+  // AUTO-OPEN CREATION MODAL ON MOBILE HOME
+  useEffect(() => {
+    if (isMobile && !currentProjectSlug && savedProjects.length === 0) {
+      const hasSeenModal = sessionStorage.getItem('sitezing_mobile_modal_seen');
+      if (!hasSeenModal) {
+        setShowFloatModal(true);
+        sessionStorage.setItem('sitezing_mobile_modal_seen', 'true');
+      }
+    }
+  }, [isMobile, currentProjectSlug, savedProjects.length]);
+
   useEffect(() => {
     if (handledStripeReturnRef.current || savedProjects.length === 0) return;
     const params = new URLSearchParams(window.location.search);
@@ -948,8 +960,6 @@ const App: React.FC = () => {
   const floatCheckTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [isFetchingGoogle, setIsFetchingGoogle] = useState(false);
-  const [googleStatus, setGoogleStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
-  const [pendingGoogleData, setPendingGoogleData] = useState<any>(null);
   const [guideStep, setGuideStep] = useState(0);
   const [isInstantGenerating, setIsInstantGenerating] = useState(false);
 
@@ -1064,6 +1074,10 @@ const App: React.FC = () => {
     setHasUnsavedChanges(true);
     setGoogleStatus({ type: 'success', msg: 'Google Inteligência ativada!' });
     setPendingGoogleData(null);
+
+    // AUTO-GENERATE ON CONFIRMATION (3-CLICK MAGIC)
+    const desc = d.editorialSummary || `Uma empresa moderna e inovadora chamada ${d.name || formData.businessName}.`;
+    handleGenerate(desc);
   };
 
   // Receptor de mensagens do iframe (Landing Page) consolidado acima
@@ -2585,174 +2599,6 @@ const App: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* MODAL DE CRIAÇÃO "PERFEITO" (RESTAURADO) */}
-      <AnimatePresence>
-        {showFloatModal && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm"
-              onClick={() => setShowFloatModal(false)}
-            />
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-white/95 backdrop-blur-2xl w-full max-w-lg rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.15)] border border-white relative overflow-hidden flex flex-col"
-            >
-              {/* Header com gradiente premium */}
-              <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 p-6 relative overflow-hidden flex-shrink-0">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 blur-3xl rounded-full"></div>
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full"></div>
-                
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex gap-1.5">
-                    <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                    <div className="w-2 h-2 rounded-full bg-amber-400"></div>
-                    <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
-                  </div>
-                  <button onClick={() => setShowFloatModal(false)} className="text-white/40 hover:text-white transition-colors">
-                    <X size={18} />
-                  </button>
-                </div>
-                
-                <h3 className="text-lg md:text-xl font-black text-white italic uppercase tracking-wider mb-1">Crie seu site profissional</h3>
-                <p className="text-xs text-stone-400 font-medium">Nosso IA vai montar tudo para você em segundos.</p>
-              </div>
-
-              <div className="p-8 space-y-6 overflow-y-auto max-h-[70vh]">
-                {/* 3-CLICK GOOGLE SYNC SECTION */}
-                <div className="space-y-4">
-                  <div className="relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-orange-500 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition duration-500"></div>
-                    <div className="relative">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 w-4 h-4" />
-                      <input 
-                        type="text" 
-                        placeholder="Link do Google ou Nome da Empresa" 
-                        value={googleSearchQuery}
-                        onChange={(e) => {
-                          setGoogleSearchQuery(e.target.value);
-                          if (e.target.value === '') {
-                            setGoogleStatus(null);
-                            setPendingGoogleData(null);
-                          }
-                        }}
-                        className="w-full bg-white border-2 border-stone-100 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold focus:border-blue-500 outline-none text-stone-800 transition-all" 
-                      />
-                    </div>
-                  </div>
-
-                  {isFetchingGoogle && (
-                    <div className="flex items-center justify-center gap-3 py-4 text-orange-500 font-black uppercase italic tracking-widest text-xs animate-pulse">
-                      <Loader2 className="animate-spin w-4 h-4" /> Buscando no Google...
-                    </div>
-                  )}
-
-                  {googleStatus && (
-                    <div className={`text-xs p-4 rounded-xl font-bold flex items-center gap-3 ${googleStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
-                      {googleStatus.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
-                      {googleStatus.msg}
-                    </div>
-                  )}
-
-                  {pendingGoogleData && (
-                    <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-[2rem] animate-in fade-in zoom-in duration-300 shadow-sm">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                        <h5 className="text-xs font-black text-stone-900 uppercase italic truncate">{pendingGoogleData.name}</h5>
-                      </div>
-                      
-                      <div className="space-y-2 mb-4">
-                        {pendingGoogleData.address && (
-                          <div className="flex items-center gap-3 text-stone-500 text-[10px] font-bold uppercase tracking-tight">
-                            <MapPin size={12} className="opacity-40" /> {pendingGoogleData.address}
-                          </div>
-                        )}
-                        {pendingGoogleData.phone && (
-                          <div className="flex items-center gap-3 text-stone-500 text-[10px] font-bold uppercase tracking-tight">
-                            <Phone size={12} className="opacity-40" /> {pendingGoogleData.phone}
-                          </div>
-                        )}
-                        {pendingGoogleData.rating && (
-                          <div className="flex items-center gap-3 text-stone-500 text-[10px] font-bold uppercase tracking-tight">
-                            <Star size={12} className="text-amber-500 fill-amber-500" /> {pendingGoogleData.rating} <span className="opacity-40">({pendingGoogleData.reviews?.length || 0} avaliações)</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-3 pt-4 border-t border-emerald-100">
-                        {pendingGoogleData.socialLinks?.instagram && <Instagram size={14} className="text-pink-500" />}
-                        {pendingGoogleData.socialLinks?.facebook && <div className="text-blue-600"><i className="fab fa-facebook"></i></div>}
-                        {pendingGoogleData.socialLinks?.whatsapp && <div className="text-emerald-500"><i className="fab fa-whatsapp"></i></div>}
-                        {pendingGoogleData.socialLinks?.tiktok && <div className="text-stone-900"><i className="fab fa-tiktok"></i></div>}
-                        {pendingGoogleData.socialLinks?.youtube && <div className="text-red-600"><i className="fab fa-youtube"></i></div>}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {!pendingGoogleData && !isFetchingGoogle && !googleStatus && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4">
-                      <div className="h-px bg-stone-100 flex-1"></div>
-                      <span className="text-[10px] font-black text-stone-300 uppercase tracking-[0.2em]">Ou Manual</span>
-                      <div className="h-px bg-stone-100 flex-1"></div>
-                    </div>
-
-                    <div className="space-y-4">
-                       <input 
-                         type="text" 
-                         placeholder="Nome do seu Negócio" 
-                         value={formData.businessName}
-                         onChange={(e) => setFormData(p => ({ ...p, businessName: e.target.value }))}
-                         className="w-full bg-stone-50 border border-stone-200 rounded-2xl px-6 py-4 text-sm focus:border-orange-500 outline-none text-stone-800 font-bold" 
-                       />
-                       <textarea 
-                         placeholder="O que seu negócio faz? (Ex: Pizzaria napolitana, Clínica odontológica...)"
-                         value={formData.description}
-                         onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))}
-                         className="w-full bg-stone-50 border border-stone-200 rounded-2xl px-6 py-4 text-sm focus:border-orange-500 outline-none text-stone-800 font-bold resize-none h-24"
-                       />
-                    </div>
-                  </div>
-                )}
-
-                <button 
-                  onClick={() => {
-                    if (pendingGoogleData) confirmGoogleInjection();
-                    else if (googleSearchQuery.length > 3 && !googleStatus) fetchGoogleData(googleSearchQuery);
-                    else handleGenerateSite();
-                  }}
-                  className={`w-full py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] transition-all shadow-xl text-xs flex items-center justify-center gap-3 ${
-                    pendingGoogleData ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20' : 
-                    (googleSearchQuery.length > 3 && !googleStatus) ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20' : 
-                    'bg-orange-500 hover:bg-orange-600 text-white shadow-orange-500/20 hover:scale-[1.02] active:scale-95'
-                  }`}
-                >
-                  {pendingGoogleData ? <>Confirmar Dados <Check size={18} /></> : 
-                   (googleSearchQuery.length > 3 && !googleStatus) ? <>Validar no Google <div className="flex items-center gap-1"><i className="fab fa-google"></i></div></> : 
-                   <>✨ Iniciar a Mágica Agora</>}
-                </button>
-              </div>
-
-              <div className="p-4 bg-stone-50 border-t border-stone-100 flex items-center justify-center gap-6">
-                 <div className="flex items-center gap-1.5 opacity-30">
-                   <ShieldCheck size={12} />
-                   <span className="text-[8px] font-black uppercase tracking-widest">Seguro</span>
-                 </div>
-                 <div className="flex items-center gap-1.5 opacity-30">
-                   <Clock size={12} />
-                   <span className="text-[8px] font-black uppercase tracking-widest">30 Segundos</span>
-                 </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
       <AnimatePresence>
         {isPublishing && (
           <motion.div
@@ -3977,8 +3823,9 @@ const App: React.FC = () => {
                           value={googleSearchQuery}
                           onChange={(e) => {
                             setGoogleSearchQuery(e.target.value);
+                            setGoogleStatus(null);
+                            setGoogleResults([]);
                             if (e.target.value === '') {
-                              setGoogleStatus(null);
                               setPendingGoogleData(null);
                             }
                           }}
@@ -4032,27 +3879,17 @@ const App: React.FC = () => {
                           <h5 className="text-xs font-black text-stone-900 uppercase italic truncate">{pendingGoogleData.name}</h5>
                         </div>
                         
-                        <div className="space-y-2 mb-4">
-                          {pendingGoogleData.address && (
-                            <div className="flex items-center gap-3 text-stone-500 text-[10px] font-bold uppercase tracking-tight">
-                              <MapPin size={12} className="text-blue-400" /> <span className="truncate">{pendingGoogleData.address}</span>
-                            </div>
-                          )}
-                          {pendingGoogleData.phone && (
-                            <div className="flex items-center gap-3 text-stone-500 text-[10px] font-bold uppercase tracking-tight">
-                              <Phone size={12} className="text-blue-400" /> {pendingGoogleData.phone}
-                            </div>
-                          )}
-                          {pendingGoogleData.rating && (
-                            <div className="flex items-center gap-3 text-stone-500 text-[10px] font-bold uppercase tracking-tight">
-                              <Star size={12} className="text-amber-500 fill-amber-500" /> {pendingGoogleData.rating} <span className="opacity-40">({pendingGoogleData.reviews?.length || 0} avaliações)</span>
-                            </div>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {pendingGoogleData.address && <div className="px-2 py-1 bg-blue-50 text-blue-600 rounded-lg text-[8px] font-black uppercase border border-blue-100 flex items-center gap-1"><MapPin size={10} /> Endereço</div>}
+                          {pendingGoogleData.phone && <div className="px-2 py-1 bg-green-50 text-green-600 rounded-lg text-[8px] font-black uppercase border border-green-100 flex items-center gap-1"><Phone size={10} /> Whatsapp</div>}
+                          {pendingGoogleData.rating && <div className="px-2 py-1 bg-amber-50 text-amber-600 rounded-lg text-[8px] font-black uppercase border border-amber-100 flex items-center gap-1"><Star size={10} /> Avaliações</div>}
+                          {pendingGoogleData.socialLinks && Object.keys(pendingGoogleData.socialLinks).length > 0 && (
+                            <div className="px-2 py-1 bg-purple-50 text-purple-600 rounded-lg text-[8px] font-black uppercase border border-purple-100 flex items-center gap-1"><Instagram size={10} /> Redes Sociais</div>
                           )}
                         </div>
 
                         <div className="flex gap-2 pt-4 border-t border-blue-50">
                           <button onClick={() => setPendingGoogleData(null)} className="flex-1 py-3 bg-stone-100 text-stone-500 rounded-xl text-[10px] uppercase font-black hover:bg-stone-200 transition-colors">Tentar Outro</button>
-                          <button onClick={confirmGoogleInjection} className="flex-[2] py-3 bg-blue-600 text-white rounded-xl text-[10px] uppercase font-black shadow-lg shadow-blue-500/20 active:scale-95 transition-all">Importar Tudo ✨</button>
                         </div>
                       </div>
                     )}
@@ -4085,7 +3922,7 @@ const App: React.FC = () => {
                   </div>
                 )}
 
-                <div className="pt-4">
+                <div className="pt-2">
                   <button 
                     onClick={() => {
                       if (pendingGoogleData) confirmGoogleInjection();
@@ -4094,13 +3931,14 @@ const App: React.FC = () => {
                     }}
                     disabled={isGenerating || isFetchingGoogle || (!formData.businessName && googleSearchQuery.length <= 3)}
                     className={`w-full py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] transition-all shadow-xl text-xs flex items-center justify-center gap-3 active:scale-95 ${
-                      pendingGoogleData ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20' : 
+                      pendingGoogleData ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-orange-500/20' : 
                       (googleSearchQuery.length > 3 && !googleStatus) ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20' : 
                       'bg-stone-900 hover:bg-black text-white shadow-stone-900/20'
                     }`}
                   >
                     {isGenerating ? <Loader2 className="animate-spin w-5 h-5" /> : 
-                     pendingGoogleData ? <>Confirmar Dados <Check size={18} /></> : 
+                     isFetchingGoogle ? <Loader2 className="animate-spin w-5 h-5" /> :
+                     pendingGoogleData ? <>Criar meu Site Agora ✨</> : 
                      (googleSearchQuery.length > 3 && !googleStatus) ? <>Pesquisar no Google <Zap size={18} /></> : 
                      <>✨ Iniciar a Mágica Agora</>}
                   </button>
