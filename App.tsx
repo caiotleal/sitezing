@@ -366,8 +366,8 @@ const PROMO_HTML = `
             <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
             
             <div class="flex items-center justify-center gap-2 mb-3 relative z-10">
-              <span class="bg-orange-500 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-lg shadow-orange-500/20">Site pronto em 30s</span>
-              <span class="bg-white/10 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter backdrop-blur-md">7 Dias Grátis</span>
+              <span class="bg-orange-500 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-lg shadow-orange-500/20">Site pronto em 30 segundos</span>
+              <span class="bg-white/10 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter backdrop-blur-md">7 dias grátis</span>
             </div>
             
             <h3 class="text-lg font-black text-white italic uppercase tracking-[0.15em] relative z-10">Crie seu site</h3>
