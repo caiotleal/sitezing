@@ -37,7 +37,8 @@ if (!src.trimEnd().endsWith('export default App;')) {
   console.error('[check-app-structure] Falhou: final do arquivo deve terminar com "export default App;".');
 }
 
-const mainLayoutCount = src.split('<div className="w-full h-screen bg-[#FAFAF9]').length - 1;
+const mainLayoutPattern = /<div className="w-full h-(?:screen|\[100dvh\]) bg-\[#FAFAF9\]/g;
+const mainLayoutCount = (src.match(mainLayoutPattern) || []).length;
 if (mainLayoutCount !== 1) {
   hasError = true;
   console.error(`[check-app-structure] Falhou: layout principal esperado 1, encontrado ${mainLayoutCount}.`);
