@@ -149,131 +149,12 @@ const PROMO_HTML = `
       } catch (err) { console.log('Erro ao compartilhar:', err); }
     }
 
-    var currentStep = 'IDLE'; // IDLE, SEARCHING, FETCHING, CONFIRMING, READY
-    var googleVal = '';
-
-    function updateUnifiedButton() {
-      var btn = document.getElementById('unified-magic-btn');
-      var manualContainer = document.getElementById('manual-data-container');
-      if (!btn) return;
-      
-      if (currentStep === 'FETCHING') {
-        btn.innerHTML = 'BUSCANDO... <i class="fas fa-circle-notch fa-spin"></i>';
-        btn.className = "w-full bg-blue-500 text-white py-3.5 rounded-2xl font-black uppercase tracking-[0.1em] opacity-80 cursor-wait flex items-center justify-center gap-3 text-xs";
-        if (manualContainer) manualContainer.style.display = 'none';
-      } else if (currentStep === 'CONFIRMING') {
-        btn.innerHTML = 'CONFIRMAR DADOS <i class="fas fa-check"></i>';
-        btn.className = "w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3.5 rounded-2xl font-black uppercase tracking-[0.1em] transition-all shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-3 text-xs";
-        if (manualContainer) manualContainer.style.display = 'none';
-      } else if (googleVal.length > 3 && currentStep !== 'READY' && currentStep !== 'CONFIRMING') {
-        currentStep = 'SEARCHING';
-        btn.innerHTML = 'VALIDAR GOOGLE <i class="fab fa-google"></i>';
-        btn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-2xl font-black uppercase tracking-[0.1em] transition-all shadow-xl shadow-blue-600/30 flex items-center justify-center gap-3 text-xs";
-        if (manualContainer) manualContainer.style.display = 'none';
-      } else {
-        btn.innerHTML = 'INICIAR MÁGICA <i class="fas fa-magic"></i>';
-        btn.className = "w-full bg-orange-500 hover:bg-orange-600 text-white py-3.5 rounded-2xl font-black uppercase tracking-[0.1em] transition-all shadow-xl shadow-orange-500/30 flex items-center justify-center gap-3 text-xs";
-        if (manualContainer) manualContainer.style.display = 'block';
-      }
-    }
-
-    // Hero Creation Form Communication
+    // Hero Communication
     window.addEventListener('message', function(e) {
       if (!e.data || e.data.type !== 'SYNC_STATE') return;
-      
       var data = e.data;
       var domainStatus = data.domainStatus;
-      var isFetchingGoogle = data.isFetchingGoogle;
-      var googleStatus = data.googleStatus;
-      var pendingGoogleData = data.pendingGoogleData;
-      var formData = data.formData;
       
-      // Update Google Feedback & Confirmation Box
-      var gFeed = document.getElementById('google-feedback');
-      var gConfirm = document.getElementById('google-confirm-box');
-      
-      if (isFetchingGoogle) {
-        currentStep = 'FETCHING';
-        if (gFeed) {
-          gFeed.style.display = 'block';
-          gFeed.className = 'text-[10px] mt-1 ml-1 font-bold text-orange-500 animate-pulse';
-          gFeed.innerText = 'Buscando no Google...';
-        }
-        if (gConfirm) gConfirm.style.display = 'none';
-      } else if (pendingGoogleData) {
-        currentStep = 'CONFIRMING';
-        if (gFeed) gFeed.style.display = 'none';
-        if (gConfirm) {
-          gConfirm.style.display = 'block';
-          document.getElementById('conf-name').innerText = pendingGoogleData.name;
-          
-          if (pendingGoogleData.address) {
-             document.getElementById('conf-addr-row').style.display = 'flex';
-             document.getElementById('conf-addr').innerText = pendingGoogleData.address;
-          } else {
-             document.getElementById('conf-addr-row').style.display = 'none';
-          }
-
-          if (pendingGoogleData.phone) {
-             document.getElementById('conf-phone-row').style.display = 'flex';
-             document.getElementById('conf-phone').innerText = pendingGoogleData.phone;
-          } else {
-             document.getElementById('conf-phone-row').style.display = 'none';
-          }
-
-          if (pendingGoogleData.rating) {
-             document.getElementById('conf-reviews-row').style.display = 'flex';
-             document.getElementById('conf-rating').innerText = pendingGoogleData.rating + ' ★';
-             document.getElementById('conf-reviews-count').innerText = '(' + (pendingGoogleData.reviews ? pendingGoogleData.reviews.length : 0) + ' avaliações)';
-          } else {
-             document.getElementById('conf-reviews-row').style.display = 'none';
-          }
-          
-          var sCont = document.getElementById('conf-socials');
-          if (sCont) {
-            sCont.innerHTML = '';
-            var sl = pendingGoogleData.socialLinks || {};
-            if (sl.instagram) sCont.innerHTML += '<i class="fab fa-instagram text-[10px] text-pink-500"></i>';
-            if (sl.facebook) sCont.innerHTML += '<i class="fab fa-facebook text-[10px] text-blue-600"></i>';
-            if (sl.whatsapp) sCont.innerHTML += '<i class="fab fa-whatsapp text-[10px] text-emerald-500"></i>';
-            if (sl.tiktok) sCont.innerHTML += '<i class="fab fa-tiktok text-[10px] text-stone-900"></i>';
-            if (sl.youtube) sCont.innerHTML += '<i class="fab fa-youtube text-[10px] text-red-600"></i>';
-            if (sCont.innerHTML === '') sCont.innerHTML = '<span class="text-[8px] text-stone-400 italic font-medium">Redes não detectadas</span>';
-          }
-        }
-      } else if (googleStatus) {
-        if (gFeed) {
-          gFeed.style.display = 'block';
-          gFeed.className = 'text-[10px] mt-1 ml-1 font-bold ' + (googleStatus.type === 'success' ? 'text-emerald-500' : 'text-red-500');
-          gFeed.innerText = googleStatus.msg;
-        }
-        if (gConfirm) gConfirm.style.display = 'none';
-        if (googleStatus.type === 'success') currentStep = 'READY';
-        else if (googleStatus.type === 'error') currentStep = 'IDLE';
-      } else {
-        if (gFeed) gFeed.style.display = 'none';
-        if (gConfirm) gConfirm.style.display = 'none';
-        currentStep = 'IDLE';
-      }
-      
-      updateUnifiedButton();
-
-      // Update Inputs (Avoid overwriting while typing)
-      var nameInput = document.getElementById('hero-business-name');
-      if (nameInput && formData.businessName && document.activeElement !== nameInput) {
-        nameInput.value = formData.businessName;
-      }
-
-      var descInput = document.getElementById('hero-business-desc');
-      if (descInput && formData.description && document.activeElement !== descInput) {
-        descInput.value = formData.description;
-      }
-      
-      var slugInput = document.getElementById('hero-custom-slug');
-      if (slugInput && formData.customSlug && document.activeElement !== slugInput) {
-        slugInput.value = formData.customSlug;
-      }
-
       // Update Slug Feedback
       var sFeed = document.getElementById('slug-feedback');
       if (sFeed) {
@@ -289,79 +170,10 @@ const PROMO_HTML = `
         }
       }
     });
-
-    document.addEventListener('DOMContentLoaded', function() {
-      var busName = document.getElementById('hero-business-name');
-      if (busName) {
-        var phrases = ["Ex: Pizzaria do Chef", "Ex: Clínica Sorriso", "Ex: Advocacia Silva", "Ex: Barbearia Vip"];
-        var idx = 0; var charIdx = 0; var isDeleting = false; var typeTimer;
-        function typePlaceholder() {
-          if (document.activeElement === busName || busName.value !== "") {
-            busName.setAttribute('placeholder', 'Qual o Nome do Seu Negócio?');
-            return;
-          }
-          var currentPhrase = phrases[idx];
-          if (isDeleting) {
-            busName.setAttribute('placeholder', currentPhrase.substring(0, charIdx - 1) + '|');
-            charIdx--;
-            if (charIdx === 0) { isDeleting = false; idx = (idx + 1) % phrases.length; typeTimer = setTimeout(typePlaceholder, 600); }
-            else { typeTimer = setTimeout(typePlaceholder, 40); }
-          } else {
-            busName.setAttribute('placeholder', currentPhrase.substring(0, charIdx + 1) + '|');
-            charIdx++;
-            if (charIdx === currentPhrase.length) { isDeleting = true; typeTimer = setTimeout(typePlaceholder, 1500); }
-            else { typeTimer = setTimeout(typePlaceholder, 80); }
-          }
-        }
-        typeTimer = setTimeout(typePlaceholder, 1000);
-
-        busName.addEventListener('focus', function() {
-          clearTimeout(typeTimer);
-          busName.setAttribute('placeholder', 'Qual o Nome do Seu Negócio?');
-        });
-        busName.addEventListener('blur', function() {
-          if (!busName.value) { idx = 0; charIdx = 0; isDeleting = false; typeTimer = setTimeout(typePlaceholder, 500); }
-        });
-
-        busName.addEventListener('input', function(e) {
-          window.parent.postMessage({ type: 'SET_BUSINESS_NAME', value: e.target.value }, '*');
-          updateUnifiedButton();
-        });
-      }
-
-      var busDesc = document.getElementById('hero-business-desc');
-      if (busDesc) busDesc.addEventListener('input', function(e) {
-        window.parent.postMessage({ type: 'SET_BUSINESS_DESC', value: e.target.value }, '*');
-      });
-
-      var custSlug = document.getElementById('hero-custom-slug');
-      if (custSlug) custSlug.addEventListener('input', function(e) {
-        window.parent.postMessage({ type: 'SET_CUSTOM_SLUG', value: e.target.value }, '*');
-      });
-
-      var googSearch = document.getElementById('hero-google-search');
-      if (googSearch) googSearch.addEventListener('input', function(e) {
-        googleVal = e.target.value;
-        if (googleVal === '') currentStep = 'IDLE';
-        updateUnifiedButton();
-      });
-
-      var magicBtn = document.getElementById('unified-magic-btn');
-      if (magicBtn) magicBtn.addEventListener('click', function() {
-        if (currentStep === 'SEARCHING') {
-          window.parent.postMessage({ type: 'TRIGGER_FETCH_GOOGLE', value: googleVal }, '*');
-        } else if (currentStep === 'CONFIRMING') {
-          window.parent.postMessage({ type: 'ACTION_CONFIRM_GOOGLE' }, '*');
-        } else {
-          window.parent.postMessage({ type: 'ACTION_START_MAGIC' }, '*');
-        }
-      });
-    });
   </script>
 </head>
 <body class="antialiased selection:bg-orange-500 selection:text-white">
   
-
   <header class="fixed top-0 left-0 w-full z-[80] bg-[#FAFAF9]/80 backdrop-blur-md border-b border-stone-200/60 h-20 flex items-center px-6 md:px-20 transition-all">
     <div class="w-full mx-auto flex items-center justify-between">
        <img src="${BRAND_LOGO}" alt="SiteZing Logo" class="h-10 md:h-14 w-auto drop-shadow-sm" />
@@ -371,15 +183,14 @@ const PROMO_HTML = `
     </div>
   </header>
 
-  <main class="pt-8 pb-8 px-6 md:px-20 w-full mx-auto flex flex-col min-h-screen relative">
+  <main class="pt-8 pb-8 px-6 md:px-20 w-full mx-auto flex flex-col min-h-screen relative overflow-x-hidden">
     <div class="h-16 md:h-20 w-full"></div>
     <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-200/30 blur-[150px] rounded-full pointer-events-none"></div>
     <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-orange-200/30 blur-[150px] rounded-full pointer-events-none"></div>
     
-    <div class="grid md:grid-cols-[1fr_340px] gap-16 items-center relative z-10 animate-up mb-12 mt-6 md:mt-10">
-      <div class="text-center md:text-left">
+    <div class="max-w-6xl mx-auto w-full relative z-10 animate-up mb-12 mt-6 md:mt-20 flex flex-col items-center text-center">
         
-        <div class="flex flex-wrap items-center gap-2 mb-6 justify-center md:justify-start">
+        <div class="flex flex-wrap items-center gap-2 mb-8 justify-center">
           <div class="react-vite-badge">
             <i class="fab fa-react text-[#61DAFB] text-sm"></i>
             React 19
@@ -393,109 +204,21 @@ const PROMO_HTML = `
             Gemini Powered
           </div>
         </div>
-  \n<h1 class="text-[2.8rem] md:text-[6.2rem] font-black leading-[0.8] tracking-tighter mb-6 uppercase italic text-stone-900 drop-shadow-sm w-full">
-          Seu site pronto em um <span class="text-orange-500 pr-10 inline-block drop-shadow-sm">ZING!!!</span>
+
+        <h1 class="text-[2.8rem] md:text-[6.5rem] font-black leading-[0.85] tracking-tighter mb-8 uppercase italic text-stone-900 drop-shadow-sm max-w-5xl">
+          Seu site pronto em um <span class="text-orange-500 pr-4 inline-block drop-shadow-sm">ZING!!!</span>
         </h1>
-        <p class="text-base md:text-xl text-stone-500 font-light leading-relaxed max-w-2xl hidden md:block mb-8">
-          A nossa inteligência artificial cria, escreve e publica o seu site automaticamente. <span class="font-bold text-stone-800 text-lg">Preencha e veja a mágica acontecer agora mesmo.</span>
+
+        <p class="text-lg md:text-2xl text-stone-500 font-medium leading-relaxed max-w-3xl mb-12 px-4">
+          A nossa inteligência artificial cria, escreve e publica o seu site automaticamente. <span class="text-stone-900 font-black">Em 30 segundos, sem complicação.</span>
         </p>
         
-        <div class="flex flex-col md:flex-row items-center gap-6 bg-white/70 border-2 border-orange-100 p-6 md:p-8 rounded-[2.5rem] mt-8 max-w-fit mx-auto md:mx-0 shadow-2xl hover:border-orange-300 transition-all group">
-          <div class="flex items-center gap-5">
-            <div class="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center text-white shadow-xl rotate-3 group-hover:rotate-6 transition-transform">
-              <i class="fas fa-gift text-2xl"></i>
-            </div>
-            <div class="text-left">
-              <h3 class="text-lg md:text-2xl font-black text-stone-900 uppercase italic leading-tight">7 dias grátis para testar</h3>
-              <p class="text-xs md:text-sm text-stone-500 font-bold uppercase tracking-widest">Sem compromisso • Ativação Imediata</p>
-            </div>
-          </div>
-          <button onclick="window.parent.postMessage({ type: 'OPEN_TRIAL_MODAL' }, '*')" class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-2xl font-black uppercase italic tracking-wider text-xs shadow-lg hover:shadow-orange-500/30 transition-all flex items-center gap-2">
-            Saber Mais <i class="fas fa-arrow-right text-[10px]"></i>
+        <div class="flex flex-col md:flex-row items-center gap-6 mb-16">
+          <button onclick="window.parent.postMessage({ type: 'OPEN_MAGIC_MODAL' }, '*')" class="group relative bg-stone-900 text-white px-12 py-6 rounded-[2rem] font-black uppercase italic tracking-widest text-sm shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center gap-4 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-orange-500 to-orange-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <span class="relative z-10">🚀 Iniciar Mágica Agora</span>
+            <i class="fas fa-magic relative z-10 text-orange-400 group-hover:text-white transition-colors"></i>
           </button>
-        </div>
-      </div>
-
-      <div class="w-full max-w-[400px] mx-auto md:ml-auto md:mr-0 animate-up" style="animation-delay: 0.1s;">
-        <div class="bg-white border-[3px] border-orange-500 shadow-[0_20px_50px_rgba(249,115,22,0.2)] rounded-[3rem] overflow-hidden relative">
-          <div class="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 p-4 relative text-center overflow-hidden">
-            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-            <div class="absolute -top-10 -right-10 w-24 h-24 bg-orange-500/20 rounded-full blur-3xl"></div>
-            <div class="absolute -bottom-10 -left-10 w-24 h-24 bg-blue-500/10 rounded-full blur-3xl"></div>
-            
-            <div class="flex items-center justify-center gap-2 mb-1.5 relative z-10">
-              <span class="bg-orange-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-lg">Site em 30 segundos</span>
-              <span class="bg-white/10 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter backdrop-blur-md">7 dias grátis</span>
-            </div>
-            
-            <h3 class="text-[11px] md:text-sm font-black text-white italic uppercase tracking-[0.15em] relative z-10">Crie seu site</h3>
-          </div>
-          
-          <div class="p-3.5 space-y-3">
-            <div id="google-selection-container">
-              <div class="relative group">
-                <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-orange-500 rounded-2xl blur opacity-10 group-focus-within:opacity-30 transition duration-500"></div>
-                <div class="relative">
-                  <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-500 text-xs"><i class="fas fa-search"></i></span>
-                  <input type="text" id="hero-google-search" placeholder="Link do Google ou Nome da Empresa" 
-                         class="w-full bg-stone-50 border-2 border-stone-100 rounded-xl pl-10 pr-4 py-3 text-xs font-bold focus:border-blue-500 focus:bg-white outline-none text-stone-800 transition-all" />
-                </div>
-              </div>
-
-              <div id="google-feedback" class="text-[9px] text-center font-bold mt-1 hidden"></div>
-
-              <div id="google-confirm-box" class="hidden bg-emerald-50 border border-emerald-100 p-3 mt-2 rounded-2xl animate-in fade-in zoom-in duration-300 shadow-sm">
-                <div class="flex items-center gap-2 mb-2">
-                  <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                  <h5 id="conf-name" class="text-[11px] font-black text-stone-900 uppercase italic truncate"></h5>
-                </div>
-                
-                <div id="conf-summary" class="space-y-1 ml-3.5 mb-2.5">
-                  <div id="conf-addr-row" class="flex items-center gap-2 text-stone-500 text-[9px] font-medium">
-                    <i class="fas fa-map-marker-alt text-[8px] opacity-40"></i>
-                    <span id="conf-addr" class="truncate"></span>
-                  </div>
-                  <div id="conf-phone-row" class="flex items-center gap-2 text-stone-500 text-[9px] font-medium">
-                    <i class="fas fa-phone text-[8px] opacity-40"></i>
-                    <span id="conf-phone" class="truncate"></span>
-                  </div>
-                  <div id="conf-reviews-row" class="flex items-center gap-2 text-stone-500 text-[9px] font-medium">
-                    <i class="fas fa-star text-[8px] text-amber-500"></i>
-                    <span id="conf-rating" class="font-bold text-stone-700"></span>
-                    <span id="conf-reviews-count" class="opacity-60"></span>
-                  </div>
-                </div>
-
-                <div id="conf-socials" class="flex items-center gap-2 ml-3.5 pt-2 border-t border-emerald-100/50"></div>
-              </div>
-            </div>
-
-            <div id="manual-data-container" class="space-y-2">
-              <input type="text" id="hero-business-name" placeholder="Nome do Negócio" 
-                     class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs focus:border-orange-500 outline-none text-stone-800 font-bold" />
-              
-              <textarea id="hero-business-desc" placeholder="O que seu negócio faz?"
-                      class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2 text-[10px] focus:border-orange-500 outline-none text-stone-800 font-bold resize-none h-14 placeholder:text-stone-300"></textarea>
-            </div>
-
-            <button id="unified-magic-btn" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3.5 rounded-2xl font-black uppercase tracking-[0.15em] transition-all shadow-xl shadow-orange-500/30 hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-3 text-xs">
-              INICIAR MÁGICA <i class="fas fa-magic"></i>
-            </button>
-          </div>
-          
-          <div class="bg-stone-50 p-2 border-t border-stone-100 flex items-center justify-center gap-4">
-            <div class="flex items-center gap-1 opacity-20">
-              <i class="fas fa-shield-alt text-[8px] text-stone-400"></i>
-              <span class="text-[6px] font-black uppercase tracking-widest text-stone-400">Seguro</span>
-            </div>
-            <div class="flex items-center gap-1 opacity-20">
-              <i class="fas fa-clock text-[8px] text-stone-400"></i>
-              <span class="text-[6px] font-black uppercase tracking-widest text-stone-400">30 Segundos</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <div class="grid md:grid-cols-3 gap-6 relative z-10 animate-up" style="animation-delay: 0.2s;">
       __PRICING_CARDS__
@@ -1950,6 +1673,9 @@ const App: React.FC = () => {
         setSelectedPriceId(e.data.priceId || null);
         setCheckoutTermsAccepted(false);
       }
+      if (e.data?.type === 'OPEN_MAGIC_MODAL') {
+        setShowFloatModal(true);
+      }
       if (e.data?.type === 'OPEN_TRIAL_MODAL') {
         setIsTrialModalOpen(true);
       }
@@ -2848,6 +2574,174 @@ const App: React.FC = () => {
               <p className="text-stone-400 mt-3 text-sm font-medium animate-pulse text-center max-w-sm px-6">A Inteligência Artificial está escrevendo e montando o layout do seu novo site profissional em segundos.</p>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL DE CRIAÇÃO "PERFEITO" (RESTAURADO) */}
+      <AnimatePresence>
+        {showFloatModal && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm"
+              onClick={() => setShowFloatModal(false)}
+            />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-white/95 backdrop-blur-2xl w-full max-w-lg rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.15)] border border-white relative overflow-hidden flex flex-col"
+            >
+              {/* Header com gradiente premium */}
+              <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 p-6 relative overflow-hidden flex-shrink-0">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 blur-3xl rounded-full"></div>
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full"></div>
+                
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                    <div className="w-2 h-2 rounded-full bg-amber-400"></div>
+                    <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+                  </div>
+                  <button onClick={() => setShowFloatModal(false)} className="text-white/40 hover:text-white transition-colors">
+                    <X size={18} />
+                  </button>
+                </div>
+                
+                <h3 className="text-lg md:text-xl font-black text-white italic uppercase tracking-wider mb-1">Crie seu site profissional</h3>
+                <p className="text-xs text-stone-400 font-medium">Nosso IA vai montar tudo para você em segundos.</p>
+              </div>
+
+              <div className="p-8 space-y-6 overflow-y-auto max-h-[70vh]">
+                {/* 3-CLICK GOOGLE SYNC SECTION */}
+                <div className="space-y-4">
+                  <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-orange-500 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition duration-500"></div>
+                    <div className="relative">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 w-4 h-4" />
+                      <input 
+                        type="text" 
+                        placeholder="Link do Google ou Nome da Empresa" 
+                        value={googleSearchQuery}
+                        onChange={(e) => {
+                          setGoogleSearchQuery(e.target.value);
+                          if (e.target.value === '') {
+                            setGoogleStatus(null);
+                            setPendingGoogleData(null);
+                          }
+                        }}
+                        className="w-full bg-white border-2 border-stone-100 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold focus:border-blue-500 outline-none text-stone-800 transition-all" 
+                      />
+                    </div>
+                  </div>
+
+                  {isFetchingGoogle && (
+                    <div className="flex items-center justify-center gap-3 py-4 text-orange-500 font-black uppercase italic tracking-widest text-xs animate-pulse">
+                      <Loader2 className="animate-spin w-4 h-4" /> Buscando no Google...
+                    </div>
+                  )}
+
+                  {googleStatus && (
+                    <div className={`text-xs p-4 rounded-xl font-bold flex items-center gap-3 ${googleStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+                      {googleStatus.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                      {googleStatus.msg}
+                    </div>
+                  )}
+
+                  {pendingGoogleData && (
+                    <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-[2rem] animate-in fade-in zoom-in duration-300 shadow-sm">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <h5 className="text-xs font-black text-stone-900 uppercase italic truncate">{pendingGoogleData.name}</h5>
+                      </div>
+                      
+                      <div className="space-y-2 mb-4">
+                        {pendingGoogleData.address && (
+                          <div className="flex items-center gap-3 text-stone-500 text-[10px] font-bold uppercase tracking-tight">
+                            <MapPin size={12} className="opacity-40" /> {pendingGoogleData.address}
+                          </div>
+                        )}
+                        {pendingGoogleData.phone && (
+                          <div className="flex items-center gap-3 text-stone-500 text-[10px] font-bold uppercase tracking-tight">
+                            <Phone size={12} className="opacity-40" /> {pendingGoogleData.phone}
+                          </div>
+                        )}
+                        {pendingGoogleData.rating && (
+                          <div className="flex items-center gap-3 text-stone-500 text-[10px] font-bold uppercase tracking-tight">
+                            <Star size={12} className="text-amber-500 fill-amber-500" /> {pendingGoogleData.rating} <span className="opacity-40">({pendingGoogleData.reviews?.length || 0} avaliações)</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-3 pt-4 border-t border-emerald-100">
+                        {pendingGoogleData.socialLinks?.instagram && <Instagram size={14} className="text-pink-500" />}
+                        {pendingGoogleData.socialLinks?.facebook && <div className="text-blue-600"><i className="fab fa-facebook"></i></div>}
+                        {pendingGoogleData.socialLinks?.whatsapp && <div className="text-emerald-500"><i className="fab fa-whatsapp"></i></div>}
+                        {pendingGoogleData.socialLinks?.tiktok && <div className="text-stone-900"><i className="fab fa-tiktok"></i></div>}
+                        {pendingGoogleData.socialLinks?.youtube && <div className="text-red-600"><i className="fab fa-youtube"></i></div>}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {!pendingGoogleData && !isFetchingGoogle && !googleStatus && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      <div className="h-px bg-stone-100 flex-1"></div>
+                      <span className="text-[10px] font-black text-stone-300 uppercase tracking-[0.2em]">Ou Manual</span>
+                      <div className="h-px bg-stone-100 flex-1"></div>
+                    </div>
+
+                    <div className="space-y-4">
+                       <input 
+                         type="text" 
+                         placeholder="Nome do seu Negócio" 
+                         value={formData.businessName}
+                         onChange={(e) => setFormData(p => ({ ...p, businessName: e.target.value }))}
+                         className="w-full bg-stone-50 border border-stone-200 rounded-2xl px-6 py-4 text-sm focus:border-orange-500 outline-none text-stone-800 font-bold" 
+                       />
+                       <textarea 
+                         placeholder="O que seu negócio faz? (Ex: Pizzaria napolitana, Clínica odontológica...)"
+                         value={formData.description}
+                         onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))}
+                         className="w-full bg-stone-50 border border-stone-200 rounded-2xl px-6 py-4 text-sm focus:border-orange-500 outline-none text-stone-800 font-bold resize-none h-24"
+                       />
+                    </div>
+                  </div>
+                )}
+
+                <button 
+                  onClick={() => {
+                    if (pendingGoogleData) confirmGoogleInjection();
+                    else if (googleSearchQuery.length > 3 && !googleStatus) fetchGoogleData(googleSearchQuery);
+                    else handleGenerateSite();
+                  }}
+                  className={`w-full py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] transition-all shadow-xl text-xs flex items-center justify-center gap-3 ${
+                    pendingGoogleData ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20' : 
+                    (googleSearchQuery.length > 3 && !googleStatus) ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20' : 
+                    'bg-orange-500 hover:bg-orange-600 text-white shadow-orange-500/20 hover:scale-[1.02] active:scale-95'
+                  }`}
+                >
+                  {pendingGoogleData ? <>Confirmar Dados <Check size={18} /></> : 
+                   (googleSearchQuery.length > 3 && !googleStatus) ? <>Validar no Google <div className="flex items-center gap-1"><i className="fab fa-google"></i></div></> : 
+                   <>✨ Iniciar a Mágica Agora</>}
+                </button>
+              </div>
+
+              <div className="p-4 bg-stone-50 border-t border-stone-100 flex items-center justify-center gap-6">
+                 <div className="flex items-center gap-1.5 opacity-30">
+                   <ShieldCheck size={12} />
+                   <span className="text-[8px] font-black uppercase tracking-widest">Seguro</span>
+                 </div>
+                 <div className="flex items-center gap-1.5 opacity-30">
+                   <Clock size={12} />
+                   <span className="text-[8px] font-black uppercase tracking-widest">30 Segundos</span>
+                 </div>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
