@@ -2018,8 +2018,11 @@ const App: React.FC = () => {
                               className={`flex items-center gap-3 bg-stone-50 border border-stone-200 p-3 rounded-2xl cursor-pointer ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-500' : ''}`}
                             >
                               <div className="flex-1 min-w-0">
-                                <p className="text-xs font-bold text-stone-800 truncate">{p.businessName || 'Sem título'}</p>
-                                <p className="text-[9px] font-mono text-stone-400 truncate">{p.publishUrl?.replace('https://', '') || 'Rascunho'}</p>
+                                <div className="flex items-center gap-1">
+                                  <p className="text-xs font-bold text-stone-800 truncate">{p.businessName || 'Sem título'}</p>
+                                  {getStatusBadge(p)}
+                                </div>
+                                <p className="text-[9px] font-mono text-stone-400 truncate mt-1">{p.publishUrl?.replace('https://', '') || 'Rascunho'}</p>
                               </div>
                               <ChevronRight size={14} className="text-stone-400" />
                             </div>
@@ -2196,73 +2199,133 @@ const App: React.FC = () => {
                 )}
 
                 {/* ID: plano */}
-                {activeMobileSheet === 'plano' && (
-                  <div className="space-y-6">
-                    <div className="flex flex-col items-center text-center space-y-2 mb-6">
-                      <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 mb-2">
-                        <CreditCard size={24} />
+                {activeMobileSheet === 'plano' && (() => {
+                  const currentProject = savedProjects.find(p => p.id === currentProjectSlug);
+                  const expirationDate = currentProject?.expiresAt ? getExpirationTimestampMs(currentProject.expiresAt) : null;
+                  const daysLeft = expirationDate ? Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24)) : 0;
+                  const isPaid = currentProject?.paymentStatus === 'paid';
+                  const isCanceled = currentProject?.cancelAtPeriodEnd === true || currentProject?.subscriptionStatus === 'canceled';
+                  let isExpired = false;
+                  if (expirationDate && expirationDate < Date.now() && !isPaid) {
+                    isExpired = true;
+                  }
+                  const needsPayment = currentProject?.status === 'frozen' || isExpired;
+
+                  return (
+                    <div className="space-y-6">
+                      <div className="flex flex-col items-center text-center space-y-2 mb-6">
+                        <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 mb-2">
+                          <CreditCard size={24} />
+                        </div>
+                        <h4 className="text-sm font-black text-stone-900 uppercase">Assinatura</h4>
+                        <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest">
+                          {isPaid ? (isCanceled ? 'Assinatura Cancelada' : 'Plano Operacional') : 'Ativação imediata após o pagamento'}
+                        </p>
                       </div>
-                      <h4 className="text-sm font-black text-stone-900 uppercase">Escolha seu Plano</h4>
-                      <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest">Ativação imediata após o pagamento</p>
-                    </div>
 
-                    <div className="space-y-4">
-                      {platformConfigs?.plans?.map((p: any) => {
-                        const isAnual = p.interval === 'year';
-                        return (
+                      <div className="bg-stone-50 p-5 rounded-2xl border border-stone-200 mb-6 shadow-inner">
+                        <h4 className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-4">Resumo</h4>
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center border-b border-stone-200 pb-3">
+                            <span className="text-xs text-stone-500 font-medium">Status</span>
+                            <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-md ${daysLeft > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                              {daysLeft > 0 ? 'Online (Ativo)' : 'Offline (Congelado)'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center border-b border-stone-200 pb-3">
+                            <span className="text-xs text-stone-500 font-medium">Plano</span>
+                            <span className="text-xs font-bold text-stone-800 text-right">
+                              {isPaid ? (isCanceled ? 'Cancelada' : `${currentProject?.planSelected || 'Ativo'}`) : 'Teste Gratuito'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-stone-500 font-medium">{isPaid ? 'Renovação' : 'Vencimento'}</span>
+                            <span className="text-xs font-bold text-stone-800 text-right">
+                              {!isPaid && daysLeft > 0 && `Faltam ${daysLeft} dias`}
+                              {!isPaid && daysLeft <= 0 && `Encerrado`}
+                              {isPaid && !isCanceled && expirationDate && `${new Date(expirationDate).toLocaleDateString('pt-BR')}`}
+                              {isPaid && isCanceled && expirationDate && `No ar até ${new Date(expirationDate).toLocaleDateString('pt-BR')}`}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {isPaid && isCanceled && daysLeft > 0 ? (
+                        <div className="bg-orange-50 border border-orange-200 p-6 rounded-xl text-center space-y-4">
+                          <h4 className="font-black text-orange-700 text-sm uppercase tracking-wider">Assinatura Cancelada</h4>
+                          <p className="text-[11px] text-orange-600/80 mb-2">Seu site continuará no ar até o cumprimento total do período pago.</p>
                           <button
-                            key={p.priceId}
-                            onClick={() => {
-                              window.parent.postMessage({ type: 'OPEN_PLAN_MODAL', priceId: p.priceId, plan: p.name.toLowerCase() }, '*');
-                              setActiveMobileSheet(null);
-                              setIsMobileWizardOpen(false);
-                            }}
-                            className={`w-full text-left p-4 rounded-2xl border-2 transition-all active:scale-95 ${isAnual ? 'border-orange-500 bg-orange-50/30' : 'border-stone-100 bg-stone-50'}`}
+                            onClick={() => handleResumeSubscription(currentProjectSlug)}
+                            disabled={isResuming}
+                            className="bg-orange-500 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase w-full"
                           >
-                            <div className="flex justify-between items-center mb-1">
-                              <span className={`text-[10px] font-black uppercase tracking-widest ${isAnual ? 'text-orange-600' : 'text-stone-400'}`}>{p.name}</span>
-                              {isAnual && <span className="bg-orange-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase">Melhor Oferta</span>}
-                            </div>
-                            <div className="flex items-baseline gap-1">
-                              <span className="text-lg font-black text-stone-900">R$ {p.price}</span>
-                              <span className="text-[9px] text-stone-400 font-bold">/ {p.interval === 'month' ? 'mês' : (p.interval === 'year' ? 'ano' : p.interval)}</span>
-                            </div>
-                            <p className="text-[9px] text-stone-400 mt-2 font-medium">{p.description || 'Hospedagem profissional SiteZing'}</p>
+                            {isResuming ? <Loader2 className="animate-spin inline mr-2" /> : 'Reativar Assinatura'}
                           </button>
-                        );
-                      })}
+                        </div>
+                      ) : isPaid && !isCanceled ? (
+                        <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-xl text-center space-y-4">
+                          <h4 className="font-black text-emerald-700 text-sm uppercase tracking-wider">Plano Operacional</h4>
+                          <div className="pt-2">
+                            <button
+                              onClick={() => { setIsPlansBannerOpen(true); setActiveMobileSheet(null); setIsMobileWizardOpen(false); }}
+                              className="bg-white border border-emerald-200 text-emerald-700 px-6 py-3 rounded-xl text-xs font-bold w-full uppercase shadow-sm"
+                            >
+                              Mudar de Plano
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest text-center mb-2">Opções Disponíveis</p>
+                          {platformConfigs?.plans?.map((p: any) => {
+                            const isAnual = p.interval === 'year';
+                            return (
+                              <button
+                                key={p.priceId}
+                                onClick={() => {
+                                  if (currentProject?.stripeSubscriptionId && currentProject?.cancelAtPeriodEnd && currentProject?.status !== 'frozen') {
+                                    handleResumeSubscription(currentProjectSlug);
+                                  } else {
+                                    setCheckoutDetailsModal({ projectId: currentProjectSlug || '', planType: p.name, priceId: p.priceId });
+                                    setActiveMobileSheet(null);
+                                    setIsMobileWizardOpen(false);
+                                  }
+                                }}
+                                className={`w-full text-left p-4 rounded-2xl border-2 transition-all active:scale-95 ${isAnual ? 'border-orange-500 bg-orange-50/30' : 'border-stone-100 bg-stone-50'}`}
+                              >
+                                <div className="flex justify-between items-center mb-1">
+                                  <span className={`text-[10px] font-black uppercase tracking-widest ${isAnual ? 'text-orange-600' : 'text-stone-400'}`}>{p.name}</span>
+                                  {isAnual && <span className="bg-orange-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase">Melhor Oferta</span>}
+                                </div>
+                                <div className="flex items-baseline gap-1">
+                                  <span className="text-lg font-black text-stone-900">R$ {p.price}</span>
+                                  <span className="text-[9px] text-stone-400 font-bold">/ {p.interval === 'month' ? 'mês' : (p.interval === 'year' ? 'ano' : p.interval)}</span>
+                                </div>
+                                <p className="text-[9px] text-stone-400 mt-2 font-medium">{p.description || 'Hospedagem profissional SiteZing'}</p>
+                              </button>
+                            );
+                          })}
 
-                      {(!platformConfigs?.plans || platformConfigs.plans.length === 0) && (
-                        <div className="p-8 text-center bg-stone-50 rounded-2xl border border-dashed border-stone-200">
-                          <p className="text-[10px] text-stone-400 font-bold italic">Carregando opções de planos...</p>
+                          {(!platformConfigs?.plans || platformConfigs.plans.length === 0) && (
+                            <div className="p-8 text-center bg-stone-50 rounded-2xl border border-dashed border-stone-200">
+                              <p className="text-[10px] text-stone-400 font-bold italic">Carregando opções de planos...</p>
+                            </div>
+                          )}
+
+                          <div className="pt-6 border-t border-stone-100 mt-6">
+                            <div className="bg-teal-50 rounded-xl p-4 flex items-center gap-3">
+                              <ShieldCheck size={20} className="text-teal-600" />
+                              <div className="flex-1">
+                                <p className="text-[10px] font-black text-teal-800 uppercase">Pagamento Seguro</p>
+                                <p className="text-[9px] text-teal-600 font-medium">Processado via Stripe com proteção total.</p>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
-
-                    <div className="pt-6 border-t border-stone-100">
-                      <div className="bg-teal-50 rounded-xl p-4 flex items-center gap-3">
-                        <ShieldCheck size={20} className="text-teal-600" />
-                        <div className="flex-1">
-                          <p className="text-[10px] font-black text-teal-800 uppercase">Pagamento Seguro</p>
-                          <p className="text-[9px] text-teal-600 font-medium">Processado via Stripe com proteção total.</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="pt-8 border-t border-stone-100 flex flex-col gap-4">
-                      <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl">
-                         <p className="text-[11px] font-black text-emerald-800 uppercase text-center">Tudo Pronto! 🎉</p>
-                         <p className="text-[10px] text-emerald-600 font-medium text-center mt-1">Suas configurações básicas foram concluídas. Você pode assinar um plano para publicar agora.</p>
-                      </div>
-                      <button 
-                        onClick={() => { setActiveMobileSheet('plano'); handleSaveOrUpdateSite(); }}
-                        className="w-full min-h-[56px] bg-emerald-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all shadow-xl shadow-emerald-500/20"
-                      >
-                        Finalizar e Ver Planos <CheckCircle size={16} />
-                      </button>
-                    </div>
-                  </div>
-                )}
+                  );
+                })()}
 
               </div>
             </motion.div>
