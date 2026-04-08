@@ -457,12 +457,12 @@ const PROMO_HTML = `
 `;
 
 const getDynamicPromoHtml = (platformConfigs: any) => {
-  if (!platformConfigs) return PROMO_HTML;
+  const configs = platformConfigs || {};
 
   let html = PROMO_HTML;
 
   // 1. Render Pricing Cards (Core Conversion)
-  const plans = [...(platformConfigs.plans || [])].sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0));
+  const plans = [...(configs.plans || [])].sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0));
   let cardsHtml = ``;
 
   plans.forEach((p: any) => {
@@ -504,28 +504,9 @@ const getDynamicPromoHtml = (platformConfigs: any) => {
 
   html = html.replace('__PRICING_CARDS__', cardsHtml);
 
-  // 2. Render Google Reviews (Social Proof)
-  if (platformConfigs.reviews && platformConfigs.reviews.length > 0) {
-    const reviewsHtml = platformConfigs.reviews.slice(0, 3).map((r: any) => `
-      <div class="glass-card p-6 rounded-2xl border-stone-200/40 text-left relative overflow-hidden">
-        <div class="flex items-center gap-3 mb-4">
-          <img src="${r.profile_photo_url || 'https://via.placeholder.com/40'}" class="w-10 h-10 rounded-full border border-stone-100 object-cover" />
-          <div>
-            <div class="font-bold text-sm text-stone-800">${r.author_name}</div>
-            <div class="flex text-[10px] text-amber-400">
-              ${Array(Math.floor(r.rating || 5)).fill('<i class="fas fa-star"></i>').join('')}
-            </div>
-          </div>
-        </div>
-        <svg width="20" height="20" viewBox="0 0 24 24" class="absolute top-6 right-6 opacity-20"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-        <p class="text-xs text-stone-500 leading-relaxed italic mb-4">"${r.text}"</p>
-        <div class="text-[9px] font-bold text-stone-300 uppercase tracking-widest">${r.relative_time_description || ''}</div>
-      </div>
-    `).join('');
-
-    html = html.replace(/<div id="google-reviews-section"[^>]*class="[^"]*opacity-0[^"]*"/i, (match) => match.replace('opacity-0', 'opacity-100'));
-    html = html.replace(/__REVIEWS_START__([\s\S]*?)__REVIEWS_END__/i, `__REVIEWS_START__${reviewsHtml}__REVIEWS_END__`);
-  }
+  // 2. Hide Google Reviews for Promotional preview to avoid flickering and confusion
+  html = html.replace(/__REVIEWS_START__([\s\S]*?)__REVIEWS_END__/i, '');
+  html = html.replace(/<div id="google-reviews-section"[^>]*class="[^"]*"/i, '<div style="display:none;"');
 
   return html;
 };
@@ -1410,6 +1391,7 @@ const App: React.FC = () => {
       socialHtml += `<a href="${href}" target="_blank" class="glass-social-link" style="color: ${brandColor};" title="${label}">${innerHtml}</a>`;
     };
 
+    if (data.googlePlaceUrl) addSocialBtn(data.googlePlaceUrl.startsWith('http') ? data.googlePlaceUrl : `https://${data.googlePlaceUrl}`, '#4285F4', 'Google', '<i class="fab fa-google"></i>');
     if (data.whatsapp) addSocialBtn(`https://wa.me/${data.whatsapp.replace(/\D/g, '')}`, '#25D366', 'WhatsApp', '<i class="fab fa-whatsapp"></i>');
     if (data.instagram) addSocialBtn(`https://instagram.com/${data.instagram.replace('@', '')}`, '#E1306C', 'Instagram', '<i class="fab fa-instagram"></i>');
     if (data.facebook) addSocialBtn(data.facebook.startsWith('http') ? data.facebook : `https://${data.facebook}`, '#1877F2', 'Facebook', '<i class="fab fa-facebook-f"></i>');
@@ -2096,6 +2078,10 @@ const App: React.FC = () => {
                 {activeMobileSheet === 'social' && (
                   <div className="space-y-4">
                     <div>
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Google (Avaliações / Maps)</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-500" placeholder="Link da página no Google" value={formData.googlePlaceUrl} onChange={e => { setFormData({ ...formData, googlePlaceUrl: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                    <div>
                       <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">Instagram</label>
                       <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-pink-500" placeholder="@usuario ou Link" value={formData.instagram} onChange={e => { setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true) }} />
                     </div>
@@ -2762,6 +2748,7 @@ const App: React.FC = () => {
                           <div className="space-y-4 animate-in slide-in-from-bottom-2 duration-300">
                             <label className="text-[11px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2 mb-2"><Instagram size={12} className="text-pink-500" /> Redes Sociais</label>
                             <div className="grid grid-cols-1 gap-3">
+                              <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#4285F4]"><MapPin size={14} /></span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#4285F4] outline-none font-bold" placeholder="Google (Avaliações ou Maps)" value={formData.googlePlaceUrl} onChange={e => { setFormData({ ...formData, googlePlaceUrl: e.target.value }); setHasUnsavedChanges(true) }} /></div>
                               <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#25D366]"><Phone size={14} /></span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#25D366] outline-none font-bold" placeholder="WhatsApp (DDD + Número)" value={formData.whatsapp} onChange={e => { setFormData({ ...formData, whatsapp: e.target.value }); setHasUnsavedChanges(true) }} /></div>
                               <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#E1306C]"><Instagram size={14} /></span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#E1306C] outline-none font-bold" placeholder="Instagram (@usuario ou Link)" value={formData.instagram} onChange={e => { setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true) }} /></div>
                               <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1877F2]"><Edit3 size={14} /></span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#1877F2] outline-none font-bold" placeholder="Facebook (Link)" value={formData.facebook} onChange={e => { setFormData({ ...formData, facebook: e.target.value }); setHasUnsavedChanges(true) }} /></div>
