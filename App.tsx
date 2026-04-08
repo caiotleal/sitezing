@@ -925,16 +925,6 @@ const App: React.FC = () => {
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
-  // AUTO-OPEN CREATION MODAL ON MOBILE HOME
-  useEffect(() => {
-    if (isMobile && !currentProjectSlug && savedProjects.length === 0) {
-      const hasSeenModal = sessionStorage.getItem('sitezing_mobile_modal_seen');
-      if (!hasSeenModal) {
-        setShowFloatModal(true);
-        sessionStorage.setItem('sitezing_mobile_modal_seen', 'true');
-      }
-    }
-  }, [isMobile, currentProjectSlug, savedProjects.length]);
 
   useEffect(() => {
     if (handledStripeReturnRef.current || savedProjects.length === 0) return;
@@ -3772,187 +3762,257 @@ const App: React.FC = () => {
       {/* MODAL DE CRIAÇÃO "PERFEITO" (RESTAURADO E OTIMIZADO) */}
       <AnimatePresence>
         {showFloatModal && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[5000] flex items-center justify-center p-4">
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-stone-900/60 backdrop-blur-md"
               onClick={() => setShowFloatModal(false)}
             />
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              initial={{ scale: 0.9, opacity: 0, y: 30 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-white/95 backdrop-blur-2xl w-full max-w-lg rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.15)] border border-white relative overflow-hidden flex flex-col"
+              exit={{ scale: 0.9, opacity: 0, y: 30 }}
+              className="bg-white/95 backdrop-blur-2xl w-full max-w-xl rounded-[3rem] shadow-[0_40px_120px_rgba(0,0,0,0.25)] border border-white/50 relative overflow-hidden flex flex-col"
             >
-              {/* Header com gradiente premium */}
-              <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 p-6 relative overflow-hidden flex-shrink-0">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 blur-3xl rounded-full"></div>
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full"></div>
+              {/* Header Premium */}
+              <div className="bg-gradient-to-br from-stone-900 via-stone-800 to-black p-8 relative overflow-hidden shrink-0">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 blur-[80px] rounded-full -mr-20 -mt-20"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full -ml-20 -mb-20"></div>
                 
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex gap-1.5">
-                    <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                    <div className="w-2 h-2 rounded-full bg-amber-400"></div>
-                    <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500 shadow-lg shadow-red-500/20"></div>
+                    <div className="w-3 h-3 rounded-full bg-amber-500 shadow-lg shadow-amber-500/20"></div>
+                    <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/20"></div>
                   </div>
-                  <button onClick={() => setShowFloatModal(false)} className="text-white/40 hover:text-white transition-colors">
-                    <X size={18} />
+                  <button onClick={() => setShowFloatModal(false)} className="bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-all active:scale-90">
+                    <X size={20} />
                   </button>
                 </div>
                 
-                <h3 className="text-lg md:text-xl font-black text-white italic uppercase tracking-wider mb-1">Crie seu site profissional</h3>
-                <p className="text-xs text-stone-400 font-medium tracking-tight">Nosso IA vai montar tudo para você em segundos.</p>
+                <h3 className="text-2xl md:text-3xl font-black text-white italic uppercase tracking-tighter leading-none mb-2">Configure seu novo site</h3>
+                <p className="text-sm text-stone-400 font-medium">Preencha os dados abaixo ou deixe o Google fazer a mágica.</p>
               </div>
 
-              <div className="p-8 space-y-6 overflow-y-auto max-h-[70vh]">
-                {/* 3-CLICK GOOGLE SYNC SECTION - HIGH VISIBILITY */}
-                <div className="bg-blue-50/70 border-2 border-blue-400 p-6 rounded-[2rem] shadow-[0_10px_40px_rgba(59,130,246,0.1)] group transition-all hover:bg-blue-50">
-                  <label className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-4 flex items-center justify-center gap-2">
-                    <Search size={14} className="animate-pulse" /> Sincronizar com Google Business
-                  </label>
-                  <div className="space-y-4">
-                    <div className="relative group/input">
-                      <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-orange-500 rounded-2xl blur opacity-10 group-focus-within/input:opacity-30 transition duration-500"></div>
-                      <div className="relative">
-                        <i className="fab fa-google absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 text-sm"></i>
+              <div className="p-8 space-y-8 overflow-y-auto max-h-[75vh] custom-scrollbar scroll-smooth">
+                {/* FIELD 1: GOOGLE SYNC */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-lg shadow-blue-500/20">1</div>
+                    <label className="text-[11px] font-black text-stone-900 uppercase tracking-[0.2em]">Sincronizar com Google AI</label>
+                  </div>
+                  <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition duration-500"></div>
+                    <div className="relative flex gap-2">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 w-4 h-4" />
                         <input 
                           type="text" 
-                          placeholder="Link do Google ou Nome da Empresa" 
+                          placeholder="Link ou Nome da Empresa no Google" 
                           value={googleSearchQuery}
                           onChange={(e) => {
                             setGoogleSearchQuery(e.target.value);
                             setGoogleStatus(null);
                             setGoogleResults([]);
-                            if (e.target.value === '') {
-                              setPendingGoogleData(null);
-                            }
+                            if (e.target.value === '') setPendingGoogleData(null);
                           }}
-                          className="w-full bg-white border-2 border-blue-100 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold focus:border-blue-500 outline-none text-stone-800 transition-all shadow-sm" 
+                          className="w-full bg-white border-2 border-stone-100 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold focus:border-blue-500 outline-none text-stone-800 transition-all shadow-sm" 
                         />
                       </div>
+                      <button 
+                        onClick={() => fetchGoogleData(false, googleSearchQuery)}
+                        disabled={isFetchingGoogle || googleSearchQuery.length < 3}
+                        className="bg-blue-600 hover:bg-black text-white px-6 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+                      >
+                        {isFetchingGoogle ? <Loader2 className="animate-spin w-4 h-4" /> : "Pesquisar"}
+                      </button>
                     </div>
+                  </div>
 
-                    {isFetchingGoogle && (
-                      <div className="flex items-center justify-center gap-3 py-4 text-blue-600 font-black uppercase italic tracking-widest text-xs animate-pulse">
-                        <Loader2 className="animate-spin w-4 h-4" /> Consultando Google AI...
-                      </div>
-                    )}
+                  {googleStatus && (
+                    <div className={`text-xs p-4 rounded-2xl font-bold flex items-center gap-3 animate-in slide-in-from-top-2 border ${googleStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>
+                      {googleStatus.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+                      {googleStatus.msg}
+                    </div>
+                  )}
 
-                    {googleStatus && (
-                      <div className={`text-xs p-4 rounded-xl font-bold flex items-center gap-3 animate-in slide-in-from-top-2 ${googleStatus.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
-                        {googleStatus.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
-                        {googleStatus.msg}
-                      </div>
-                    )}
-
-                    {googleResults.length > 0 && !pendingGoogleData && (
-                      <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar py-2">
-                        {googleResults.map((res, i) => (
-                          <div 
-                            key={i}
-                            onClick={() => {
-                              setPendingGoogleData(res);
-                              setGoogleResults([]);
-                            }}
-                            className="bg-white border-2 border-stone-100 hover:border-blue-400 p-4 rounded-2xl cursor-pointer transition-all hover:scale-[1.02] shadow-sm flex items-start gap-3 group"
-                          >
-                            <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                              <MapPin size={16} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h5 className="text-[11px] font-black text-stone-900 uppercase italic truncate">{res.name}</h5>
-                              <p className="text-[9px] text-stone-500 font-medium truncate mt-0.5">{res.address}</p>
-                            </div>
-                            <ChevronRight size={14} className="text-stone-300 mt-2" />
+                  {googleResults.length > 0 && !pendingGoogleData && (
+                    <div className="space-y-2 animate-in fade-in zoom-in duration-300">
+                      {googleResults.slice(0, 3).map((res, i) => (
+                        <div 
+                          key={i}
+                          onClick={() => {
+                            setPendingGoogleData(res);
+                            setGoogleResults([]);
+                            setFormData(prev => ({
+                              ...prev,
+                              businessName: res.name || prev.businessName,
+                            }));
+                            const newSlug = slugify(res.name || '').slice(0, 30);
+                            setFormData(p => ({ ...p, customSlug: newSlug }));
+                            checkDomainDebounced(newSlug);
+                          }}
+                          className="bg-white border-2 border-stone-100 hover:border-blue-600 p-4 rounded-2xl cursor-pointer transition-all hover:scale-[1.01] shadow-sm flex items-start gap-4 group"
+                        >
+                          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <MapPin size={18} />
                           </div>
-                        ))}
-                      </div>
-                    )}
+                          <div className="flex-1 min-w-0">
+                            <h5 className="text-xs font-black text-stone-900 uppercase italic truncate">{res.name}</h5>
+                            <p className="text-[10px] text-stone-500 font-medium truncate mt-0.5">{res.address}</p>
+                          </div>
+                          <ArrowRight size={16} className="text-stone-300 self-center group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
-                    {pendingGoogleData && (
-                      <div className="bg-white border border-blue-100 p-6 rounded-[2rem] animate-in fade-in zoom-in duration-300 shadow-xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-2 opacity-5"><i className="fab fa-google text-4xl"></i></div>
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                          <h5 className="text-xs font-black text-stone-900 uppercase italic truncate">{pendingGoogleData.name}</h5>
+                  {pendingGoogleData && (
+                    <div className="bg-emerald-50 border-2 border-emerald-500/30 p-5 rounded-[2rem] animate-in zoom-in duration-300 relative overflow-hidden">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                          <Check size={20} />
                         </div>
-                        
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {pendingGoogleData.address && <div className="px-2 py-1 bg-blue-50 text-blue-600 rounded-lg text-[8px] font-black uppercase border border-blue-100 flex items-center gap-1"><MapPin size={10} /> Endereço</div>}
-                          {pendingGoogleData.phone && <div className="px-2 py-1 bg-green-50 text-green-600 rounded-lg text-[8px] font-black uppercase border border-green-100 flex items-center gap-1"><Phone size={10} /> Whatsapp</div>}
-                          {pendingGoogleData.rating && <div className="px-2 py-1 bg-amber-50 text-amber-600 rounded-lg text-[8px] font-black uppercase border border-amber-100 flex items-center gap-1"><Star size={10} /> Avaliações</div>}
-                          {pendingGoogleData.socialLinks && Object.keys(pendingGoogleData.socialLinks).length > 0 && (
-                            <div className="px-2 py-1 bg-purple-50 text-purple-600 rounded-lg text-[8px] font-black uppercase border border-purple-100 flex items-center gap-1"><Instagram size={10} /> Redes Sociais</div>
-                          )}
+                        <div className="flex-1">
+                          <h5 className="text-[11px] font-black text-stone-900 uppercase italic truncate tracking-tight">{pendingGoogleData.name}</h5>
+                          <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Sincronizado via Google</span>
                         </div>
+                        <button onClick={() => setPendingGoogleData(null)} className="text-[9px] font-black text-stone-400 uppercase hover:text-red-500 transition-colors">Trocar</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
-                        <div className="flex gap-2 pt-4 border-t border-blue-50">
-                          <button onClick={() => setPendingGoogleData(null)} className="flex-1 py-3 bg-stone-100 text-stone-500 rounded-xl text-[10px] uppercase font-black hover:bg-stone-200 transition-colors">Tentar Outro</button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                  {/* FIELD 2 & 3: NAME & DESCRIPTION */}
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center font-bold text-sm shadow-lg shadow-orange-500/20">2</div>
+                        <label className="text-[11px] font-black text-stone-900 uppercase tracking-[0.2em]">Dados do Negócio</label>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="group/input">
+                          <p className="text-[9px] font-black text-stone-400 uppercase tracking-widest mb-2 ml-1">Nome Fantasia</p>
+                          <input 
+                            type="text" 
+                            placeholder="Ex: Pizzaria Mágica" 
+                            value={formData.businessName}
+                            onChange={(e) => {
+                              setFormData(p => ({ ...p, businessName: e.target.value }));
+                              if (!formData.isCustomSlugEdited) {
+                                const s = slugify(e.target.value).slice(0, 30);
+                                setFormData(p => ({ ...p, customSlug: s }));
+                                checkDomainDebounced(s);
+                              }
+                            }}
+                            className="w-full bg-stone-50 border-2 border-transparent rounded-2xl px-5 py-4 text-sm focus:border-orange-500 focus:bg-white outline-none text-stone-800 font-bold transition-all shadow-inner" 
+                          />
+                        </div>
+                        <div className="group/input">
+                          <p className="text-[9px] font-black text-stone-400 uppercase tracking-widest mb-2 ml-1">O que você faz?</p>
+                          <textarea 
+                            placeholder="Ex: Pizzaria napolitana com bordas recheadas e delivery rápido."
+                            value={formData.description}
+                            onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))}
+                            className="w-full bg-stone-50 border-2 border-transparent rounded-2xl px-5 py-4 text-sm focus:border-orange-500 focus:bg-white outline-none text-stone-800 font-bold resize-none h-24 transition-all shadow-inner"
+                          />
                         </div>
                       </div>
-                    )}
+                    </div>
+                  </div>
+
+                  {/* FIELD 4: DOMAIN CHECKER */}
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shadow-lg shadow-emerald-500/20">4</div>
+                        <label className="text-[11px] font-black text-stone-900 uppercase tracking-[0.2em]">Endereço na Web</label>
+                      </div>
+                      <div className="bg-stone-50 border-2 border-dashed border-stone-200 p-6 rounded-[2.5rem] relative group">
+                        <div className="space-y-4">
+                          <div className="flex items-center bg-white border-2 border-stone-100 rounded-2xl px-4 py-4 shadow-sm group-focus-within:border-emerald-500 transition-all">
+                            <span className="text-[10px] font-black text-stone-400 uppercase tracking-tight shrink-0 whitespace-nowrap">sitezing.com/</span>
+                            <input 
+                              type="text"
+                              value={formData.customSlug}
+                              onChange={(e) => {
+                                const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+                                setFormData(p => ({ ...p, customSlug: val, isCustomSlugEdited: true }));
+                                checkDomainDebounced(val);
+                              }}
+                              className="w-full bg-transparent outline-none text-sm font-black text-stone-900 px-1"
+                              placeholder="seu-negocio"
+                            />
+                            {floatDomainStatus.loading ? (
+                              <Loader2 className="w-4 h-4 animate-spin text-stone-400" />
+                            ) : formData.customSlug && (
+                              floatDomainStatus.available ? (
+                                <div className="bg-emerald-100 text-emerald-600 p-1 rounded-full"><Check size={12} /></div>
+                              ) : (
+                                <div className="bg-red-100 text-red-600 p-1 rounded-full"><X size={12} /></div>
+                              )
+                            )}
+                          </div>
+
+                          <div className="px-2">
+                             {floatDomainStatus.available === true && (
+                               <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest animate-pulse">✨ Endereço Disponível!</p>
+                             )}
+                             {floatDomainStatus.available === false && (
+                               <div className="space-y-2">
+                                 <p className="text-[9px] font-black text-red-500 uppercase tracking-widest">Endereço já em uso</p>
+                                 <div className="flex flex-wrap gap-1.5">
+                                   {floatDomainStatus.alternatives?.map((alt, idx) => (
+                                     <button 
+                                       key={idx}
+                                       onClick={() => {
+                                         setFormData(p => ({ ...p, customSlug: alt }));
+                                         checkDomainDebounced(alt);
+                                       }}
+                                       className="text-[8px] font-black uppercase tracking-tighter bg-white border border-stone-200 px-2 py-1 rounded-lg text-stone-600 hover:border-emerald-500 hover:text-emerald-600 transition-all"
+                                     >
+                                       {alt}
+                                     </button>
+                                   ))}
+                                 </div>
+                               </div>
+                             )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {!pendingGoogleData && !isFetchingGoogle && !googleStatus && (
-                  <div className="space-y-4 animate-in fade-in duration-700">
-                    <div className="flex items-center gap-4">
-                      <div className="h-px bg-stone-100 flex-1"></div>
-                      <span className="text-[10px] font-black text-stone-300 uppercase tracking-[0.2em]">Ou Manual</span>
-                      <div className="h-px bg-stone-100 flex-1"></div>
-                    </div>
-
-                    <div className="space-y-4">
-                       <input 
-                         type="text" 
-                         placeholder="Nome do seu Negócio" 
-                         value={formData.businessName}
-                         onChange={(e) => setFormData(p => ({ ...p, businessName: e.target.value }))}
-                         className="w-full bg-stone-50 border border-stone-200 rounded-2xl px-6 py-4 text-sm focus:border-orange-500 outline-none text-stone-800 font-bold" 
-                       />
-                       <textarea 
-                         placeholder="O que seu negócio faz? (Ex: Pizzaria napolitana, Clínica odontológica...)"
-                         value={formData.description}
-                         onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))}
-                         className="w-full bg-stone-50 border border-stone-200 rounded-2xl px-6 py-4 text-sm focus:border-orange-500 outline-none text-stone-800 font-bold resize-none h-24"
-                       />
-                    </div>
-                  </div>
-                )}
-
-                <div className="pt-2">
+                <div className="pt-6">
                   <button 
                     onClick={() => {
                       if (pendingGoogleData) confirmGoogleInjection();
-                      else if (googleSearchQuery.length > 3 && !googleStatus) fetchGoogleData(false, googleSearchQuery);
                       else handleGenerateSite();
                     }}
-                    disabled={isGenerating || isFetchingGoogle || (!formData.businessName && googleSearchQuery.length <= 3)}
-                    className={`w-full py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] transition-all shadow-xl text-xs flex items-center justify-center gap-3 active:scale-95 ${
-                      pendingGoogleData ? 'bg-orange-500 hover:bg-orange-600 text-white shadow-orange-500/20' : 
-                      (googleSearchQuery.length > 3 && !googleStatus) ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20' : 
-                      'bg-stone-900 hover:bg-black text-white shadow-stone-900/20'
-                    }`}
+                    disabled={isGenerating || !formData.businessName || !formData.customSlug || floatDomainStatus.available === false}
+                    className="w-full py-6 rounded-3xl bg-black text-white font-black uppercase tracking-[0.3em] text-xs shadow-2xl shadow-black/20 transition-all active:scale-[0.98] flex items-center justify-center gap-4 hover:bg-stone-900 disabled:opacity-50 disabled:active:scale-100"
                   >
-                    {isGenerating ? <Loader2 className="animate-spin w-5 h-5" /> : 
-                     isFetchingGoogle ? <Loader2 className="animate-spin w-5 h-5" /> :
-                     pendingGoogleData ? <>Criar meu Site Agora ✨</> : 
-                     (googleSearchQuery.length > 3 && !googleStatus) ? <>Pesquisar no Google <Zap size={18} /></> : 
-                     <>✨ Iniciar a Mágica Agora</>}
+                    {isGenerating ? (
+                      <div className="flex items-center gap-3">
+                        <Loader2 className="animate-spin w-5 h-5" /> EXECUTANDO MÁGICA...
+                      </div>
+                    ) : (
+                      <>✨ INICIAR MÁGICA AGORA</>
+                    )}
                   </button>
                 </div>
               </div>
 
-              <div className="p-4 bg-stone-50 border-t border-stone-100 flex items-center justify-center gap-6">
-                 <div className="flex items-center gap-1.5 opacity-30">
-                   <ShieldCheck size={12} />
-                   <span className="text-[8px] font-black uppercase tracking-widest text-stone-600">Ambiente Seguro</span>
+              <div className="p-6 bg-stone-50 border-t border-stone-100 flex items-center justify-center gap-8 flex-shrink-0">
+                 <div className="flex items-center gap-2 opacity-40">
+                   <ShieldCheck size={16} className="text-stone-900" />
+                   <span className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-900 leading-none">Ambiente Seguro</span>
                  </div>
-                 <div className="flex items-center gap-1.5 opacity-30">
-                   <Zap size={12} />
-                   <span className="text-[8px] font-black uppercase tracking-widest text-stone-600">Geração 30s</span>
+                 <div className="flex items-center gap-2 opacity-40">
+                   <Zap size={16} className="text-stone-900" />
+                   <span className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-900 leading-none">Geração 30s</span>
                  </div>
               </div>
             </motion.div>
