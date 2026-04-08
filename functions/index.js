@@ -303,27 +303,14 @@ exports.enhanceProjectImage = onCall({ cors: true, timeoutSeconds: 300, secrets:
   if (!imageUrl || !projectId) throw new HttpsError("invalid-argument", "Dados incompletos.");
 
   const db = admin.firestore();
-  const today = new Date().toISOString().split('T')[0];
-  const quotaRef = db.collection("users").doc(uid).collection("stats").doc("aiUsage");
-
-  // 1. Verificação de Cota Diária (2 fotos/dia)
-  await db.runTransaction(async (t) => {
-    const doc = await t.get(quotaRef);
-    const data = doc.exists ? doc.data() : { dailyEnhanceCount: 0, lastDate: "" };
-
-    if (data.lastDate === today) {
-      if (data.dailyEnhanceCount >= 2) throw new HttpsError("resource-exhausted", "Você atingiu o limite de 2 fotos melhoradas por dia.");
-      t.update(quotaRef, { dailyEnhanceCount: data.dailyEnhanceCount + 1 });
-    } else {
-      t.set(quotaRef, { dailyEnhanceCount: 1, lastDate: today });
-    }
-  });
+  
+  // Trava de cota removida conforme solicitação do usuário.
 
   try {
     const apiKey = geminiKey.value();
     
-    // 2. Análise SEO via Gemini 1.5 Flash Vision
-    const visionUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // 2. Análise SEO via Gemini (usando o modelo que já funciona no seu projeto)
+    const visionUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
     
     // Para simplificar, baixamos a imagem e passamos como base64 se for URL
     let imageBase64;
@@ -347,10 +334,21 @@ exports.enhanceProjectImage = onCall({ cors: true, timeoutSeconds: 300, secrets:
 
     const vRes = await fetch(visionUrl, { method: "POST", body: JSON.stringify(visionPayload) });
     const vData = await vRes.json();
-    const analysis = JSON.parse(vData.candidates[0].content.parts[0].text);
+    
+    if (!vData.candidates || vData.candidates.length === 0) {
+      console.error("Gemini Vision Error Details:", JSON.stringify(vData));
+      throw new Error("A IA não conseguiu analisar a imagem. Tente novamente em instantes.");
+    }
 
-    // 3. Melhoria de Qualidade via Imagen (Regeneração em Alta Definição)
-    const imagenUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`;
+    const analysisText = vData.candidates[0].content?.parts?.[0]?.text;
+    if (!analysisText) {
+      throw new Error("A IA retornou uma resposta vazia.");
+    }
+
+    const analysis = JSON.parse(analysisText);
+
+    // 3. Melhoria de Qualidade via Imagen (Usando a versão 4.0 Fast)
+    const imagenUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${apiKey}`;
     const refinedPrompt = `PROFESSIONAL 8K UPSCALED PHOTOGRAPHY: ${analysis.enhancementPrompt}. Shot on high-end camera, masterpiece, commercial lighting, authentic textures.`;
     
     const iRes = await fetch(imagenUrl, {
@@ -359,11 +357,21 @@ exports.enhanceProjectImage = onCall({ cors: true, timeoutSeconds: 300, secrets:
     });
     const iData = await iRes.json();
     
-    let finalUrl = imageUrl;
-    if (iData.predictions && iData.predictions[0]) {
-      const base64Out = `data:${iData.predictions[0].mimeType || "image/jpeg"};base64,${iData.predictions[0].bytesBase64Encoded}`;
-      finalUrl = await uploadBase64ToStorage(base64Out);
+    if (!iData.predictions || iData.predictions.length === 0) {
+      console.error("Imagen Error Details:", JSON.stringify(iData));
+      // Se falhar a melhoria visual, ainda retornamos o SEO Alt Text com a imagem original
+      return { 
+        success: true, 
+        enhancedUrl: imageUrl, 
+        seoAltText: analysis.seoAltText,
+        warning: "A qualidade foi mantida, mas a descrição SEO foi gerada com sucesso."
+      };
     }
+
+    let finalUrl = imageUrl;
+    const prediction = iData.predictions[0];
+    const base64Out = `data:${prediction.mimeType || "image/jpeg"};base64,${prediction.bytesBase64Encoded}`;
+    finalUrl = await uploadBase64ToStorage(base64Out);
 
     return { 
       success: true, 

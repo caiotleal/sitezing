@@ -360,9 +360,17 @@ const PROMO_HTML = `
 
       <div class="w-full max-w-[400px] mx-auto md:ml-auto md:mr-0 animate-up" style="animation-delay: 0.1s;">
         <div class="bg-white border-[3px] border-orange-500 shadow-[0_20px_50px_rgba(249,115,22,0.2)] rounded-[3rem] overflow-hidden relative">
-          <div class="bg-gradient-to-r from-orange-500 via-orange-600 to-orange-500 p-4 relative text-center">
+          <div class="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 p-6 relative text-center overflow-hidden">
             <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-            <h3 class="text-sm font-black text-white italic uppercase tracking-[0.2em] relative z-10">Inteligência Artificial</h3>
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-orange-500/20 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl"></div>
+            
+            <div class="flex items-center justify-center gap-2 mb-3 relative z-10">
+              <span class="bg-orange-500 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-lg shadow-orange-500/20">Site pronto em 30s</span>
+              <span class="bg-white/10 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter backdrop-blur-md">7 Dias Grátis</span>
+            </div>
+            
+            <h3 class="text-lg font-black text-white italic uppercase tracking-[0.15em] relative z-10">Crie seu site</h3>
           </div>
           
           <div class="p-8 space-y-6">
@@ -397,7 +405,10 @@ const PROMO_HTML = `
 
               <div class="space-y-3 opacity-60 hover:opacity-100 transition-opacity">
                 <input type="text" id="hero-business-name" placeholder="Nome do Negócio" 
-                       class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-center text-[10px] focus:border-teal-500 outline-none text-stone-800 font-bold" />
+                       class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-center text-xs focus:border-teal-500 outline-none text-stone-800 font-bold" />
+                
+                <textarea id="hero-business-desc" placeholder="O que seu negócio faz? (Opcional)"
+                        class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-xs focus:border-orange-500 outline-none text-stone-800 font-bold resize-none h-20 placeholder:text-stone-300"></textarea>
                 
                 <div class="flex bg-white border border-stone-200 rounded-xl overflow-hidden focus-within:border-teal-500 transition-all shadow-sm">
                   <input id="hero-custom-slug" class="flex-1 bg-transparent px-3 py-3 text-[10px] font-mono font-bold text-teal-600 outline-none w-full text-right" placeholder="meu-site" />
