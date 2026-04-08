@@ -207,6 +207,18 @@ const PROMO_HTML = `
           gConfirm.style.display = 'block';
           document.getElementById('conf-name').innerText = pendingGoogleData.name;
           document.getElementById('conf-addr').innerText = pendingGoogleData.address;
+          
+          var sCont = document.getElementById('conf-socials');
+          if (sCont) {
+            sCont.innerHTML = '';
+            var sl = pendingGoogleData.socialLinks || {};
+            if (sl.instagram) sCont.innerHTML += '<i class="fab fa-instagram text-[10px] text-pink-500"></i>';
+            if (sl.facebook) sCont.innerHTML += '<i class="fab fa-facebook text-[10px] text-blue-600"></i>';
+            if (sl.whatsapp) sCont.innerHTML += '<i class="fab fa-whatsapp text-[10px] text-emerald-500"></i>';
+            if (sl.tiktok) sCont.innerHTML += '<i class="fab fa-tiktok text-[10px] text-stone-900"></i>';
+            if (sl.youtube) sCont.innerHTML += '<i class="fab fa-youtube text-[10px] text-red-600"></i>';
+            if (sCont.innerHTML === '') sCont.innerHTML = '<span class="text-[8px] text-stone-400 italic font-medium">Redes não detectadas</span>';
+          }
         }
       } else if (googleStatus) {
         if (gFeed) {
@@ -410,11 +422,12 @@ const PROMO_HTML = `
 
               <div id="google-feedback" class="text-[9px] text-center font-bold mt-1 hidden"></div>
 
-              <div id="google-confirm-box" class="hidden bg-emerald-50 border border-emerald-100 p-2 mt-2 rounded-xl animate-in fade-in zoom-in duration-300">
-                <div class="flex items-center gap-2">
+              <div id="google-confirm-box" class="hidden bg-emerald-50 border border-emerald-100 p-2.5 mt-2 rounded-xl animate-in fade-in zoom-in duration-300">
+                <div class="flex items-center gap-2 mb-1.5">
                   <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
                   <h5 id="conf-name" class="text-[10px] font-black text-stone-900 uppercase italic truncate"></h5>
                 </div>
+                <div id="conf-socials" class="flex items-center gap-2 ml-3.5"></div>
               </div>
             </div>
 
