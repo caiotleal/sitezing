@@ -1524,3 +1524,32 @@ exports.listRecentEmailLogsAdmin = onCall({ cors: true }, async (request) => {
     return { logs };
   } catch (err) { throw new HttpsError("internal", err.message); }
 });
+
+// ==============================================================================
+// ROTINAS DE MANUTENÇÃO (CRON) E HIGIENIZAÇÃO DE DADOS
+// ==============================================================================
+exports.cleanupAnonymousUsers = onSchedule("every 24 hours", async (event) => {
+  let nextPageToken;
+  let deletedCount = 0;
+  
+  try {
+    do {
+      const listUsersResult = await admin.auth().listUsers(1000, nextPageToken);
+      
+      const uidsToDelete = listUsersResult.users
+        .filter(user => user.providerData.length === 0)
+        .map(user => user.uid);
+      
+      if (uidsToDelete.length > 0) {
+        await admin.auth().deleteUsers(uidsToDelete);
+        deletedCount += uidsToDelete.length;
+      }
+      
+      nextPageToken = listUsersResult.pageToken;
+    } while (nextPageToken);
+    
+    console.log(`Cron (Diário): ${deletedCount} usuários anônimos removidos com sucesso.`);
+  } catch (err) {
+    console.error("Erro na rotina de limpar usuários anônimos:", err);
+  }
+});

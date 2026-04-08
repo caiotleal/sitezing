@@ -836,6 +836,17 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Limpeza de usuários anônimos ao fechar a guia
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (auth.currentUser && auth.currentUser.isAnonymous) {
+        auth.currentUser.delete().catch(() => {});
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, []);
+
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
