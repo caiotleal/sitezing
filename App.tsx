@@ -1581,10 +1581,6 @@ const App: React.FC = () => {
       headInjection += `<link rel="icon" type="image/png" href="${data.faviconBase64}">`;
     }
     if (data.logoBase64) {
-      if (!data.faviconBase64) {
-         // Fallback para sites existentes se não houver favicon específico
-         if (currentProjectSlug) headInjection += `<link rel="icon" type="image/png" href="${data.logoBase64}">`;
-      }
       headInjection += `<style>.glass-logo-premium img { max-height: ${logoHeight}px !important; }</style>`;
       html = html.replace(/\[\[LOGO_AREA\]\]/g, `<img src="${data.logoBase64}" style="max-height: ${logoHeight}px; width: auto; display: block; object-fit: contain; transition: transform 0.2s ease;" alt="Logo" />`);
     } else {
