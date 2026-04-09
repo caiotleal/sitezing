@@ -990,7 +990,8 @@ const App: React.FC = () => {
     logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [] as any[], editorialSummary: '',
     customSlug: '', isCustomSlugEdited: false, googlePhotos: [] as string[],
     headerLayout: 'logo_left_icons_right',
-    manualCss: ''
+    manualCss: '',
+    directLinkLabel: ''
   });
   const [pendingSave, setPendingSave] = useState(false);
   const [isSaveReminderOpen, setIsSaveReminderOpen] = useState(false);
@@ -1587,7 +1588,7 @@ const App: React.FC = () => {
     if (data.x) addSocialBtn(data.x.startsWith('http') ? data.x : `https://${data.x}`, '#000000', 'X / Twitter', '<i class="fab fa-x-twitter"></i>');
     if (data.rappi) addSocialBtn(data.rappi.startsWith('http') ? data.rappi : `https://${data.rappi}`, '#FF441F', 'Rappi', '<span style="font-size: 15px; font-weight: 900; line-height: 1;">Rappi</span>');
     if (data.zeDelivery) addSocialBtn(data.zeDelivery.startsWith('http') ? data.zeDelivery : `https://${data.zeDelivery}`, '#FCCC24', 'Zé Delivery', '<span style="font-size: 15px; font-weight: 900; line-height: 1; color: black;">Zé</span>');
-    if (data.directLink) addSocialBtn(data.directLink.startsWith('http') ? data.directLink : `https://${data.directLink}`, colors.c1, 'Comprar', '<i class="fas fa-external-link-alt"></i>');
+    if (data.directLink) addSocialBtn(data.directLink.startsWith('http') ? data.directLink : `https://${data.directLink}`, colors.c1, data.directLinkLabel || 'Link', `<div style="display:flex; items-center; gap: 5px;"><i class="fas fa-external-link-alt"></i> <span style="font-[9px]; font-weight: 900; text-transform: uppercase;">${data.directLinkLabel || 'Acessar'}</span></div>`);
 
 
     const shareBtnHtml = `<div class="glass-social-links-premium">[[SOCIAL_LINKS]]<div class="glass-social-link" onclick="zingShareSite()" title="Compartilhar Site" style="cursor:pointer; color: ${colors.c4};"><i class="fas fa-arrow-up-from-bracket"></i></div></div>`;
@@ -2000,7 +2001,7 @@ const App: React.FC = () => {
           showToast("Site excluído com sucesso.", "success");
           if (projectId === currentProjectSlug) {
             setGeneratedHtml(null); setCurrentProjectSlug(null); setHasUnsavedChanges(false); setActiveTab('geral');
-            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', youtube: '', x: '', rappi: '', zeDelivery: '', directLink: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' });
+            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', youtube: '', x: '', rappi: '', zeDelivery: '', directLink: '', directLinkLabel: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' });
           }
 
           const listFn = httpsCallable(functions, 'listUserProjects');
@@ -2369,6 +2370,10 @@ const App: React.FC = () => {
                       <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">YouTube</label>
                       <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-red-600" placeholder="Link do Canal" value={formData.youtube} onChange={e => { setFormData({ ...formData, youtube: e.target.value }); setHasUnsavedChanges(true) }} />
                     </div>
+                    <div>
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-2 block">X / Twitter</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-stone-900" placeholder="@usuario ou Link" value={formData.x} onChange={e => { setFormData({ ...formData, x: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
 
                     <div className="pt-8 border-t border-stone-100 flex flex-col gap-3">
                       <button 
@@ -2404,8 +2409,11 @@ const App: React.FC = () => {
                       <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-emerald-500 font-bold" placeholder="Link da loja no Keeta" value={formData.keeta} onChange={e => { setFormData({ ...formData, keeta: e.target.value }); setHasUnsavedChanges(true) }} />
                     </div>
                     <div>
-                      <label className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2 block">Menu / Link Direto</label>
-                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-500" placeholder="Cardápio Digital ou Outro Site" value={formData.directLink} onChange={e => { setFormData({ ...formData, directLink: e.target.value }); setHasUnsavedChanges(true) }} />
+                      <label className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2 block">Link Personalizado (Agenda, Cardápio, etc)</label>
+                      <div className="space-y-2">
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-500 font-bold" placeholder="Nome do Botão (Ex: Ver Agenda)" value={formData.directLinkLabel} onChange={e => { setFormData({ ...formData, directLinkLabel: e.target.value }); setHasUnsavedChanges(true) }} />
+                        <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-blue-500" placeholder="Link (URL Completa)" value={formData.directLink} onChange={e => { setFormData({ ...formData, directLink: e.target.value }); setHasUnsavedChanges(true) }} />
+                      </div>
                     </div>
 
                     <div className="pt-8 border-t border-stone-100 flex flex-col gap-3">
@@ -3079,6 +3087,7 @@ const App: React.FC = () => {
                               <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#25D366]"><Phone size={14} /></span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#25D366] outline-none font-bold" placeholder="WhatsApp (DDD + Número)" value={formData.whatsapp} onChange={e => { setFormData({ ...formData, whatsapp: e.target.value }); setHasUnsavedChanges(true) }} /></div>
                               <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#E1306C]"><Instagram size={14} /></span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#E1306C] outline-none font-bold" placeholder="Instagram (@usuario ou Link)" value={formData.instagram} onChange={e => { setFormData({ ...formData, instagram: e.target.value }); setHasUnsavedChanges(true) }} /></div>
                               <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1877F2]"><Edit3 size={14} /></span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#1877F2] outline-none font-bold" placeholder="Facebook (Link)" value={formData.facebook} onChange={e => { setFormData({ ...formData, facebook: e.target.value }); setHasUnsavedChanges(true) }} /></div>
+                              <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-black"><Edit3 size={14} /></span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-black outline-none font-bold" placeholder="X (Link)" value={formData.x} onChange={e => { setFormData({ ...formData, x: e.target.value }); setHasUnsavedChanges(true) }} /></div>
                               <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-black"><Star size={14} /></span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-black outline-none font-bold" placeholder="TikTok (Link)" value={formData.tiktok} onChange={e => { setFormData({ ...formData, tiktok: e.target.value }); setHasUnsavedChanges(true) }} /></div>
                             </div>
                           </div>
@@ -3092,6 +3101,11 @@ const App: React.FC = () => {
                               <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#FF441F] font-black text-[10px]">RP</span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#FF441F] outline-none font-bold" placeholder="Rappi (Link da Loja)" value={formData.rappi} onChange={e => { setFormData({ ...formData, rappi: e.target.value }); setHasUnsavedChanges(true) }} /></div>
                               <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#FCCC24] font-black text-[10px]">ZE</span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#FCCC24] outline-none font-bold" placeholder="Zé Delivery (Link)" value={formData.zeDelivery} onChange={e => { setFormData({ ...formData, zeDelivery: e.target.value }); setHasUnsavedChanges(true) }} /></div>
                               <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#19B84A] font-black text-[10px]">KT</span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#19B84A] outline-none font-bold" placeholder="Keeta (Link da Loja)" value={formData.keeta} onChange={e => { setFormData({ ...formData, keeta: e.target.value }); setHasUnsavedChanges(true) }} /></div>
+                              <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 space-y-3">
+                                <label className="text-[9px] font-black text-blue-400 uppercase tracking-widest">Link Personalizado</label>
+                                <input className="w-full bg-white border border-stone-200 rounded-xl py-2 px-3 text-xs focus:border-blue-500 outline-none font-bold" placeholder="Nome do Botão (Ex: Ver Agenda)" value={formData.directLinkLabel} onChange={e => { setFormData({ ...formData, directLinkLabel: e.target.value }); setHasUnsavedChanges(true) }} />
+                                <input className="w-full bg-white border border-stone-200 rounded-xl py-2 px-3 text-xs focus:border-blue-500 outline-none" placeholder="Link (URL)" value={formData.directLink} onChange={e => { setFormData({ ...formData, directLink: e.target.value }); setHasUnsavedChanges(true) }} />
+                              </div>
                             </div>
                           </div>
                         )}
