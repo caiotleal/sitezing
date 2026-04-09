@@ -993,7 +993,8 @@ const App: React.FC = () => {
     manualCss: '',
     directLinkLabel: '',
     faviconBase64: '',
-    seoDescription: ''
+    seoDescription: '',
+    isSeoDescriptionEdited: false
   });
   const [pendingSave, setPendingSave] = useState(false);
   const [isSaveReminderOpen, setIsSaveReminderOpen] = useState(false);
@@ -1379,6 +1380,17 @@ const App: React.FC = () => {
         checkDomainDebounced(nextSlug);
       }
       return { ...p, businessName: val, customSlug: nextSlug };
+    });
+    setHasUnsavedChanges(true);
+  };
+
+  const handleDescriptionSync = (val: string) => {
+    setFormData(p => {
+      const updates: any = { description: val };
+      if (!p.isSeoDescriptionEdited) {
+        updates.seoDescription = val;
+      }
+      return { ...p, ...updates };
     });
     setHasUnsavedChanges(true);
   };
@@ -2010,7 +2022,7 @@ const App: React.FC = () => {
           showToast("Site excluído com sucesso.", "success");
           if (projectId === currentProjectSlug) {
             setGeneratedHtml(null); setCurrentProjectSlug(null); setHasUnsavedChanges(false); setActiveTab('geral');
-            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', youtube: '', x: '', rappi: '', zeDelivery: '', directLink: '', directLinkLabel: '', faviconBase64: '', seoDescription: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' });
+            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', youtube: '', x: '', rappi: '', zeDelivery: '', directLink: '', directLinkLabel: '', faviconBase64: '', seoDescription: '', isSeoDescriptionEdited: false, ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' });
           }
 
           const listFn = httpsCallable(functions, 'listUserProjects');
@@ -2309,11 +2321,11 @@ const App: React.FC = () => {
                     </div>
                     <div className="space-y-4">
                       <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Descrição do Site (Geral)</label>
-                      <textarea className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm text-stone-800 h-24 outline-none resize-none font-medium leading-relaxed" placeholder="Ex: Somos uma pizzaria..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} />
+                      <textarea className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm text-stone-800 h-24 outline-none resize-none font-medium leading-relaxed" placeholder="Ex: Somos uma pizzaria..." value={formData.description} onChange={e => handleDescriptionSync(e.target.value)} />
                     </div>
                     <div className="space-y-4">
                       <label className="text-[10px] font-black text-blue-500 uppercase tracking-widest block">Descrição para o Google (SEO)</label>
-                      <textarea className="w-full bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-stone-800 h-20 outline-none resize-none font-medium leading-relaxed" placeholder="Resumo curto para aparecer nas buscas..." value={formData.seoDescription} onChange={e => { setFormData({ ...formData, seoDescription: e.target.value }); setHasUnsavedChanges(true) }} />
+                      <textarea className="w-full bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-stone-800 h-20 outline-none resize-none font-medium leading-relaxed" placeholder="Resumo curto para aparecer nas buscas..." value={formData.seoDescription} onChange={e => { setFormData({ ...formData, seoDescription: e.target.value, isSeoDescriptionEdited: true }); setHasUnsavedChanges(true) }} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -3071,7 +3083,7 @@ const App: React.FC = () => {
 
                               <div className="space-y-1.5">
                                 <label className="text-[10px] font-bold text-stone-500 uppercase px-1">Frase de Destaque</label>
-                                <textarea className="w-full h-20 bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-[13px] resize-none focus:border-indigo-500 outline-none transition-all text-stone-800" placeholder="Descreva seu diferencial..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} />
+                                <textarea className="w-full h-20 bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-[13px] resize-none focus:border-indigo-500 outline-none transition-all text-stone-800" placeholder="Descreva seu diferencial..." value={formData.description} onChange={e => handleDescriptionSync(e.target.value)} />
                               </div>
 
                               <div className="space-y-1.5">
@@ -3080,7 +3092,7 @@ const App: React.FC = () => {
                                   className="w-full h-16 bg-blue-50/50 border border-blue-100 rounded-xl px-4 py-3 text-xs resize-none focus:border-blue-400 outline-none transition-all text-stone-800 font-medium" 
                                   placeholder="Resumo curto para o buscador..." 
                                   value={formData.seoDescription} 
-                                  onChange={e => { setFormData({ ...formData, seoDescription: e.target.value }); setHasUnsavedChanges(true) }} 
+                                  onChange={e => { setFormData({ ...formData, seoDescription: e.target.value, isSeoDescriptionEdited: true }); setHasUnsavedChanges(true) }} 
                                 />
                               </div>
 
