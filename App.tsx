@@ -1424,7 +1424,7 @@ const App: React.FC = () => {
         return renderTemplate(aiContent, formData, extractedImages);
       });
     }
-  }, [formData.layoutStyle, formData.headerLayout, formData.colorId, formData.logoBase64, formData.logoSize, formData.whatsapp, formData.instagram, formData.facebook, formData.linkedin, formData.tiktok, formData.youtube, formData.x, formData.rappi, formData.zeDelivery, formData.directLink, formData.ifood, formData.noveNove, formData.keeta, formData.showForm, formData.showFloatingContact, formData.showMap, formData.address, formData.phone, formData.email, formData.region, formData.showReviews, formData.reviews]);
+  }, [formData.layoutStyle, formData.headerLayout, formData.colorId, formData.logoBase64, formData.logoSize, formData.whatsapp, formData.instagram, formData.facebook, formData.linkedin, formData.tiktok, formData.youtube, formData.x, formData.rappi, formData.zeDelivery, formData.directLink, formData.faviconBase64, formData.seoDescription, formData.ifood, formData.noveNove, formData.keeta, formData.showForm, formData.showFloatingContact, formData.showMap, formData.address, formData.phone, formData.email, formData.region, formData.showReviews, formData.reviews]);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
