@@ -132,7 +132,7 @@ const PROMO_HTML = `
       .footer-commercial { height: 80px; }
     }
   </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <script>
     async function zingShare(text) {
       const shareData = {
@@ -1527,7 +1527,7 @@ const App: React.FC = () => {
     replaceAll('{{EMAIL}}', data.email || 'Email não informado');
 
     let headInjection = `
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
       <meta name="description" content="${data.description || 'Confira nosso site profissional.'}">
       <meta property="og:title" content="${data.businessName || 'Meu Site Profissional'}">
       <meta property="og:description" content="${data.description || 'Confira nosso site profissional.'}">
