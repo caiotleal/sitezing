@@ -175,13 +175,40 @@ const PROMO_HTML = `
           }
         }
 
+        if (e.data.type === 'SHOW_SYNC_UI') {
+          document.getElementById('sync-name').innerText = e.data.name;
+          document.getElementById('sync-area').classList.remove('hidden');
+          document.getElementById('search-area').classList.add('hidden');
+          document.getElementById('search-feedback').classList.add('hidden');
+          syncFormData();
+        }
+
+        if (e.data.type === 'SHOW_SEARCH_ERROR') {
+          var fb = document.getElementById('search-feedback');
+          fb.innerText = e.data.msg || 'Empresa não encontrada.';
+          fb.classList.remove('hidden', 'text-stone-400');
+          fb.classList.add('text-red-500');
+          document.getElementById('import-btn-icon').className = 'fas fa-search';
+        }
+
+        if (e.data.type === 'RESET_SEARCH_UI') {
+          document.getElementById('sync-area').classList.add('hidden');
+          document.getElementById('search-area').classList.remove('hidden');
+          document.getElementById('search-feedback').classList.add('hidden');
+          document.getElementById('hero-google-search').value = '';
+          document.getElementById('import-btn-icon').className = 'fas fa-search';
+          syncFormData();
+        }
+
         if (e.data.type === 'FILL_FIELDS') {
           var data = e.data.data;
           if (data.name) document.getElementById('hero-name').value = data.name;
           if (data.description) document.getElementById('hero-desc').value = data.description;
           if (data.slug) document.getElementById('hero-slug').value = data.slug;
           
-          // Trigger sync after filling
+          document.getElementById('sync-area').innerHTML = '<div class="text-[10px] font-black text-emerald-600 bg-emerald-50 p-2 rounded-lg flex items-center gap-2 animate-bounce"><i class="fas fa-check-circle"></i> Tudo Sincronizado!</div>';
+          document.getElementById('submit-btn').classList.remove('opacity-50', 'pointer-events-none');
+          
           syncFormData();
         }
       });
@@ -201,7 +228,19 @@ const PROMO_HTML = `
       function triggerImport() {
         var query = document.getElementById('hero-google-search').value;
         if (query.length < 3) return;
+        document.getElementById('import-btn-icon').className = 'fas fa-sync-alt animate-spin';
+        document.getElementById('search-feedback').innerText = 'Buscando empresa...';
+        document.getElementById('search-feedback').classList.remove('hidden', 'text-red-500');
+        document.getElementById('search-feedback').classList.add('text-stone-400');
         window.parent.postMessage({ type: 'TRIGGER_FETCH_GOOGLE', value: query }, '*');
+      }
+
+      function triggerSyncAction() {
+        window.parent.postMessage({ type: 'ACTION_CONFIRM_GOOGLE' }, '*');
+      }
+
+      function resetSearch() {
+        window.parent.postMessage({ type: 'ACTION_RESET_GOOGLE' }, '*');
       }
 
       function submitCreate() {
@@ -226,39 +265,57 @@ const PROMO_HTML = `
   <main class="pt-8 pb-8 px-6 md:px-20 w-full mx-auto flex flex-col min-h-screen relative overflow-x-hidden">
     <div class="h-16 md:h-20 w-full"></div>
     <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-200/30 blur-[150px] rounded-full pointer-events-none"></div>
-    <div class="max-w-7xl mx-auto w-full relative z-10 animate-up mb-12 mt-6 md:mt-16 grid grid-cols-1 lg:grid-cols-[1fr,420px] gap-12 items-start text-left">
+    <div class="max-w-7xl mx-auto w-full relative z-10 animate-up mb-12 mt-6 md:mt-16 grid grid-cols-1 lg:grid-cols-[1fr,380px] gap-8 items-start text-left">
       
-      <div class="pt-10">
-        <div class="flex flex-wrap items-center gap-3 mb-10 justify-start">
-          <div class="react-vite-badge shadow-sm"><i class="fab fa-react text-[#61DAFB]"></i> React 19</div>
-          <div class="react-vite-badge shadow-sm"><i class="fas fa-bolt text-yellow-500"></i> Vite 6</div>
-          <div class="react-vite-badge shadow-sm"><i class="fas fa-robot text-teal-500"></i> Gemini AI</div>
+      <div class="pt-8">
+        <div class="flex flex-wrap items-center gap-3 mb-6 justify-start">
+          <div class="react-vite-badge shadow-sm px-3 py-1.5"><i class="fab fa-react text-[#61DAFB]"></i> React 19</div>
+          <div class="react-vite-badge shadow-sm px-3 py-1.5"><i class="fas fa-bolt text-yellow-500"></i> Vite 6</div>
+          <div class="react-vite-badge shadow-sm px-3 py-1.5"><i class="fas fa-robot text-teal-500"></i> Gemini AI</div>
         </div>
 
-        <h1 class="text-[3.2rem] md:text-[6.5rem] font-black leading-[0.85] tracking-tighter mb-8 uppercase italic text-stone-900 drop-shadow-sm">
+        <h1 class="text-[3.2rem] md:text-[6rem] font-black leading-[0.85] tracking-tighter mb-6 uppercase italic text-stone-900 drop-shadow-sm">
           Seu site pronto em um <span class="text-orange-500 drop-shadow-sm">ZING!!!</span>
         </h1>
 
-        <p class="text-lg md:text-2xl text-stone-500 font-bold leading-relaxed max-w-2xl mb-12">
-          Não perca vendas por não estar no Google. A nossa inteligência artificial cria, escreve e publica o seu site automaticamente. Preencha o menu ao lado e veja a mágica acontecer.
+        <p class="text-lg md:text-xl text-stone-500 font-bold leading-relaxed max-w-xl mb-8">
+          Inteligência Artificial que cria sua presença online em segundos. Simples, rápido e automático.
         </p>
+
+        <div class="bg-orange-500/10 border border-orange-500/20 text-orange-600 px-8 py-5 rounded-2xl md:max-w-xl flex items-center gap-4 transition-all hover:bg-orange-500/15 group">
+           <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center text-white text-xl shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform">
+              <i class="fas fa-gift"></i>
+           </div>
+           <div>
+              <div class="text-[10px] font-black uppercase tracking-widest opacity-60">Oferta Exclusiva</div>
+              <div class="text-lg font-black uppercase italic tracking-tight">Experimente Grátis por 7 Dias</div>
+           </div>
+        </div>
       </div>
 
-      <div class="hero-form-card overflow-hidden sticky top-24">
-        <div class="flex items-center justify-between p-6 border-b border-stone-100 bg-stone-50/50">
-          <img src="${BRAND_LOGO}" class="h-6 opacity-40" />
-          <div class="flex items-center gap-4">
-            <button class="text-[10px] font-black uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors flex items-center gap-2"><i class="fas fa-door-open"></i> Login</button>
+      <div class="hero-form-card overflow-hidden sticky top-24 scale-[0.95] origin-top">
+        <div class="flex items-center justify-between p-5 border-b border-stone-100 bg-stone-50/50">
+          <img src="${BRAND_LOGO}" class="h-5 opacity-40" />
+          <div class="flex items-center gap-3">
+            <button class="text-[9px] font-black uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors">Login</button>
             <button class="text-stone-300 hover:text-stone-900"><i class="fas fa-times"></i></button>
           </div>
         </div>
 
-        <div class="p-8 space-y-6">
+        <div class="p-6 space-y-5">
           <div class="space-y-2">
-            <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2"><i class="fab fa-google"></i> Busca Google IA</label>
-            <div class="flex gap-2">
+            <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-1.5"><i class="fab fa-google"></i> Busca Google IA</label>
+            <div id="search-area" class="flex gap-2">
               <input type="text" id="hero-google-search" placeholder="Empresa ou Link Google" oninput="syncFormData()" class="flex-1 bg-stone-100 border border-stone-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:bg-white focus:border-blue-500 transition-all text-stone-900" />
-              <button onclick="triggerImport()" class="bg-blue-600 hover:bg-black text-white px-3 rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-90"><i class="fas fa-sync-alt"></i></button>
+              <button onclick="triggerImport()" class="bg-blue-600 hover:bg-black text-white px-3 rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-90"><i id="import-btn-icon" class="fas fa-search"></i></button>
+            </div>
+            <div id="search-feedback" class="hidden text-[9px] font-bold text-stone-400 mt-1 ml-1 animate-pulse"></div>
+            <div id="sync-area" class="hidden animate-up">
+               <div class="bg-stone-50 border border-stone-200 rounded-xl p-3 flex flex-col items-center gap-2 text-center relative">
+                  <button onclick="resetSearch()" class="absolute top-2 right-2 text-stone-300 hover:text-red-500 transition-colors"><i class="fas fa-undo-alt text-[10px]"></i></button>
+                  <span id="sync-name" class="text-xs font-black text-stone-900 pr-4"></span>
+                  <button onclick="triggerSyncAction()" class="w-full bg-blue-600 text-white py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95">Sincronizar Dados</button>
+               </div>
             </div>
           </div>
 
@@ -269,20 +326,20 @@ const PROMO_HTML = `
 
           <div class="space-y-2">
             <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Ideia Principal</label>
-            <textarea id="hero-desc" placeholder="Descreva os serviços..." oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900 h-24 resize-none"></textarea>
+            <textarea id="hero-desc" placeholder="Descreva os serviços..." oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900 h-20 resize-none"></textarea>
           </div>
 
           <div class="space-y-2">
             <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Endereço Web</label>
-            <div class="bg-stone-100 border border-stone-100 rounded-xl px-4 py-3 flex items-center gap-1 focus-within:bg-white focus-within:border-emerald-500 transition-all">
-               <span class="text-[9px] font-black text-stone-300 uppercase shrink-0">sitezing.com/</span>
-               <input type="text" id="hero-slug" placeholder="slug" oninput="syncFormData()" class="flex-1 bg-transparent border-none outline-none text-xs font-bold text-stone-900 p-0" />
+            <div class="bg-stone-100 border border-stone-100 rounded-xl px-4 py-2.5 flex items-center gap-1 focus-within:bg-white focus-within:border-emerald-500 transition-all">
+               <input type="text" id="hero-slug" placeholder="meu-site" oninput="syncFormData()" class="flex-1 bg-transparent border-none outline-none text-xs font-bold text-stone-900 p-0 text-right" />
+               <span class="text-[9px] font-black text-stone-300 uppercase shrink-0">.sitezing.com.br</span>
                <div id="slug-feedback" class="shrink-0"></div>
             </div>
           </div>
 
-          <button onclick="submitCreate()" class="w-full py-5 rounded-2xl bg-[#1c1c1c] text-white font-black uppercase tracking-[0.15em] text-[10px] shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3">
-             <i class="fas fa-redo-alt animate-spin-slow"></i> Gerar Meu Site
+          <button id="submit-btn" onclick="submitCreate()" class="w-full py-5 rounded-2xl bg-[#1c1c1c] text-white font-black uppercase tracking-[0.15em] text-[10px] shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 opacity-50 pointer-events-none">
+             ✨ Gerar Meu Site
           </button>
         </div>
       </div>
@@ -856,7 +913,7 @@ const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [mobileWizardStep, setMobileWizardStep] = useState(1);
   const [activeMobileSheet, setActiveMobileSheet] = useState<string | number | null>(null);
-  const [mobileActiveTab, setMobileActiveTab] = useState<'editar' | 'plano'>('editar');
+  const [mobileActiveTab, setMobileActiveTab] = useState<'home' | 'editar' | 'plano'>('home');
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -919,6 +976,8 @@ const App: React.FC = () => {
       } else if (mobileActiveTab === 'plano') {
         setActiveMobileSheet('plano');
         setIsMobileWizardOpen(true);
+      } else if (mobileActiveTab === 'home') {
+        setIsMobileWizardOpen(false);
       }
     }
   }, [mobileActiveTab, isMobile]);
@@ -1082,10 +1141,30 @@ const App: React.FC = () => {
           setGoogleResults(res.data.results);
           setGoogleStatus({ type: 'success', msg: 'Vários locais encontrados. Selecione o correto abaixo:' });
         }
+      } else {
+        // Nada encontrado
+        const iframe = iframeRef.current;
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.postMessage({ type: 'SHOW_SEARCH_ERROR', msg: 'Empresa não localizada no Google.' }, '*');
+        }
+        showToast('Empresa não encontrada.', 'warning');
+      }
+      
+      // Se localizou (pelo menos 1), avisa o Iframe para mostrar o botão de Sincronizar
+      if (res.data?.results && res.data.results.length >= 1) {
+        const first = res.data.results[0];
+        const iframe = iframeRef.current;
+        if (iframe && iframe.contentWindow) {
+           iframe.contentWindow.postMessage({ type: 'SHOW_SYNC_UI', name: first.name }, '*');
+        }
       }
     } catch (e: any) {
       setGoogleStatus({ type: 'error', msg: e.message });
       setIsInstantGenerating(false);
+      const iframe = iframeRef.current;
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage({ type: 'SHOW_SEARCH_ERROR', msg: 'Erro na busca (500). Verifique o nome.' }, '*');
+      }
     } finally {
       setIsFetchingGoogle(false);
       if (autoConfirm) setIsInstantGenerating(false);
@@ -1785,6 +1864,32 @@ const App: React.FC = () => {
       if (e.data?.type === 'SET_CUSTOM_SLUG') {
         handleCustomSlugChange(e.data.value);
       }
+      if (e.data?.type === 'SUBMIT_CREATE') {
+        if (!formData.businessName) return showToast('Digite o nome da sua empresa!', 'warning');
+        if (floatDomainStatus.available === false) return showToast('Este endereço não está disponível.', 'warning');
+        
+        const desc = formData.description || `Uma empresa moderna e inovadora chamada ${formData.businessName}.`;
+        handleGenerate(desc);
+        setIsMenuOpen(true);
+        setActiveTab('geral');
+      }
+      if (e.data?.type === 'SYNC_FORM_DATA') {
+        const d = e.data.data;
+        const currentSlug = formData.customSlug;
+        
+        setFormData(p => ({
+          ...p,
+          businessName: d.businessName !== undefined ? d.businessName : p.businessName,
+          description: d.description !== undefined ? d.description : p.description,
+          customSlug: d.customSlug !== undefined ? d.customSlug : p.customSlug,
+          googleSearchQuery: d.googleSearch !== undefined ? d.googleSearch : p.googleSearchQuery
+        }));
+
+        // Real-time Domain Validation
+        if (d.customSlug !== undefined && d.customSlug !== currentSlug) {
+           handleCustomSlugChange(d.customSlug);
+        }
+      }
       if (e.data?.type === 'TRIGGER_FETCH_GOOGLE') {
         fetchGoogleData(false, e.data.value);
       }
@@ -1794,6 +1899,10 @@ const App: React.FC = () => {
       if (e.data?.type === 'ACTION_RESET_GOOGLE') {
         setPendingGoogleData(null);
         setGoogleStatus(null);
+        const iframe = iframeRef.current;
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.postMessage({ type: 'RESET_SEARCH_UI' }, '*');
+        }
       }
       if (e.data?.type === 'ACTION_INSTANT_GENERATE') {
         if (!e.data.value) return showToast('Coloque o link do Google!', 'warning');
