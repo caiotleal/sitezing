@@ -1114,10 +1114,12 @@ const App: React.FC = () => {
         }
         if (d.photos && d.photos.length > 0) updates.googlePhotos = d.photos;
         
-        // MANTEM A DESCRIÇÃO EXISTENTE em sites prontos
-        if (!currentProjectSlug && d.editorialSummary) {
-          updates.editorialSummary = d.editorialSummary;
-          updates.description = d.editorialSummary;
+        // DURANTE A CRIAÇÃO: Descrição = Nome da Empresa, Favicon = Vazio
+        if (!currentProjectSlug) {
+          if (d.editorialSummary) updates.editorialSummary = d.editorialSummary;
+          updates.description = d.name || d.editorialSummary || '';
+          updates.seoDescription = d.name || d.editorialSummary || '';
+          updates.faviconBase64 = ''; 
         }
 
         // Injetar Redes Sociais se encontradas
@@ -1192,6 +1194,7 @@ const App: React.FC = () => {
     if (!currentProjectSlug) {
       if (d.editorialSummary) updates.editorialSummary = d.editorialSummary;
       updates.description = d.name || d.editorialSummary || '';
+      updates.seoDescription = d.name || d.editorialSummary || '';
       updates.faviconBase64 = ''; // Mantém sem favicon conforme pedido
     }
 
