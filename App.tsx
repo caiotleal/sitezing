@@ -1198,6 +1198,7 @@ const App: React.FC = () => {
       if (d.socialLinks.linkedin) updates.linkedin = d.socialLinks.linkedin;
       if (d.socialLinks.tiktok) updates.tiktok = d.socialLinks.tiktok;
       if (d.socialLinks.youtube) updates.youtube = d.socialLinks.youtube;
+      if (d.socialLinks.keeta) updates.keeta = d.socialLinks.keeta;
     }
 
     setFormData(prev => {
@@ -1726,6 +1727,7 @@ const App: React.FC = () => {
     setIsLinkingDomain(true);
     try {
       const linkFn = httpsCallable(functions, 'addCustomDomain');
+      // Passamos o domínio base; o backend deve tratar o root e o www
       await linkFn({ projectId: currentProjectSlug, domain: customDomainInput });
       showToast('Domínio configurado! Verifique as instruções de apontamento.', 'success');
       // Força a recarga para refletir a nova URL na tela de Meus Projetos
@@ -2396,6 +2398,10 @@ const App: React.FC = () => {
                     <div>
                       <label className="text-[10px] font-black text-yellow-500 uppercase tracking-widest mb-2 block">Zé Delivery</label>
                       <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-yellow-500" placeholder="Link do Zé Delivery" value={formData.zeDelivery} onChange={e => { setFormData({ ...formData, zeDelivery: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-2 block">Keeta</label>
+                      <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm outline-none focus:border-emerald-500 font-bold" placeholder="Link da loja no Keeta" value={formData.keeta} onChange={e => { setFormData({ ...formData, keeta: e.target.value }); setHasUnsavedChanges(true) }} />
                     </div>
                     <div>
                       <label className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2 block">Menu / Link Direto</label>
@@ -3085,6 +3091,7 @@ const App: React.FC = () => {
                               <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#EA1D2C] font-black text-[10px]">IF</span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#EA1D2C] outline-none font-bold" placeholder="iFood (Link da Loja)" value={formData.ifood} onChange={e => { setFormData({ ...formData, ifood: e.target.value }); setHasUnsavedChanges(true) }} /></div>
                               <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#FF441F] font-black text-[10px]">RP</span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#FF441F] outline-none font-bold" placeholder="Rappi (Link da Loja)" value={formData.rappi} onChange={e => { setFormData({ ...formData, rappi: e.target.value }); setHasUnsavedChanges(true) }} /></div>
                               <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#FCCC24] font-black text-[10px]">ZE</span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#FCCC24] outline-none font-bold" placeholder="Zé Delivery (Link)" value={formData.zeDelivery} onChange={e => { setFormData({ ...formData, zeDelivery: e.target.value }); setHasUnsavedChanges(true) }} /></div>
+                              <div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#19B84A] font-black text-[10px]">KT</span><input className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-xs focus:border-[#19B84A] outline-none font-bold" placeholder="Keeta (Link da Loja)" value={formData.keeta} onChange={e => { setFormData({ ...formData, keeta: e.target.value }); setHasUnsavedChanges(true) }} /></div>
                             </div>
                           </div>
                         )}
