@@ -991,7 +991,9 @@ const App: React.FC = () => {
     customSlug: '', isCustomSlugEdited: false, googlePhotos: [] as string[],
     headerLayout: 'logo_left_icons_right',
     manualCss: '',
-    directLinkLabel: ''
+    directLinkLabel: '',
+    faviconBase64: '',
+    seoDescription: ''
   });
   const [pendingSave, setPendingSave] = useState(false);
   const [isSaveReminderOpen, setIsSaveReminderOpen] = useState(false);
@@ -1185,10 +1187,11 @@ const App: React.FC = () => {
     }
     if (d.photos && d.photos.length > 0) updates.googlePhotos = d.photos;
     
-    // MANTEM A DESCRIÇÃO EXISTENTE em sites prontos
-    if (!currentProjectSlug && d.editorialSummary) {
-      updates.editorialSummary = d.editorialSummary;
-      updates.description = d.editorialSummary;
+    // DURANTE A CRIAÇÃO: Descrição = Nome da Empresa, Favicon = Vazio
+    if (!currentProjectSlug) {
+      if (d.editorialSummary) updates.editorialSummary = d.editorialSummary;
+      updates.description = d.name || d.editorialSummary || '';
+      updates.faviconBase64 = ''; // Mantém sem favicon conforme pedido
     }
 
     // Injetar Redes Sociais se encontradas
@@ -1528,9 +1531,9 @@ const App: React.FC = () => {
 
     let headInjection = `
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-      <meta name="description" content="${data.description || 'Confira nosso site profissional.'}">
+      <meta name="description" content="${data.seoDescription || data.description || 'Confira nosso site profissional.'}">
       <meta property="og:title" content="${data.businessName || 'Meu Site Profissional'}">
-      <meta property="og:description" content="${data.description || 'Confira nosso site profissional.'}">
+      <meta property="og:description" content="${data.seoDescription || data.description || 'Confira nosso site profissional.'}">
       <meta property="og:image" content="${data.logoBase64 || BRAND_LOGO}">
       <meta property="og:type" content="website">
       <meta name="theme-color" content="${colors.c2}">
@@ -1559,8 +1562,14 @@ const App: React.FC = () => {
     `;
 
     const logoHeight = data.logoSize || 40;
+    if (data.faviconBase64) {
+      headInjection += `<link rel="icon" type="image/png" href="${data.faviconBase64}">`;
+    }
     if (data.logoBase64) {
-      headInjection += `<link rel="icon" type="image/png" href="${data.logoBase64}">`;
+      if (!data.faviconBase64) {
+         // Fallback para sites existentes se não houver favicon específico
+         if (currentProjectSlug) headInjection += `<link rel="icon" type="image/png" href="${data.logoBase64}">`;
+      }
       headInjection += `<style>.glass-logo-premium img { max-height: ${logoHeight}px !important; }</style>`;
       html = html.replace(/\[\[LOGO_AREA\]\]/g, `<img src="${data.logoBase64}" style="max-height: ${logoHeight}px; width: auto; display: block; object-fit: contain; transition: transform 0.2s ease;" alt="Logo" />`);
     } else {
@@ -2001,7 +2010,7 @@ const App: React.FC = () => {
           showToast("Site excluído com sucesso.", "success");
           if (projectId === currentProjectSlug) {
             setGeneratedHtml(null); setCurrentProjectSlug(null); setHasUnsavedChanges(false); setActiveTab('geral');
-            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', youtube: '', x: '', rappi: '', zeDelivery: '', directLink: '', directLinkLabel: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' });
+            setFormData({ businessName: '', description: '', region: '', whatsapp: '', instagram: '', facebook: '', linkedin: '', tiktok: '', youtube: '', x: '', rappi: '', zeDelivery: '', directLink: '', directLinkLabel: '', faviconBase64: '', seoDescription: '', ifood: '', noveNove: '', keeta: '', phone: '', email: '', address: '', showMap: true, showForm: true, showFloatingContact: true, layoutStyle: 'layout_modern_center', colorId: 'caribe_turquesa', logoBase64: '', logoSize: 40, segment: '', googlePlaceUrl: '', showReviews: false, reviews: [], editorialSummary: '', customSlug: '', isCustomSlugEdited: false, googlePhotos: [], headerLayout: 'logo_left_icons_right', manualCss: '' });
           }
 
           const listFn = httpsCallable(functions, 'listUserProjects');
@@ -2299,8 +2308,12 @@ const App: React.FC = () => {
                       <input className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm font-bold text-stone-800 outline-none" placeholder="Ex: Pizzaria do Zé" value={formData.businessName} onChange={e => handleFloatNameChange(e.target.value)} />
                     </div>
                     <div className="space-y-4">
-                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">O Que Vocês Fazem?</label>
+                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Descrição do Site (Geral)</label>
                       <textarea className="w-full bg-stone-50 border border-stone-200 rounded-xl p-4 text-sm text-stone-800 h-24 outline-none resize-none font-medium leading-relaxed" placeholder="Ex: Somos uma pizzaria..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} />
+                    </div>
+                    <div className="space-y-4">
+                      <label className="text-[10px] font-black text-blue-500 uppercase tracking-widest block">Descrição para o Google (SEO)</label>
+                      <textarea className="w-full bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-stone-800 h-20 outline-none resize-none font-medium leading-relaxed" placeholder="Resumo curto para aparecer nas buscas..." value={formData.seoDescription} onChange={e => { setFormData({ ...formData, seoDescription: e.target.value }); setHasUnsavedChanges(true) }} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -2315,6 +2328,21 @@ const App: React.FC = () => {
                           {formData.logoBase64 ? <Check size={14} className="text-teal-500" /> : <Upload size={14} />}
                           {formData.logoBase64 ? 'Alterar' : 'Subir'}
                           <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                        </label>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Favicon</label>
+                        <label className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-xs font-bold text-stone-600 flex items-center justify-center gap-2 cursor-pointer">
+                          {formData.faviconBase64 ? <Check size={14} className="text-teal-500" /> : <Upload size={14} />}
+                          {formData.faviconBase64 ? 'Alterar' : 'Subir'}
+                          <input type="file" accept="image/*" onChange={(e) => {
+                             const file = e.target.files?.[0];
+                             if (file) {
+                               const reader = new FileReader();
+                               reader.onload = (event) => { setFormData({ ...formData, faviconBase64: event.target?.result as string }); setHasUnsavedChanges(true); };
+                               reader.readAsDataURL(file);
+                             }
+                          }} className="hidden" />
                         </label>
                       </div>
                     </div>
@@ -3046,6 +3074,16 @@ const App: React.FC = () => {
                                 <textarea className="w-full h-20 bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-[13px] resize-none focus:border-indigo-500 outline-none transition-all text-stone-800" placeholder="Descreva seu diferencial..." value={formData.description} onChange={e => { setFormData({ ...formData, description: e.target.value }); setHasUnsavedChanges(true) }} />
                               </div>
 
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold text-blue-500 uppercase px-1 flex items-center gap-1.5"><Globe size={11} /> Descrição para o Google (SEO)</label>
+                                <textarea 
+                                  className="w-full h-16 bg-blue-50/50 border border-blue-100 rounded-xl px-4 py-3 text-xs resize-none focus:border-blue-400 outline-none transition-all text-stone-800 font-medium" 
+                                  placeholder="Resumo curto para o buscador..." 
+                                  value={formData.seoDescription} 
+                                  onChange={e => { setFormData({ ...formData, seoDescription: e.target.value }); setHasUnsavedChanges(true) }} 
+                                />
+                              </div>
+
                               <div className="grid grid-cols-2 gap-3">
                                 <div className="space-y-1.5 text-left">
                                   <label className="text-[10px] font-bold text-stone-500 uppercase px-1">Estilo</label>
@@ -3071,6 +3109,27 @@ const App: React.FC = () => {
                                     <div className="flex-1 space-y-1">
                                       <div className="flex justify-between text-[9px] font-bold text-stone-400 uppercase"><span>Tamanho</span><span>{formData.logoSize}px</span></div>
                                       <input type="range" min="20" max="100" value={formData.logoSize} onChange={e => { setFormData({ ...formData, logoSize: parseInt(e.target.value) }); setHasUnsavedChanges(true) }} className="w-full accent-indigo-500" />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="space-y-3 p-4 bg-stone-50 rounded-2xl border border-stone-200">
+                                <label className="text-[10px] font-bold text-stone-500 uppercase flex justify-between items-center"><span>Favicon (Ícone do Navegador)</span>{formData.faviconBase64 && <button onClick={() => { setFormData(p => ({ ...p, faviconBase64: '' })); setHasUnsavedChanges(true); }} className="text-red-500 hover:text-red-600 text-[9px] font-black uppercase">X Remover</button>}</label>
+                                {!formData.faviconBase64 ? (
+                                  <label className="cursor-pointer w-full border border-dashed border-stone-300 hover:border-indigo-400 rounded-xl py-4 flex flex-col justify-center items-center gap-2 text-[10px] text-stone-500 transition-all bg-white"><Upload size={16} /><span>Subir Ícone</span><input type="file" accept="image/*" onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      const reader = new FileReader();
+                                      reader.onload = (event) => { setFormData({ ...formData, faviconBase64: event.target?.result as string }); setHasUnsavedChanges(true); };
+                                      reader.readAsDataURL(file);
+                                    }
+                                  }} className="hidden" /></label>
+                                ) : (
+                                  <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 bg-white rounded-lg border border-stone-200 flex items-center justify-center p-1"><img src={formData.faviconBase64} className="max-w-full max-h-full object-contain" alt="Favicon" /></div>
+                                    <div className="flex-1">
+                                      <p className="text-[9px] text-stone-400 font-bold uppercase tracking-wider">Definido com sucesso</p>
                                     </div>
                                   </div>
                                 )}
