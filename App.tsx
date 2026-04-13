@@ -286,7 +286,7 @@ const PROMO_HTML = `
   <main class="pt-2 pb-6 px-6 md:px-12 w-full mx-auto flex flex-col min-h-screen relative overflow-x-hidden">
     <div class="h-10 md:h-12 w-full"></div>
     <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-200/30 blur-[150px] rounded-full pointer-events-none"></div>
-    <div class="max-w-[1400px] mx-auto w-full relative z-10 animate-up mb-8 mt-2 md:mt-10 grid grid-cols-1 lg:grid-cols-[1.1fr,1fr] gap-x-12 gap-y-8 items-center text-left">
+    <div class="max-w-[1400px] mx-auto w-full relative z-10 animate-up mb-8 mt-2 md:mt-10 grid grid-cols-1 lg:grid-cols-[1.6fr,1.1fr] gap-x-12 gap-y-8 items-center text-left">
       
       <div class="pt-8">
         <div class="flex flex-wrap items-center gap-3 mb-6 justify-start">
@@ -314,7 +314,7 @@ const PROMO_HTML = `
         </div>
       </div>
 
-      <div class="hero-form-card overflow-hidden sticky top-20 scale-[0.98] lg:scale-100 origin-top shadow-2xl">
+      <div class="hero-form-card overflow-hidden sticky top-20 scale-[0.9] lg:scale-95 origin-top shadow-2xl max-w-[420px] lg:justify-self-center">
         <div class="flex items-center justify-between p-4 border-b border-stone-100 bg-stone-50/50">
           <img src="${BRAND_LOGO}" class="h-4 opacity-40" />
           <div class="flex items-center gap-3">
@@ -323,11 +323,11 @@ const PROMO_HTML = `
           </div>
         </div>
 
-        <div class="px-6 py-4 space-y-3.5">
+        <div class="px-5 py-3 space-y-2.5">
           <div class="space-y-1.5">
             <label class="text-[8px] font-black text-blue-600 uppercase tracking-[0.2em] ml-1 flex items-center gap-1.5"><i class="fab fa-google"></i> Busca Google IA (Recomendado)</label>
             <div id="search-area" class="flex gap-2">
-              <input type="text" id="hero-google-search" placeholder="Nome da sua empresa no Google" oninput="syncFormData()" class="flex-1 google-highlight border border-blue-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:bg-white focus:border-blue-500 transition-all text-stone-900 shadow-sm" />
+              <input type="text" id="hero-google-search" placeholder="Nome da sua empresa no Google" oninput="syncFormData()" class="flex-1 google-highlight border border-blue-200 rounded-xl px-4 py-1.5 text-xs font-bold outline-none focus:bg-white focus:border-blue-500 transition-all text-stone-900 shadow-sm" />
               <button onclick="triggerImport()" class="bg-blue-600 hover:bg-black text-white px-3 rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-90"><i id="import-btn-icon" class="fas fa-search"></i></button>
             </div>
             <div id="search-feedback" class="hidden text-[9px] font-bold text-stone-400 mt-1 ml-1 animate-pulse"></div>
@@ -342,12 +342,12 @@ const PROMO_HTML = `
 
           <div class="space-y-1.5">
             <label class="text-[8px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Nome do Negócio</label>
-            <input type="text" id="hero-name" placeholder="Ex: Eletricista Silva" oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900" />
+            <input type="text" id="hero-name" placeholder="Ex: Eletricista Silva" oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-1.5 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900" />
           </div>
 
           <div class="space-y-1.5">
             <label class="text-[8px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Ideia Principal</label>
-            <textarea id="hero-desc" placeholder="Descreva os serviços..." oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-1.5 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900 h-14 resize-none"></textarea>
+            <textarea id="hero-desc" placeholder="Descreva os serviços..." oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-1.5 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900 h-12 resize-none"></textarea>
           </div>
 
           <div class="space-y-1.5">
@@ -359,7 +359,7 @@ const PROMO_HTML = `
             </div>
           </div>
 
-          <button id="submit-btn" onclick="submitCreate()" class="w-full py-4 rounded-2xl bg-[#1c1c1c] text-white font-black uppercase tracking-[0.15em] text-[10px] shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 opacity-50 pointer-events-none">
+          <button id="submit-btn" onclick="submitCreate()" class="w-full py-3.5 rounded-2xl bg-[#1c1c1c] text-white font-black uppercase tracking-[0.15em] text-[10px] shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 opacity-50 pointer-events-none">
              ✨ Gerar Meu Site
           </button>
         </div>
