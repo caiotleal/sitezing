@@ -845,14 +845,32 @@ const GuidedTip: React.FC<{
 const getExpirationTimestampMs = (expiresAt: any): number | null => {
   if (!expiresAt) return null;
   if (typeof expiresAt === 'number') return expiresAt;
-  if (typeof expiresAt === 'string') {
-    const parsed = new Date(expiresAt).getTime();
-    return Number.isNaN(parsed) ? null : parsed;
+  
+  try {
+    if (typeof expiresAt === 'string') {
+      const parsed = new Date(expiresAt).getTime();
+      return Number.isNaN(parsed) ? null : parsed;
+    }
+    // Firebase Timestamp object
+    if (expiresAt.toDate && typeof expiresAt.toDate === 'function') return expiresAt.toDate().getTime();
+    if (typeof expiresAt.seconds === 'number') return expiresAt.seconds * 1000;
+    if (typeof expiresAt._seconds === 'number') return expiresAt._seconds * 1000;
+    
+    // JS Date object
+    if (expiresAt instanceof Date) return expiresAt.getTime();
+  } catch (e) {
+    console.error("Erro ao converter data:", expiresAt, e);
   }
-  if (expiresAt.toDate && typeof expiresAt.toDate === 'function') return expiresAt.toDate().getTime();
-  if (typeof expiresAt.seconds === 'number') return expiresAt.seconds * 1000;
-  if (typeof expiresAt._seconds === 'number') return expiresAt._seconds * 1000;
   return null;
+};
+
+const formatSafeDate = (dateVal: any, fallback = 'Pendente'): string => {
+  if (!dateVal) return fallback;
+  const ts = getExpirationTimestampMs(dateVal);
+  if (ts === null) return fallback;
+  const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return fallback;
+  return d.toLocaleDateString('pt-BR');
 };
 
 // DOMÍNIOS DA PLATAFORMA QUE CARREGAM O EDITOR
@@ -2313,8 +2331,8 @@ const App: React.FC = () => {
                                     <div className="grid grid-cols-2 gap-4 py-4 border-y border-stone-100 mb-4">
                                       <div className="flex flex-col">
                                         <span className="text-[8px] font-black text-stone-400 uppercase tracking-widest mb-1 leading-none">Vencimento</span>
-                                        <span className={`text-[10px] font-bold ${daysLeft <= 1 && !isPaid ? 'text-red-500 animate-pulse' : 'text-stone-800'}`}>
-                                          {isPaid ? (isCanceled ? 'Encerrado' : `Renova ${new Date(expirationDate || 0).toLocaleDateString('pt-BR')}`) : (daysLeft <= 0 ? 'Expirado' : `${daysLeft}d restantes`)}
+                                        <span className={`text-[10px] font-bold whitespace-nowrap ${daysLeft <= 1 && !isPaid ? 'text-red-500 animate-pulse' : 'text-stone-800'}`}>
+                                          {isPaid ? (isCanceled ? 'Até o fim' : `Renova ${formatSafeDate(expirationDate)}`) : (daysLeft <= 0 ? 'Expirado' : `${daysLeft}d rest.`)}
                                         </span>
                                       </div>
                                       <div className="flex flex-col text-right">
@@ -2652,8 +2670,8 @@ const App: React.FC = () => {
                             <span className="text-xs font-bold text-stone-800 text-right">
                               {!isPaid && daysLeft > 0 && `Faltam ${daysLeft} dias`}
                               {!isPaid && daysLeft <= 0 && `Encerrado`}
-                              {isPaid && !isCanceled && expirationDate && `${new Date(expirationDate).toLocaleDateString('pt-BR')}`}
-                              {isPaid && isCanceled && expirationDate && `No ar até ${new Date(expirationDate).toLocaleDateString('pt-BR')}`}
+                              {isPaid && !isCanceled && expirationDate && `${formatSafeDate(expirationDate)}`}
+                              {isPaid && isCanceled && expirationDate && `No ar até ${formatSafeDate(expirationDate)}`}
                             </span>
                           </div>
                         </div>
@@ -2771,8 +2789,8 @@ const App: React.FC = () => {
     // SITE BLOQUEADO / CONGELADO
     if (project.status === 'frozen') {
       return (
-        <span className="flex items-center gap-1.5 px-3 py-1 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest border border-red-500/20 rounded-full shadow-lg shadow-red-500/5 transition-all">
-          <AlertCircle size={10} className="animate-pulse" /> SITE BLOQUEADO
+        <span className="flex items-center gap-1.5 px-3 py-1 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest border border-red-500/20 rounded-full shadow-lg shadow-red-500/5 transition-all whitespace-nowrap">
+          <AlertCircle size={10} className="animate-pulse shrink-0" /> SITE BLOQUEADO
         </span>
       );
     }
@@ -2781,8 +2799,8 @@ const App: React.FC = () => {
     const isCanceled = project.cancelAtPeriodEnd === true || project.subscriptionStatus === 'canceled';
     if (project.paymentStatus === 'paid' && isCanceled) {
       return (
-        <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-widest border border-amber-500/20 rounded-full shadow-lg shadow-amber-500/5">
-          <AlertCircle size={10} /> PLANO CANCELADO
+        <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-widest border border-amber-500/20 rounded-full shadow-lg shadow-amber-500/5 whitespace-nowrap">
+          <AlertCircle size={10} className="shrink-0" /> PLANO CANCELADO
         </span>
       );
     }
@@ -2790,8 +2808,8 @@ const App: React.FC = () => {
     // PLANO ATIVO / PUBLICADO
     if (project.paymentStatus === 'paid' || project.status === 'published' || project.status === 'active') {
       return (
-        <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 rounded-full shadow-lg shadow-emerald-500/5">
-          <CheckCircle size={10} /> PLANO ATIVO
+        <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 rounded-full shadow-lg shadow-emerald-500/5 whitespace-nowrap">
+          <CheckCircle size={10} className="shrink-0" /> PLANO ATIVO
         </span>
       );
     }
@@ -2804,22 +2822,22 @@ const App: React.FC = () => {
 
       if (daysLeft <= 0) {
         return (
-          <span className="flex items-center gap-1.5 px-3 py-1 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest border border-red-500/20 rounded-full shadow-lg shadow-red-500/5">
-            <AlertCircle size={10} /> TESTE EXPIRADO
+          <span className="flex items-center gap-1.5 px-3 py-1 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest border border-red-500/20 rounded-full shadow-lg shadow-red-500/5 whitespace-nowrap">
+            <AlertCircle size={10} className="shrink-0" /> TESTE EXPIRADO
           </span>
         );
       }
 
       return (
-        <span className="flex items-center gap-1.5 px-3 py-1 bg-orange-500/10 text-orange-500 text-[10px] font-black uppercase tracking-widest border border-orange-500/20 rounded-full shadow-lg shadow-orange-500/5 animate-pulse">
-          <Clock size={10} /> TESTE GRÁTIS ({daysLeft}d)
+        <span className="flex items-center gap-1.5 px-3 py-1 bg-orange-500/10 text-orange-500 text-[10px] font-black uppercase tracking-widest border border-orange-500/20 rounded-full shadow-lg shadow-orange-500/5 animate-pulse whitespace-nowrap">
+          <Clock size={10} className="shrink-0" /> TESTE ({daysLeft}d)
         </span>
       );
     }
 
     // RASCUNHO (Fallback)
     return (
-      <span className="flex items-center gap-1.5 px-3 py-1 bg-zinc-500/10 text-zinc-500 text-[10px] font-black uppercase tracking-widest border border-zinc-500/20 rounded-full">
+      <span className="flex items-center gap-1.5 px-3 py-1 bg-zinc-500/10 text-zinc-500 text-[10px] font-black uppercase tracking-widest border border-zinc-500/20 rounded-full whitespace-nowrap">
         RASCUNHO
       </span>
     );
@@ -3412,7 +3430,7 @@ const App: React.FC = () => {
                                               <span className="truncate">{p.officialDomain || p.publishUrl?.replace('https://', '') || 'Rascunho'}</span>
                                             </div>
                                             <div className="flex items-center gap-2 text-[9px] text-stone-400">
-                                              <Clock size={10} className="shrink-0" /> {new Date(p.updatedAt).toLocaleDateString('pt-BR')}
+                                              <Clock size={10} className="shrink-0" /> {formatSafeDate(p.updatedAt)}
                                             </div>
                                           </div>
                                         </div>
@@ -3426,8 +3444,8 @@ const App: React.FC = () => {
                                           </div>
                                           <div className="flex flex-col">
                                             <span className="text-[8px] font-black text-stone-400 uppercase tracking-widest leading-none mb-1">Vencimento</span>
-                                            <span className={`text-[10px] font-bold ${daysLeft <= 1 && !isPaid ? 'text-red-500 animate-pulse' : 'text-stone-800'}`}>
-                                              {isPaid ? (isCanceled ? 'Encerrado' : `Renova ${new Date(expirationDate || 0).toLocaleDateString('pt-BR')}`) : (daysLeft <= 0 ? 'Expirado' : `${daysLeft}d restantes`)}
+                                            <span className={`text-[10px] font-bold whitespace-nowrap ${daysLeft <= 1 && !isPaid ? 'text-red-500 animate-pulse' : 'text-stone-800'}`}>
+                                              {isPaid ? (isCanceled ? 'Até o fim' : `Renova ${formatSafeDate(expirationDate)}`) : (daysLeft <= 0 ? 'Expirado' : `${daysLeft}d rest.`)}
                                             </span>
                                           </div>
                                         </div>
@@ -3743,8 +3761,8 @@ const App: React.FC = () => {
                                 <span className="text-xs font-bold text-stone-800 text-right">
                                   {!isPaid && daysLeft > 0 && `Faltam ${daysLeft} dias para acabar`}
                                   {!isPaid && daysLeft <= 0 && `Teste encerrado`}
-                                  {isPaid && !isCanceled && expirationDate && `Próxima renovação em ${new Date(expirationDate).toLocaleDateString('pt-BR')}`}
-                                  {isPaid && isCanceled && expirationDate && `No ar até ${new Date(expirationDate).toLocaleDateString('pt-BR')}`}
+                                  {isPaid && !isCanceled && expirationDate && `Próxima renovação em ${formatSafeDate(expirationDate)}`}
+                                  {isPaid && isCanceled && expirationDate && `No ar até ${formatSafeDate(expirationDate)}`}
                                 </span>
                               </div>
                             </div>
