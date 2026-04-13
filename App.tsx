@@ -131,7 +131,8 @@ const PROMO_HTML = `
       header { height: 70px !important; }
       .footer-commercial { height: 70px; }
     }
-    .google-highlight { border: 2px solid #3b82f6 !important; background: #eff6ff !important; }
+    .google-highlight { border: 2.5px solid #3b82f6 !important; background: #eff6ff !important; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important; }
+    .google-highlight:focus { background: white !important; }
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <script>
@@ -322,43 +323,43 @@ const PROMO_HTML = `
           </div>
         </div>
 
-        <div class="p-6 space-y-5">
-          <div class="space-y-2">
-            <label class="text-[9px] font-black text-blue-600 uppercase tracking-[0.2em] ml-1 flex items-center gap-1.5"><i class="fab fa-google"></i> Busca Google IA (Recomendado)</label>
+        <div class="px-6 py-4 space-y-3.5">
+          <div class="space-y-1.5">
+            <label class="text-[8px] font-black text-blue-600 uppercase tracking-[0.2em] ml-1 flex items-center gap-1.5"><i class="fab fa-google"></i> Busca Google IA (Recomendado)</label>
             <div id="search-area" class="flex gap-2">
-              <input type="text" id="hero-google-search" placeholder="Nome da sua empresa no Google" oninput="syncFormData()" class="flex-1 google-highlight border border-blue-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:bg-white focus:border-blue-500 transition-all text-stone-900 shadow-sm" />
+              <input type="text" id="hero-google-search" placeholder="Nome da sua empresa no Google" oninput="syncFormData()" class="flex-1 google-highlight border border-blue-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:bg-white focus:border-blue-500 transition-all text-stone-900 shadow-sm" />
               <button onclick="triggerImport()" class="bg-blue-600 hover:bg-black text-white px-3 rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-90"><i id="import-btn-icon" class="fas fa-search"></i></button>
             </div>
             <div id="search-feedback" class="hidden text-[9px] font-bold text-stone-400 mt-1 ml-1 animate-pulse"></div>
             <div id="sync-area" class="hidden animate-up">
-               <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 flex flex-col items-center gap-2 text-center relative">
+               <div class="bg-blue-50 border border-blue-100 rounded-xl p-2.5 flex flex-col items-center gap-1.5 text-center relative">
                   <button onclick="resetSearch()" class="absolute top-2 right-2 text-blue-300 hover:text-red-500 transition-colors"><i class="fas fa-undo-alt text-[10px]"></i></button>
                   <span id="sync-name" class="text-xs font-black text-stone-900 pr-4"></span>
-                  <button onclick="triggerSyncAction()" class="w-full bg-blue-600 text-white py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95">Sincronizar Dados ✨</button>
+                  <button onclick="triggerSyncAction()" class="w-full bg-blue-600 text-white py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95">Sincronizar Dados ✨</button>
                </div>
             </div>
           </div>
 
-          <div class="space-y-2">
-            <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Nome do Negócio</label>
-            <input type="text" id="hero-name" placeholder="Ex: Eletricista Silva" oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900" />
+          <div class="space-y-1.5">
+            <label class="text-[8px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Nome do Negócio</label>
+            <input type="text" id="hero-name" placeholder="Ex: Eletricista Silva" oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900" />
           </div>
 
-          <div class="space-y-2">
-            <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Ideia Principal</label>
-            <textarea id="hero-desc" placeholder="Descreva os serviços..." oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900 h-16 resize-none"></textarea>
+          <div class="space-y-1.5">
+            <label class="text-[8px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Ideia Principal</label>
+            <textarea id="hero-desc" placeholder="Descreva os serviços..." oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-1.5 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900 h-14 resize-none"></textarea>
           </div>
 
-          <div class="space-y-2">
-            <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Endereço Web</label>
-            <div class="bg-stone-100 border border-stone-100 rounded-xl px-4 py-2.5 flex items-center gap-1 focus-within:bg-white focus-within:border-emerald-500 transition-all">
+          <div class="space-y-1.5">
+            <label class="text-[8px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Endereço Web</label>
+            <div class="bg-stone-100 border border-stone-100 rounded-xl px-4 py-2 flex items-center gap-1 focus-within:bg-white focus-within:border-emerald-500 transition-all">
                <input type="text" id="hero-slug" placeholder="meu-site" oninput="syncFormData()" class="flex-1 bg-transparent border-none outline-none text-xs font-bold text-stone-900 p-0 text-right" />
-               <span class="text-[9px] font-black text-stone-300 uppercase shrink-0">.sitezing.com.br</span>
+               <span class="text-[8px] font-black text-stone-300 uppercase shrink-0">.sitezing.com.br</span>
                <div id="slug-feedback" class="shrink-0"></div>
             </div>
           </div>
 
-          <button id="submit-btn" onclick="submitCreate()" class="w-full py-5 rounded-2xl bg-[#1c1c1c] text-white font-black uppercase tracking-[0.15em] text-[10px] shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 opacity-50 pointer-events-none">
+          <button id="submit-btn" onclick="submitCreate()" class="w-full py-4 rounded-2xl bg-[#1c1c1c] text-white font-black uppercase tracking-[0.15em] text-[10px] shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 opacity-50 pointer-events-none">
              ✨ Gerar Meu Site
           </button>
         </div>
@@ -466,7 +467,10 @@ const getDynamicPromoHtml = (platformConfigs: any, userProfile: any, loggedUserE
     : `<button onclick="window.parent.postMessage({ type: 'OPEN_LOGIN' }, '*')" class="text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-800 transition-colors bg-indigo-50 px-4 py-2 rounded-full border border-indigo-100 shadow-sm">Entrar</button>`;
 
   const authStatusBtn = isAuthenticated
-    ? `<div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>`
+    ? `<div class="flex items-center gap-2">
+        <span class="text-[9px] font-black text-emerald-600 uppercase tracking-tight">Oi, ${userName.split(' ')[0]}</span>
+        <button onclick="window.parent.postMessage({ type: 'LOGOUT' }, '*')" class="text-stone-300 hover:text-red-500 transition-colors" title="Sair"><i class="fas fa-times-circle"></i></button>
+       </div>`
     : `<button onclick="window.parent.postMessage({ type: 'OPEN_LOGIN' }, '*')" class="text-[9px] font-black uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors">Login</button>`;
 
   html = html.replace('__AUTH_HEADER__', authHeader);
@@ -2088,37 +2092,45 @@ const App: React.FC = () => {
     finally { setCheckoutLoading(null); }
   };
 
-  const handleConfirmCancel = async (projectId: string) => {
-    setIsCanceling(true);
-    try {
-      const cancelFn = httpsCallable(functions, 'cancelStripeSubscription');
-      await cancelFn({ projectId });
-      showToast("Assinatura programada para cancelamento.", "success");
-
-      const listFn = httpsCallable(functions, 'listUserProjects');
-      const listRes: any = await listFn({});
-      setSavedProjects(listRes.data?.projects || []);
-
-      setCancelModalProject(null);
-    } catch (error: any) { showToast("Erro ao cancelar: " + error.message, "error"); }
-    finally { setIsCanceling(false); }
-  };
-
   const handleResumeSubscription = async (projectId: string) => {
-    setIsResuming(true);
     try {
-      const resumeFn = httpsCallable(functions, 'resumeStripeSubscription');
-      await resumeFn({ projectId });
-      showToast("Assinatura reativada com sucesso!", "success");
-
+      setIsResuming(true);
+      const resFn = httpsCallable(functions, 'resumeSiteSubscription');
+      await resFn({ projectId });
+      showToast("Renovação automática reativada!", "success");
       const listFn = httpsCallable(functions, 'listUserProjects');
-      const listRes: any = await listFn({});
-      setSavedProjects(listRes.data?.projects || []);
-    } catch (error: any) {
-      showToast("Erro ao reativar: " + error.message, "error");
+      const { data: anyData } = await listFn() as any;
+      setSavedProjects(anyData.projects || []);
+    } catch (e: any) {
+      console.error(e);
+      showToast("Erro ao reativar: " + e.message, "error");
     } finally {
       setIsResuming(false);
     }
+  };
+
+  const handleCancelSubscription = async (projectId: string) => {
+    setConfirmDialog({
+      title: 'Cancelar Plano',
+      message: 'Tem certeza que deseja cancelar a renovação automática? Seu site continuará no ar até o final do período pago.',
+      onConfirm: async () => {
+        try {
+          setIsResuming(true);
+          const cancelFn = httpsCallable(functions, 'cancelSiteSubscription');
+          await cancelFn({ projectId });
+          showToast("Plano cancelado com sucesso.", "info");
+          setConfirmDialog(null);
+          const listFn = httpsCallable(functions, 'listUserProjects');
+          const { data: anyData } = await listFn() as any;
+          setSavedProjects(anyData.projects || []);
+        } catch (e: any) {
+          console.error(e);
+          showToast("Erro ao cancelar: " + e.message, "error");
+        } finally {
+          setIsResuming(false);
+        }
+      }
+    });
   };
 
   const handleLoadProject = (project: any) => {
@@ -2276,55 +2288,76 @@ const App: React.FC = () => {
                         {savedProjects.length === 0 ? (
                           <p className="text-[10px] text-stone-400 italic text-center py-6">Nenhum site encontrado.</p>
                         ) : (
-                          savedProjects.map(p => {
-                            const expirationDate = p.expiresAt ? getExpirationTimestampMs(p.expiresAt) : null;
-                            const daysLeft = expirationDate ? Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24)) : 0;
-                            const isPaid = p.paymentStatus === 'paid';
-                            
-                            return (
-                              <div
-                                key={p.id}
-                                className={`flex flex-col bg-stone-50 border border-stone-200 p-4 rounded-3xl cursor-pointer transition-all ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-500 shadow-lg' : 'hover:bg-white'}`}
-                              >
-                                <div className="flex items-center justify-between mb-3" onClick={() => { handleLoadProject(p); setActiveMobileSheet(null); }}>
-                                  <div className="flex-1 min-w-0 pr-2">
-                                    <div className="flex items-center gap-1.5 mb-0.5">
-                                      <p className="text-xs font-black text-stone-900 truncate uppercase italic tracking-tighter">{p.businessName || 'Sem título'}</p>
-                                      {getStatusBadge(p)}
+                              savedProjects.map(p => {
+                                const expirationDate = p.expiresAt ? getExpirationTimestampMs(p.expiresAt) : null;
+                                const daysLeft = expirationDate ? Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24)) : 0;
+                                const isPaid = p.paymentStatus === 'paid';
+                                const isCanceled = p.cancelAtPeriodEnd === true || p.subscriptionStatus === 'canceled';
+                                
+                                return (
+                                  <div
+                                    key={p.id}
+                                    className={`flex flex-col bg-stone-50 border border-stone-200 p-5 rounded-[2rem] cursor-pointer transition-all ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-500 shadow-lg bg-white' : 'hover:bg-white'}`}
+                                  >
+                                    <div className="flex items-center justify-between mb-4" onClick={() => { handleLoadProject(p); setActiveMobileSheet(null); }}>
+                                      <div className="flex-1 min-w-0 pr-2">
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <p className="text-sm font-black text-stone-900 truncate uppercase italic tracking-tighter">{p.businessName || 'Sem título'}</p>
+                                          {getStatusBadge(p)}
+                                        </div>
+                                        <p className="text-[10px] font-bold text-stone-400 truncate flex items-center gap-1 italic"><Globe size={11} /> {p.officialDomain || p.publishUrl?.replace('https://', '') || 'Rascunho'}</p>
+                                      </div>
+                                      <ChevronRight size={16} className="text-stone-300" />
                                     </div>
-                                    <p className="text-[10px] font-bold text-stone-400 truncate flex items-center gap-1 italic"><Globe size={10} /> {p.officialDomain || p.publishUrl?.replace('https://', '') || 'Rascunho'}</p>
-                                  </div>
-                                  <ChevronRight size={14} className="text-stone-300" />
-                                </div>
 
-                                <div className="grid grid-cols-2 gap-2 pt-3 border-t border-stone-200/60 pb-1">
-                                  <div className="flex flex-col">
-                                    <span className="text-[8px] font-black text-stone-400 uppercase tracking-widest">Expira em</span>
-                                    <span className={`text-[10px] font-bold ${daysLeft <= 1 && !isPaid ? 'text-red-500 animate-pulse' : 'text-stone-800'}`}>{daysLeft <= 0 ? (isPaid ? 'Renovando...' : 'Expirado') : `${daysLeft} dias`}</span>
-                                  </div>
-                                  <div className="flex flex-col text-right">
-                                    <span className="text-[8px] font-black text-stone-400 uppercase tracking-widest">Plano</span>
-                                    <span className="text-[10px] font-black text-indigo-600 uppercase italic">{isPaid ? (p.planSelected || 'Profissional') : 'Trial'}</span>
-                                  </div>
-                                </div>
+                                    <div className="grid grid-cols-2 gap-3 pt-4 border-t border-stone-200/60 pb-2">
+                                      <div className="flex flex-col">
+                                        <span className="text-[8px] font-black text-stone-400 uppercase tracking-widest mb-0.5">Vencimento</span>
+                                        <span className={`text-[10px] font-bold ${daysLeft <= 1 && !isPaid ? 'text-red-500 animate-pulse' : 'text-stone-800'}`}>
+                                          {isPaid ? (isCanceled ? 'Assinatura Encerrada' : `Renova ${new Date(expirationDate || 0).toLocaleDateString('pt-BR')}`) : (daysLeft <= 0 ? 'Expirado' : `${daysLeft} dias restantes`)}
+                                        </span>
+                                      </div>
+                                      <div className="flex flex-col text-right">
+                                        <span className="text-[8px] font-black text-stone-400 uppercase tracking-widest mb-0.5">Seu Plano</span>
+                                        <span className="text-[10px] font-black text-indigo-600 uppercase italic">{isPaid ? (p.planSelected || 'Profissional') : 'Teste Grátis'}</span>
+                                      </div>
+                                    </div>
 
-                                <div className="mt-4 flex gap-2">
-                                  <button
-                                    onClick={(e) => { e.stopPropagation(); handleLoadProject(p); setActiveMobileSheet(null); }}
-                                    className="flex-1 bg-white border border-stone-200 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-stone-600 hover:bg-stone-50 transition-colors"
-                                  >
-                                    Editar
-                                  </button>
-                                  <button
-                                    onClick={(e) => { e.stopPropagation(); handleLoadProject(p); setActiveMobileSheet('plano'); }}
-                                    className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md ${isPaid ? 'bg-stone-800 text-white' : 'bg-orange-500 text-white animate-bounce'}`}
-                                  >
-                                    {isPaid ? 'Gerenciar' : 'Assinar Now'}
-                                  </button>
-                                </div>
-                              </div>
-                            );
-                          })
+                                    <div className="mt-5 flex gap-2">
+                                      {isPaid && !isCanceled ? (
+                                        <>
+                                          <button
+                                            onClick={(e) => { e.stopPropagation(); setActiveMobileSheet('plano'); }}
+                                            className="flex-1 bg-white border border-stone-200 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-stone-600 shadow-sm"
+                                          >
+                                            Mudar Plano
+                                          </button>
+                                          <button
+                                            onClick={(e) => { e.stopPropagation(); handleCancelSubscription(p.id); }}
+                                            className="flex-1 bg-red-50 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-red-600"
+                                          >
+                                            Cancelar
+                                          </button>
+                                        </>
+                                      ) : (
+                                        <button
+                                          onClick={(e) => { e.stopPropagation(); setActiveMobileSheet('plano'); }}
+                                          className="flex-1 bg-orange-500 text-white py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-500/20 active:scale-95 animate-pulse"
+                                        >
+                                          {isCanceled ? 'Reativar Plano ✨' : 'Assinar Agora 🚀'}
+                                        </button>
+                                      )}
+                                      
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); handleDeleteSite(p.id); }}
+                                        className="w-12 flex items-center justify-center bg-stone-100 text-stone-400 rounded-2xl"
+                                      >
+                                        <Trash2 size={16} />
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              })
                         )}
                         <div className="pt-4 border-t border-stone-100 text-center">
                           <button onClick={() => { window.location.reload(); }} className="text-[10px] font-black text-indigo-600 uppercase">+ Criar Novo</button>
@@ -2740,6 +2773,16 @@ const App: React.FC = () => {
       return (
         <span className="flex items-center gap-1.5 px-3 py-1 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest border border-red-500/20 rounded-full shadow-lg shadow-red-500/5 transition-all">
           <AlertCircle size={10} className="animate-pulse" /> SITE BLOQUEADO
+        </span>
+      );
+    }
+
+    // SITE CANCELADO (Mas ainda ativo até o fim do período)
+    const isCanceled = project.cancelAtPeriodEnd === true || project.subscriptionStatus === 'canceled';
+    if (project.paymentStatus === 'paid' && isCanceled) {
+      return (
+        <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-widest border border-amber-500/20 rounded-full shadow-lg shadow-amber-500/5">
+          <AlertCircle size={10} /> PLANO CANCELADO
         </span>
       );
     }
@@ -3315,34 +3358,94 @@ const App: React.FC = () => {
                         ) : (
                           <div className="space-y-3 relative z-10">
                             {savedProjects.length === 0 ? <p className="text-xs text-stone-400 italic text-center py-8">Nenhum projeto ainda. Comece a criar o seu primeiro site!</p> : (
-                              savedProjects.map((p) => (
-                                <div
-                                  key={p.id}
-                                  role="button"
-                                  tabIndex={0}
-                                  onClick={() => handleLoadProject(p)}
-                                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleLoadProject(p); }}
-                                  className={`flex flex-col sm:flex-row gap-3 bg-white border border-stone-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-400' : ''}`}
-                                >
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                                      <span className="font-black text-sm text-stone-800 truncate">{p.businessName || 'Projeto sem nome'}</span>
-                                      {getStatusBadge(p)}
-                                    </div>
-                                    <div className="flex items-center gap-2 text-[10px] sm:text-xs text-stone-500 font-mono truncate">
-                                      <Globe size={12} className="shrink-0" /> <span className="truncate">{p.publishUrl?.replace('https://', '') || 'Sem link público'}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-[10px] text-stone-400 mt-1">
-                                      <Clock size={10} className="shrink-0" /> Atualizado em {new Date(p.updatedAt).toLocaleDateString()}
-                                    </div>
-                                  </div>
-                                  <div className="flex sm:flex-col justify-end gap-2 shrink-0 border-t sm:border-t-0 sm:border-l border-stone-100 pt-3 sm:pt-0 sm:pl-3 mt-1 sm:mt-0">
-                                    <button onClick={(e) => { e.stopPropagation(); handleDeleteSite(p.id); }} className="flex-1 sm:flex-none py-2 px-4 bg-red-50 text-red-600 hover:bg-red-100 font-bold text-[10px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1.5">
-                                      <Trash2 size={12} /> Excluir
-                                    </button>
-                                  </div>
-                                </div>
-                              ))
+                                  savedProjects.map((p) => {
+                                    const expirationDate = p.expiresAt ? getExpirationTimestampMs(p.expiresAt) : null;
+                                    const daysLeft = expirationDate ? Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24)) : 0;
+                                    const isPaid = p.paymentStatus === 'paid';
+                                    const isCanceled = p.cancelAtPeriodEnd === true || p.subscriptionStatus === 'canceled';
+                                    const isTrial = !isPaid && p.expiresAt;
+
+                                    return (
+                                      <div
+                                        key={p.id}
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => handleLoadProject(p)}
+                                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleLoadProject(p); }}
+                                        className={`flex flex-col bg-white border border-stone-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-400' : ''}`}
+                                      >
+                                        <div className="flex flex-col sm:flex-row gap-5">
+                                          <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                              <span className="font-black text-stone-900 group-hover:text-indigo-600 transition-colors">{p.businessName || 'Projeto sem nome'}</span>
+                                              {getStatusBadge(p)}
+                                            </div>
+                                            
+                                            <div className="space-y-1.5">
+                                              <div className="flex items-center gap-2 text-[10px] text-stone-500 font-mono font-bold truncate">
+                                                <Globe size={11} className="text-stone-400" /> 
+                                                <span className="truncate">{p.officialDomain || p.publishUrl?.replace('https://', '') || 'Rascunho (Sem link)'}</span>
+                                              </div>
+                                              <div className="flex items-center gap-2 text-[10px] text-stone-400">
+                                                <Clock size={11} /> Atualizado em {new Date(p.updatedAt).toLocaleDateString('pt-BR')}
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          <div className="sm:w-48 flex sm:flex-col justify-center sm:justify-start gap-3 sm:pl-5 sm:border-l border-stone-100">
+                                            <div className="flex flex-col">
+                                              <span className="text-[9px] font-black text-stone-400 uppercase tracking-widest leading-none mb-1">Seu Plano</span>
+                                              <span className={`text-[11px] font-black uppercase italic ${isPaid ? 'text-indigo-600' : 'text-orange-500'}`}>
+                                                {isPaid ? (p.planSelected || 'Plano Profissional') : 'Período Trial'}
+                                              </span>
+                                            </div>
+                                            <div className="flex flex-col">
+                                              <span className="text-[9px] font-black text-stone-400 uppercase tracking-widest leading-none mb-1">Expira em</span>
+                                              <span className={`text-[11px] font-bold ${daysLeft <= 1 && !isPaid ? 'text-red-500 animate-pulse' : 'text-stone-800'}`}>
+                                                {isPaid ? (isCanceled ? 'Assinatura Encerrada' : `Renova em ${new Date(expirationDate || 0).toLocaleDateString('pt-BR')}`) : (daysLeft <= 0 ? 'Expirado' : `${daysLeft} dias restantes`)}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <div className="mt-5 pt-4 border-t border-stone-100 flex flex-wrap gap-2 items-center justify-between">
+                                          <div className="flex gap-2">
+                                            {isPaid && !isCanceled ? (
+                                              <>
+                                                <button 
+                                                  onClick={(e) => { e.stopPropagation(); setIsPlansBannerOpen(true); }}
+                                                  className="bg-white border border-stone-200 text-stone-600 hover:bg-stone-50 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center gap-1.5"
+                                                >
+                                                  <RefreshCw size={12} /> Trocar Plano
+                                                </button>
+                                                <button 
+                                                  onClick={(e) => { e.stopPropagation(); handleCancelSubscription(p.id); }}
+                                                  className="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5"
+                                                >
+                                                  <X size={12} /> Cancelar Plano
+                                                </button>
+                                              </>
+                                            ) : (
+                                              <button 
+                                                onClick={(e) => { e.stopPropagation(); setIsPlansBannerOpen(true); }}
+                                                className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-orange-500/20 flex items-center gap-1.5 animate-pulse"
+                                              >
+                                                <Rocket size={12} /> {isCanceled ? 'Reativar Plano' : 'Assinar Site'}
+                                              </button>
+                                            )}
+                                          </div>
+
+                                          <button 
+                                            onClick={(e) => { e.stopPropagation(); handleDeleteSite(p.id); }} 
+                                            className="p-2 text-stone-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                            title="Excluir Site"
+                                          >
+                                            <Trash2 size={16} />
+                                          </button>
+                                        </div>
+                                      </div>
+                                    );
+                                  })
                             )}
                           </div>
                         )}

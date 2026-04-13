@@ -954,6 +954,62 @@ exports.createStripeCheckoutSession = onCall({ cors: true }, async (request) => 
   return { url: session.url };
 });
 
+exports.cancelSiteSubscription = onCall({ cors: true }, async (request) => {
+  const uid = ensureAuthed(request);
+  const { projectId } = request.data;
+  if (!projectId) throw new HttpsError("invalid-argument", "projectId obrigatório.");
+
+  const projectDoc = await findProjectDocById(projectId, uid);
+  if (!projectDoc) throw new HttpsError("not-found", "Projeto não encontrado.");
+  const project = projectDoc.data();
+
+  if (!project.stripeSubscriptionId) throw new HttpsError("failed-precondition", "Assinatura não vinculada.");
+
+  const stripeConfig = await getStripeConfig();
+  const stripe = getStripeInstance(stripeConfig);
+
+  console.log(`[Stripe] Cancelando plano no período final: ${project.stripeSubscriptionId}`);
+  const subscription = await stripe.subscriptions.update(project.stripeSubscriptionId, {
+    cancel_at_period_end: true
+  });
+
+  await projectDoc.ref.update({
+    cancelAtPeriodEnd: true,
+    subscriptionStatus: subscription.status,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+  });
+
+  return { success: true };
+});
+
+exports.resumeSiteSubscription = onCall({ cors: true }, async (request) => {
+  const uid = ensureAuthed(request);
+  const { projectId } = request.data;
+  if (!projectId) throw new HttpsError("invalid-argument", "projectId obrigatório.");
+
+  const projectDoc = await findProjectDocById(projectId, uid);
+  if (!projectDoc) throw new HttpsError("not-found", "Projeto não encontrado.");
+  const project = projectDoc.data();
+
+  if (!project.stripeSubscriptionId) throw new HttpsError("failed-precondition", "Assinatura não vinculada.");
+
+  const stripeConfig = await getStripeConfig();
+  const stripe = getStripeInstance(stripeConfig);
+
+  console.log(`[Stripe] Reativando renovação automática: ${project.stripeSubscriptionId}`);
+  const subscription = await stripe.subscriptions.update(project.stripeSubscriptionId, {
+    cancel_at_period_end: false
+  });
+
+  await projectDoc.ref.update({
+    cancelAtPeriodEnd: false,
+    subscriptionStatus: subscription.status,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+  });
+
+  return { success: true };
+});
+
 exports.stripeWebhook = onRequest({ cors: true }, async (req, res) => {
   const sig = req.headers["stripe-signature"];
   const stripeConfig = await getStripeConfig();
