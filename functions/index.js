@@ -247,10 +247,14 @@ exports.generateSite = onCall({ cors: true, timeoutSeconds: 120, memory: "512MiB
   - PROIBIDO qualquer apologia a crimes ou atividades ilegais.
   Se o pedido violar estas regras, gere um JSON com heroTitle: "Conteúdo Bloqueado" e heroSubtitle: "O tema solicitado viola nossas políticas de segurança.".
 
-  Gere JSON exato com as chaves: heroTitle, heroSubtitle, aboutTitle, aboutText, contactCall, heroImagePrompt, aboutImagePrompt. Textos curtos, persuasivos e com linguagem natural. 
+  ⚠️ REGRAS DE REDAÇÃO (EXCLUSIVAS):
+  - heroTitle: Deve ser um SLOGAN curto, direto e de alto impacto (máximo 5-6 palavras). 
+  - heroTitle: PROIBIDO incluir o nome da empresa ("${businessName}") no título. Foque apenas no valor entregue.
+  - heroSubtitle: Uma frase curta que complemente o slogan.
+  - Textos devem ser persuasivos, modernos e com linguagem natural.
+
+  Gere JSON exato com as chaves: heroTitle, heroSubtitle, aboutTitle, aboutText, contactCall, heroImagePrompt, aboutImagePrompt. 
   As chaves heroImagePrompt e aboutImagePrompt devem conter descrições visuais DETALHADAS e em INGLÊS para um gerador de imagens IA (Imagen 4). 
-  - heroImagePrompt: Deve ser uma imagem de impacto, épica, que represente o SERVIÇO ou PRODUTO principal da empresa em um cenário profissional e iluminado. 
-  - aboutImagePrompt: Deve ser uma imagem que represente a essência do negócio, como o ambiente de trabalho, ferramentas ou uma pessoa representando a categoria profissional feliz e focada.
   FOQUE ABSOLUTAMENTE NA CATEGORIA DO NEGÓCIO (${businessName}).`;
 
   if (googleContext) {

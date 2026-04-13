@@ -1568,8 +1568,8 @@ const App: React.FC = () => {
     const companyNameUpper = (data.businessName || 'Sua Empresa').toUpperCase();
 
     replaceAll('{{BUSINESS_NAME}}', companyNameUpper);
-    replaceAll('{{HERO_TITLE}}', content.heroTitle || `Bem-vindo à ${data.businessName}`);
-    replaceAll('{{HERO_SUBTITLE}}', content.heroSubtitle || 'Presença digital profissional.');
+    replaceAll('{{HERO_TITLE}}', content.heroTitle || 'Soluções Incríveis');
+    replaceAll('{{HERO_SUBTITLE}}', content.heroSubtitle || 'Experiência única e profissional para você.');
     replaceAll('{{ABOUT_TITLE}}', content.aboutTitle || 'Quem Somos');
     replaceAll('{{ABOUT_TEXT}}', content.aboutText || 'Nossa história e serviços.');
     replaceAll('{{CONTACT_CALL}}', content.contactCall || 'Fale conosco');
@@ -3073,11 +3073,6 @@ const App: React.FC = () => {
                           <button onClick={() => setActiveTab('dominio')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative flex items-center justify-center gap-1.5 ${activeTab === 'dominio' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
                             <Globe size={12} /> Domínio
                           </button>
-                          {currentProjectSlug && (
-                            <button onClick={() => setActiveTab('assinatura')} className={`flex-1 py-3 sm:py-3.5 text-center transition-colors relative flex items-center justify-center gap-1.5 ${activeTab === 'assinatura' ? 'text-orange-600 border-b-2 border-orange-600 bg-orange-50/40' : 'text-stone-500 hover:text-stone-800 hover:bg-white/60'}`}>
-                              <CreditCard size={12} /> Plano
-                            </button>
-                          )}
                         </>
                       )}
                     </div>
