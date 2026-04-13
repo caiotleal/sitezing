@@ -9,7 +9,7 @@ interface Project {
   officialDomain?: string;
   createdAt: any;
   expiresAt?: any;
-  status: 'active' | 'expired' | 'pending';
+  status: 'active' | 'expired' | 'pending' | 'frozen';
   isPaid?: boolean;
   paymentStatus?: 'paid' | 'trial' | 'expired' | 'pending';
 }
@@ -108,17 +108,21 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ projects, userEmail, 
                       </div>
                       
                       <div className="flex flex-wrap gap-2">
-                        {isPaid ? (
-                          <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 border border-emerald-500/20">
-                            <CheckCircle size={10} /> PREMIUM
+                        {project.status === 'frozen' ? (
+                          <span className="bg-red-500/10 text-red-500 text-[10px] font-black px-2.5 py-1 rounded-full flex items-center gap-1 border border-red-500/20 shadow-lg shadow-red-500/5 animate-pulse">
+                            <AlertCircle size={10} /> SITE BLOQUEADO
+                          </span>
+                        ) : isPaid ? (
+                          <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-black px-2.5 py-1 rounded-full flex items-center gap-1 border border-emerald-500/20 shadow-lg shadow-emerald-500/5">
+                            <CheckCircle size={10} /> PLANO ATIVO
                           </span>
                         ) : isExpired ? (
-                          <span className="bg-red-500/10 text-red-400 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 border border-red-500/20">
-                            <AlertCircle size={10} /> EXPIRADO
+                          <span className="bg-red-500/10 text-red-400 text-[10px] font-black px-2.5 py-1 rounded-full flex items-center gap-1 border border-red-500/20 shadow-lg shadow-red-500/5">
+                            <AlertCircle size={10} /> TESTE EXPIRADO
                           </span>
                         ) : (
-                          <span className="bg-yellow-500/10 text-yellow-400 text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 border border-yellow-500/20">
-                            <Clock size={10} /> {daysLeft} DIAS RESTANTES
+                          <span className="bg-orange-500/10 text-orange-400 text-[10px] font-black px-2.5 py-1 rounded-full flex items-center gap-1 border border-orange-500/20 animate-pulse shadow-lg shadow-orange-500/5">
+                            <Clock size={10} /> {daysLeft} DIAS DE TESTE
                           </span>
                         )}
                       </div>

@@ -2667,22 +2667,52 @@ const App: React.FC = () => {
 
   const getStatusBadge = (project: any) => {
     if (!project) return null;
-    if (project.status === 'frozen') return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">CONGELADO</span>;
-
-    if (project.paymentStatus === 'paid' || project.status === 'published') {
-      return <span className="text-[9px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-emerald-200">ATIVO / PUBLICADO</span>;
+    
+    // SITE BLOQUEADO / CONGELADO
+    if (project.status === 'frozen') {
+      return (
+        <span className="flex items-center gap-1.5 px-3 py-1 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest border border-red-500/20 rounded-full shadow-lg shadow-red-500/5 transition-all">
+          <AlertCircle size={10} className="animate-pulse" /> SITE BLOQUEADO
+        </span>
+      );
     }
 
+    // PLANO ATIVO / PUBLICADO
+    if (project.paymentStatus === 'paid' || project.status === 'published' || project.status === 'active') {
+      return (
+        <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 rounded-full shadow-lg shadow-emerald-500/5">
+          <CheckCircle size={10} /> PLANO ATIVO
+        </span>
+      );
+    }
+
+    // TESTE GRÁTIS / TRIAL
     if (project.expiresAt) {
       const expirationDate = getExpirationTimestampMs(project.expiresAt);
-      if (!expirationDate) return <span className="text-[9px] bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold ml-2">RASCUNHO</span>;
+      if (!expirationDate) return null;
       const daysLeft = Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24));
 
-      if (daysLeft <= 0) return <span className="text-[9px] bg-red-500/20 text-red-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-red-500/30">VENCIDO</span>;
+      if (daysLeft <= 0) {
+        return (
+          <span className="flex items-center gap-1.5 px-3 py-1 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest border border-red-500/20 rounded-full shadow-lg shadow-red-500/5">
+            <AlertCircle size={10} /> TESTE EXPIRADO
+          </span>
+        );
+      }
 
-      return <span className="text-[9px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold ml-2 border border-orange-200 animate-pulse" title="Período de Teste">TRIAL ({daysLeft} dias restantes)</span>;
+      return (
+        <span className="flex items-center gap-1.5 px-3 py-1 bg-orange-500/10 text-orange-500 text-[10px] font-black uppercase tracking-widest border border-orange-500/20 rounded-full shadow-lg shadow-orange-500/5 animate-pulse">
+          <Clock size={10} /> TESTE GRÁTIS ({daysLeft}d)
+        </span>
+      );
     }
-    return <span className="text-[9px] bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full font-bold ml-2">RASCUNHO</span>;
+
+    // RASCUNHO (Fallback)
+    return (
+      <span className="flex items-center gap-1.5 px-3 py-1 bg-zinc-500/10 text-zinc-500 text-[10px] font-black uppercase tracking-widest border border-zinc-500/20 rounded-full">
+        RASCUNHO
+      </span>
+    );
   };
 
   return (
