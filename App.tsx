@@ -3401,7 +3401,7 @@ const App: React.FC = () => {
                             {savedProjects.length === 0 ? (
                               <p className="text-xs text-stone-400 italic text-center py-8">Nenhum projeto ainda. Comece a criar o seu primeiro site!</p>
                             ) : (
-                              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                              <div className="flex flex-col gap-3.5">
                                 {savedProjects.map((p) => {
                                   const expirationDate = p.expiresAt ? getExpirationTimestampMs(p.expiresAt) : null;
                                   const daysLeft = expirationDate ? Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24)) : 0;
@@ -3409,84 +3409,92 @@ const App: React.FC = () => {
                                   const isCanceled = p.cancelAtPeriodEnd === true || p.subscriptionStatus === 'canceled';
 
                                   return (
-                                    <div
+                                    <motion.div
                                       key={p.id}
-                                      role="button"
-                                      tabIndex={0}
+                                      layout
+                                      initial={{ opacity: 0, y: 10 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      whileHover={{ y: -2 }}
                                       onClick={() => handleLoadProject(p)}
-                                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleLoadProject(p); }}
-                                      className={`flex flex-col bg-white border border-stone-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-400' : ''}`}
+                                      className={`group relative bg-white border border-stone-100 rounded-[2rem] p-5 transition-all cursor-pointer shadow-sm hover:shadow-xl hover:border-orange-200 ${currentProjectSlug === p.id ? 'ring-2 ring-orange-500 border-transparent shadow-lg' : ''}`}
                                     >
-                                      <div className="flex flex-col sm:flex-row gap-4 mb-4">
-                                        <div className="flex-1 min-w-0">
-                                          <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                            <span className="font-black text-stone-900 group-hover:text-indigo-600 transition-colors truncate max-w-[200px]">{p.businessName || 'Sem nome'}</span>
-                                            {getStatusBadge(p)}
+                                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                        
+                                        {/* Left Side: Identity */}
+                                        <div className="flex-1 min-w-0 space-y-2.5">
+                                          <div className="flex items-center gap-2.5 flex-wrap">
+                                            <h3 className="text-sm font-black text-stone-950 uppercase italic tracking-tight group-hover:text-orange-600 transition-colors truncate max-w-[220px]">
+                                              {p.businessName || 'Sem nome'}
+                                            </h3>
+                                            <div className="shrink-0">{getStatusBadge(p)}</div>
                                           </div>
                                           
-                                          <div className="space-y-1">
-                                            <div className="flex items-center gap-2 text-[10px] text-stone-500 font-mono font-bold truncate">
-                                              <Globe size={11} className="text-stone-400 shrink-0" /> 
-                                              <span className="truncate">{p.officialDomain || p.publishUrl?.replace('https://', '') || 'Rascunho'}</span>
+                                          <div className="space-y-1.5">
+                                            <div className="flex items-center gap-2 text-[10px] text-stone-500 font-mono font-bold truncate pr-4">
+                                              <Globe size={11} className="text-stone-300 shrink-0" /> 
+                                              <span className="truncate opacity-80">{p.officialDomain || p.publishUrl?.replace('https://', '') || 'Rascunho não publicado'}</span>
                                             </div>
-                                            <div className="flex items-center gap-2 text-[9px] text-stone-400">
-                                              <Clock size={10} className="shrink-0" /> {formatSafeDate(p.updatedAt)}
+                                            <div className="flex items-center gap-2 text-[8px] text-stone-400 font-black uppercase tracking-widest">
+                                              <Clock size={10} className="shrink-0 text-stone-200" /> Atualizado {formatSafeDate(p.updatedAt)}
                                             </div>
                                           </div>
                                         </div>
 
-                                        <div className="flex sm:flex-col justify-between sm:justify-start gap-3 sm:pl-4 sm:border-l border-stone-100 min-w-[120px]">
-                                          <div className="flex flex-col">
-                                            <span className="text-[8px] font-black text-stone-400 uppercase tracking-widest leading-none mb-1">Status</span>
-                                            <span className={`text-[10px] font-black uppercase italic ${isPaid ? 'text-indigo-600' : 'text-orange-500'}`}>
-                                              {isPaid ? (p.planSelected || 'Plano Profissional') : 'Período Trial'}
+                                        {/* Right Side: Status & Actions */}
+                                        <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-5 pt-4 md:pt-0 md:pl-8 md:border-l border-stone-50">
+                                          
+                                          {/* Status Info */}
+                                          <div className="flex flex-col md:items-end gap-1 text-right">
+                                            <span className="text-[8px] font-black text-stone-300 uppercase tracking-widest leading-none">Vencimento</span>
+                                            <span className={`text-[10px] font-black whitespace-nowrap px-2 py-0.5 rounded-md ${daysLeft <= 1 && !isPaid ? 'bg-red-50 text-red-600 animate-pulse' : 'bg-stone-50 text-stone-600'}`}>
+                                              {isPaid ? (isCanceled ? 'Até o fim' : formatSafeDate(expirationDate)) : (daysLeft <= 0 ? 'Expirado' : `${daysLeft}d rest.`)}
                                             </span>
                                           </div>
-                                          <div className="flex flex-col">
-                                            <span className="text-[8px] font-black text-stone-400 uppercase tracking-widest leading-none mb-1">Vencimento</span>
-                                            <span className={`text-[10px] font-bold whitespace-nowrap ${daysLeft <= 1 && !isPaid ? 'text-red-500 animate-pulse' : 'text-stone-800'}`}>
-                                              {isPaid ? (isCanceled ? 'Até o fim' : `Renova ${formatSafeDate(expirationDate)}`) : (daysLeft <= 0 ? 'Expirado' : `${daysLeft}d rest.`)}
-                                            </span>
-                                          </div>
-                                        </div>
-                                      </div>
 
-                                      <div className="mt-auto pt-4 border-t border-stone-100 flex items-center justify-between gap-2 overflow-x-auto scrollbar-hide">
-                                        <div className="flex gap-2 min-w-0">
-                                          {isPaid && !isCanceled ? (
-                                            <>
+                                          {/* Action Buttons Container */}
+                                          <div className="flex items-center gap-2">
+                                            {isPaid && !isCanceled ? (
+                                              <div className="flex items-center gap-1.5">
+                                                <button 
+                                                  onClick={(e) => { e.stopPropagation(); setIsPlansBannerOpen(true); }}
+                                                  className="bg-white border border-stone-100 text-stone-400 hover:text-indigo-600 hover:border-indigo-100 hover:bg-indigo-50/50 p-2 rounded-xl transition-all shadow-sm"
+                                                  title="Mudar Plano"
+                                                >
+                                                  <RefreshCw size={13} />
+                                                </button>
+                                                <button 
+                                                  onClick={(e) => { e.stopPropagation(); handleCancelSubscription(p.id); }}
+                                                  className="bg-white border border-stone-100 text-stone-300 hover:text-red-500 hover:border-red-100 hover:bg-red-50/50 p-2 rounded-xl transition-all shadow-sm"
+                                                  title="Cancelar Plano"
+                                                >
+                                                  <X size={13} />
+                                                </button>
+                                              </div>
+                                            ) : (
                                               <button 
                                                 onClick={(e) => { e.stopPropagation(); setIsPlansBannerOpen(true); }}
-                                                className="bg-stone-50 border border-stone-100 text-stone-600 hover:bg-stone-100 px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-sm flex items-center gap-1.5 whitespace-nowrap"
+                                                className="bg-orange-500 hover:bg-orange-600 text-white min-w-[100px] h-9 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-md shadow-orange-500/20 flex items-center justify-center gap-2 group-hover:scale-[1.03] active:scale-95"
                                               >
-                                                <RefreshCw size={11} /> Mudar Plano
+                                                <Rocket size={12} className={isCanceled ? '' : 'animate-bounce'} /> 
+                                                {isCanceled ? 'Reativar' : 'Assinar Site'}
                                               </button>
-                                              <button 
-                                                onClick={(e) => { e.stopPropagation(); handleCancelSubscription(p.id); }}
-                                                className="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5 whitespace-nowrap"
-                                              >
-                                                <X size={11} /> Cancelar
-                                              </button>
-                                            </>
-                                          ) : (
+                                            )}
+                                            
                                             <button 
-                                              onClick={(e) => { e.stopPropagation(); setIsPlansBannerOpen(true); }}
-                                              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-lg shadow-orange-500/20 flex items-center gap-1.5 animate-pulse whitespace-nowrap"
+                                              onClick={(e) => { e.stopPropagation(); handleDeleteSite(p.id); }} 
+                                              className="p-2 text-stone-200 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all ml-1"
+                                              title="Excluir Definitivamente"
                                             >
-                                              <Rocket size={11} /> {isCanceled ? 'Reativar Plano ✨' : 'Assinar Site'}
+                                              <Trash2 size={13} />
                                             </button>
-                                          )}
+                                          </div>
                                         </div>
 
-                                        <button 
-                                          onClick={(e) => { e.stopPropagation(); handleDeleteSite(p.id); }} 
-                                          className="shrink-0 p-2 text-stone-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                          title="Excluir Site"
-                                        >
-                                          <Trash2 size={14} />
-                                        </button>
                                       </div>
-                                    </div>
+                                    </motion.div>
+                                  );
+                                })}
+                              </div>
                                   );
                                 })}
                               </div>
