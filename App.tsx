@@ -3280,6 +3280,29 @@ const App: React.FC = () => {
                                   </div>
                                 )}
                               </div>
+
+                              <div className="space-y-4 p-4 bg-stone-50 rounded-2xl border border-stone-200">
+                                <label className="text-[10px] font-black text-stone-500 uppercase tracking-widest block">Cores do Site</label>
+                                <div className="grid grid-cols-5 gap-3">
+                                  {COLORS.slice(0, 15).map(c => (
+                                    <button 
+                                      key={c.id} 
+                                      title={c.name}
+                                      onClick={() => { setFormData({ ...formData, colorId: c.id }); setHasUnsavedChanges(true); }} 
+                                      className={`w-full aspect-square rounded-full border-2 transition-all flex items-center justify-center relative ${formData.colorId === c.id ? 'border-indigo-500 scale-110 shadow-lg' : 'border-white bg-white hover:border-indigo-200'}`} 
+                                      style={{ backgroundColor: c.c4 }}
+                                    >
+                                      <div className="w-3/4 h-3/4 rounded-full" style={{ backgroundColor: c.c1 }} />
+                                      {formData.colorId === c.id && (
+                                        <div className="absolute -top-1 -right-1 bg-indigo-500 text-white rounded-full p-0.5 shadow-sm">
+                                          <Check size={8} strokeWidth={4} />
+                                        </div>
+                                      )}
+                                    </button>
+                                  ))}
+                                </div>
+                                <p className="text-[9px] text-stone-400 font-medium italic">* Clique em uma cor para mudar o visual completo do site.</p>
+                              </div>
                             </div>
                           </div>
                         )}
