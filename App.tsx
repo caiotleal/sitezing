@@ -4127,7 +4127,7 @@ const App: React.FC = () => {
                                 }}
                                 className={`w-full py-4 rounded-xl cursor-pointer font-black uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-2 text-xs ${isAnual ? 'bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/30' : 'bg-stone-900 text-white hover:bg-black shadow-lg shadow-black/20'}`}
                               >
-                                <Rocket size={16} /> {currentProjectSlug ? `Assinar ${p.name}` : 'Criar meu site'}
+                                <Rocket size={16} /> {currentProjectSlug ? `Assinar ${p.name}` : 'Assinar Agora'}
                               </button>
                             </div>
                           );
