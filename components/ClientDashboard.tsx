@@ -95,91 +95,90 @@ const ClientDashboard: React.FC<ClientDashboardProps> = ({ projects, userEmail, 
                   >
                     <div className="space-y-4">
                       <div className="flex justify-between items-start">
-                        <h3 className="font-bold text-lg text-white truncate pr-2" title={project.businessName}>
-                          {project.businessName || 'Meu Site'}
-                        </h3>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-black text-lg text-white truncate pr-2 uppercase italic tracking-tight" title={project.businessName}>
+                            {project.businessName || 'Meu Site'}
+                          </h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            {project.status === 'frozen' ? (
+                              <span className="bg-red-500/10 text-red-500 text-[9px] font-black px-2 py-0.5 rounded-full border border-red-500/20 shadow-lg shadow-red-500/5 animate-pulse">
+                                BLOQUEADO
+                              </span>
+                            ) : isPaid ? (
+                              <span className="bg-emerald-500/10 text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                PLANO ATIVO
+                              </span>
+                            ) : (
+                              <span className="bg-orange-500/10 text-orange-400 text-[9px] font-black px-2 py-0.5 rounded-full border border-orange-500/20">
+                                TESTE GRÁTIS
+                              </span>
+                            )}
+                          </div>
+                        </div>
                         <button 
                           onClick={() => onDeleteProject(project.id)}
-                          className="p-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors"
+                          className="p-1.5 bg-red-500/5 hover:bg-red-500/20 text-red-900/40 hover:text-red-500 rounded-lg transition-all"
                           title="Excluir Site Definitivamente"
                         >
                           <Trash2 size={14} />
                         </button>
                       </div>
-                      
-                      <div className="flex flex-wrap gap-2">
-                        {project.status === 'frozen' ? (
-                          <span className="bg-red-500/10 text-red-500 text-[10px] font-black px-2.5 py-1 rounded-full flex items-center gap-1 border border-red-500/20 shadow-lg shadow-red-500/5 animate-pulse">
-                            <AlertCircle size={10} /> SITE BLOQUEADO
-                          </span>
-                        ) : isPaid ? (
-                          <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-black px-2.5 py-1 rounded-full flex items-center gap-1 border border-emerald-500/20 shadow-lg shadow-emerald-500/5">
-                            <CheckCircle size={10} /> PLANO ATIVO
-                          </span>
-                        ) : isExpired ? (
-                          <span className="bg-red-500/10 text-red-400 text-[10px] font-black px-2.5 py-1 rounded-full flex items-center gap-1 border border-red-500/20 shadow-lg shadow-red-500/5">
-                            <AlertCircle size={10} /> TESTE EXPIRADO
-                          </span>
-                        ) : (
-                          <span className="bg-orange-500/10 text-orange-400 text-[10px] font-black px-2.5 py-1 rounded-full flex items-center gap-1 border border-orange-500/20 animate-pulse shadow-lg shadow-orange-500/5">
-                            <Clock size={10} /> {daysLeft} DIAS DE TESTE
-                          </span>
-                        )}
-                      </div>
 
-                      <div className="space-y-1.5">
-                        <p className="text-xs text-zinc-500 flex items-center gap-1.5">
-                          <Globe size={12} /> {project.internalDomain}.web.app
-                        </p>
+                      <div className="grid grid-cols-1 gap-3 py-4 border-y border-zinc-800/50">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Endereço:</span>
+                          <span className="text-[11px] font-bold text-zinc-300 truncate max-w-[150px]">
+                            {project.officialDomain || `${project.internalDomain}.web.app`}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Expiração:</span>
+                          <span className={`text-[11px] font-bold ${daysLeft <= 1 && !isPaid ? 'text-red-400 animate-pulse' : 'text-zinc-300'}`}>
+                            {daysLeft} dias restantes
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Status DNS:</span>
+                          <span className="flex items-center gap-1 text-[10px] font-black text-emerald-500">
+                            {project.officialDomain ? (
+                              <><Globe size={10} /> CONFIGURADO</>
+                            ) : (
+                              <><CheckCircle size={10} /> ORIGINAL</>
+                            )}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    {!isPaid && (
-                      <div className="mt-5 mb-2">
-                        <div className="flex justify-between text-[10px] text-zinc-500 mb-1.5 font-medium">
-                          <span>Período de Teste</span>
-                          <span className={isExpired ? 'text-red-400' : 'text-zinc-300'}>
-                            {isExpired ? 'Esgotado' : `${7 - daysLeft} de 7 dias`}
-                          </span>
-                        </div>
-                        <div className="w-full bg-zinc-950 rounded-full h-1.5 overflow-hidden">
-                          <div 
-                            className={`h-full rounded-full ${isExpired ? 'bg-red-500' : 'bg-yellow-500'}`}
-                            style={{ width: `${isExpired ? 100 : ((7 - daysLeft) / 7) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    )}
-
                     <div className="pt-5 mt-auto border-t border-zinc-800/50 flex flex-col gap-2">
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={() => onEditProject(project)}
-                          className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white text-xs py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors"
-                        >
-                          <Edit3 size={14} /> Editar Site
-                        </button>
-                        <a 
-                          href={`https://${project.internalDomain}.web.app`} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="px-4 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl flex items-center justify-center transition-colors"
-                          title="Acessar Site"
-                        >
-                          <ExternalLink size={14} />
-                        </a>
-                      </div>
-                      
-                      {!isPaid && (
-                        <button 
-                          onClick={() => onUpgrade(project.id)}
-                          className={`w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg
-                            ${isExpired ? 'bg-red-600 hover:bg-red-500 text-white animate-pulse' : 'bg-emerald-600 hover:bg-emerald-500 text-white'}`}
-                        >
-                          <CreditCard size={14} /> 
-                          {isExpired ? 'Desbloquear Site Agora' : 'Ativar Plano Premium'}
-                        </button>
-                      )}
+                       <div className="flex gap-2">
+                         <button 
+                           onClick={() => onEditProject(project)}
+                           className="flex-1 bg-zinc-800 hover:bg-white hover:text-black text-white text-[10px] font-black uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+                         >
+                           <Edit3 size={14} /> Editar
+                         </button>
+                         <a 
+                           href={`https://${project.officialDomain || `${project.internalDomain}.web.app`}`} 
+                           target="_blank" 
+                           rel="noreferrer"
+                           className="px-4 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl flex items-center justify-center transition-colors"
+                         >
+                           <ExternalLink size={14} />
+                         </a>
+                       </div>
+                       
+                       <button 
+                         onClick={() => onUpgrade(project.id)}
+                         className={`w-full py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] flex items-center justify-center gap-2 transition-all shadow-xl
+                           ${project.status === 'frozen' || isExpired ? 'bg-red-600 hover:bg-red-500 text-white animate-pulse shadow-red-600/20' : 
+                             isPaid ? 'bg-zinc-800 hover:bg-emerald-600 text-zinc-400 hover:text-white border border-zinc-700 hover:border-emerald-500' : 
+                             'bg-orange-600 hover:bg-orange-500 text-white shadow-orange-600/20'}`}
+                       >
+                         <CreditCard size={14} /> 
+                         {project.status === 'frozen' ? 'Reativar Site Agora' : 
+                          isPaid ? 'Gerenciar Assinatura' : 'Assinar Plano Profissional'}
+                       </button>
                     </div>
                   </motion.div>
                 );

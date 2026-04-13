@@ -109,7 +109,7 @@ const PROMO_HTML = `
     ::-webkit-scrollbar { display: none; }
     .glass-card { background: #ffffff; border: 1px solid #e7e5e4; transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.03); position: relative; }
     .glass-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
-    .hero-form-card { background: #ffffff; border-radius: 2.5rem; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.15); border: 1px solid #e7e5e4; }
+    .hero-form-card { background: #ffffff; border-radius: 2.2rem; box-shadow: 0 40px 80px -20px rgba(0,0,0,0.12); border: 1px solid #e7e5e4; }
     .badge-label { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 12px; border-radius: 99px; background: #f5f5f4; color: #78716c; }
     
     @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
@@ -128,9 +128,10 @@ const PROMO_HTML = `
     @media (min-width: 1024px) {
       body { display: block; }
       main { padding: 0 8% !important; margin: 0 !important; }
-      header { height: 80px !important; }
-      .footer-commercial { height: 80px; }
+      header { height: 70px !important; }
+      .footer-commercial { height: 70px; }
     }
+    .google-highlight { border: 2px solid #3b82f6 !important; background: #eff6ff !important; }
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <script>
@@ -200,6 +201,14 @@ const PROMO_HTML = `
           syncFormData();
         }
 
+        if (e.data.type === 'OPEN_LOGIN') {
+          setIsLoginOpen(true);
+        }
+
+        if (e.data.type === 'LOGOUT') {
+          handleLogout();
+        }
+
         if (e.data.type === 'FILL_FIELDS') {
           var data = e.data.data;
           if (data.name) document.getElementById('hero-name').value = data.name;
@@ -239,6 +248,14 @@ const PROMO_HTML = `
         window.parent.postMessage({ type: 'ACTION_CONFIRM_GOOGLE' }, '*');
       }
 
+      function openLogin() {
+        window.parent.postMessage({ type: 'OPEN_LOGIN' }, '*');
+      }
+
+      function handleLogout() {
+        window.parent.postMessage({ type: 'LOGOUT' }, '*');
+      }
+
       function resetSearch() {
         window.parent.postMessage({ type: 'ACTION_RESET_GOOGLE' }, '*');
       }
@@ -253,11 +270,14 @@ const PROMO_HTML = `
 </head>
 <body class="antialiased selection:bg-orange-500 selection:text-white">
   
-  <header class="fixed top-0 left-0 w-full z-[80] bg-[#FAFAF9]/80 backdrop-blur-md border-b border-stone-200/60 h-20 flex items-center px-6 md:px-20 transition-all">
+  <header class="fixed top-0 left-0 w-full z-[80] bg-[#FAFAF9]/80 backdrop-blur-md border-b border-stone-200/60 h-[70px] flex items-center px-6 md:px-20 transition-all">
     <div class="w-full mx-auto flex items-center justify-between">
-       <img src="${BRAND_LOGO}" alt="SiteZing Logo" class="h-10 md:h-14 w-auto drop-shadow-sm" />
-       <div onclick="zingShare()" class="cursor-pointer bg-white border border-stone-200 w-10 h-10 rounded-full flex items-center justify-center text-stone-500 hover:text-orange-500 hover:border-orange-500 transition-all shadow-sm">
-         <i class="fas fa-share-alt"></i>
+       <img src="${BRAND_LOGO}" alt="SiteZing Logo" class="h-8 md:h-10 w-auto drop-shadow-sm" />
+       <div class="flex items-center gap-4">
+         __AUTH_HEADER__
+         <div onclick="zingShare()" class="cursor-pointer bg-white border border-stone-200 w-8 h-8 rounded-full flex items-center justify-center text-stone-500 hover:text-orange-500 hover:border-orange-500 transition-all shadow-sm">
+           <i class="fas fa-share-alt text-xs"></i>
+         </div>
        </div>
     </div>
   </header>
@@ -294,39 +314,39 @@ const PROMO_HTML = `
       </div>
 
       <div class="hero-form-card overflow-hidden sticky top-24 scale-[0.95] origin-top">
-        <div class="flex items-center justify-between p-5 border-b border-stone-100 bg-stone-50/50">
-          <img src="${BRAND_LOGO}" class="h-5 opacity-40" />
+        <div class="flex items-center justify-between p-4 border-b border-stone-100 bg-stone-50/50">
+          <img src="${BRAND_LOGO}" class="h-4 opacity-40" />
           <div class="flex items-center gap-3">
-            <button class="text-[9px] font-black uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors">Login</button>
-            <button class="text-stone-300 hover:text-stone-900"><i class="fas fa-times"></i></button>
+            __AUTH_STATUS_BTN__
+            <button class="text-stone-300 hover:text-stone-900" onclick="window.parent.postMessage({ type: 'CLOSE_LANDING' }, '*')"><i class="fas fa-times"></i></button>
           </div>
         </div>
 
         <div class="p-6 space-y-5">
           <div class="space-y-2">
-            <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-1.5"><i class="fab fa-google"></i> Busca Google IA</label>
+            <label class="text-[9px] font-black text-blue-600 uppercase tracking-[0.2em] ml-1 flex items-center gap-1.5"><i class="fab fa-google"></i> Busca Google IA (Recomendado)</label>
             <div id="search-area" class="flex gap-2">
-              <input type="text" id="hero-google-search" placeholder="Empresa ou Link Google" oninput="syncFormData()" class="flex-1 bg-stone-100 border border-stone-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:bg-white focus:border-blue-500 transition-all text-stone-900" />
+              <input type="text" id="hero-google-search" placeholder="Nome da sua empresa no Google" oninput="syncFormData()" class="flex-1 google-highlight border border-blue-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:bg-white focus:border-blue-500 transition-all text-stone-900 shadow-sm" />
               <button onclick="triggerImport()" class="bg-blue-600 hover:bg-black text-white px-3 rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-90"><i id="import-btn-icon" class="fas fa-search"></i></button>
             </div>
             <div id="search-feedback" class="hidden text-[9px] font-bold text-stone-400 mt-1 ml-1 animate-pulse"></div>
             <div id="sync-area" class="hidden animate-up">
-               <div class="bg-stone-50 border border-stone-200 rounded-xl p-3 flex flex-col items-center gap-2 text-center relative">
-                  <button onclick="resetSearch()" class="absolute top-2 right-2 text-stone-300 hover:text-red-500 transition-colors"><i class="fas fa-undo-alt text-[10px]"></i></button>
+               <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 flex flex-col items-center gap-2 text-center relative">
+                  <button onclick="resetSearch()" class="absolute top-2 right-2 text-blue-300 hover:text-red-500 transition-colors"><i class="fas fa-undo-alt text-[10px]"></i></button>
                   <span id="sync-name" class="text-xs font-black text-stone-900 pr-4"></span>
-                  <button onclick="triggerSyncAction()" class="w-full bg-blue-600 text-white py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95">Sincronizar Dados</button>
+                  <button onclick="triggerSyncAction()" class="w-full bg-blue-600 text-white py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95">Sincronizar Dados ✨</button>
                </div>
             </div>
           </div>
 
           <div class="space-y-2">
             <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Nome do Negócio</label>
-            <input type="text" id="hero-name" placeholder="Ex: Eletricista Silva" oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900" />
+            <input type="text" id="hero-name" placeholder="Ex: Eletricista Silva" oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-2.5 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900" />
           </div>
 
           <div class="space-y-2">
             <label class="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Ideia Principal</label>
-            <textarea id="hero-desc" placeholder="Descreva os serviços..." oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900 h-20 resize-none"></textarea>
+            <textarea id="hero-desc" placeholder="Descreva os serviços..." oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900 h-16 resize-none"></textarea>
           </div>
 
           <div class="space-y-2">
@@ -429,10 +449,28 @@ const PROMO_HTML = `
 </html>
 `;
 
-const getDynamicPromoHtml = (platformConfigs: any) => {
+const getDynamicPromoHtml = (platformConfigs: any, userProfile: any, loggedUserEmail: string | null) => {
   const configs = platformConfigs || {};
 
   let html = PROMO_HTML;
+
+  // 0. Auth Injection
+  const isAuthenticated = Boolean(loggedUserEmail);
+  const userName = userProfile?.fullName || userProfile?.name || loggedUserEmail?.split('@')[0] || '';
+  
+  const authHeader = isAuthenticated 
+    ? `<div class="flex items-center gap-3">
+        <span class="text-[10px] font-bold text-stone-500 uppercase tracking-widest bg-stone-100 px-3 py-1.5 rounded-full border border-stone-200">Olá, ${userName}</span>
+        <button onclick="window.parent.postMessage({ type: 'LOGOUT' }, '*')" class="text-stone-300 hover:text-red-500 transition-colors p-1" title="Sair"><i class="fas fa-times-circle"></i></button>
+       </div>`
+    : `<button onclick="window.parent.postMessage({ type: 'OPEN_LOGIN' }, '*')" class="text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-800 transition-colors bg-indigo-50 px-4 py-2 rounded-full border border-indigo-100 shadow-sm">Entrar</button>`;
+
+  const authStatusBtn = isAuthenticated
+    ? `<div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>`
+    : `<button onclick="window.parent.postMessage({ type: 'OPEN_LOGIN' }, '*')" class="text-[9px] font-black uppercase tracking-widest text-stone-400 hover:text-stone-900 transition-colors">Login</button>`;
+
+  html = html.replace('__AUTH_HEADER__', authHeader);
+  html = html.replace('__AUTH_STATUS_BTN__', authStatusBtn);
 
   // 1. Render Pricing Cards (Core Conversion)
   const plans = [...(configs.plans || [])].sort((a: any, b: any) => (a.sortOrder || 0) - (b.sortOrder || 0));
@@ -2163,7 +2201,6 @@ const App: React.FC = () => {
       { id: 'social', title: 'Redes', icon: <Instagram size={14} /> },
       { id: 'delivery', title: 'Delivery', icon: <Rocket size={14} /> },
       { id: 'contato', title: 'Contato', icon: <Phone size={14} /> },
-      { id: 'plano', title: 'Plano', icon: <CreditCard size={14} /> },
     ];
 
     return (
@@ -2235,29 +2272,59 @@ const App: React.FC = () => {
                         <button onClick={() => { setIsLoginOpen(true); setActiveMobileSheet(null); }} className="w-full bg-indigo-600 text-white py-3 rounded-xl font-black text-[10px] uppercase">Fazer Login</button>
                       </div>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         {savedProjects.length === 0 ? (
                           <p className="text-[10px] text-stone-400 italic text-center py-6">Nenhum site encontrado.</p>
                         ) : (
-                          savedProjects.map(p => (
-                            <div
-                              key={p.id}
-                              role="button"
-                              tabIndex={0}
-                              onClick={() => { handleLoadProject(p); setActiveMobileSheet(null); }}
-                              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { handleLoadProject(p); setActiveMobileSheet(null); } }}
-                              className={`flex items-center gap-3 bg-stone-50 border border-stone-200 p-3 rounded-2xl cursor-pointer ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-500' : ''}`}
-                            >
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1">
-                                  <p className="text-xs font-bold text-stone-800 truncate">{p.businessName || 'Sem título'}</p>
-                                  {getStatusBadge(p)}
+                          savedProjects.map(p => {
+                            const expirationDate = p.expiresAt ? getExpirationTimestampMs(p.expiresAt) : null;
+                            const daysLeft = expirationDate ? Math.ceil((expirationDate - Date.now()) / (1000 * 3600 * 24)) : 0;
+                            const isPaid = p.paymentStatus === 'paid';
+                            
+                            return (
+                              <div
+                                key={p.id}
+                                className={`flex flex-col bg-stone-50 border border-stone-200 p-4 rounded-3xl cursor-pointer transition-all ${currentProjectSlug === p.id ? 'ring-2 ring-indigo-500 shadow-lg' : 'hover:bg-white'}`}
+                              >
+                                <div className="flex items-center justify-between mb-3" onClick={() => { handleLoadProject(p); setActiveMobileSheet(null); }}>
+                                  <div className="flex-1 min-w-0 pr-2">
+                                    <div className="flex items-center gap-1.5 mb-0.5">
+                                      <p className="text-xs font-black text-stone-900 truncate uppercase italic tracking-tighter">{p.businessName || 'Sem título'}</p>
+                                      {getStatusBadge(p)}
+                                    </div>
+                                    <p className="text-[10px] font-bold text-stone-400 truncate flex items-center gap-1 italic"><Globe size={10} /> {p.officialDomain || p.publishUrl?.replace('https://', '') || 'Rascunho'}</p>
+                                  </div>
+                                  <ChevronRight size={14} className="text-stone-300" />
                                 </div>
-                                <p className="text-[9px] font-mono text-stone-400 truncate mt-1">{p.publishUrl?.replace('https://', '') || 'Rascunho'}</p>
+
+                                <div className="grid grid-cols-2 gap-2 pt-3 border-t border-stone-200/60 pb-1">
+                                  <div className="flex flex-col">
+                                    <span className="text-[8px] font-black text-stone-400 uppercase tracking-widest">Expira em</span>
+                                    <span className={`text-[10px] font-bold ${daysLeft <= 1 && !isPaid ? 'text-red-500 animate-pulse' : 'text-stone-800'}`}>{daysLeft <= 0 ? (isPaid ? 'Renovando...' : 'Expirado') : `${daysLeft} dias`}</span>
+                                  </div>
+                                  <div className="flex flex-col text-right">
+                                    <span className="text-[8px] font-black text-stone-400 uppercase tracking-widest">Plano</span>
+                                    <span className="text-[10px] font-black text-indigo-600 uppercase italic">{isPaid ? (p.planSelected || 'Profissional') : 'Trial'}</span>
+                                  </div>
+                                </div>
+
+                                <div className="mt-4 flex gap-2">
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); handleLoadProject(p); setActiveMobileSheet(null); }}
+                                    className="flex-1 bg-white border border-stone-200 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-stone-600 hover:bg-stone-50 transition-colors"
+                                  >
+                                    Editar
+                                  </button>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); handleLoadProject(p); setActiveMobileSheet('plano'); }}
+                                    className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md ${isPaid ? 'bg-stone-800 text-white' : 'bg-orange-500 text-white animate-bounce'}`}
+                                  >
+                                    {isPaid ? 'Gerenciar' : 'Assinar Now'}
+                                  </button>
+                                </div>
                               </div>
-                              <ChevronRight size={14} className="text-stone-400" />
-                            </div>
-                          ))
+                            );
+                          })
                         )}
                         <div className="pt-4 border-t border-stone-100 text-center">
                           <button onClick={() => { window.location.reload(); }} className="text-[10px] font-black text-indigo-600 uppercase">+ Criar Novo</button>
@@ -2901,7 +2968,7 @@ const App: React.FC = () => {
         <div className="flex-1 relative h-full overflow-hidden bg-[#FAFAF9]">
           <iframe
             ref={iframeRef}
-            srcDoc={generatedHtml ? getPreviewHtml(generatedHtml) : getDynamicPromoHtml(platformConfigs)}
+            srcDoc={generatedHtml ? getPreviewHtml(generatedHtml) : getDynamicPromoHtml(platformConfigs, userProfile, loggedUserEmail)}
             className="w-full h-full border-none bg-transparent min-h-screen"
             title="Visão Principal"
           />
