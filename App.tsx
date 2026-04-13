@@ -109,7 +109,7 @@ const PROMO_HTML = `
     ::-webkit-scrollbar { display: none; }
     .glass-card { background: #ffffff; border: 1px solid #e7e5e4; transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.03); position: relative; }
     .glass-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
-    .hero-form-card { background: #ffffff; border-radius: 2.2rem; box-shadow: 0 40px 80px -20px rgba(0,0,0,0.12); border: 1px solid #e7e5e4; }
+    .hero-premium-card { background: #ffffff; border-radius: 3rem; box-shadow: 0 40px 100px -20px rgba(0,0,0,0.15); border: 1px solid #e7e5e4; position: relative; overflow: hidden; }
     .badge-label { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 12px; border-radius: 99px; background: #f5f5f4; color: #78716c; }
     
     @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
@@ -118,21 +118,25 @@ const PROMO_HTML = `
     
     @keyframes zingPulse { 0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(249, 115, 22, 0); } 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); } }
     .share-float-btn { display: none !important; }
-    .share-float-btn:hover { transform: scale(1.1) rotate(15deg); background: #ea580c; }
     .card-share-btn { position: absolute; bottom: 20px; right: 20px; width: 32px; height: 32px; background: #f5f5f4; color: #78716c; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; opacity: 0; transform: translateY(10px); transition: all 0.3s ease; z-index: 20; }
     .glass-card:hover .card-share-btn { opacity: 1; transform: translateY(0); }
     .card-share-btn:hover { background: #f97316; color: white; }
 
-    .react-vite-badge { display: flex; items-center: center; gap: 6px; background: #ffffff; border: 1px solid #e7e5e4; padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; color: #444; }
+    .react-vite-badge { display: flex; align-items: center; gap: 6px; background: #ffffff; border: 1px solid #e7e5e4; padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; color: #444; }
 
     @media (min-width: 1024px) {
       body { display: block; }
-      main { padding: 0 8% !important; margin: 0 !important; }
+      main { padding: 0 6% !important; margin: 0 !important; }
       header { height: 70px !important; }
-      .footer-commercial { height: 70px; }
     }
-    .google-highlight { border: 2.5px solid #3b82f6 !important; background: #eff6ff !important; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15) !important; }
+    .google-highlight { border: 2.5px solid #3b82f6 !important; background: #eff6ff !important; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1) !important; }
     .google-highlight:focus { background: white !important; }
+    
+    .input-premium { background: #f5f5f4; border: 2px solid transparent; border-radius: 1.25rem; padding: 1rem 1.25rem; font-size: 0.875rem; font-weight: 700; transition: all 0.3s ease; outline: none; width: 100%; }
+    .input-premium:focus { border-color: #f97316; background: white; box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.1); }
+    .btn-premium { background: #1c1917; color: white; border-radius: 1.5rem; padding: 1.25rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.75rem; transition: all 0.3s ease; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2); }
+    .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); background: #000; }
+    .btn-premium:active { transform: translateY(0); }
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <script>
@@ -156,7 +160,6 @@ const PROMO_HTML = `
       } catch (err) { console.log('Erro ao compartilhar:', err); }
     }
 
-      // State Synchronization & Population
       window.addEventListener('message', function(e) {
         if (!e.data) return;
         
@@ -202,13 +205,8 @@ const PROMO_HTML = `
           syncFormData();
         }
 
-        if (e.data.type === 'OPEN_LOGIN') {
-          setIsLoginOpen(true);
-        }
-
-        if (e.data.type === 'LOGOUT') {
-          handleLogout();
-        }
+        if (e.data.type === 'OPEN_LOGIN') { window.parent.postMessage({ type: 'OPEN_LOGIN' }, '*'); }
+        if (e.data.type === 'LOGOUT') { window.parent.postMessage({ type: 'LOGOUT' }, '*'); }
 
         if (e.data.type === 'FILL_FIELDS') {
           var data = e.data.data;
@@ -216,7 +214,7 @@ const PROMO_HTML = `
           if (data.description) document.getElementById('hero-desc').value = data.description;
           if (data.slug) document.getElementById('hero-slug').value = data.slug;
           
-          document.getElementById('sync-area').innerHTML = '<div class="text-[10px] font-black text-emerald-600 bg-emerald-50 p-2 rounded-lg flex items-center gap-2 animate-bounce"><i class="fas fa-check-circle"></i> Tudo Sincronizado!</div>';
+          document.getElementById('sync-area').innerHTML = '<div class="text-[10px] font-black text-emerald-600 bg-emerald-50 p-2 rounded-lg flex items-center justify-center gap-2 animate-bounce"><i class="fas fa-check-circle"></i> Tudo Sincronizado!</div>';
           document.getElementById('submit-btn').classList.remove('opacity-50', 'pointer-events-none');
           
           syncFormData();
@@ -245,35 +243,19 @@ const PROMO_HTML = `
         window.parent.postMessage({ type: 'TRIGGER_FETCH_GOOGLE', value: query }, '*');
       }
 
-      function triggerSyncAction() {
-        window.parent.postMessage({ type: 'ACTION_CONFIRM_GOOGLE' }, '*');
-      }
-
-      function openLogin() {
-        window.parent.postMessage({ type: 'OPEN_LOGIN' }, '*');
-      }
-
-      function handleLogout() {
-        window.parent.postMessage({ type: 'LOGOUT' }, '*');
-      }
-
-      function resetSearch() {
-        window.parent.postMessage({ type: 'ACTION_RESET_GOOGLE' }, '*');
-      }
-
+      function triggerSyncAction() { window.parent.postMessage({ type: 'ACTION_CONFIRM_GOOGLE' }, '*'); }
+      function resetSearch() { window.parent.postMessage({ type: 'ACTION_RESET_GOOGLE' }, '*'); }
       function submitCreate() {
         syncFormData();
-        setTimeout(() => {
-          window.parent.postMessage({ type: 'SUBMIT_CREATE' }, '*');
-        }, 50);
+        setTimeout(() => { window.parent.postMessage({ type: 'SUBMIT_CREATE' }, '*'); }, 50);
       }
     </script>
 </head>
 <body class="antialiased selection:bg-orange-500 selection:text-white">
   
-  <header class="fixed top-0 left-0 w-full z-[80] bg-[#FAFAF9]/80 backdrop-blur-md border-b border-stone-200/60 h-[70px] flex items-center px-6 md:px-20 transition-all">
+  <header class="fixed top-0 left-0 w-full z-[80] bg-[#FAFAF9]/80 backdrop-blur-md border-b border-stone-200/60 h-[70px] flex items-center px-6 md:px-12 lg:px-20 transition-all">
     <div class="w-full mx-auto flex items-center justify-between">
-       <img src="${BRAND_LOGO}" alt="SiteZing Logo" class="h-8 md:h-10 w-auto drop-shadow-sm" />
+       <img src="${BRAND_LOGO}" alt="SiteZing Logo" class="h-8 md:h-9 w-auto drop-shadow-sm" />
        <div class="flex items-center gap-4">
          __AUTH_HEADER__
          <div onclick="zingShare()" class="cursor-pointer bg-white border border-stone-200 w-8 h-8 rounded-full flex items-center justify-center text-stone-500 hover:text-orange-500 hover:border-orange-500 transition-all shadow-sm">
@@ -283,166 +265,145 @@ const PROMO_HTML = `
     </div>
   </header>
 
-  <main class="pt-2 pb-6 px-6 md:px-12 w-full mx-auto flex flex-col min-h-screen relative overflow-x-hidden">
+  <main class="pt-2 md:pt-4 pb-12 px-6 md:px-12 w-full mx-auto flex flex-col min-h-screen relative overflow-x-hidden">
     <div class="h-10 md:h-12 w-full"></div>
-    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-200/30 blur-[150px] rounded-full pointer-events-none"></div>
-    <div class="max-w-[1400px] mx-auto w-full relative z-10 animate-up mb-8 mt-2 md:mt-10 grid grid-cols-1 lg:grid-cols-[1.6fr,1.1fr] gap-x-12 gap-y-8 items-center text-left">
+    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-200/20 blur-[150px] rounded-full pointer-events-none"></div>
+    <div class="absolute bottom-40 left-0 w-[500px] h-[500px] bg-blue-200/10 blur-[150px] rounded-full pointer-events-none"></div>
+    
+    <div class="max-w-[1500px] mx-auto w-full relative z-10 animate-up mb-12 mt-6 md:mt-12 grid grid-cols-1 lg:grid-cols-[1.2fr,1fr] gap-x-16 gap-y-12 items-center">
       
-      <div class="pt-8">
-        <div class="flex flex-wrap items-center gap-3 mb-6 justify-start">
-          <div class="react-vite-badge shadow-sm px-3 py-1.5"><i class="fab fa-react text-[#61DAFB]"></i> React 19</div>
-          <div class="react-vite-badge shadow-sm px-3 py-1.5"><i class="fas fa-bolt text-yellow-500"></i> Vite 6</div>
-          <div class="react-vite-badge shadow-sm px-3 py-1.5"><i class="fas fa-robot text-teal-500"></i> Gemini AI</div>
+      <div class="text-left">
+        <div class="flex flex-wrap items-center gap-3 mb-8">
+          <div class="react-vite-badge shadow-sm"><i class="fab fa-react text-[#61DAFB]"></i> React 19</div>
+          <div class="react-vite-badge shadow-sm"><i class="fas fa-bolt text-yellow-500"></i> Vite 6</div>
+          <div class="react-vite-badge shadow-sm"><i class="fas fa-robot text-teal-500"></i> Gemini AI Cloud</div>
         </div>
 
-        <h1 class="text-[3.2rem] md:text-[6rem] font-black leading-[0.85] tracking-tighter mb-6 uppercase italic text-stone-900 drop-shadow-sm">
+        <h1 class="text-[3.8rem] md:text-[6.5rem] font-black leading-[0.82] tracking-tighter mb-8 uppercase italic text-stone-900">
           Seu site pronto em um <span class="text-orange-500 drop-shadow-sm">ZING!!!</span>
         </h1>
 
-        <p class="text-lg md:text-xl text-stone-500 font-bold leading-relaxed max-w-xl mb-8">
-          Inteligência Artificial que cria sua presença online em segundos. Simples, rápido e automático.
+        <p class="text-xl md:text-2xl text-stone-500 font-bold leading-tight max-w-xl mb-10 tracking-tight">
+          A inteligência artificial que cria, escreve e publica seu negócio em segundos. Rápido como deve ser.
         </p>
 
-        <div class="bg-orange-500/10 border border-orange-500/20 text-orange-600 px-8 py-5 rounded-2xl md:max-w-xl flex items-center gap-4 transition-all hover:bg-orange-500/15 group">
-           <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center text-white text-xl shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform">
-              <i class="fas fa-gift"></i>
+        <div class="bg-white border-2 border-stone-200/50 p-6 rounded-[2.5rem] md:max-w-md flex items-center gap-5 transition-all hover:border-orange-200 group">
+           <div class="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center text-white text-2xl shadow-xl shadow-orange-500/20 group-hover:rotate-12 transition-all">
+              <i class="fas fa-bolt"></i>
            </div>
            <div>
-              <div class="text-[10px] font-black uppercase tracking-widest opacity-60">Oferta Exclusiva</div>
-              <div class="text-lg font-black uppercase italic tracking-tight">Experimente Grátis por 7 Dias</div>
+              <div class="text-[10px] font-black uppercase tracking-widest text-stone-400">Comece Hoje</div>
+              <div class="text-xl font-black uppercase italic tracking-tight text-stone-900">7 Dias Full Grátis</div>
            </div>
         </div>
       </div>
 
-      <div class="hero-form-card overflow-hidden sticky top-20 scale-[0.9] lg:scale-95 origin-top shadow-2xl max-w-[420px] lg:justify-self-center">
-        <div class="flex items-center justify-between p-4 border-b border-stone-100 bg-stone-50/50">
-          <img src="${BRAND_LOGO}" class="h-4 opacity-40" />
-          <div class="flex items-center gap-3">
-            __AUTH_STATUS_BTN__
-            <button class="text-stone-300 hover:text-stone-900" onclick="window.parent.postMessage({ type: 'CLOSE_LANDING' }, '*')"><i class="fas fa-times"></i></button>
-          </div>
+      <div class="hero-premium-card">
+        <div class="bg-stone-900 p-6 flex items-center justify-between text-white">
+           <div class="flex items-center gap-3">
+             <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+             <div class="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
+             <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+           </div>
+           <span class="text-[9px] font-black uppercase tracking-widest opacity-50">Configuração Inteligente</span>
         </div>
-
-        <div class="px-5 py-3 space-y-2.5">
-          <div class="space-y-1.5">
-            <label class="text-[8px] font-black text-blue-600 uppercase tracking-[0.2em] ml-1 flex items-center gap-1.5"><i class="fab fa-google"></i> Busca Google IA (Recomendado)</label>
-            <div id="search-area" class="flex gap-2">
-              <input type="text" id="hero-google-search" placeholder="Nome da sua empresa no Google" oninput="syncFormData()" class="flex-1 google-highlight border border-blue-200 rounded-xl px-4 py-1.5 text-xs font-bold outline-none focus:bg-white focus:border-blue-500 transition-all text-stone-900 shadow-sm" />
-              <button onclick="triggerImport()" class="bg-blue-600 hover:bg-black text-white px-3 rounded-xl transition-all shadow-md shadow-blue-500/20 active:scale-90"><i id="import-btn-icon" class="fas fa-search"></i></button>
+        
+        <div class="p-8 space-y-6">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2"><i class="fab fa-google"></i> Busca Google IA</label>
+              <span class="text-[8px] font-bold text-stone-300 uppercase tracking-widest">Recomendado</span>
             </div>
-            <div id="search-feedback" class="hidden text-[9px] font-bold text-stone-400 mt-1 ml-1 animate-pulse"></div>
+            <div id="search-area" class="flex gap-2">
+              <input type="text" id="hero-google-search" placeholder="Link ou Nome no Google" oninput="syncFormData()" class="flex-1 google-highlight border-2 border-blue-100 rounded-2xl px-5 py-3.5 text-sm font-bold outline-none focus:bg-white focus:border-blue-500 transition-all text-stone-900" />
+              <button onclick="triggerImport()" class="bg-blue-600 hover:bg-black text-white px-5 rounded-2xl transition-all shadow-lg active:scale-95"><i id="import-btn-icon" class="fas fa-search"></i></button>
+            </div>
+            <div id="search-feedback" class="hidden text-[10px] font-bold text-stone-400 mt-2 animate-pulse"></div>
             <div id="sync-area" class="hidden animate-up">
-               <div class="bg-blue-50 border border-blue-100 rounded-xl p-2.5 flex flex-col items-center gap-1.5 text-center relative">
-                  <button onclick="resetSearch()" class="absolute top-2 right-2 text-blue-300 hover:text-red-500 transition-colors"><i class="fas fa-undo-alt text-[10px]"></i></button>
-                  <span id="sync-name" class="text-xs font-black text-stone-900 pr-4"></span>
-                  <button onclick="triggerSyncAction()" class="w-full bg-blue-600 text-white py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95">Sincronizar Dados ✨</button>
+               <div class="bg-emerald-50 border-2 border-emerald-100 rounded-[1.5rem] p-4 flex flex-col items-center gap-3 relative">
+                  <button onclick="resetSearch()" class="absolute top-3 right-3 text-stone-300 hover:text-red-500 transition-colors"><i class="fas fa-times"></i></button>
+                  <span id="sync-name" class="text-sm font-black text-stone-900 uppercase italic"></span>
+                  <button onclick="triggerSyncAction()" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all">Importar Dados ✨</button>
                </div>
             </div>
           </div>
 
-          <div class="space-y-1.5">
-            <label class="text-[8px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Nome do Negócio</label>
-            <input type="text" id="hero-name" placeholder="Ex: Eletricista Silva" oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-1.5 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900" />
-          </div>
-
-          <div class="space-y-1.5">
-            <label class="text-[8px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Ideia Principal</label>
-            <textarea id="hero-desc" placeholder="Descreva os serviços..." oninput="syncFormData()" class="w-full bg-stone-100 border border-stone-100 rounded-xl px-4 py-1.5 text-xs font-bold outline-none focus:bg-white focus:border-orange-500 transition-all text-stone-900 h-12 resize-none"></textarea>
-          </div>
-
-          <div class="space-y-1.5">
-            <label class="text-[8px] font-black text-stone-400 uppercase tracking-[0.2em] ml-1">Endereço Web</label>
-            <div class="bg-stone-100 border border-stone-100 rounded-xl px-4 py-2 flex items-center gap-1 focus-within:bg-white focus-within:border-emerald-500 transition-all">
-               <input type="text" id="hero-slug" placeholder="meu-site" oninput="syncFormData()" class="flex-1 bg-transparent border-none outline-none text-xs font-bold text-stone-900 p-0 text-right" />
-               <span class="text-[8px] font-black text-stone-300 uppercase shrink-0">.sitezing.com.br</span>
-               <div id="slug-feedback" class="shrink-0"></div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">Nome do Negócio</label>
+              <input type="text" id="hero-name" placeholder="Ex: Pizzaria Mágica" oninput="syncFormData()" class="input-premium" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">Endereço Web</label>
+              <div class="relative">
+                <input type="text" id="hero-slug" placeholder="meu-site" oninput="syncFormData()" class="input-premium pr-24" />
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-stone-300 uppercase">.sitezing</span>
+              </div>
+              <div id="slug-feedback" class="mt-1 ml-1 text-right"></div>
             </div>
           </div>
 
-          <button id="submit-btn" onclick="submitCreate()" class="w-full py-3.5 rounded-2xl bg-[#1c1c1c] text-white font-black uppercase tracking-[0.15em] text-[10px] shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 opacity-50 pointer-events-none">
-             ✨ Gerar Meu Site
+          <div class="space-y-2">
+            <label class="text-[10px] font-black text-stone-400 uppercase tracking-widest ml-1">Descrição</label>
+            <textarea id="hero-desc" placeholder="O que sua empresa faz?" oninput="syncFormData()" class="input-premium h-20 resize-none"></textarea>
+          </div>
+
+          <button id="submit-btn" onclick="submitCreate()" class="w-full btn-premium flex items-center justify-center gap-3 opacity-50 pointer-events-none">
+             🚀 Iniciar Criação Instantânea
           </button>
+        </div>
+        
+        <div class="bg-stone-50 p-4 border-t border-stone-100 flex items-center justify-center gap-4">
+           <div class="flex items-center gap-1.5 text-[9px] font-black text-stone-300 uppercase tracking-widest"><i class="fas fa-shield-halved"></i> 100% Seguro</div>
+           <div class="w-1 h-1 rounded-full bg-stone-200"></div>
+           <div class="flex items-center gap-1.5 text-[9px] font-black text-stone-300 uppercase tracking-widest"><i class="fas fa-history"></i> Ativo em 30s</div>
         </div>
       </div>
     </div>
 
-    <div class="max-w-[1400px] mx-auto w-full grid md:grid-cols-3 gap-6 relative z-10 animate-up" style="animation-delay: 0.2s;">
+    <div class="max-w-[1400px] mx-auto w-full grid md:grid-cols-3 gap-8 relative z-10 animate-up" style="animation-delay: 0.2s;">
       __PRICING_CARDS__
     </div>
 
-    
-    <div id="google-reviews-section" class="mt-20 relative z-10 animate-up opacity-0" style="animation-delay: 0.4s;">
-      <div class="text-center mb-10">
-        <h2 class="text-3xl font-black text-stone-900 uppercase italic">O que dizem sobre nós</h2>
-        <div class="flex items-center justify-center gap-1 mt-2">
-          <i class="fas fa-star text-amber-400"></i>
-          <i class="fas fa-star text-amber-400"></i>
-          <i class="fas fa-star text-amber-400"></i>
-          <i class="fas fa-star text-amber-400"></i>
-          <i class="fas fa-star text-amber-400"></i>
-          <span class="ml-2 text-sm font-bold text-stone-500">Avaliações Reais no Google</span>
+    <div id="google-reviews-section" class="mt-32 relative z-10 animate-up opacity-0" style="animation-delay: 0.4s;">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-black text-stone-900 uppercase italic leading-none mb-4">Experiências Reais</h2>
+        <div class="flex items-center justify-center gap-2">
+          <div class="flex text-amber-400 text-sm"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+          <span class="text-xs font-black text-stone-400 uppercase tracking-widest">Avaliações Verificadas no Google Business</span>
         </div>
       </div>
-      <div id="reviews-grid" class="grid md:grid-cols-3 gap-6">
+      <div id="reviews-grid" class="grid md:grid-cols-3 gap-8">
         __REVIEWS_START__
-        <div class="glass-card p-6 rounded-2xl border-stone-200/40 text-left">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center text-stone-400"><i class="fas fa-user"></i></div>
-            <div>
-              <div class="font-bold text-sm text-stone-800">Cliente Satisfeito</div>
-              <div class="flex text-[10px] text-amber-400"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-            </div>
-          </div>
-          <p class="text-xs text-stone-500 leading-relaxed italic">"A SiteZing facilitou muito a criação do meu site. Em poucos minutos estava tudo pronto e online!"</p>
-        </div>
-        <div class="glass-card p-6 rounded-2xl border-stone-200/40 text-left">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center text-stone-400"><i class="fas fa-user"></i></div>
-            <div>
-              <div class="font-bold text-sm text-stone-800">Empreendedor Digital</div>
-              <div class="flex text-[10px] text-amber-400"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-            </div>
-          </div>
-          <p class="text-xs text-stone-500 leading-relaxed italic">"Incrível como a IA entende o que a gente precisa. O design ficou profissional e muito rápido."</p>
-        </div>
-        <div class="glass-card p-6 rounded-2xl border-stone-200/40 text-left hidden md:block">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center text-stone-400"><i class="fas fa-user"></i></div>
-            <div>
-              <div class="font-bold text-sm text-stone-800">Loja Local</div>
-              <div class="flex text-[10px] text-amber-400"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-            </div>
-          </div>
-          <p class="text-xs text-stone-500 leading-relaxed italic">"O suporte é excelente e a plataforma é muito intuitiva. Recomendo para todos os meus parceiros."</p>
-        </div>
         __REVIEWS_END__
       </div>
     </div>
   </main>
 
-  <footer class="footer-commercial bg-white border-t border-stone-200 py-6 px-6 md:px-12 relative z-50">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-      <div class="text-[10px] text-stone-400 font-bold uppercase tracking-widest text-center md:text-left">
-        &copy; 2024 SiteZing. Todos os direitos reservados. 
-        <br/><span class="text-stone-300">Tecnologia proprietária de criação acelerada.</span>
+  <footer class="bg-stone-900 border-t border-white/5 py-12 px-6 md:px-12 relative z-50 mt-20">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-12">
+        <div class="text-center md:text-left">
+          <img src="${BRAND_LOGO}" class="h-6 opacity-40 mb-4 inline-block md:block" style="filter: brightness(0) invert(1);" />
+          <div class="text-[11px] text-stone-500 font-bold uppercase tracking-widest">
+            &copy; 2024 SiteZing Cloud Platform.
+            <br/><span class="opacity-50">Sua jornada digital simplificada por IA.</span>
+          </div>
+        </div>
+        
+        <div class="flex flex-wrap justify-center items-center gap-8 opacity-30 grayscale contrast-125">
+          <div class="flex flex-col items-center"><i class="fab fa-google text-2xl mb-1 text-white"></i><span class="text-[8px] font-black text-white uppercase">Cloud Partner</span></div>
+          <div class="flex flex-col items-center"><i class="fas fa-fire-alt text-2xl mb-1 text-white"></i><span class="text-[8px] font-black text-white uppercase">Firebase DB</span></div>
+          <div class="flex flex-col items-center"><i class="fas fa-cloud text-2xl mb-1 text-white"></i><span class="text-[8px] font-black text-white uppercase">Edge Delivery</span></div>
+          <div class="flex flex-col items-center"><i class="fas fa-shield-alt text-2xl mb-1 text-white"></i><span class="text-[8px] font-black text-white uppercase">SSL Secure</span></div>
+        </div>
       </div>
-      <div class="flex items-center gap-6 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-        <div class="flex flex-col items-center">
-          <i class="fab fa-google text-2xl mb-1"></i>
-          <span class="text-[8px] font-black uppercase">Google Cloud Partner</span>
-        </div>
-        <div class="flex flex-col items-center">
-          <i class="fas fa-fire-alt text-2xl mb-1"></i>
-          <span class="text-[8px] font-black uppercase">Firebase Certified Architecture</span>
-        </div>
-        <div class="flex flex-col items-center">
-          <i class="fas fa-cloud text-2xl mb-1"></i>
-          <span class="text-[8px] font-black uppercase">Cloudflare Global Network</span>
-        </div>
-        <div class="flex flex-col items-center">
-          <i class="fas fa-shield-alt text-2xl mb-1"></i>
-          <span class="text-[8px] font-black uppercase">Site Blindado SSL</span>
-        </div>
+    </div>
+  </footer>
+</body>
+</html>
+\`;
+  </div>
       </div>
     </div>
   </footer>
@@ -512,7 +473,7 @@ const getDynamicPromoHtml = (platformConfigs: any, userProfile: any, loggedUserE
             <li class="flex items-center gap-2"><span class="w-4 h-4 rounded-full ${isAnual ? 'bg-orange-100 text-orange-500' : 'bg-teal-100 text-teal-600'} flex items-center justify-center text-[8px]">✔</span> ${f}</li>
           `).join('')}
         </ul>
-        <div class="mt-4 text-[9px] text-stone-400 text-center uppercase tracking-widest font-bold group-hover:text-orange-500 transition-colors">Clique para contratar</div>
+        <button onclick="window.parent.postMessage({ type: 'CHECKOUT_PLAN', priceId: '${p.priceId}' }, '*')" class="w-full py-4 ${isAnual ? 'bg-orange-500' : 'bg-stone-900'} hover:bg-black text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] transition-all shadow-lg mt-6 active:scale-95">Assinar Agora</button>
       </div>
     `;
   });
@@ -1927,6 +1888,28 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
+      if (e.data?.type === 'CHECKOUT_PLAN') {
+        if (!auth.currentUser || auth.currentUser.isAnonymous) {
+          setIsLoginOpen(true);
+          return;
+        }
+
+        const projectToUpgrade = currentProjectSlug; // If editing a site
+        const latestProject = savedProjects[0]?.id; // Or latest from dashboard
+        const targetId = projectToUpgrade || latestProject;
+
+        if (targetId) {
+          const proj = savedProjects.find(p => (p.id === targetId || p.projectSlug === targetId));
+          setCheckoutDetailsModal({
+            projectId: targetId,
+            planType: proj?.planSelected || 'Plano Premium',
+            priceId: e.data.priceId
+          });
+        } else {
+          showToast("Crie seu site no formulário acima antes de realizar a assinatura!", "info");
+        }
+      }
+
       if (e.data?.type === 'OPEN_PLAN_MODAL') {
         setSelectedPlanModal(e.data.plan);
         setSelectedPriceId(e.data.priceId || null);
@@ -3429,10 +3412,17 @@ const App: React.FC = () => {
                                           </div>
 
                                           <div className="text-right shrink-0">
-                                            <span className="text-[8px] font-black text-stone-300 uppercase tracking-widest block mb-1">Vencimento</span>
-                                            <span className={`text-[11px] font-black italic whitespace-nowrap ${daysLeft <= 2 && !isPaid ? 'text-red-500 animate-pulse' : 'text-stone-800'}`}>
-                                              {isPaid ? (isCanceled ? 'Assinatura Encerrada' : formatSafeDate(expirationDate)) : (daysLeft <= 0 ? 'Expirado' : `${daysLeft}d restantes`)}
-                                            </span>
+                                            <span className="text-[8px] font-black text-stone-300 uppercase tracking-widest block mb-1">Status de Ciclo</span>
+                                            <div className="flex flex-col items-end">
+                                              <span className={`text-[11px] font-black italic whitespace-nowrap ${daysLeft <= 2 && !isPaid ? 'text-red-500 animate-pulse' : 'text-stone-800'}`}>
+                                                {isPaid ? (isCanceled ? 'Renovação Cancelada' : formatSafeDate(expirationDate)) : (daysLeft <= 0 ? 'Expirado' : `${daysLeft}d restantes`)}
+                                              </span>
+                                              {isPaid && isCanceled && expirationDate && (
+                                                <span className="text-[9px] font-black text-red-500 uppercase tracking-tighter mt-0.5 animate-pulse">
+                                                  Ficará ativo até {formatSafeDate(expirationDate)}
+                                                </span>
+                                              )}
+                                            </div>
                                           </div>
                                         </div>
 
